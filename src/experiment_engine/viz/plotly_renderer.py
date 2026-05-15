@@ -24,7 +24,7 @@ class PlotlyRenderer(Renderer):
 
     Examples:
         >>> renderer = PlotlyRenderer()
-        >>> path = renderer.render(data, VisualizationConfig(plot_type="scatter"))
+        >>> path = renderer.render(data, RenderConfig(plot_type="scatter"))
     """
 
     @property
@@ -112,7 +112,7 @@ class PlotlyRenderer(Renderer):
         data: InputData,
         x: np.ndarray,
         colors: List[str],
-        config: VisualizationConfig,
+        config: RenderConfig,
     ) -> "go.Figure":
         """Build an interactive line plot."""
         import plotly.graph_objects as go
@@ -134,7 +134,7 @@ class PlotlyRenderer(Renderer):
         self,
         data: InputData,
         colors: List[str],
-        config: VisualizationConfig,
+        config: RenderConfig,
     ) -> "go.Figure":
         """Build an interactive scatter plot."""
         import plotly.graph_objects as go
@@ -177,7 +177,7 @@ class PlotlyRenderer(Renderer):
         data: InputData,
         x: np.ndarray,
         colors: List[str],
-        config: VisualizationConfig,
+        config: RenderConfig,
     ) -> "go.Figure":
         """Build an interactive bar chart."""
         import plotly.graph_objects as go
@@ -200,7 +200,7 @@ class PlotlyRenderer(Renderer):
         self,
         data: InputData,
         colors: List[str],
-        config: VisualizationConfig,
+        config: RenderConfig,
     ) -> "go.Figure":
         """Build an interactive histogram."""
         import plotly.graph_objects as go
@@ -222,7 +222,7 @@ class PlotlyRenderer(Renderer):
     def _build_surface(
         self,
         data: InputData,
-        config: VisualizationConfig,
+        config: RenderConfig,
     ) -> "go.Figure":
         """Build a 3D surface plot."""
         import plotly.graph_objects as go

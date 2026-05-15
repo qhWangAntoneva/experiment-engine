@@ -14,10 +14,7 @@ stages:
     params:
       format: csv
       path: examples/data.csv
-      columns:
-        - x
-        - y
-        - label
+      delimiter: ","
 
   - name: analyze
     stage_type: linear_regression

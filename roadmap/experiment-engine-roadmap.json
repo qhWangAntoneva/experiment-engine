@@ -2,7 +2,7 @@
   "metadata": {
     "project": "experiment-engine",
     "version": "1.0.0",
-    "last_updated": "2026-05-16",
+    "last_updated": "2026-05-16T01:00",
     "description": "A modular algorithm experimentation framework: input → computation → visualization → report",
     "tech_stack": ["Python >=3.10", "Pydantic v2", "Click", "Rich", "Matplotlib", "Plotly", "PyYAML", "NumPy"],
     "repo": "https://github.com/qhWangAntoneva/experiment-engine.git",
@@ -114,7 +114,7 @@
           "description": "创建examples/data.csv示例数据 + examples/run_experiment.py可运行示例脚本",
           "effort_hours": 1.0,
           "dependencies": ["FX2"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["examples/data.csv", "examples/run_experiment.py"]
         },
         {
@@ -316,9 +316,9 @@
   "summary": {
     "total_tasks": 29,
     "total_estimated_effort_hours": 44.3,
-    "remaining_effort_hours": 32.8,
-    "completed_tasks": 8,
-    "completed_phases": ["phase_1_foundation"],
-    "active_phase": "phase_1_fix"
+    "remaining_effort_hours": 26.3,
+    "completed_tasks": 15,
+    "completed_phases": ["phase_1_foundation", "phase_1_fix"],
+    "active_phase": "phase_2_integration"
   }
 }

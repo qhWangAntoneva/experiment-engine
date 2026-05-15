@@ -188,7 +188,7 @@ st.caption("Experiment Engine • Streamlit Dashboard")
     def render(
         self,
         data: InputData,
-        config: VisualizationConfig,
+        config: RenderConfig,
         **kwargs: Any,
     ) -> str:
         """Render is not applicable for Streamlit; use :meth:`run` instead.

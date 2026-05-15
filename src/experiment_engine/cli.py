@@ -30,7 +30,14 @@ def run(config, output, verbose):
     """
     from experiment_engine.config import load_config
     from experiment_engine.pipeline import Pipeline
+    from experiment_engine.io import get_reader
+    from experiment_engine.io.sources import FileDataSource, GeneratorDataSource
+    from experiment_engine.io.exporters import CSVExporter, JSONExporter
+    from experiment_engine.models import ExportConfig
+    from experiment_engine.viz.console import ConsoleRenderer
     from rich.console import Console
+    from rich.table import Table
+    from pathlib import Path
 
     console = Console()
     console.print("[bold cyan]experiment-engine[/] — pipeline run starting...")
@@ -40,11 +47,80 @@ def run(config, output, verbose):
     if output:
         cfg.output_dir = output
 
-    # Execute pipeline
+    # Build and configure pipeline from config stages
     pipeline = Pipeline(name=cfg.name, verbose=verbose)
-    data = None  # Placeholder — actual data loading will be implemented
-    results = pipeline.run(data=data)
+    pipeline.configure_from_config(cfg)
 
+    # ── Data loading ──────────────────────────────────────────
+    # Find the first enabled stage whose params contain a "format" key
+    input_data = None
+    load_stage = None
+    for sc in cfg.stages:
+        if sc.enabled and "format" in sc.params:
+            load_stage = sc
+            break
+
+    if load_stage is not None:
+        fmt = load_stage.params.get("format", "csv")
+        path = load_stage.params.get("path")
+        reader = get_reader(fmt)
+
+        # Forward params to the reader, stripping format/path
+        reader_kwargs = {
+            k: v for k, v in load_stage.params.items()
+            if k not in ("format", "path")
+        }
+
+        if fmt == "synthetic":
+            source = GeneratorDataSource(reader)
+            input_data = source.load(**reader_kwargs)
+        elif path:
+            source = FileDataSource(reader, path)
+            input_data = source.load(**reader_kwargs)
+        else:
+            input_data = reader.read(path, **reader_kwargs)
+
+        input_desc = input_data.shape
+        if hasattr(input_data, "n_samples"):
+            input_desc = f"{input_data.n_samples} × {input_data.n_features}"
+        console.print(f"[green]✓[/] Data loaded: {input_desc}")
+
+        # Print data summary via ConsoleRenderer
+        try:
+            renderer = ConsoleRenderer()
+            renderer.render(input_data)
+        except Exception as exc:
+            console.print(f"[dim]ConsoleRenderer skipped: {exc}[/]")
+    else:
+        console.print("[yellow]⚠[/] No data-loading stage found in configuration.")
+
+    # ── Pipeline execution ────────────────────────────────────
+    results = pipeline.run(data=input_data, experiment_name=cfg.name)
+
+    # ── Export results ────────────────────────────────────────
+    if cfg.output_dir and results.output is not None:
+        out_dir = Path(cfg.output_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+
+        export_formats = [
+            ("csv", CSVExporter),
+            ("json", JSONExporter),
+        ]
+        for ext, exp_cls in export_formats:
+            exporter = exp_cls()
+            export_cfg = ExportConfig(
+                format=ext,
+                output_path=str(out_dir / f"results.{ext}"),
+                include_index=True,
+                pretty=True,
+            )
+            try:
+                out_path = exporter.export(results.output, export_cfg)
+                console.print(f"[green]✓[/] Results exported: {out_path}")
+            except Exception as exc:
+                console.print(f"[yellow]⚠[/] Export .{ext} failed: {exc}")
+
+    # Show stage timing table (already printed by _log_summary inside pipeline.run)
     console.print(f"[green]✓[/] Experiment completed. Status: {results.status.value}")
 
 

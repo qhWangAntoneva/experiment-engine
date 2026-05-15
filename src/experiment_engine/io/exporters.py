@@ -202,7 +202,8 @@ class HTMLExporter(BaseExporter):
             if config.include_index and data.index is not None:
                 lines.append(f"<td>{data.index[i]}</td>")
             for val in data.data[i]:
-                lines.append(f"<td>{val:.4f}</td>")
+                cell = f"{val:.4f}" if isinstance(val, (int, float)) else str(val)
+                lines.append(f"<td>{cell}</td>")
             lines.append("</tr>")
 
         lines.append("</tbody></table>")
