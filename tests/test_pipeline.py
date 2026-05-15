@@ -88,7 +88,7 @@ class SetupTrackingStage(Stage):
 
     def __init__(self, tracker: Optional[Dict[str, bool]] = None) -> None:
         super().__init__()
-        self.tracker = tracker or {}
+        self.tracker = tracker if tracker is not None else {}
 
     def setup(self) -> None:
         self.tracker["setup"] = True

@@ -1,25 +1,19 @@
-"""Visualization backends and figure management.
+"""Visualization layer for experiment-engine.
 
-Supports multiple backends:
-- matplotlib: static publication-quality figures
-- plotly: interactive web-ready figures
-- custom: user-registered renderers via plugin system
+Provides renderers and dashboards for visualizing experimental data
+through various backends: matplotlib, plotly, streamlit, and console.
 """
 
-from __future__ import annotations
-from typing import Any
+from experiment_engine.viz.base import Renderer
+from experiment_engine.viz.matplotlib_renderer import MatplotlibRenderer
+from experiment_engine.viz.plotly_renderer import PlotlyRenderer
+from experiment_engine.viz.streamlit_dashboard import StreamlitDashboard
+from experiment_engine.viz.console import ConsoleRenderer
 
-
-class BaseVisualizer:
-    """Abstract base class for visualization backends."""
-
-    def render(self, data: Any, params: dict[str, Any] | None = None) -> Any:
-        """Render data into a visual representation."""
-        raise NotImplementedError
-
-    def save(self, figure: Any, path: str) -> None:
-        """Save the rendered figure to disk."""
-        raise NotImplementedError
-
-
-__all__ = ["BaseVisualizer"]
+__all__ = [
+    "Renderer",
+    "MatplotlibRenderer",
+    "PlotlyRenderer",
+    "StreamlitDashboard",
+    "ConsoleRenderer",
+]

@@ -1,23 +1,27 @@
-"""Data loaders, writers, and format adapters."""
+"""Input/output layer for experiment-engine.
 
-from __future__ import annotations
-from typing import Any
+Provides data readers, data sources, and exporters for standardized
+experiment data handling.
+"""
 
+from experiment_engine.io.readers import (
+    ArrayReader,
+    CSVReader,
+    DataReader,
+    JSONReader,
+    SyntheticReader,
+)
+from experiment_engine.io.sources import DataSource
+from experiment_engine.io.exporters import CSVExporter, JSONExporter, HTMLExporter
 
-class BaseLoader:
-    """Abstract base class for data loaders."""
-
-    def load(self, path: str, **kwargs: Any) -> Any:
-        """Load data from the given path."""
-        raise NotImplementedError
-
-
-class BaseWriter:
-    """Abstract base class for data writers."""
-
-    def write(self, data: Any, path: str, **kwargs: Any) -> None:
-        """Write data to the given path."""
-        raise NotImplementedError
-
-
-__all__ = ["BaseLoader", "BaseWriter"]
+__all__ = [
+    "DataReader",
+    "CSVReader",
+    "JSONReader",
+    "ArrayReader",
+    "SyntheticReader",
+    "DataSource",
+    "CSVExporter",
+    "JSONExporter",
+    "HTMLExporter",
+]

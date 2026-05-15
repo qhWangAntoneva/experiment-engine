@@ -18,20 +18,18 @@ def cli():
 @cli.command()
 @click.option("--config", "-c", type=click.Path(exists=True), required=True,
               help="Path to experiment configuration file (YAML/JSON)")
-@click.option("--input", "-i", type=click.Path(exists=True), default=None,
-              help="Path to input data file")
 @click.option("--output", "-o", type=click.Path(), default=None,
               help="Output directory for results")
 @click.option("--verbose", "-v", is_flag=True, default=False,
               help="Enable verbose logging")
-def run(config, input, output, verbose):
+def run(config, output, verbose):
     """Run an experiment with the given configuration.
 
     Loads the experiment config, executes the pipeline (input → computation
     → visualization → report), and writes outputs to the specified directory.
     """
     from experiment_engine.config import load_config
-    from experiment_engine.core import Pipeline
+    from experiment_engine.pipeline import Pipeline
     from rich.console import Console
 
     console = Console()
@@ -39,13 +37,11 @@ def run(config, input, output, verbose):
 
     # Load configuration
     cfg = load_config(Path(config))
-    if input:
-        cfg.input.path = input
     if output:
-        cfg.output.path = output
+        cfg.output_dir = output
 
     # Execute pipeline
-    pipeline = Pipeline(name=cfg.experiment.name, verbose=verbose)
+    pipeline = Pipeline(name=cfg.name, verbose=verbose)
     data = None  # Placeholder — actual data loading will be implemented
     results = pipeline.run(data=data)
 
@@ -65,9 +61,13 @@ def validate(config):
     try:
         cfg = load_config(Path(config))
         console.print(f"[green]✓[/] Configuration is valid")
-        console.print(f"     Input: {cfg.input.format} → {cfg.input.path}")
-        console.print(f"     Algorithm: {cfg.algorithm.name}")
-        console.print(f"     Visualization backends: {cfg.visualization.backends}")
+        enabled_stages = [s.name for s in cfg.stages if s.enabled]
+        console.print(f"     Name: {cfg.name}")
+        console.print(f"     Stages: {len(cfg.stages)} total")
+        if enabled_stages:
+            console.print(f"     Enabled: {', '.join(enabled_stages)}")
+        console.print(f"     Output dir: {cfg.output_dir or '(default)'}")
+        console.print(f"     Verbose: {cfg.verbose}")
     except Exception as exc:
         console.print(f"[red]✗[/] Invalid configuration: {escape(str(exc))}")
         sys.exit(1)
@@ -75,25 +75,34 @@ def validate(config):
 
 @cli.command()
 def list_plugins():
-    """List all registered plugins (algorithms, loaders, visualizers)."""
-    from experiment_engine.plugins import registry
+    """List all registered pipeline stage plugins."""
+    from experiment_engine.plugins import PluginRegistry
     from rich.console import Console
     from rich.table import Table
 
     console = Console()
+    registry = PluginRegistry.get_instance()
+    stages = registry.list_stages()
 
-    for kind, plugins in [("Algorithms", registry.get_algorithms()),
-                           ("Loaders", registry.get_loaders()),
-                           ("Visualizers", registry.get_visualizers())]:
-        if not plugins:
-            continue
-        table = Table(title=kind)
-        table.add_column("Name", style="cyan")
-        table.add_column("Description", style="white")
-        for name, desc in sorted(plugins.items()):
-            table.add_row(name, desc)
-        console.print(table)
-        console.print()
+    if not stages:
+        console.print("[yellow]No plugins registered yet.[/]")
+        return
+
+    table = Table(title="Registered Pipeline Stages", header_style="bold cyan")
+    table.add_column("Name", style="bold")
+    table.add_column("Class")
+    table.add_column("Module")
+    table.add_column("Enabled")
+
+    for name in sorted(stages.keys()):
+        cls = stages[name]
+        enabled = "[green]✓[/]" if registry.is_enabled(name) else "[dim]—[/]"
+        table.add_row(name, cls.__name__, cls.__module__, enabled)
+
+    console.print(table)
 
 
 main = cli
+
+if __name__ == "__main__":
+    cli()

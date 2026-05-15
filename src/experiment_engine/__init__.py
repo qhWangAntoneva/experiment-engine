@@ -15,16 +15,17 @@ from experiment_engine.models import (
     PipelineStageConfig,
     PipelineResult,
     StageResult,
+    StageStatus,
+    PipelineStatus,
+    Timer,
 )
 from experiment_engine.plugins import (
+    BasePlugin,
     PluginRegistry,
-    registry,
-    register_algorithm,
-    register_loader,
-    register_visualizer,
-    AlgorithmBase,
+    PluginLoader,
+    register_stage,
 )
-from experiment_engine.config import load_config
+from experiment_engine.config import load_config, merge_defaults
 
 __all__ = [
     "Pipeline",
@@ -35,11 +36,13 @@ __all__ = [
     "PipelineStageConfig",
     "PipelineResult",
     "StageResult",
+    "StageStatus",
+    "PipelineStatus",
+    "Timer",
+    "BasePlugin",
     "PluginRegistry",
-    "registry",
-    "register_algorithm",
-    "register_loader",
-    "register_visualizer",
-    "AlgorithmBase",
+    "PluginLoader",
+    "register_stage",
     "load_config",
+    "merge_defaults",
 ]

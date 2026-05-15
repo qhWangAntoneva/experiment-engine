@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 # ──────────────────────────────────────────────
@@ -229,6 +229,24 @@ class PipelineResult(BaseModel):
         default_factory=dict, description="Pipeline-level metadata"
     )
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "experiment_name": "my-experiment",
+                "status": "completed",
+                "total_duration_ms": 1234.56,
+                "stages": [
+                    {
+                        "stage_name": "loader",
+                        "stage_type": "data_loader",
+                        "status": "completed",
+                        "duration_ms": 100.5,
+                    }
+                ],
+            }
+        }
+    )
+
     @property
     def success_count(self) -> int:
         """Number of stages that completed successfully."""
@@ -251,25 +269,6 @@ class PipelineResult(BaseModel):
     def to_dict(self) -> Dict[str, Any]:
         """Serialize result to a plain dictionary (JSON-compatible)."""
         return self.model_dump(mode="json")
-
-    class Config:
-        """Pydantic model configuration."""
-
-        json_schema_extra = {
-            "example": {
-                "experiment_name": "my-experiment",
-                "status": "completed",
-                "total_duration_ms": 1234.56,
-                "stages": [
-                    {
-                        "stage_name": "loader",
-                        "stage_type": "data_loader",
-                        "status": "completed",
-                        "duration_ms": 100.5,
-                    }
-                ],
-            }
-        }
 
 
 # ──────────────────────────────────────────────
