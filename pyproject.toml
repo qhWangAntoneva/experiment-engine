@@ -46,8 +46,21 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/example/experiment-engine"
-Source = "https://github.com/example/experiment-engine"
+Homepage = "https://github.com/qhWangAntoneva/experiment-engine"
+Source = "https://github.com/qhWangAntoneva/experiment-engine"
+Documentation = "https://github.com/qhWangAntoneva/experiment-engine#readme"
+"Bug Tracker" = "https://github.com/qhWangAntoneva/experiment-engine/issues"
+
+[project.entry-points."experiment_engine.algorithms"]
+
+[project.entry-points."experiment_engine.loaders"]
+
+[project.entry-points."experiment_engine.visualizers"]
+
+[project.entry-points."experiment_engine.reporters"]
+
+[project.scripts]
+experiment-engine = "experiment_engine.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -60,3 +73,27 @@ include = ["experiment_engine*"]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
+
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "ARG", "PD"]
+ignore = ["B008", "ARG001", "ARG002"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+strict_optional = true
+no_implicit_reexport = true
+disallow_untyped_defs = false
