@@ -1,6 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+*.so
+*.pyd
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project
 node_modules
-dist
 *.local
+
+# Config overrides
+configs/*.local.yaml
 
 # OpenWolf runtime state (ephemeral — recreated every session)
 .wolf/hooks/_session.json

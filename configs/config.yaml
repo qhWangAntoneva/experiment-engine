@@ -1,0 +1,28 @@
+# experiment-engine — Example Configuration
+
+# This is a sample YAML configuration for running an experiment.
+# Copy this as a starting point for your own experiments.
+
+input:
+  format: csv                # Supported: csv, json, yaml
+  path: examples/data.csv    # Path relative to project root
+  field_schema:
+    columns:
+      - x
+      - y
+      - label
+
+algorithm:
+  name: linear_regression    # Must match a registered algorithm name
+  params:
+    fit_intercept: true
+    normalize: false
+
+visualization:
+  backends:
+    - matplotlib             # Static figure output
+    - plotly                 # Interactive HTML output
+  output_dir: results/figures/
+
+output:
+  path: results/
