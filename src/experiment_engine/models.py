@@ -8,7 +8,7 @@ from __future__ import annotations
 import time
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, Generic, List, Optional, TypeVar
+from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -83,6 +83,41 @@ class PipelineStageConfig(BaseModel):
         return v.strip()
 
 
+class InputConfig(BaseModel):
+    """Configuration for data input in an experiment.
+
+    Specifies how to load data: the source format, file path (if any),
+    and additional options passed to the reader.
+
+    Attributes:
+        format: Data source format (csv, json, array, synthetic).
+        path: Optional file path. If None, synthetic/generated data is used.
+        options: Additional kwargs forwarded to the reader's ``read()`` method.
+    """
+
+    format: str = Field("csv", description="Data source format (csv, json, array, synthetic)")
+    path: Optional[str] = Field(None, description="File path for data input")
+    options: Dict[str, Any] = Field(
+        default_factory=dict, description="Reader kwargs"
+    )
+
+
+class ExportConfig(BaseModel):
+    """Configuration for exporting pipeline results.
+
+    Attributes:
+        format: Export format (csv, json, html).
+        output_path: Destination file path. If None, auto-generated.
+        include_index: Whether to include row indices in tabular output.
+        pretty: Whether to pretty-print structured formats (JSON, HTML).
+    """
+
+    format: str = Field("csv", description="Export format (csv, json, html)")
+    output_path: Optional[str] = Field(None, description="Output file path")
+    include_index: bool = Field(False, description="Include row indices")
+    pretty: bool = Field(False, description="Pretty-print output")
+
+
 class ExperimentConfig(BaseModel):
     """Top-level global pipeline configuration.
 
@@ -118,6 +153,33 @@ class ExperimentConfig(BaseModel):
         return v.strip()
 
 
+class RenderConfig(BaseModel):
+    """Configuration for rendering visualizations.
+
+    Specifies the plot type, layout options, and output path used by
+    visualization renderers (Matplotlib, Plotly, Console, etc.).
+
+    Attributes:
+        plot_type: Type of plot (line, scatter, bar, histogram, surface).
+        title: Optional plot title.
+        xlabel: X-axis label.
+        ylabel: Y-axis label.
+        figsize: Figure dimensions as (width, height) in inches.
+        dpi: Image resolution in dots per inch.
+        colormap: Matplotlib-compatible colormap name.
+        output_path: Optional output file path override.
+    """
+
+    plot_type: str = Field("line", description="Plot type (line/scatter/bar/histogram/surface)")
+    title: Optional[str] = Field(None, description="Plot title")
+    xlabel: Optional[str] = Field(None, description="X-axis label")
+    ylabel: Optional[str] = Field(None, description="Y-axis label")
+    figsize: Tuple[float, float] = Field((8.0, 5.0), description="Figure size (width, height)")
+    dpi: int = Field(150, description="Image resolution")
+    colormap: str = Field("viridis", description="Color scheme")
+    output_path: Optional[str] = Field(None, description="Output file path override")
+
+
 # ──────────────────────────────────────────────
 #  Data models
 # ──────────────────────────────────────────────
@@ -130,6 +192,8 @@ class InputData(BaseModel, Generic[T]):
         data: The raw input payload (type varies by stage).
         metadata: Arbitrary metadata attached to the input.
         timestamp: When this input was created.
+        columns: Optional column / feature names.
+        index: Optional row index labels.
     """
 
     data: T = Field(..., description="Raw input payload")
@@ -140,6 +204,33 @@ class InputData(BaseModel, Generic[T]):
         default_factory=lambda: datetime.now(timezone.utc),
         description="Creation timestamp",
     )
+    columns: Optional[List[str]] = Field(None, description="Column / feature names")
+    index: Optional[List[Any]] = Field(None, description="Row index labels")
+
+    @property
+    def n_samples(self) -> int:
+        """Number of samples (rows) in the data."""
+        if hasattr(self.data, "shape"):
+            return self.data.shape[0]
+        if isinstance(self.data, list):
+            return len(self.data)
+        return 0
+
+    @property
+    def n_features(self) -> int:
+        """Number of features (columns) in the data."""
+        if hasattr(self.data, "shape") and len(self.data.shape) >= 2:
+            return self.data.shape[1]
+        return 1
+
+    @property
+    def shape(self) -> Tuple[int, ...]:
+        """Shape of the underlying data array."""
+        if hasattr(self.data, "shape"):
+            return self.data.shape
+        if isinstance(self.data, list):
+            return (len(self.data),)
+        return (0,)
 
 
 class OutputData(BaseModel, Generic[T]):
