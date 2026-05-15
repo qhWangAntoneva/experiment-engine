@@ -1,3 +1,7 @@
 node_modules
 dist
 *.local
+
+# OpenWolf runtime state (ephemeral — recreated every session)
+.wolf/hooks/_session.json
+.wolf/**/*.tmp
