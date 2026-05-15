@@ -1,0 +1,324 @@
+{
+  "metadata": {
+    "project": "experiment-engine",
+    "version": "1.0.0",
+    "last_updated": "2026-05-16",
+    "description": "A modular algorithm experimentation framework: input → computation → visualization → report",
+    "tech_stack": ["Python >=3.10", "Pydantic v2", "Click", "Rich", "Matplotlib", "Plotly", "PyYAML", "NumPy"],
+    "repo": "https://github.com/qhWangAntoneva/experiment-engine.git",
+    "branch": "master"
+  },
+  "phases": {
+    "phase_1_foundation": {
+      "title": "核心基础 (Foundation)",
+      "priority": "CRITICAL",
+      "summary": "项目骨架、核心抽象层、CLI入口已基本完成，但config.yaml格式与模型不匹配需要修复",
+      "tasks": [
+        {
+          "id": "F1",
+          "description": "项目脚手架搭建：pyproject.toml、src/目录结构、README架构概览",
+          "effort_hours": 2.0,
+          "dependencies": [],
+          "status": "DONE",
+          "files": ["pyproject.toml", "src/experiment_engine/", "README.md", "docs/ARCHITECTURE.md"]
+        },
+        {
+          "id": "F2",
+          "description": "Pydantic数据模型：ExperimentConfig, PipelineStageConfig, InputData, OutputData, StageResult, PipelineResult, StageStatus, PipelineStatus, Timer",
+          "effort_hours": 3.0,
+          "dependencies": ["F1"],
+          "status": "DONE",
+          "files": ["src/experiment_engine/models.py"]
+        },
+        {
+          "id": "F3",
+          "description": "Pipeline + Stage ABC：setup/process/teardown生命周期、嵌套子Pipeline、run()方法带rich进度条和摘要表",
+          "effort_hours": 4.0,
+          "dependencies": ["F2"],
+          "status": "DONE",
+          "files": ["src/experiment_engine/pipeline.py"]
+        },
+        {
+          "id": "F4",
+          "description": "Plugin系统：PluginRegistry单例+@register_stage装饰器+PluginLoader目录扫描+BasePlugin元数据",
+          "effort_hours": 3.0,
+          "dependencies": ["F3"],
+          "status": "DONE",
+          "files": ["src/experiment_engine/plugins.py"]
+        },
+        {
+          "id": "F5",
+          "description": "配置加载：load_config(YAML/JSON)、merge_defaults、apply_cli_overrides点路径、generate_example_config",
+          "effort_hours": 2.5,
+          "dependencies": ["F2"],
+          "status": "DONE",
+          "files": ["src/experiment_engine/config.py"]
+        },
+        {
+          "id": "F6",
+          "description": "Click CLI入口：run / validate / list-plugins 三个命令",
+          "effort_hours": 1.5,
+          "dependencies": ["F3", "F5"],
+          "status": "DONE",
+          "files": ["src/experiment_engine/cli.py", "src/experiment_engine/__main__.py"]
+        },
+        {
+          "id": "F7",
+          "description": "OpenWolf上下文管理集成（.wolf/目录、CLAUDE.md、cerebrum/anatomy/memory）",
+          "effort_hours": 1.0,
+          "dependencies": ["F1"],
+          "status": "DONE",
+          "files": [".wolf/", "CLAUDE.md"]
+        },
+        {
+          "id": "F8",
+          "description": "git-auto-push.sh脚本 + .gitignore配置",
+          "effort_hours": 0.5,
+          "dependencies": ["F1"],
+          "status": "DONE",
+          "files": ["scripts/git-auto-push.sh", ".gitignore"]
+        }
+      ]
+    },
+    "phase_1_fix": {
+      "title": "基础修复 (Foundation Fixes)",
+      "priority": "CRITICAL",
+      "summary": "核心代码已就绪但存在关键断裂点，需修复后才能正常运行",
+      "tasks": [
+        {
+          "id": "FX1",
+          "description": "修复configs/config.yaml：当前使用旧格式(input/algorithm/visualization/output)，应改为ExperimentConfig模型支持的stages列表格式",
+          "effort_hours": 0.5,
+          "dependencies": ["F5"],
+          "status": "PENDING",
+          "files": ["configs/config.yaml"]
+        },
+        {
+          "id": "FX2",
+          "description": "修复CLI run命令：当前data=None是placeholder，需集成io/模块加载数据和viz/模块渲染结果，实现端到端流水线",
+          "effort_hours": 2.0,
+          "dependencies": ["F6", "I1", "I2"],
+          "status": "PENDING",
+          "files": ["src/experiment_engine/cli.py"]
+        },
+        {
+          "id": "FX3",
+          "description": "pyproject.toml添加[pypi] entry points配置：experiment_engine.algorithms/loaders/visualizers，对接PluginRegistry文档描述的三种发现机制",
+          "effort_hours": 0.5,
+          "dependencies": ["F4"],
+          "status": "PENDING",
+          "files": ["pyproject.toml"]
+        },
+        {
+          "id": "FX4",
+          "description": "创建examples/data.csv示例数据 + examples/run_experiment.py可运行示例脚本",
+          "effort_hours": 1.0,
+          "dependencies": ["FX2"],
+          "status": "PENDING",
+          "files": ["examples/data.csv", "examples/run_experiment.py"]
+        },
+        {
+          "id": "FX5",
+          "description": "更新pyproject.toml中项目URL从example指向真实repo",
+          "effort_hours": 0.2,
+          "dependencies": [],
+          "status": "PENDING",
+          "files": ["pyproject.toml"]
+        }
+      ]
+    },
+    "phase_2_integration": {
+      "title": "I/O 与可视化集成 (I/O & Viz Integration)",
+      "priority": "HIGH",
+      "summary": "io/和viz/模块已存在但未与Pipeline CLI集成，需验证并补强",
+      "tasks": [
+        {
+          "id": "I1",
+          "description": "io/模块审计：验证readers.py(CSV/JSON/YAML)、sources.py、exporters.py的API对齐InputData模型，修复接口不一致",
+          "effort_hours": 1.5,
+          "dependencies": ["F2", "F5"],
+          "status": "PENDING",
+          "files": ["src/experiment_engine/io/"]
+        },
+        {
+          "id": "I2",
+          "description": "viz/模块审计：验证base.py(base Renderer ABC)、matplotlib_renderer.py、plotly_renderer.py、console.py、streamlit_dashboard.py的API对齐PipelineResult",
+          "effort_hours": 1.5,
+          "dependencies": ["F3"],
+          "status": "PENDING",
+          "files": ["src/experiment_engine/viz/"]
+        },
+        {
+          "id": "I3",
+          "description": "编写io/模块测试：测试CSVLoader/JSONLoader/YAMLLoader读写、sources和exporters的边界条件",
+          "effort_hours": 2.0,
+          "dependencies": ["I1"],
+          "status": "PENDING",
+          "files": ["tests/test_io.py"]
+        },
+        {
+          "id": "I4",
+          "description": "编写viz/模块测试：测试各Renderer的pipeline集成输出",
+          "effort_hours": 2.0,
+          "dependencies": ["I2"],
+          "status": "PENDING",
+          "files": ["tests/test_viz.py"]
+        }
+      ]
+    },
+    "phase_3_quality": {
+      "title": "质量基础设施 (Quality Infrastructure)",
+      "priority": "HIGH",
+      "summary": "代码运行可通过但缺少质量门、CI和自动化测试保障",
+      "tasks": [
+        {
+          "id": "Q1",
+          "description": "配置 ruff + mypy：在pyproject.toml添加[tool.ruff]和[tool.mypy]配置，确保代码风格统一",
+          "effort_hours": 1.0,
+          "dependencies": ["F1"],
+          "status": "PENDING",
+          "files": ["pyproject.toml"]
+        },
+        {
+          "id": "Q2",
+          "description": "设置 pre-commit hooks：基于.pre-commit-config.yaml配置ruff lint/format、trailing-whitespace、end-of-file-fixer、check-yaml/toml",
+          "effort_hours": 1.0,
+          "dependencies": ["Q1"],
+          "status": "PENDING",
+          "files": [".pre-commit-config.yaml"]
+        },
+        {
+          "id": "Q3",
+          "description": "搭建GitHub CI/CD：创建.github/workflows/ci.yml，包含pytest + ruff + mypy + coverage",
+          "effort_hours": 1.5,
+          "dependencies": ["Q1"],
+          "status": "PENDING",
+          "files": [".github/workflows/ci.yml"]
+        },
+        {
+          "id": "Q4",
+          "description": "补充pipeline集成测试：CLI端到端测试（用Click CliRunner模拟）、config加载与pipeline执行的集成",
+          "effort_hours": 2.0,
+          "dependencies": ["F6", "F3", "F5", "FX2"],
+          "status": "PENDING",
+          "files": ["tests/test_cli.py", "tests/test_integration.py"]
+        }
+      ]
+    },
+    "phase_4_docs_polish": {
+      "title": "文档与发布 (Documentation & Polish)",
+      "priority": "MEDIUM",
+      "summary": "项目架构文档已有，但缺少贡献指南、CHANGELOG、API文档和发布流程",
+      "tasks": [
+        {
+          "id": "D1",
+          "description": "编写 CONTRIBUTING.md：代码规范、PR流程、测试要求",
+          "effort_hours": 1.0,
+          "dependencies": ["Q2"],
+          "status": "PENDING",
+          "files": ["CONTRIBUTING.md"]
+        },
+        {
+          "id": "D2",
+          "description": "创建 CHANGELOG.md：基于Keep a Changelog规范，记录已完工作",
+          "effort_hours": 0.5,
+          "dependencies": [],
+          "status": "PENDING",
+          "files": ["CHANGELOG.md"]
+        },
+        {
+          "id": "D3",
+          "description": "生成徽章（README）：pytest passing、coverage、Python版本、license",
+          "effort_hours": 0.3,
+          "dependencies": ["Q3"],
+          "status": "PENDING",
+          "files": ["README.md"]
+        },
+        {
+          "id": "D4",
+          "description": "MkDocs文档站：mkdocs.yml配置 + docs/完善API引用",
+          "effort_hours": 2.0,
+          "dependencies": [],
+          "status": "PENDING",
+          "files": ["mkdocs.yml", "docs/index.md", "docs/api/"]
+        },
+        {
+          "id": "D5",
+          "description": "pyproject.toml添加发布配置：long_description、classifiers完善、project.urls真实化",
+          "effort_hours": 0.3,
+          "dependencies": ["D2"],
+          "status": "PENDING",
+          "files": ["pyproject.toml"]
+        }
+      ]
+    },
+    "phase_5_advanced": {
+      "title": "高级功能 (Advanced Features)",
+      "priority": "LOW",
+      "summary": "核心框架稳定后的锦上添花功能",
+      "tasks": [
+        {
+          "id": "A1",
+          "description": "内置算法：实现线性回归、k-means作为内置AlgorithmBase子类，通过@register_stage注册",
+          "effort_hours": 3.0,
+          "dependencies": ["F4", "I1", "FX2"],
+          "status": "PENDING",
+          "files": ["src/experiment_engine/algorithms/"]
+        },
+        {
+          "id": "A2",
+          "description": "增强Streamlit Dashboard：实时pipeline运行可视化、结果对比视图",
+          "effort_hours": 2.0,
+          "dependencies": ["I2"],
+          "status": "PENDING",
+          "files": ["src/experiment_engine/viz/streamlit_dashboard.py"]
+        },
+        {
+          "id": "A3",
+          "description": "数据库连接器：SQLite/PostgreSQL的DataReader/DataWriter实现",
+          "effort_hours": 2.0,
+          "dependencies": ["I1"],
+          "status": "PENDING",
+          "files": ["src/experiment_engine/io/db.py"]
+        },
+        {
+          "id": "A4",
+          "description": "实验报告导出：自动生成LaTeX/PDF报告，包含config快照、metrics和图表引用",
+          "effort_hours": 2.5,
+          "dependencies": ["I2"],
+          "status": "PENDING",
+          "files": ["src/experiment_engine/report/"]
+        },
+        {
+          "id": "A5",
+          "description": "实验比较器：支持多次运行结果对比（metrics表格、重叠图表）",
+          "effort_hours": 2.0,
+          "dependencies": ["A1"],
+          "status": "PENDING",
+          "files": ["src/experiment_engine/viz/comparison.py"]
+        },
+        {
+          "id": "A6",
+          "description": "并行stage执行：可选在线程池中并行执行独立stage",
+          "effort_hours": 1.5,
+          "dependencies": ["F3"],
+          "status": "PENDING",
+          "files": ["src/experiment_engine/core/parallel.py"]
+        }
+      ]
+    }
+  },
+  "milestones": {
+    "minimum_viable_release": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "FX1", "FX2", "FX3", "FX4", "FX5", "I1", "I2", "Q1"],
+    "version_1_0_stable": ["ALL_TASKS_UP_TO_PHASE_4"],
+    "version_1_1_advanced": ["ALL_TASKS_UP_TO_PHASE_5"]
+  },
+  "summary": {
+    "total_tasks": 29,
+    "total_estimated_effort_hours": 44.3,
+    "remaining_effort_hours": 32.8,
+    "completed_tasks": 8,
+    "completed_phases": ["phase_1_foundation"],
+    "active_phase": "phase_1_fix"
+  }
+}
