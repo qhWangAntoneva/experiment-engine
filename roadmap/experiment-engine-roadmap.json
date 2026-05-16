@@ -169,14 +169,14 @@
     "phase_3_quality": {
       "title": "质量基础设施 (Quality Infrastructure)",
       "priority": "HIGH",
-      "summary": "代码运行可通过但缺少质量门、CI和自动化测试保障",
+      "summary": "代码运行可通过但缺少质量门、CI和自动化测试保障。Q1 ruff/mypy+自动修复完成，Q2 pre-commit已配置，Q4集成测试(34 tests)完成",
       "tasks": [
         {
           "id": "Q1",
           "description": "配置 ruff + mypy：在pyproject.toml添加[tool.ruff]和[tool.mypy]配置，确保代码风格统一",
           "effort_hours": 1.0,
           "dependencies": ["F1"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["pyproject.toml"]
         },
         {
@@ -184,7 +184,7 @@
           "description": "设置 pre-commit hooks：基于.pre-commit-config.yaml配置ruff lint/format、trailing-whitespace、end-of-file-fixer、check-yaml/toml",
           "effort_hours": 1.0,
           "dependencies": ["Q1"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": [".pre-commit-config.yaml"]
         },
         {
@@ -200,7 +200,7 @@
           "description": "补充pipeline集成测试：CLI端到端测试（用Click CliRunner模拟）、config加载与pipeline执行的集成",
           "effort_hours": 2.0,
           "dependencies": ["F6", "F3", "F5", "FX2"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["tests/test_cli.py", "tests/test_integration.py"]
         }
       ]
@@ -316,8 +316,8 @@
   "summary": {
     "total_tasks": 29,
     "total_estimated_effort_hours": 44.3,
-    "remaining_effort_hours": 10.3,
-    "completed_tasks": 23,
+    "remaining_effort_hours": 7.8,
+    "completed_tasks": 26,
     "completed_phases": ["phase_1_foundation", "phase_1_fix", "phase_2_integration"],
     "active_phase": "phase_3_quality"
   }
