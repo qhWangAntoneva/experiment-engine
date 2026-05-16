@@ -90,7 +90,7 @@
           "description": "修复configs/config.yaml：当前使用旧格式(input/algorithm/visualization/output)，应改为ExperimentConfig模型支持的stages列表格式",
           "effort_hours": 0.5,
           "dependencies": ["F5"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["configs/config.yaml"]
         },
         {
@@ -98,7 +98,7 @@
           "description": "修复CLI run命令：当前data=None是placeholder，需集成io/模块加载数据和viz/模块渲染结果，实现端到端流水线",
           "effort_hours": 2.0,
           "dependencies": ["F6", "I1", "I2"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["src/experiment_engine/cli.py"]
         },
         {
@@ -106,7 +106,7 @@
           "description": "pyproject.toml添加[pypi] entry points配置：experiment_engine.algorithms/loaders/visualizers，对接PluginRegistry文档描述的三种发现机制",
           "effort_hours": 0.5,
           "dependencies": ["F4"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["pyproject.toml"]
         },
         {
@@ -122,7 +122,7 @@
           "description": "更新pyproject.toml中项目URL从example指向真实repo",
           "effort_hours": 0.2,
           "dependencies": [],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["pyproject.toml"]
         }
       ]
@@ -130,14 +130,14 @@
     "phase_2_integration": {
       "title": "I/O 与可视化集成 (I/O & Viz Integration)",
       "priority": "HIGH",
-      "summary": "io/和viz/模块已存在但未与Pipeline CLI集成，需验证并补强",
+      "summary": "io/和viz/模块已审计修复完毕，新增 test_io.py (115 tests) + test_viz.py (81 tests)，总计258测试通过",
       "tasks": [
         {
           "id": "I1",
           "description": "io/模块审计：验证readers.py(CSV/JSON/YAML)、sources.py、exporters.py的API对齐InputData模型，修复接口不一致",
           "effort_hours": 1.5,
           "dependencies": ["F2", "F5"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["src/experiment_engine/io/"]
         },
         {
@@ -145,7 +145,7 @@
           "description": "viz/模块审计：验证base.py(base Renderer ABC)、matplotlib_renderer.py、plotly_renderer.py、console.py、streamlit_dashboard.py的API对齐PipelineResult",
           "effort_hours": 1.5,
           "dependencies": ["F3"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["src/experiment_engine/viz/"]
         },
         {
@@ -153,7 +153,7 @@
           "description": "编写io/模块测试：测试CSVLoader/JSONLoader/YAMLLoader读写、sources和exporters的边界条件",
           "effort_hours": 2.0,
           "dependencies": ["I1"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["tests/test_io.py"]
         },
         {
@@ -161,7 +161,7 @@
           "description": "编写viz/模块测试：测试各Renderer的pipeline集成输出",
           "effort_hours": 2.0,
           "dependencies": ["I2"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["tests/test_viz.py"]
         }
       ]
@@ -316,9 +316,9 @@
   "summary": {
     "total_tasks": 29,
     "total_estimated_effort_hours": 44.3,
-    "remaining_effort_hours": 26.3,
-    "completed_tasks": 15,
-    "completed_phases": ["phase_1_foundation", "phase_1_fix"],
-    "active_phase": "phase_2_integration"
+    "remaining_effort_hours": 10.3,
+    "completed_tasks": 23,
+    "completed_phases": ["phase_1_foundation", "phase_1_fix", "phase_2_integration"],
+    "active_phase": "phase_3_quality"
   }
 }

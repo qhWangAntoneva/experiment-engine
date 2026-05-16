@@ -158,7 +158,7 @@ class JSONReader(DataReader):
 
     def read(
         self,
-        source: Union[str, Path, str],
+        source: Union[str, Path],
         data_key: Optional[str] = None,
         orient: str = "records",
         **kwargs: Any,
@@ -296,6 +296,7 @@ class SyntheticReader(DataReader):
         noise: float = 0.0,
         seed: Optional[int] = None,
         columns: Optional[List[str]] = None,
+        index: Optional[List[Any]] = None,
         **kwargs: Any,
     ) -> InputData:
         """Generate synthetic data.
@@ -309,6 +310,7 @@ class SyntheticReader(DataReader):
             noise: Standard deviation of Gaussian noise added (default: 0).
             seed: Random seed for reproducibility.
             columns: Optional column names.
+            index: Optional index values.
             **kwargs: Ignored.
 
         Returns:
@@ -385,4 +387,4 @@ class SyntheticReader(DataReader):
             "n_features": n_features,
         }
 
-        return InputData(data=data, columns=columns, metadata=metadata)
+        return InputData(data=data, columns=columns, index=index, metadata=metadata)

@@ -33,7 +33,7 @@ def run(config, output, verbose):
     from experiment_engine.io import get_reader
     from experiment_engine.io.sources import FileDataSource, GeneratorDataSource
     from experiment_engine.io.exporters import CSVExporter, JSONExporter
-    from experiment_engine.models import ExportConfig
+    from experiment_engine.models import ExportConfig, InputData, RenderConfig
     from experiment_engine.viz.console import ConsoleRenderer
     from rich.console import Console
     from rich.table import Table
@@ -88,7 +88,7 @@ def run(config, output, verbose):
         # Print data summary via ConsoleRenderer
         try:
             renderer = ConsoleRenderer()
-            renderer.render(input_data)
+            renderer.render(input_data, RenderConfig(title=input_desc))
         except Exception as exc:
             console.print(f"[dim]ConsoleRenderer skipped: {exc}[/]")
     else:
@@ -114,6 +114,9 @@ def run(config, output, verbose):
                 include_index=True,
                 pretty=True,
             )
+            if not isinstance(results.output, InputData):
+                console.print(f"[yellow]⚠[/] Skipping .{ext} export: results.output is not InputData (type: {type(results.output).__name__})")
+                continue
             try:
                 out_path = exporter.export(results.output, export_cfg)
                 console.print(f"[green]✓[/] Results exported: {out_path}")

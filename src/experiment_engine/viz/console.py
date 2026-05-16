@@ -34,14 +34,14 @@ class ConsoleRenderer(Renderer):
     def render(
         self,
         data: InputData,
-        config: Optional[RenderConfig] = None,
+        config: RenderConfig,
         **kwargs: Any,
     ) -> str:
         """Render data as a rich-formatted console string.
 
         Args:
             data: Input data to display.
-            config: Optional visualisation config (used for title).
+            config: Visualisation configuration (used for title).
             **kwargs: Additional options:
                 show_table (bool): Print the data table (default: True).
                 show_stats (bool): Print summary statistics (default: True).
@@ -85,7 +85,7 @@ class ConsoleRenderer(Renderer):
         capture = CaptureConsole(force_terminal=True, width=120)
 
         # Title
-        title = config.title if config and config.title else "Experiment Data Summary"
+        title = config.title if config.title else "Experiment Data Summary"
         capture.print()
         capture.print(Panel(Text(title, justify="center", style="bold cyan")))
         capture.print()
@@ -223,7 +223,7 @@ class ConsoleRenderer(Renderer):
             if data.index is not None:
                 row.append(str(data.index[i]))
             for val in data.data[i]:
-                row.append(f"{val:.4f}")
+                row.append(f"{val:.4f}" if isinstance(val, (int, float)) else str(val))
             table.add_row(*row)
 
         if truncated:

@@ -24,7 +24,7 @@ class MatplotlibRenderer(Renderer):
 
     Examples:
         >>> renderer = MatplotlibRenderer()
-        >>> path = renderer.render(data, VisualizationConfig(plot_type="line"))
+        >>> path = renderer.render(data, RenderConfig(plot_type="line"))
     """
 
     @property

@@ -11,7 +11,7 @@ from experiment_engine.io.readers import (
     JSONReader,
     SyntheticReader,
 )
-from experiment_engine.io.sources import DataSource, FileDataSource, GeneratorDataSource
+from experiment_engine.io.sources import DataSource, FileDataSource, GeneratorDataSource, StdinDataSource
 from experiment_engine.io.exporters import CSVExporter, JSONExporter, HTMLExporter
 
 _READER_MAP = {
@@ -50,6 +50,7 @@ __all__ = [
     "ArrayReader",
     "SyntheticReader",
     "DataSource",
+    "StdinDataSource",
     "FileDataSource",
     "GeneratorDataSource",
     "CSVExporter",
