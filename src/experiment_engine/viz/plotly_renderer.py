@@ -8,9 +8,10 @@ are self-contained HTML files.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
+import plotly.graph_objects as go
 
 from experiment_engine.models import InputData, RenderConfig
 from experiment_engine.viz.base import Renderer
@@ -31,7 +32,7 @@ class PlotlyRenderer(Renderer):
     def name(self) -> str:
         return "plotly"
 
-    def supported_formats(self) -> List[str]:
+    def supported_formats(self) -> list[str]:
         return ["html"]
 
     def render(
@@ -51,14 +52,16 @@ class PlotlyRenderer(Renderer):
         Returns:
             str: Path to the saved HTML file.
         """
-        import plotly.graph_objects as go
-        from plotly.subplots import make_subplots
 
         plot_type = config.plot_type
-        x = np.arange(data.n_samples) if data.index is None else np.array(data.index, dtype=float)
+        x = (
+            np.arange(data.n_samples)
+            if data.index is None
+            else np.array(data.index, dtype=float)
+        )
         colors = self._generate_colors(data.n_features)
 
-        fig: Optional[go.Figure] = None
+        fig: go.Figure | None = None
 
         if plot_type == "line":
             fig = self._build_line(data, x, colors, config)
@@ -111,9 +114,9 @@ class PlotlyRenderer(Renderer):
         self,
         data: InputData,
         x: np.ndarray,
-        colors: List[str],
+        colors: list[str],
         config: RenderConfig,
-    ) -> "go.Figure":
+    ) -> go.Figure:
         """Build an interactive line plot."""
         import plotly.graph_objects as go
 
@@ -125,7 +128,7 @@ class PlotlyRenderer(Renderer):
                     y=data.data[:, i],
                     mode="lines",
                     name=data.columns[i] if data.columns else f"feature_{i}",
-                    line=dict(color=colors[i % len(colors)], width=2),
+                    line={"color": colors[i % len(colors)], "width": 2},
                 )
             )
         return fig
@@ -133,9 +136,9 @@ class PlotlyRenderer(Renderer):
     def _build_scatter(
         self,
         data: InputData,
-        colors: List[str],
+        colors: list[str],
         config: RenderConfig,
-    ) -> "go.Figure":
+    ) -> go.Figure:
         """Build an interactive scatter plot."""
         import plotly.graph_objects as go
 
@@ -147,15 +150,17 @@ class PlotlyRenderer(Renderer):
                     x=data.data[:, 0],
                     y=data.data[:, 1],
                     mode="markers",
-                    marker=dict(
-                        size=6,
-                        color=data.data[:, 2] if data.n_features >= 3 else colors[0],
-                        colorscale=config.colormap,
-                        showscale=data.n_features >= 3,
-                        colorbar=dict(
-                            title=data.columns[2] if len(data.columns) > 2 else ""
-                        ) if data.n_features >= 3 else None,
-                    ),
+                    marker={
+                        "size": 6,
+                        "color": data.data[:, 2] if data.n_features >= 3 else colors[0],
+                        "colorscale": config.colormap,
+                        "showscale": data.n_features >= 3,
+                        "colorbar": {
+                            "title": data.columns[2] if len(data.columns) > 2 else ""
+                        }
+                        if data.n_features >= 3
+                        else None,
+                    },
                     text=[f"Point {i}" for i in range(data.n_samples)],
                     name=data.columns[0] if data.columns else "data",
                 )
@@ -166,7 +171,7 @@ class PlotlyRenderer(Renderer):
                     x=np.arange(data.n_samples),
                     y=data.data[:, 0],
                     mode="markers",
-                    marker=dict(size=6, color=colors[0]),
+                    marker={"size": 6, "color": colors[0]},
                     name=data.columns[0] if data.columns else "data",
                 )
             )
@@ -176,9 +181,9 @@ class PlotlyRenderer(Renderer):
         self,
         data: InputData,
         x: np.ndarray,
-        colors: List[str],
+        colors: list[str],
         config: RenderConfig,
-    ) -> "go.Figure":
+    ) -> go.Figure:
         """Build an interactive bar chart."""
         import plotly.graph_objects as go
 
@@ -199,9 +204,9 @@ class PlotlyRenderer(Renderer):
     def _build_histogram(
         self,
         data: InputData,
-        colors: List[str],
+        colors: list[str],
         config: RenderConfig,
-    ) -> "go.Figure":
+    ) -> go.Figure:
         """Build an interactive histogram."""
         import plotly.graph_objects as go
 
@@ -223,7 +228,7 @@ class PlotlyRenderer(Renderer):
         self,
         data: InputData,
         config: RenderConfig,
-    ) -> "go.Figure":
+    ) -> go.Figure:
         """Build a 3D surface plot."""
         import plotly.graph_objects as go
 
@@ -253,11 +258,11 @@ class PlotlyRenderer(Renderer):
             ]
         )
         fig.update_layout(
-            scene=dict(
-                xaxis_title=config.xlabel or "X",
-                yaxis_title=config.ylabel or "Y",
-                zaxis_title=data.columns[0] if data.columns else "Z",
-            )
+            scene={
+                "xaxis_title": config.xlabel or "X",
+                "yaxis_title": config.ylabel or "Y",
+                "zaxis_title": data.columns[0] if data.columns else "Z",
+            }
         )
         return fig
 
@@ -266,7 +271,7 @@ class PlotlyRenderer(Renderer):
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _generate_colors(n: int) -> List[str]:
+    def _generate_colors(n: int) -> list[str]:
         """Generate a list of distinct hex colors."""
         import plotly.express as px
 

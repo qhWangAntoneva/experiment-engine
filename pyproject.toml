@@ -78,11 +78,20 @@ python_functions = ["test_*"]
 target-version = "py310"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "ARG", "PD"]
+select = [
+    "E", "F", "I", "N", "W", "UP", "B", "SIM", "ARG", "PD",
+    "RUF",   # Ruff-specific rules (refactoring, diagnostics)
+    "C4",    # flake8-comprehensions
+    "T20",   # flake8-print
+    "RET",   # flake8-return
+    "SLF",   # flake8-self (private member access)
+]
 ignore = ["B008", "ARG001", "ARG002"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+"tests/*.py" = ["T201"]  # Allow print in tests
+"examples/*.py" = ["T201"]  # Allow print in examples
 
 [tool.ruff.format]
 quote-style = "double"
@@ -97,3 +106,5 @@ ignore_missing_imports = true
 strict_optional = true
 no_implicit_reexport = true
 disallow_untyped_defs = false
+warn_unreachable = true
+strict_equality = true

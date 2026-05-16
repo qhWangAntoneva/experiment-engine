@@ -8,12 +8,11 @@ from __future__ import annotations
 
 import importlib
 import importlib.util
-import inspect
 import logging
-import os
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type
+from typing import Any
 
 from rich.console import Console
 from rich.table import Table
@@ -48,7 +47,7 @@ class BasePlugin(Stage):
     plugin_version: str = "0.1.0"
     plugin_description: str = ""
     plugin_author: str = ""
-    plugin_tags: List[str] = []
+    plugin_tags: list[str] = []
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         """Auto-set plugin_name from class name if not overridden."""
@@ -57,7 +56,7 @@ class BasePlugin(Stage):
             cls.plugin_name = cls.__name__
 
     @classmethod
-    def metadata(cls) -> Dict[str, Any]:
+    def metadata(cls) -> dict[str, Any]:
         """Return plugin metadata as a dictionary."""
         return {
             "name": cls.plugin_name,
@@ -88,16 +87,16 @@ class PluginRegistry:
         >>> cls = registry.get("my_stage")
     """
 
-    _instance: Optional["PluginRegistry"] = None
+    _instance: PluginRegistry | None = None
 
     def __init__(self) -> None:
-        self._registry: Dict[str, Type[Stage]] = {}
-        self._enabled: Set[str] = set()
+        self._registry: dict[str, type[Stage]] = {}
+        self._enabled: set[str] = set()
 
     # ── Singleton ──────────────────────────────
 
     @classmethod
-    def get_instance(cls) -> "PluginRegistry":
+    def get_instance(cls) -> PluginRegistry:
         """Return the singleton registry instance."""
         if cls._instance is None:
             cls._instance = cls()
@@ -113,7 +112,7 @@ class PluginRegistry:
     def register(
         self,
         name: str,
-        stage_cls: Type[Stage],
+        stage_cls: type[Stage],
         enabled: bool = True,
     ) -> None:
         """Register a stage class under a given name.
@@ -128,9 +127,7 @@ class PluginRegistry:
             TypeError: If stage_cls is not a Stage subclass.
         """
         if not issubclass(stage_cls, Stage):
-            raise TypeError(
-                f"{stage_cls.__name__} must be a subclass of Stage"
-            )
+            raise TypeError(f"{stage_cls.__name__} must be a subclass of Stage")
 
         if name in self._registry:
             raise ValueError(
@@ -155,7 +152,7 @@ class PluginRegistry:
 
     # ── Lookup ─────────────────────────────────
 
-    def get(self, name: str) -> Optional[Type[Stage]]:
+    def get(self, name: str) -> type[Stage] | None:
         """Look up a stage class by registered name.
 
         Args:
@@ -177,7 +174,7 @@ class PluginRegistry:
         """
         return name in self._enabled
 
-    def list_stages(self) -> Dict[str, Type[Stage]]:
+    def list_stages(self) -> dict[str, type[Stage]]:
         """Return a copy of all registered stages.
 
         Returns:
@@ -186,7 +183,7 @@ class PluginRegistry:
         return dict(self._registry)
 
     @property
-    def names(self) -> List[str]:
+    def names(self) -> list[str]:
         """List of all registered stage type names."""
         return list(self._registry.keys())
 
@@ -246,11 +243,11 @@ class PluginRegistry:
 
 
 def register_stage(
-    name: Optional[str] = None,
+    name: str | None = None,
     *,
     enabled: bool = True,
-    registry: Optional[PluginRegistry] = None,
-) -> Callable[[Type[Stage]], Type[Stage]]:
+    registry: PluginRegistry | None = None,
+) -> Callable[[type[Stage]], type[Stage]]:
     """Decorator that registers a :class:`Stage` subclass with the plugin registry.
 
     The stage's class name is used as the registration name unless an explicit
@@ -272,7 +269,7 @@ def register_stage(
     """
     reg = registry or PluginRegistry.get_instance()
 
-    def decorator(cls: Type[Stage]) -> Type[Stage]:
+    def decorator(cls: type[Stage]) -> type[Stage]:
         stage_name = name or cls.__name__
         reg.register(stage_name, cls, enabled=enabled)
 
@@ -304,11 +301,11 @@ class PluginLoader:
 
     def __init__(
         self,
-        registry: Optional[PluginRegistry] = None,
-        search_paths: Optional[List[str]] = None,
+        registry: PluginRegistry | None = None,
+        search_paths: list[str] | None = None,
     ) -> None:
         self.registry = registry or PluginRegistry.get_instance()
-        self.search_paths: List[str] = search_paths or []
+        self.search_paths: list[str] = search_paths or []
 
     def add_search_path(self, path: str) -> None:
         """Add a directory to the plugin search path.
@@ -319,7 +316,7 @@ class PluginLoader:
         if path not in self.search_paths:
             self.search_paths.append(path)
 
-    def discover(self, paths: Optional[List[str]] = None) -> int:
+    def discover(self, paths: list[str] | None = None) -> int:
         """Discover plugins by scanning directories.
 
         Each Python file in the scan path is imported as a module. Any
@@ -408,7 +405,7 @@ class PluginLoader:
         """
         return self.registry.discover_from_module(package_name)
 
-    def list_discovered(self) -> List[Dict[str, Any]]:
+    def list_discovered(self) -> list[dict[str, Any]]:
         """Return metadata for all currently registered stages.
 
         Returns:

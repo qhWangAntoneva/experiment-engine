@@ -8,10 +8,9 @@ from __future__ import annotations
 import time
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, Generic, List, Optional, Tuple, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-
 
 # ──────────────────────────────────────────────
 #  Generic type variables
@@ -64,7 +63,7 @@ class PipelineStageConfig(BaseModel):
     name: str = Field(..., description="Unique stage name")
     stage_type: str = Field(..., description="Registered stage type identifier")
     enabled: bool = Field(True, description="Whether this stage is active")
-    params: Dict[str, Any] = Field(
+    params: dict[str, Any] = Field(
         default_factory=dict, description="Stage-specific parameters"
     )
 
@@ -95,11 +94,11 @@ class InputConfig(BaseModel):
         options: Additional kwargs forwarded to the reader's ``read()`` method.
     """
 
-    format: str = Field("csv", description="Data source format (csv, json, array, synthetic)")
-    path: Optional[str] = Field(None, description="File path for data input")
-    options: Dict[str, Any] = Field(
-        default_factory=dict, description="Reader kwargs"
+    format: str = Field(
+        "csv", description="Data source format (csv, json, array, synthetic)"
     )
+    path: str | None = Field(None, description="File path for data input")
+    options: dict[str, Any] = Field(default_factory=dict, description="Reader kwargs")
 
 
 class ExportConfig(BaseModel):
@@ -113,7 +112,7 @@ class ExportConfig(BaseModel):
     """
 
     format: str = Field("csv", description="Export format (csv, json, html)")
-    output_path: Optional[str] = Field(None, description="Output file path")
+    output_path: str | None = Field(None, description="Output file path")
     include_index: bool = Field(False, description="Include row indices")
     pretty: bool = Field(False, description="Pretty-print output")
 
@@ -132,17 +131,15 @@ class ExperimentConfig(BaseModel):
     """
 
     name: str = Field("experiment", description="Experiment name")
-    description: Optional[str] = Field(None, description="Experiment description")
+    description: str | None = Field(None, description="Experiment description")
     version: str = Field("1.0", description="Config schema version")
-    stages: List[PipelineStageConfig] = Field(
+    stages: list[PipelineStageConfig] = Field(
         default_factory=list, description="Ordered pipeline stage definitions"
     )
-    global_params: Dict[str, Any] = Field(
+    global_params: dict[str, Any] = Field(
         default_factory=dict, description="Parameters shared across all stages"
     )
-    output_dir: Optional[str] = Field(
-        None, description="Directory for output artifacts"
-    )
+    output_dir: str | None = Field(None, description="Directory for output artifacts")
     verbose: bool = Field(False, description="Enable verbose logging")
 
     @field_validator("name")
@@ -170,14 +167,18 @@ class RenderConfig(BaseModel):
         output_path: Optional output file path override.
     """
 
-    plot_type: str = Field("line", description="Plot type (line/scatter/bar/histogram/surface)")
-    title: Optional[str] = Field(None, description="Plot title")
-    xlabel: Optional[str] = Field(None, description="X-axis label")
-    ylabel: Optional[str] = Field(None, description="Y-axis label")
-    figsize: Tuple[float, float] = Field((8.0, 5.0), description="Figure size (width, height)")
+    plot_type: str = Field(
+        "line", description="Plot type (line/scatter/bar/histogram/surface)"
+    )
+    title: str | None = Field(None, description="Plot title")
+    xlabel: str | None = Field(None, description="X-axis label")
+    ylabel: str | None = Field(None, description="Y-axis label")
+    figsize: tuple[float, float] = Field(
+        (8.0, 5.0), description="Figure size (width, height)"
+    )
     dpi: int = Field(150, description="Image resolution")
     colormap: str = Field("viridis", description="Color scheme")
-    output_path: Optional[str] = Field(None, description="Output file path override")
+    output_path: str | None = Field(None, description="Output file path override")
 
 
 # ──────────────────────────────────────────────
@@ -197,15 +198,13 @@ class InputData(BaseModel, Generic[T]):
     """
 
     data: T = Field(..., description="Raw input payload")
-    metadata: Dict[str, Any] = Field(
-        default_factory=dict, description="Input metadata"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Input metadata")
     timestamp: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         description="Creation timestamp",
     )
-    columns: Optional[List[str]] = Field(None, description="Column / feature names")
-    index: Optional[List[Any]] = Field(None, description="Row index labels")
+    columns: list[str] | None = Field(None, description="Column / feature names")
+    index: list[Any] | None = Field(None, description="Row index labels")
 
     @property
     def n_samples(self) -> int:
@@ -224,7 +223,7 @@ class InputData(BaseModel, Generic[T]):
         return 1
 
     @property
-    def shape(self) -> Tuple[int, ...]:
+    def shape(self) -> tuple[int, ...]:
         """Shape of the underlying data array."""
         if hasattr(self.data, "shape"):
             return self.data.shape
@@ -246,8 +245,8 @@ class OutputData(BaseModel, Generic[T]):
     """
 
     raw: T = Field(..., description="Original input data")
-    processed: Optional[T] = Field(None, description="Processed output data")
-    metadata: Dict[str, Any] = Field(
+    processed: T | None = Field(None, description="Processed output data")
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Processing metadata"
     )
     timestamp: datetime = Field(
@@ -281,10 +280,10 @@ class StageResult(BaseModel):
     stage_type: str = Field(..., description="Stage type identifier")
     status: StageStatus = Field(StageStatus.PENDING, description="Execution status")
     duration_ms: float = Field(0.0, description="Duration in milliseconds")
-    started_at: Optional[str] = Field(None, description="Start timestamp (ISO)")
-    completed_at: Optional[str] = Field(None, description="Completion timestamp (ISO)")
-    error: Optional[str] = Field(None, description="Error message on failure")
-    metadata: Dict[str, Any] = Field(
+    started_at: str | None = Field(None, description="Start timestamp (ISO)")
+    completed_at: str | None = Field(None, description="Completion timestamp (ISO)")
+    error: str | None = Field(None, description="Error message on failure")
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Stage-specific result metadata"
     )
 
@@ -310,13 +309,13 @@ class PipelineResult(BaseModel):
         PipelineStatus.PENDING, description="Overall pipeline status"
     )
     total_duration_ms: float = Field(0.0, description="Total duration in milliseconds")
-    stages: List[StageResult] = Field(
+    stages: list[StageResult] = Field(
         default_factory=list, description="Per-stage results in execution order"
     )
-    started_at: Optional[str] = Field(None, description="Start timestamp (ISO)")
-    completed_at: Optional[str] = Field(None, description="Completion timestamp (ISO)")
-    output: Optional[Any] = Field(None, description="Final pipeline output")
-    metadata: Dict[str, Any] = Field(
+    started_at: str | None = Field(None, description="Start timestamp (ISO)")
+    completed_at: str | None = Field(None, description="Completion timestamp (ISO)")
+    output: Any | None = Field(None, description="Final pipeline output")
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Pipeline-level metadata"
     )
 
@@ -357,7 +356,7 @@ class PipelineResult(BaseModel):
         """Total number of stages in the pipeline (excluding sub-pipelines)."""
         return len(self.stages)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize result to a plain dictionary (JSON-compatible)."""
         return self.model_dump(mode="json")
 
@@ -381,7 +380,7 @@ class Timer:
         self._end: float = 0.0
         self.duration_ms: float = 0.0
 
-    def __enter__(self) -> "Timer":
+    def __enter__(self) -> Timer:
         self._start = time.perf_counter()
         return self
 

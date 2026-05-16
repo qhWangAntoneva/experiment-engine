@@ -35,31 +35,28 @@ if str(PROJECT_ROOT) not in sys.path:
 # ══════════════════════════════════════════════════════════════════════
 
 import numpy as np
+from rich import print as rprint
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from rich import print as rprint
 
 from experiment_engine import (
-    Pipeline,
-    Stage,
-    InputData,
-    ExportConfig,
-    PipelineStageConfig,
     ExperimentConfig,
+    ExportConfig,
+    InputData,
+    Pipeline,
     PipelineResult,
-    StageResult,
-    StageStatus,
-    Timer,
+    PipelineStageConfig,
+    Stage,
 )
+from experiment_engine.config import load_config
 from experiment_engine.io import (
-    CSVReader,
     CSVExporter,
-    JSONExporter,
+    CSVReader,
     HTMLExporter,
+    JSONExporter,
 )
-from experiment_engine.plugins import register_stage, PluginRegistry
-from experiment_engine.config import load_config, load_config_from_dict
+from experiment_engine.plugins import PluginRegistry, register_stage
 
 console = Console()
 
@@ -71,7 +68,7 @@ console = Console()
 
 class NormalizerStage(Stage):
     """Normalize numerical features to unit variance.
-    
+
     Non-numeric columns are passed through unchanged.
     """
 
@@ -80,10 +77,9 @@ class NormalizerStage(Stage):
         if arr.ndim < 2:
             arr = arr.reshape(-1, 1)
         # Detect numeric columns (float/int types)
-        numeric_mask = np.array([
-            np.issubdtype(arr[:, i].dtype, np.number)
-            for i in range(arr.shape[1])
-        ])
+        numeric_mask = np.array(
+            [np.issubdtype(arr[:, i].dtype, np.number) for i in range(arr.shape[1])]
+        )
         result = arr.copy()
         if numeric_mask.any():
             numeric_data = arr[:, numeric_mask].astype(float)
@@ -105,14 +101,13 @@ class FeatureStatsStage(Stage):
     def process(self, data: InputData) -> InputData:
         arr = data.data
         columns = data.columns or [f"col_{i}" for i in range(arr.shape[1])]
-        
+
         # Separate numeric and non-numeric columns
-        numeric_mask = np.array([
-            np.issubdtype(arr[:, i].dtype, np.number)
-            for i in range(arr.shape[1])
-        ])
+        numeric_mask = np.array(
+            [np.issubdtype(arr[:, i].dtype, np.number) for i in range(arr.shape[1])]
+        )
         numeric_idx = np.where(numeric_mask)[0]
-        
+
         stats = {}
         if len(numeric_idx) > 0:
             numeric_data = arr[:, numeric_idx].astype(float)
@@ -124,12 +119,14 @@ class FeatureStatsStage(Stage):
                 "p25": np.percentile(numeric_data, 25, axis=0).tolist(),
                 "p75": np.percentile(numeric_data, 75, axis=0).tolist(),
             }
-        
+
         stat_columns = [columns[i] for i in numeric_idx] if len(numeric_idx) > 0 else []
-        rprint(Panel.fit(
-            "[bold cyan]Feature Statistics[/]",
-            border_style="cyan",
-        ))
+        rprint(
+            Panel.fit(
+                "[bold cyan]Feature Statistics[/]",
+                border_style="cyan",
+            )
+        )
         stat_table = Table(title="Per-Feature Summary", header_style="bold magenta")
         stat_table.add_column("Metric", style="bold")
         for col in stat_columns:
@@ -194,9 +191,11 @@ def run_programmatic_example():
         console.print(f"[yellow]⚠[/] Pipeline status: {result.status.value}")
 
     console.print(f"    Total time: [bold]{result.total_duration_ms:.1f} ms[/]")
-    console.print(f"    Stages: {result.total_stages} total, "
-                  f"{result.success_count} OK, "
-                  f"{result.failure_count} failed")
+    console.print(
+        f"    Stages: {result.total_stages} total, "
+        f"{result.success_count} OK, "
+        f"{result.failure_count} failed"
+    )
     console.print()
 
     # ── Export results ───────────────────────────────────────────────
@@ -204,23 +203,35 @@ def run_programmatic_example():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     exporters = [
-        ("CSV", CSVExporter(), ExportConfig(
-            format="csv",
-            output_path=str(output_dir / "demo_results.csv"),
-            include_index=True,
-        )),
-        ("JSON", JSONExporter(), ExportConfig(
-            format="json",
-            output_path=str(output_dir / "demo_results.json"),
-            include_index=True,
-            pretty=True,
-        )),
-        ("HTML", HTMLExporter(), ExportConfig(
-            format="html",
-            output_path=str(output_dir / "demo_results.html"),
-            include_index=True,
-            pretty=True,
-        )),
+        (
+            "CSV",
+            CSVExporter(),
+            ExportConfig(
+                format="csv",
+                output_path=str(output_dir / "demo_results.csv"),
+                include_index=True,
+            ),
+        ),
+        (
+            "JSON",
+            JSONExporter(),
+            ExportConfig(
+                format="json",
+                output_path=str(output_dir / "demo_results.json"),
+                include_index=True,
+                pretty=True,
+            ),
+        ),
+        (
+            "HTML",
+            HTMLExporter(),
+            ExportConfig(
+                format="html",
+                output_path=str(output_dir / "demo_results.html"),
+                include_index=True,
+                pretty=True,
+            ),
+        ),
     ]
 
     # Export the pipeline output (post-normalization data)
@@ -279,7 +290,9 @@ def run_config_driven_example():
         source=str(PROJECT_ROOT / "examples" / "data.csv"),
     )
 
-    console.print(f"[green]✓[/] Loaded {input_data.shape[0]} × {input_data.shape[1]} data")
+    console.print(
+        f"[green]✓[/] Loaded {input_data.shape[0]} × {input_data.shape[1]} data"
+    )
 
     # Run
     result = pipeline.run(data=input_data, experiment_name=cfg.name)
@@ -322,9 +335,16 @@ def run_cli_equivalent():
 
     # Register our custom stage for the config-based flow
     registry = PluginRegistry.get_instance()
-    registry.register("csv_loader", type("CSVLoaderStage", (Stage,), {
-        "process": lambda self, data: data,
-    }))
+    registry.register(
+        "csv_loader",
+        type(
+            "CSVLoaderStage",
+            (Stage,),
+            {
+                "process": lambda self, data: data,
+            },
+        ),
+    )
 
     # Load the YAML config
     config_path = PROJECT_ROOT / "configs" / "config.yaml"
@@ -338,8 +358,12 @@ def run_cli_equivalent():
             console.print(f"      • [bold]{sc.name}[/] ({sc.stage_type}) [{status}]")
         console.print()
         console.print("[dim]To run the CLI equivalent:[/]")
-        console.print(f"  [bold]python -m experiment_engine run -c {config_path} -o results/[/]")
-        console.print("  [bold]python -m experiment_engine validate -c configs/config.yaml[/]")
+        console.print(
+            f"  [bold]python -m experiment_engine run -c {config_path} -o results/[/]"
+        )
+        console.print(
+            "  [bold]python -m experiment_engine validate -c configs/config.yaml[/]"
+        )
     else:
         console.print(f"[yellow]⚠[/] Config file not found: {config_path}")
     console.print()
@@ -351,11 +375,13 @@ def run_cli_equivalent():
 
 
 def main():
-    console.print(Panel.fit(
-        "[bold cyan]experiment-engine[/] — CSV Example",
-        subtitle="Step 6: Examples + E2E Validation",
-        border_style="cyan",
-    ))
+    console.print(
+        Panel.fit(
+            "[bold cyan]experiment-engine[/] — CSV Example",
+            subtitle="Step 6: Examples + E2E Validation",
+            border_style="cyan",
+        )
+    )
     console.print()
 
     # 1. Programmatic API
@@ -373,8 +399,16 @@ def main():
     summary.add_column("Method", style="bold")
     summary.add_column("Pipeline Result")
 
-    prog_status = "[green]✓[/] completed" if prog_result.status.value == "completed" else f"[yellow]⚠[/] {prog_result.status.value}"
-    cfg_status = "[green]✓[/] completed" if cfg_result.status.value == "completed" else f"[yellow]⚠[/] {cfg_result.status.value}"
+    prog_status = (
+        "[green]✓[/] completed"
+        if prog_result.status.value == "completed"
+        else f"[yellow]⚠[/] {prog_result.status.value}"
+    )
+    cfg_status = (
+        "[green]✓[/] completed"
+        if cfg_result.status.value == "completed"
+        else f"[yellow]⚠[/] {cfg_result.status.value}"
+    )
 
     summary.add_row("Programmatic API", prog_status)
     summary.add_row("Config-Driven API", cfg_status)
@@ -388,7 +422,9 @@ def main():
 
     output_dir = PROJECT_ROOT / "results"
     console.print(f"[dim]Output files written to: {output_dir}[/]")
-    console.print("[green]✓[/] [bold]E2E validation complete[/] — all pipeline modes operational")
+    console.print(
+        "[green]✓[/] [bold]E2E validation complete[/] — all pipeline modes operational"
+    )
 
 
 if __name__ == "__main__":

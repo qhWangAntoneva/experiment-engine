@@ -7,7 +7,7 @@ renderers must implement.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional, Union
+from typing import Any
 
 from experiment_engine.models import InputData, RenderConfig
 
@@ -33,7 +33,7 @@ class Renderer(ABC):
         data: InputData,
         config: RenderConfig,
         **kwargs: Any,
-    ) -> Union[str, object]:
+    ) -> str | object:
         """Render *data* according to *config*.
 
         Args:
@@ -48,7 +48,7 @@ class Renderer(ABC):
                 Streamlit handle).
         """
 
-    def supported_formats(self) -> List[str]:
+    def supported_formats(self) -> list[str]:
         """Return the list of output formats this renderer supports.
 
         The base implementation returns an empty list, indicating the

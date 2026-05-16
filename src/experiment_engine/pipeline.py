@@ -10,7 +10,10 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Union
+
+if TYPE_CHECKING:
+    from experiment_engine.plugins import PluginRegistry
 
 from rich.console import Console
 from rich.logging import RichHandler
@@ -18,6 +21,7 @@ from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 from experiment_engine.models import (
+    ExperimentConfig,
     PipelineResult,
     PipelineStageConfig,
     PipelineStatus,
@@ -76,11 +80,11 @@ class Stage(ABC):
 
     def __init__(
         self,
-        name: Optional[str] = None,
-        config: Optional[Dict[str, Any]] = None,
+        name: str | None = None,
+        config: dict[str, Any] | None = None,
     ) -> None:
         self.name: str = name or self.__class__.__name__
-        self.config: Dict[str, Any] = config or {}
+        self.config: dict[str, Any] = config or {}
         self.enabled: bool = True
         self.logger = logging.getLogger(f"experiment_engine.stage.{self.name}")
 
@@ -164,18 +168,18 @@ class Pipeline(Stage):
 
     def __init__(
         self,
-        name: Optional[str] = None,
-        stages: Optional[List[PipelineElement]] = None,
-        config: Optional[Dict[str, Any]] = None,
+        name: str | None = None,
+        stages: list[PipelineElement] | None = None,
+        config: dict[str, Any] | None = None,
         verbose: bool = False,
     ) -> None:
         super().__init__(name=name, config=config)
-        self.stages: List[PipelineElement] = stages or []
+        self.stages: list[PipelineElement] = stages or []
         self.verbose = verbose
 
     # ── Stage management ───────────────────────
 
-    def add_stage(self, stage: PipelineElement) -> "Pipeline":
+    def add_stage(self, stage: PipelineElement) -> Pipeline:
         """Append a stage or sub-pipeline to the end of the pipeline.
 
         Args:
@@ -187,7 +191,7 @@ class Pipeline(Stage):
         self.stages.append(stage)
         return self
 
-    def insert_stage(self, index: int, stage: PipelineElement) -> "Pipeline":
+    def insert_stage(self, index: int, stage: PipelineElement) -> Pipeline:
         """Insert a stage at a specific position.
 
         Args:
@@ -200,7 +204,7 @@ class Pipeline(Stage):
         self.stages.insert(index, stage)
         return self
 
-    def remove_stage(self, name: str) -> Optional[PipelineElement]:
+    def remove_stage(self, name: str) -> PipelineElement | None:
         """Remove and return a stage by name.
 
         Args:
@@ -214,7 +218,7 @@ class Pipeline(Stage):
                 return self.stages.pop(i)
         return None
 
-    def get_stage(self, name: str) -> Optional[PipelineElement]:
+    def get_stage(self, name: str) -> PipelineElement | None:
         """Look up a stage (or sub-pipeline) by name.
 
         Does NOT recursively search sub-pipelines.
@@ -305,8 +309,8 @@ class Pipeline(Stage):
     def run(
         self,
         data: Any,
-        experiment_name: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        experiment_name: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> PipelineResult:
         """Execute the full pipeline with rich result tracking.
 
@@ -329,9 +333,7 @@ class Pipeline(Stage):
             metadata=metadata or {},
         )
 
-        self.logger.info(
-            "[bold cyan]═══ Pipeline: %s ═══[/]", result.experiment_name
-        )
+        self.logger.info("[bold cyan]═══ Pipeline: %s ═══[/]", result.experiment_name)
 
         # ── Setup phase ──
         self.logger.info("[bold]Phase 1: Setup[/]")
@@ -396,9 +398,7 @@ class Pipeline(Stage):
                 result.stages.append(sr)
 
                 status_icon = (
-                    "[green]✓[/]"
-                    if sr.status == StageStatus.COMPLETED
-                    else "[red]✗[/]"
+                    "[green]✓[/]" if sr.status == StageStatus.COMPLETED else "[red]✗[/]"
                 )
                 self.logger.info(
                     "  %s [bold]%s[/] — %.1f ms",
@@ -463,7 +463,7 @@ class Pipeline(Stage):
         _console.print(table)
 
     def configure_from_config(
-        self, config: ExperimentConfig, registry: Optional["PluginRegistry"] = None
+        self, config: ExperimentConfig, registry: PluginRegistry | None = None
     ) -> None:
         """Configure the pipeline from an :class:`ExperimentConfig`.
 

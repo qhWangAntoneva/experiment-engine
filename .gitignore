@@ -31,6 +31,12 @@ node_modules
 # Config overrides
 configs/*.local.yaml
 
+# Ruff cache
+.ruff_cache/
+
+# Mypy cache
+.mypy_cache/
+
 # OpenWolf runtime state (ephemeral — recreated every session)
 .wolf/hooks/_session.json
 .wolf/**/*.tmp

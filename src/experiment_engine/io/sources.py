@@ -10,7 +10,7 @@ from __future__ import annotations
 import sys
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Iterator, List, Optional, Union
+from typing import Any
 
 from experiment_engine.io.readers import (
     CSVReader,
@@ -60,7 +60,7 @@ class DataSource(ABC):
         Raises:
             ValueError: If no suitable DataSource is found.
         """
-        readers: List[DataReader] = [
+        readers: list[DataReader] = [
             CSVReader(),
             JSONReader(),
             SyntheticReader(),
@@ -85,7 +85,7 @@ class FileDataSource(DataSource):
         >>> data = ds.load(delimiter=",")
     """
 
-    def __init__(self, reader: DataReader, path: Union[str, Path]) -> None:
+    def __init__(self, reader: DataReader, path: str | Path) -> None:
         super().__init__(reader, location=str(path))
         self.path = Path(path)
 

@@ -1,8 +1,9 @@
 """CLI interface for experiment-engine. Defines the `run` command using click."""
 
 import sys
-import click
 from pathlib import Path
+
+import click
 
 
 @click.group()
@@ -16,28 +17,40 @@ def cli():
 
 
 @cli.command()
-@click.option("--config", "-c", type=click.Path(exists=True), required=True,
-              help="Path to experiment configuration file (YAML/JSON)")
-@click.option("--output", "-o", type=click.Path(), default=None,
-              help="Output directory for results")
-@click.option("--verbose", "-v", is_flag=True, default=False,
-              help="Enable verbose logging")
+@click.option(
+    "--config",
+    "-c",
+    type=click.Path(exists=True),
+    required=True,
+    help="Path to experiment configuration file (YAML/JSON)",
+)
+@click.option(
+    "--output",
+    "-o",
+    type=click.Path(),
+    default=None,
+    help="Output directory for results",
+)
+@click.option(
+    "--verbose", "-v", is_flag=True, default=False, help="Enable verbose logging"
+)
 def run(config, output, verbose):
     """Run an experiment with the given configuration.
 
     Loads the experiment config, executes the pipeline (input → computation
     → visualization → report), and writes outputs to the specified directory.
     """
-    from experiment_engine.config import load_config
-    from experiment_engine.pipeline import Pipeline
-    from experiment_engine.io import get_reader
-    from experiment_engine.io.sources import FileDataSource, GeneratorDataSource
-    from experiment_engine.io.exporters import CSVExporter, JSONExporter
-    from experiment_engine.models import ExportConfig, InputData, RenderConfig
-    from experiment_engine.viz.console import ConsoleRenderer
-    from rich.console import Console
-    from rich.table import Table
     from pathlib import Path
+
+    from rich.console import Console
+
+    from experiment_engine.config import load_config
+    from experiment_engine.io import get_reader
+    from experiment_engine.io.exporters import CSVExporter, JSONExporter
+    from experiment_engine.io.sources import FileDataSource, GeneratorDataSource
+    from experiment_engine.models import ExportConfig, InputData, RenderConfig
+    from experiment_engine.pipeline import Pipeline
+    from experiment_engine.viz.console import ConsoleRenderer
 
     console = Console()
     console.print("[bold cyan]experiment-engine[/] — pipeline run starting...")
@@ -67,8 +80,7 @@ def run(config, output, verbose):
 
         # Forward params to the reader, stripping format/path
         reader_kwargs = {
-            k: v for k, v in load_stage.params.items()
-            if k not in ("format", "path")
+            k: v for k, v in load_stage.params.items() if k not in ("format", "path")
         }
 
         if fmt == "synthetic":
@@ -115,7 +127,9 @@ def run(config, output, verbose):
                 pretty=True,
             )
             if not isinstance(results.output, InputData):
-                console.print(f"[yellow]⚠[/] Skipping .{ext} export: results.output is not InputData (type: {type(results.output).__name__})")
+                console.print(
+                    f"[yellow]⚠[/] Skipping .{ext} export: results.output is not InputData (type: {type(results.output).__name__})"
+                )
                 continue
             try:
                 out_path = exporter.export(results.output, export_cfg)
@@ -128,18 +142,24 @@ def run(config, output, verbose):
 
 
 @cli.command()
-@click.option("--config", "-c", type=click.Path(exists=True), required=True,
-              help="Path to experiment configuration file")
+@click.option(
+    "--config",
+    "-c",
+    type=click.Path(exists=True),
+    required=True,
+    help="Path to experiment configuration file",
+)
 def validate(config):
     """Validate an experiment configuration file without running it."""
-    from experiment_engine.config import load_config
     from rich.console import Console
     from rich.markup import escape
+
+    from experiment_engine.config import load_config
 
     console = Console()
     try:
         cfg = load_config(Path(config))
-        console.print(f"[green]✓[/] Configuration is valid")
+        console.print("[green]✓[/] Configuration is valid")
         enabled_stages = [s.name for s in cfg.stages if s.enabled]
         console.print(f"     Name: {cfg.name}")
         console.print(f"     Stages: {len(cfg.stages)} total")
@@ -155,9 +175,10 @@ def validate(config):
 @cli.command()
 def list_plugins():
     """List all registered pipeline stage plugins."""
-    from experiment_engine.plugins import PluginRegistry
     from rich.console import Console
     from rich.table import Table
+
+    from experiment_engine.plugins import PluginRegistry
 
     console = Console()
     registry = PluginRegistry.get_instance()

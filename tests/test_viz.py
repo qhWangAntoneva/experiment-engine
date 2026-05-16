@@ -25,7 +25,6 @@ from experiment_engine.viz import (
 )
 from experiment_engine.viz.base import Renderer as RendererBase
 
-
 # ═══════════════════════════════════════════════════════════════════
 #  Helpers
 # ═══════════════════════════════════════════════════════════════════
@@ -229,9 +228,7 @@ class TestConsoleRenderer:
         captured = capsys.readouterr()
         assert "Summary Statistics" in captured.out
 
-    def test_render_show_stats_false(
-        self, capsys: pytest.CaptureFixture[str]
-    ) -> None:
+    def test_render_show_stats_false(self, capsys: pytest.CaptureFixture[str]) -> None:
         r = ConsoleRenderer()
         data = _make_data(n_samples=5, n_features=2)
         config = _make_config()
@@ -287,7 +284,7 @@ class TestConsoleRenderer:
             result = r.render(data, config, output_path=output_path)
             assert isinstance(result, str)
             assert os.path.exists(output_path)
-            with open(output_path, "r") as fh:
+            with open(output_path) as fh:
                 saved = fh.read()
             assert len(saved) > 0
         finally:
@@ -383,12 +380,7 @@ class TestMatplotlibRenderer:
                 os.unlink(output_path)
 
     def test_render_scatter(self) -> None:
-        """Scatter plot with 3 features (colorbar path).
-
-        NOTE: _plot_scatter uses ``plt.colorbar()`` but ``plt`` is not
-        imported in that method's scope — this is a known source bug.
-        Marked xfail until the source is fixed.
-        """
+        """Scatter plot with 3 features (colorbar path)."""
         r = MatplotlibRenderer()
         data = _make_data(n_samples=20, n_features=3)
         with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
@@ -396,8 +388,10 @@ class TestMatplotlibRenderer:
 
         config = _make_config(plot_type="scatter", output_path=output_path)
         try:
-            with pytest.raises(NameError, match="plt"):
-                r.render(data, config)
+            result_path = r.render(data, config)
+            assert result_path == output_path
+            assert os.path.exists(output_path)
+            assert os.path.getsize(output_path) > 100
         finally:
             if os.path.exists(output_path):
                 os.unlink(output_path)
@@ -605,7 +599,7 @@ class TestPlotlyRenderer:
             result = r.render(data, config)
             assert os.path.exists(result)
             assert result.endswith(".html")
-            with open(result, "r") as fh:
+            with open(result) as fh:
                 content = fh.read()
             assert "html" in content.lower()
         finally:

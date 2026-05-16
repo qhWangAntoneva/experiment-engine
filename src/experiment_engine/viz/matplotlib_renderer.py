@@ -8,8 +8,9 @@ surface plots.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 from experiment_engine.models import InputData, RenderConfig
@@ -31,7 +32,7 @@ class MatplotlibRenderer(Renderer):
     def name(self) -> str:
         return "matplotlib"
 
-    def supported_formats(self) -> List[str]:
+    def supported_formats(self) -> list[str]:
         return ["png", "svg", "pdf"]
 
     def render(
@@ -52,6 +53,7 @@ class MatplotlibRenderer(Renderer):
             str: Path to the saved image file.
         """
         import matplotlib
+
         matplotlib.use("Agg")  # Non-interactive backend
 
         import matplotlib.pyplot as plt
@@ -72,7 +74,11 @@ class MatplotlibRenderer(Renderer):
         fig, ax = plt.subplots(figsize=config.figsize)
 
         plot_type = config.plot_type
-        x = np.arange(data.n_samples) if data.index is None else np.array(data.index, dtype=float)
+        x = (
+            np.arange(data.n_samples)
+            if data.index is None
+            else np.array(data.index, dtype=float)
+        )
         cmap = plt.get_cmap(config.colormap)
 
         try:
@@ -158,7 +164,11 @@ class MatplotlibRenderer(Renderer):
                 **kwargs,
             )
             if data.n_features >= 3:
-                plt.colorbar(scatter, ax=ax, label=data.columns[2] if len(data.columns) > 2 else "")
+                plt.colorbar(
+                    scatter,
+                    ax=ax,
+                    label=data.columns[2] if len(data.columns) > 2 else "",
+                )
         else:
             ax.scatter(x, data.data[:, 0], alpha=0.7, **kwargs)
 
@@ -171,7 +181,6 @@ class MatplotlibRenderer(Renderer):
         **kwargs: Any,
     ) -> None:
         """Draw a grouped bar chart."""
-        n_groups = data.n_samples
         n_features = data.n_features
         width = 0.8 / max(n_features, 1)
 
@@ -240,13 +249,19 @@ class MatplotlibRenderer(Renderer):
             x_1d = np.linspace(0, 4 * np.pi, side)
             y_1d = np.linspace(0, 4 * np.pi, side)
             x_grid, y_grid = np.meshgrid(x_1d, y_1d)
-            z_grid = data.data[:side, :side].reshape(side, side) if data.n_samples >= side * side else np.random.randn(side, side)
+            z_grid = (
+                data.data[:side, :side].reshape(side, side)
+                if data.n_samples >= side * side
+                else np.random.randn(side, side)
+            )
 
         # Create a new 3D axis
         fig.clear()
         ax = fig.add_subplot(111, projection="3d")
         surf = ax.plot_surface(
-            x_grid, y_grid, z_grid,
+            x_grid,
+            y_grid,
+            z_grid,
             cmap=cmap,
             alpha=0.9,
             linewidth=0,

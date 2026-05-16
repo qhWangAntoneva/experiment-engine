@@ -7,13 +7,11 @@ and the io/__init__.py module exports.
 
 from __future__ import annotations
 
-import csv
 import json
 import sys
 import tempfile
 from io import StringIO
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pytest
@@ -33,15 +31,13 @@ from experiment_engine.io import (
     SyntheticReader,
     get_reader,
 )
-from experiment_engine.io.readers import DataReader as DataReaderBase
-from experiment_engine.io.sources import DataSource as DataSourceBase
 from experiment_engine.io.exporters import BaseExporter
 from experiment_engine.models import ExportConfig, InputData
-
 
 # ═══════════════════════════════════════════════
 #  Fixtures
 # ═══════════════════════════════════════════════
+
 
 @pytest.fixture
 def temp_dir() -> Path:
@@ -122,11 +118,13 @@ def sample_export_config_html() -> ExportConfig:
 #  io/__init__.py  tests
 # ═══════════════════════════════════════════════
 
+
 class TestIoInit:
     """Tests for the io/__init__.py module exports and helpers."""
 
     def test_reader_map_has_all_keys(self):
         from experiment_engine.io import _READER_MAP
+
         assert "csv" in _READER_MAP
         assert "json" in _READER_MAP
         assert "array" in _READER_MAP
@@ -139,10 +137,19 @@ class TestIoInit:
     def test_all_exports_are_accessible(self):
         """Verify every name listed in __all__ is importable."""
         names = {
-            "DataReader", "CSVReader", "JSONReader", "ArrayReader",
-            "SyntheticReader", "DataSource", "StdinDataSource",
-            "FileDataSource", "GeneratorDataSource",
-            "CSVExporter", "JSONExporter", "HTMLExporter", "get_reader",
+            "DataReader",
+            "CSVReader",
+            "JSONReader",
+            "ArrayReader",
+            "SyntheticReader",
+            "DataSource",
+            "StdinDataSource",
+            "FileDataSource",
+            "GeneratorDataSource",
+            "CSVExporter",
+            "JSONExporter",
+            "HTMLExporter",
+            "get_reader",
         }
         for name in names:
             assert hasattr(sys.modules["experiment_engine.io"], name), (
@@ -177,6 +184,7 @@ class TestIoInit:
 #  readers.py  —  DataReader (ABC)
 # ═══════════════════════════════════════════════
 
+
 class TestDataReaderBase:
     """Tests for the abstract DataReader base class."""
 
@@ -186,26 +194,33 @@ class TestDataReaderBase:
 
     def test_can_read_default_returns_false_for_non_string(self):
         """Base can_read returns False when there is no extension guess."""
+
         class MinimalReader(DataReader):
             @property
             def name(self) -> str:
                 return "minimal"
+
             def read(self, source, **kwargs) -> InputData:
                 return InputData(data=np.array([]))
+
         r = MinimalReader()
         assert r.can_read(42) is False
         assert r.can_read(None) is False
 
     def test_can_read_default_with_extension(self):
         """A reader with _guess_extension returning '.ext' matches paths."""
+
         class ExtReader(DataReader):
             @property
             def name(self) -> str:
                 return "ext"
-            def _guess_extension(self) -> Optional[str]:
+
+            def _guess_extension(self) -> str | None:
                 return ".ext"
+
             def read(self, source, **kwargs) -> InputData:
                 return InputData(data=np.array([]))
+
         r = ExtReader()
         assert r.can_read("data.ext") is True
         assert r.can_read("data.EXT") is True  # case insensitive
@@ -216,6 +231,7 @@ class TestDataReaderBase:
 # ═══════════════════════════════════════════════
 #  readers.py  —  CSVReader
 # ═══════════════════════════════════════════════
+
 
 class TestCSVReader:
     """Tests for CSVReader."""
@@ -305,6 +321,7 @@ class TestCSVReader:
 # ═══════════════════════════════════════════════
 #  readers.py  —  JSONReader
 # ═══════════════════════════════════════════════
+
 
 class TestJSONReader:
     """Tests for JSONReader."""
@@ -404,6 +421,7 @@ class TestJSONReader:
 #  readers.py  —  ArrayReader
 # ═══════════════════════════════════════════════
 
+
 class TestArrayReader:
     """Tests for ArrayReader."""
 
@@ -475,6 +493,7 @@ class TestArrayReader:
 #  readers.py  —  SyntheticReader
 # ═══════════════════════════════════════════════
 
+
 class TestSyntheticReader:
     """Tests for SyntheticReader."""
 
@@ -483,7 +502,12 @@ class TestSyntheticReader:
 
     def test_patterns_constant(self):
         assert SyntheticReader.PATTERNS == (
-            "sine", "cosine", "random", "step", "mixed", "spiral"
+            "sine",
+            "cosine",
+            "random",
+            "step",
+            "mixed",
+            "spiral",
         )
 
     def test_default_read(self):
@@ -531,7 +555,6 @@ class TestSyntheticReader:
         assert data.n_samples == 60
         assert data.n_features == 3
 
-    @pytest.mark.xfail(reason="Bug in source: spiral lambda uses undefined loop variable 'i' (#FIXME)")
     def test_spiral_pattern(self):
         reader = SyntheticReader()
         data = reader.read(n_samples=100, n_features=2, pattern="spiral", seed=42)
@@ -540,7 +563,6 @@ class TestSyntheticReader:
         # Spiral grows in amplitude
         assert np.abs(data.data[-1, 0]) > np.abs(data.data[0, 0])
 
-    @pytest.mark.xfail(reason="Bug in source: spiral lambda uses undefined loop variable 'i' (#FIXME)")
     def test_spiral_with_extra_features(self):
         """spiral with n_features>2 should add random noise columns."""
         reader = SyntheticReader()
@@ -590,7 +612,6 @@ class TestSyntheticReader:
         assert data.n_samples == 0
         assert data.n_features == 2
 
-    @pytest.mark.xfail(reason="Bug in source: spiral lambda uses undefined loop variable 'i' (#FIXME)")
     def test_single_feature_spiral(self):
         """spiral with n_features=1 should produce 2 columns then pad... actually
         spiral always generates at least 2 columns."""
@@ -607,7 +628,9 @@ class TestSyntheticReader:
 
     def test_metadata_contents(self):
         reader = SyntheticReader()
-        data = reader.read(n_samples=50, n_features=3, pattern="mixed", noise=0.1, seed=99)
+        data = reader.read(
+            n_samples=50, n_features=3, pattern="mixed", noise=0.1, seed=99
+        )
         assert data.metadata["source"] == "synthetic"
         assert data.metadata["pattern"] == "mixed"
         assert data.metadata["noise"] == 0.1
@@ -619,6 +642,7 @@ class TestSyntheticReader:
 # ═══════════════════════════════════════════════
 #  sources.py  —  DataSource (ABC)
 # ═══════════════════════════════════════════════
+
 
 class TestDataSourceBase:
     """Tests for the abstract DataSource base class."""
@@ -641,6 +665,7 @@ class TestDataSourceBase:
 # ═══════════════════════════════════════════════
 #  sources.py  —  FileDataSource
 # ═══════════════════════════════════════════════
+
 
 class TestFileDataSource:
     """Tests for FileDataSource."""
@@ -680,6 +705,7 @@ class TestFileDataSource:
 # ═══════════════════════════════════════════════
 #  sources.py  —  StdinDataSource
 # ═══════════════════════════════════════════════
+
 
 class TestStdinDataSource:
     """Tests for StdinDataSource."""
@@ -727,6 +753,7 @@ class TestStdinDataSource:
 #  sources.py  —  GeneratorDataSource
 # ═══════════════════════════════════════════════
 
+
 class TestGeneratorDataSource:
     """Tests for GeneratorDataSource."""
 
@@ -753,6 +780,7 @@ class TestGeneratorDataSource:
 #  sources.py  —  auto_detect
 # ═══════════════════════════════════════════════
 
+
 class TestAutoDetect:
     """Tests for DataSource.auto_detect()
 
@@ -762,13 +790,17 @@ class TestAutoDetect:
     like FileDataSource.
     """
 
-    @pytest.mark.xfail(reason="Bug in source: auto_detect() tries to instantiate abstract DataSource")
+    @pytest.mark.xfail(
+        reason="Bug in source: auto_detect() tries to instantiate abstract DataSource"
+    )
     def test_auto_detect_csv_path(self, sample_csv_path: Path):
         ds = DataSource.auto_detect(sample_csv_path)
         assert isinstance(ds, FileDataSource)
         assert isinstance(ds.reader, CSVReader)
 
-    @pytest.mark.xfail(reason="Bug in source: auto_detect() tries to instantiate abstract DataSource")
+    @pytest.mark.xfail(
+        reason="Bug in source: auto_detect() tries to instantiate abstract DataSource"
+    )
     def test_auto_detect_json_path(self, sample_json_path: Path):
         ds = DataSource.auto_detect(sample_json_path)
         assert isinstance(ds, FileDataSource)
@@ -779,19 +811,25 @@ class TestAutoDetect:
         with pytest.raises(ValueError, match="Cannot auto-detect"):
             DataSource.auto_detect(sample_numpy_array)
 
-    @pytest.mark.xfail(reason="Bug in source: auto_detect() tries to instantiate abstract DataSource")
+    @pytest.mark.xfail(
+        reason="Bug in source: auto_detect() tries to instantiate abstract DataSource"
+    )
     def test_auto_detect_csv_string_path(self):
         ds = DataSource.auto_detect("data.csv")
         assert isinstance(ds, FileDataSource)
         assert isinstance(ds.reader, CSVReader)
 
-    @pytest.mark.xfail(reason="Bug in source: auto_detect() tries to instantiate abstract DataSource")
+    @pytest.mark.xfail(
+        reason="Bug in source: auto_detect() tries to instantiate abstract DataSource"
+    )
     def test_auto_detect_json_string_path(self):
         ds = DataSource.auto_detect("data.json")
         assert isinstance(ds, FileDataSource)
         assert isinstance(ds.reader, JSONReader)
 
-    @pytest.mark.xfail(reason="Bug in source: auto_detect() tries to instantiate abstract DataSource")
+    @pytest.mark.xfail(
+        reason="Bug in source: auto_detect() tries to instantiate abstract DataSource"
+    )
     def test_auto_detect_unknown_extension_fallsback_to_csv(self):
         ds = DataSource.auto_detect("data.unknown")
         assert isinstance(ds, FileDataSource)
@@ -801,7 +839,9 @@ class TestAutoDetect:
         with pytest.raises(ValueError, match="Cannot auto-detect"):
             DataSource.auto_detect(42)
 
-    @pytest.mark.xfail(reason="Bug in source: auto_detect() tries to instantiate abstract DataSource")
+    @pytest.mark.xfail(
+        reason="Bug in source: auto_detect() tries to instantiate abstract DataSource"
+    )
     def test_auto_detect_returns_datasource_subclass(self):
         ds = DataSource.auto_detect("data.csv")
         assert isinstance(ds, DataSource)
@@ -810,6 +850,7 @@ class TestAutoDetect:
 # ═══════════════════════════════════════════════
 #  exporters.py  —  BaseExporter
 # ═══════════════════════════════════════════════
+
 
 class TestBaseExporter:
     """Tests for the abstract BaseExporter."""
@@ -822,6 +863,7 @@ class TestBaseExporter:
 # ═══════════════════════════════════════════════
 #  exporters.py  —  CSVExporter
 # ═══════════════════════════════════════════════
+
 
 class TestCSVExporter:
     """Tests for CSVExporter."""
@@ -924,6 +966,7 @@ class TestCSVExporter:
 # ═══════════════════════════════════════════════
 #  exporters.py  —  JSONExporter
 # ═══════════════════════════════════════════════
+
 
 class TestJSONExporter:
     """Tests for JSONExporter."""
@@ -1030,6 +1073,7 @@ class TestJSONExporter:
 # ═══════════════════════════════════════════════
 #  exporters.py  —  HTMLExporter
 # ═══════════════════════════════════════════════
+
 
 class TestHTMLExporter:
     """Tests for HTMLExporter."""

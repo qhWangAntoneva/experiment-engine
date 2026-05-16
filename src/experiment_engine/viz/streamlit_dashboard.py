@@ -10,7 +10,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any
 
 from experiment_engine.models import InputData, RenderConfig
 from experiment_engine.viz.base import Renderer
@@ -27,7 +27,7 @@ class StreamlitDashboard(Renderer):
         >>> dashboard.run(data)  # launches Streamlit in the browser
     """
 
-    DASHBOARD_TEMPLATE = r'''
+    DASHBOARD_TEMPLATE = r"""
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -179,7 +179,7 @@ with col2:
 
 st.divider()
 st.caption("Experiment Engine • Streamlit Dashboard")
-'''
+"""
 
     @property
     def name(self) -> str:
@@ -239,13 +239,11 @@ st.caption("Experiment Engine • Streamlit Dashboard")
             "false" if open_browser else "true",
         ]
 
-        process = subprocess.Popen(
+        return subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
-
-        return process
 
     def _generate_script(self, data: InputData) -> str:
         """Generate the Streamlit dashboard Python code.
@@ -262,12 +260,11 @@ st.caption("Experiment Engine • Streamlit Dashboard")
         columns_repr = repr(data.columns)
         index_repr = repr(data.index) if data.index else "None"
 
-        script = self.DASHBOARD_TEMPLATE.format(
+        return self.DASHBOARD_TEMPLATE.format(
             data_array=data_array_repr,
             columns=columns_repr,
             index=index_repr,
         )
-        return script
 
     @staticmethod
     def _write_script(script: str) -> Path:

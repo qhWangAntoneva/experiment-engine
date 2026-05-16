@@ -7,12 +7,11 @@ standardized InputData objects.
 
 from __future__ import annotations
 
-import csv
-import itertools
 import json
 from abc import ABC, abstractmethod
+from collections.abc import Iterator, Sequence
 from pathlib import Path
-from typing import Any, Dict, Iterator, List, Optional, Sequence, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -65,7 +64,7 @@ class DataReader(ABC):
             return str(source).lower().endswith(ext)
         return False
 
-    def _guess_extension(self) -> Optional[str]:
+    def _guess_extension(self) -> str | None:
         """Return the default file extension for this reader, if any."""
         return None
 
@@ -86,15 +85,15 @@ class CSVReader(DataReader):
     def name(self) -> str:
         return "csv"
 
-    def _guess_extension(self) -> Optional[str]:
+    def _guess_extension(self) -> str | None:
         return ".csv"
 
     def read(
         self,
-        source: Union[str, Path, Iterator[str]],
+        source: str | Path | Iterator[str],
         delimiter: str = ",",
-        header: Optional[int] = 0,
-        index_col: Optional[int] = None,
+        header: int | None = 0,
+        index_col: int | None = None,
         **kwargs: Any,
     ) -> InputData:
         """Read data from a CSV file or line iterator.
@@ -117,7 +116,7 @@ class CSVReader(DataReader):
             **kwargs,
         )
         columns = [str(c) for c in df.columns.tolist()]
-        index: Optional[List[Any]] = None
+        index: list[Any] | None = None
         if df.index.name is not None:
             index = df.index.tolist()
 
@@ -153,13 +152,13 @@ class JSONReader(DataReader):
     def name(self) -> str:
         return "json"
 
-    def _guess_extension(self) -> Optional[str]:
+    def _guess_extension(self) -> str | None:
         return ".json"
 
     def read(
         self,
-        source: Union[str, Path],
-        data_key: Optional[str] = None,
+        source: str | Path,
+        data_key: str | None = None,
         orient: str = "records",
         **kwargs: Any,
     ) -> InputData:
@@ -199,7 +198,7 @@ class JSONReader(DataReader):
 
         df = pd.DataFrame(raw)
         columns = [str(c) for c in df.columns.tolist()]
-        index: Optional[List[Any]] = None
+        index: list[Any] | None = None
         if df.index.name is not None:
             index = df.index.tolist()
 
@@ -237,10 +236,10 @@ class ArrayReader(DataReader):
 
     def read(
         self,
-        source: Union[np.ndarray, Sequence[Sequence[float]]],
-        columns: Optional[List[str]] = None,
-        index: Optional[List[Any]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        source: np.ndarray | Sequence[Sequence[float]],
+        columns: list[str] | None = None,
+        index: list[Any] | None = None,
+        metadata: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> InputData:
         """Read data from a numpy array.
@@ -289,14 +288,14 @@ class SyntheticReader(DataReader):
 
     def read(
         self,
-        source: Optional[Any] = None,
+        source: Any | None = None,
         n_samples: int = 100,
         n_features: int = 2,
         pattern: str = "sine",
         noise: float = 0.0,
-        seed: Optional[int] = None,
-        columns: Optional[List[str]] = None,
-        index: Optional[List[Any]] = None,
+        seed: int | None = None,
+        columns: list[str] | None = None,
+        index: list[Any] | None = None,
         **kwargs: Any,
     ) -> InputData:
         """Generate synthetic data.
@@ -338,35 +337,39 @@ class SyntheticReader(DataReader):
             ),
             "mixed": lambda: np.column_stack(
                 [
-                    np.sin(t) if i == 0
-                    else rng.standard_normal(n_samples) if i == 1
+                    np.sin(t)
+                    if i == 0
+                    else rng.standard_normal(n_samples)
+                    if i == 1
                     else np.sin(t) + 0.5 * rng.standard_normal(n_samples)
                     for i in range(n_features)
                 ]
             ),
             "spiral": lambda: np.column_stack(
                 [
-                    t * np.cos(t + (2 * np.pi * i / max(1, n_features - 1))),
-                    t * np.sin(t + (2 * np.pi * i / max(1, n_features - 1))),
+                    t * np.cos(t),
+                    t * np.sin(t),
                 ]
                 + [
                     rng.standard_normal(n_samples)
-                    for _ in range(n_features - 2)
+                    for _ in range(max(0, n_features - 2))
                 ]
             ),
         }
 
         if pattern not in generators:
             raise ValueError(
-                f"Unknown pattern '{pattern}'. "
-                f"Choose from {', '.join(self.PATTERNS)}"
+                f"Unknown pattern '{pattern}'. Choose from {', '.join(self.PATTERNS)}"
             )
 
         data = generators[pattern]()
         if data.shape[1] < n_features:
             # Pad with noise if needed (e.g. spiral for n_features > 2)
             padding = np.column_stack(
-                [rng.standard_normal(n_samples) for _ in range(n_features - data.shape[1])]
+                [
+                    rng.standard_normal(n_samples)
+                    for _ in range(n_features - data.shape[1])
+                ]
             )
             data = np.column_stack([data, padding])
         elif data.shape[1] > n_features:

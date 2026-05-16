@@ -8,9 +8,8 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from pydantic import ValidationError
 
@@ -19,7 +18,7 @@ from experiment_engine.models import ExperimentConfig, PipelineStageConfig
 logger = logging.getLogger("experiment_engine.config")
 
 # Default configuration used when no config file is provided.
-_DEFAULT_CONFIG: Dict[str, Any] = {
+_DEFAULT_CONFIG: dict[str, Any] = {
     "name": "default_experiment",
     "description": "Default experiment configuration",
     "version": "1.0",
@@ -49,7 +48,7 @@ def _read_file(path: str) -> str:
     return path_obj.read_text(encoding="utf-8")
 
 
-def _parse_json(content: str, source: str) -> Dict[str, Any]:
+def _parse_json(content: str, source: str) -> dict[str, Any]:
     """Parse JSON string into a dictionary.
 
     Args:
@@ -68,7 +67,7 @@ def _parse_json(content: str, source: str) -> Dict[str, Any]:
         raise ValueError(f"Invalid JSON in {source}: {exc}") from exc
 
 
-def _parse_yaml(content: str, source: str) -> Dict[str, Any]:
+def _parse_yaml(content: str, source: str) -> dict[str, Any]:
     """Parse YAML string into a dictionary.
 
     Uses the ``yaml`` (PyYAML) library if available. Falls back to JSON parsing
@@ -91,7 +90,7 @@ def _parse_yaml(content: str, source: str) -> Dict[str, Any]:
         raise RuntimeError(
             "PyYAML is required to load YAML config files. "
             "Install it with: pip install pyyaml"
-        )
+        ) from None
 
     try:
         parsed = yaml.safe_load(content)
@@ -157,22 +156,19 @@ def load_config(path: str) -> ExperimentConfig:
     content = _read_file(path)
     fmt = _detect_format(path)
 
-    if fmt == "json":
-        data = _parse_json(content, path)
-    else:
-        data = _parse_yaml(content, path)
+    data = _parse_json(content, path) if fmt == "json" else _parse_yaml(content, path)
 
     # Merge with defaults
     merged = merge_defaults(data)
 
     try:
         return ExperimentConfig(**merged)
-    except ValidationError as exc:
+    except ValidationError:
         logger.error("Config validation failed for %s", path)
         raise
 
 
-def load_config_from_dict(data: Dict[str, Any]) -> ExperimentConfig:
+def load_config_from_dict(data: dict[str, Any]) -> ExperimentConfig:
     """Load an experiment configuration from an in-memory dictionary.
 
     Useful for programmatic configuration without a file on disk.
@@ -190,7 +186,7 @@ def load_config_from_dict(data: Dict[str, Any]) -> ExperimentConfig:
     return ExperimentConfig(**merged)
 
 
-def merge_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
+def merge_defaults(config: dict[str, Any]) -> dict[str, Any]:
     """Merge a configuration dictionary with system defaults.
 
     Missing top-level keys are filled from the default configuration.
@@ -215,7 +211,7 @@ def merge_defaults(config: Dict[str, Any]) -> Dict[str, Any]:
 
 def apply_cli_overrides(
     config: ExperimentConfig,
-    overrides: Dict[str, Any],
+    overrides: dict[str, Any],
 ) -> ExperimentConfig:
     """Override experiment config fields with CLI argument values.
 
@@ -245,7 +241,7 @@ def apply_cli_overrides(
     return ExperimentConfig(**data)
 
 
-def _set_nested(d: Dict[str, Any], dotted_path: str, value: Any) -> None:
+def _set_nested(d: dict[str, Any], dotted_path: str, value: Any) -> None:
     """Set a value in a nested dictionary using a dotted path.
 
     Args:
@@ -278,7 +274,7 @@ def _set_nested(d: Dict[str, Any], dotted_path: str, value: Any) -> None:
 # ──────────────────────────────────────────────
 
 
-def list_stages_from_config(config: ExperimentConfig) -> List[str]:
+def list_stages_from_config(config: ExperimentConfig) -> list[str]:
     """Return the names of all enabled stages in a configuration.
 
     Args:
@@ -290,7 +286,7 @@ def list_stages_from_config(config: ExperimentConfig) -> List[str]:
     return [s.name for s in config.stages if s.enabled]
 
 
-def config_to_dict(config: ExperimentConfig) -> Dict[str, Any]:
+def config_to_dict(config: ExperimentConfig) -> dict[str, Any]:
     """Serialize an :class:`ExperimentConfig` to a plain dictionary.
 
     Args:
@@ -362,7 +358,9 @@ def generate_example_config(path: str, fmt: str = "yaml") -> str:
         try:
             import yaml
         except ImportError:
-            raise RuntimeError("PyYAML is required to generate YAML config files")
+            raise RuntimeError(
+                "PyYAML is required to generate YAML config files"
+            ) from None
 
         content = yaml.dump(data, default_flow_style=False, sort_keys=False)
     else:

@@ -10,9 +10,7 @@ import json
 import logging
 import os
 import tempfile
-import threading
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pytest
 
@@ -86,7 +84,7 @@ class ErrorStage(Stage):
 class SetupTrackingStage(Stage):
     """Stage that tracks lifecycle calls for testing."""
 
-    def __init__(self, tracker: Optional[Dict[str, bool]] = None) -> None:
+    def __init__(self, tracker: dict[str, bool] | None = None) -> None:
         super().__init__()
         self.tracker = tracker if tracker is not None else {}
 
@@ -158,7 +156,7 @@ class TestStage:
         assert stage.process(5) == 15
 
     def test_lifecycle_calls(self) -> None:
-        tracker: Dict[str, bool] = {}
+        tracker: dict[str, bool] = {}
         stage = SetupTrackingStage(tracker=tracker)
         stage.setup()
         stage.process("data")
@@ -312,9 +310,7 @@ class TestPipeline:
         config = ExperimentConfig(
             name="config_test",
             stages=[
-                PipelineStageConfig(
-                    name="first", stage_type="uppercase", enabled=True
-                ),
+                PipelineStageConfig(name="first", stage_type="uppercase", enabled=True),
                 PipelineStageConfig(
                     name="second",
                     stage_type="multiply",
@@ -524,9 +520,7 @@ class TestPluginRegistry:
     def test_discover_from_module(self) -> None:
         """Test that discover_from_module loads a module with registered stages."""
         registry = PluginRegistry.get_instance()
-        count = registry.discover_from_module(
-            "tests.test_pipeline"
-        )  # self-referential
+        count = registry.discover_from_module("tests.test_pipeline")  # self-referential
         # At minimum our own identities are registered
         assert count >= 0
 
@@ -662,9 +656,7 @@ class TestConfig:
 
     def test_load_config_json(self) -> None:
         """Test loading from a JSON file."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(
                 {
                     "name": "json_exp",
@@ -692,9 +684,7 @@ class TestConfig:
             load_config("/nonexistent/config.json")
 
     def test_load_config_bad_format(self) -> None:
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".bad", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".bad", delete=False) as f:
             f.write("{}")
             temp_path = f.name
 
@@ -705,9 +695,7 @@ class TestConfig:
             os.unlink(temp_path)
 
     def test_load_config_invalid_json(self) -> None:
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             f.write("{invalid json}")
             temp_path = f.name
 
@@ -719,7 +707,9 @@ class TestConfig:
 
     def test_apply_cli_overrides(self) -> None:
         config = ExperimentConfig(name="base", verbose=False)
-        overridden = apply_cli_overrides(config, {"name": "override_exp", "verbose": True})
+        overridden = apply_cli_overrides(
+            config, {"name": "override_exp", "verbose": True}
+        )
         assert overridden.name == "override_exp"
         assert overridden.verbose is True
 
@@ -732,9 +722,7 @@ class TestConfig:
                 )
             ],
         )
-        overridden = apply_cli_overrides(
-            config, {"stages.0.params.path": "/new"}
-        )
+        overridden = apply_cli_overrides(config, {"stages.0.params.path": "/new"})
         assert overridden.stages[0].params["path"] == "/new"
 
     def test_list_stages_from_config(self) -> None:
@@ -868,9 +856,7 @@ class TestIntegration:
         config = ExperimentConfig(
             name="skip_test",
             stages=[
-                PipelineStageConfig(
-                    name="active", stage_type="enabled", enabled=True
-                ),
+                PipelineStageConfig(name="active", stage_type="enabled", enabled=True),
                 PipelineStageConfig(
                     name="inactive", stage_type="disabled", enabled=False
                 ),

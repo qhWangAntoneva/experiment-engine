@@ -10,9 +10,7 @@ import csv
 import json
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
-
-import numpy as np
+from typing import Any
 
 from experiment_engine.models import ExportConfig, InputData
 
@@ -85,14 +83,14 @@ class CSVExporter(BaseExporter):
             # Write header
             header = list(data.columns)
             if config.include_index and data.index is not None:
-                header = ["index"] + header
+                header = ["index", *header]
             writer.writerow(header)
 
             # Write rows
             for i in range(data.n_samples):
                 row = data.data[i].tolist()
                 if config.include_index and data.index is not None:
-                    row = [data.index[i]] + row
+                    row = [data.index[i], *row]
                 writer.writerow(row)
 
         return str(path.resolve())
@@ -130,9 +128,9 @@ class JSONExporter(BaseExporter):
         path = Path(output_path)
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        records: List[Dict[str, Any]] = []
+        records: list[dict[str, Any]] = []
         for i in range(data.n_samples):
-            record = dict(zip(data.columns, data.data[i].tolist()))
+            record = dict(zip(data.columns, data.data[i].tolist(), strict=False))
             if config.include_index and data.index is not None:
                 record["index"] = data.index[i]
             records.append(record)
@@ -178,16 +176,18 @@ class HTMLExporter(BaseExporter):
         path = Path(output_path)
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        lines: List[str] = []
+        lines: list[str] = []
         lines.append("<!DOCTYPE html>")
         lines.append("<html><head><meta charset='utf-8'>")
         lines.append("<style>")
         lines.append("table { border-collapse: collapse; font-family: sans-serif; }")
-        lines.append("th, td { border: 1px solid #ccc; padding: 6px 12px; text-align: right; }")
+        lines.append(
+            "th, td { border: 1px solid #ccc; padding: 6px 12px; text-align: right; }"
+        )
         lines.append("th { background: #f5f5f5; font-weight: bold; }")
         lines.append("tr:nth-child(even) { background: #fafafa; }")
         lines.append("</style></head><body>")
-        lines.append(f"<table>\n<thead><tr>")
+        lines.append("<table>\n<thead><tr>")
 
         # Header row
         if config.include_index and data.index is not None:

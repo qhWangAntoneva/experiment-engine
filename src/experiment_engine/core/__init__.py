@@ -5,7 +5,11 @@ The primary Pipeline/Stage implementations live in
 provides a secondary namespace for modular additions.
 """
 
-from experiment_engine.pipeline import Pipeline, Stage, PipelineResult
-from experiment_engine.pipeline import PipelineElement  # noqa: F401
+from experiment_engine.pipeline import (
+    Pipeline,
+    PipelineElement,
+    PipelineResult,
+    Stage,
+)
 
-__all__ = ["Pipeline", "Stage", "PipelineResult"]
+__all__ = ["Pipeline", "PipelineResult", "Stage"]
