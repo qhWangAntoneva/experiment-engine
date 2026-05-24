@@ -13,6 +13,9 @@
  *                                install packages
  *                                mount project modules
  *                                run Python → serialize → postMessage back
+ *
+ * Python logic lives in experiment_engine.pyodide_handlers (testable).
+ * This file only handles VFS I/O and message passing.
  */
 
 import type {
@@ -39,6 +42,38 @@ function respond(msg: PyodideWorkerResponse): void {
 
 function log(level: 'debug' | 'info' | 'warn' | 'error', message: string): void {
   respond({ type: 'log', message, level });
+}
+
+// ─── Generic Pyodide handler runner ────────────────────────────────────────
+
+/**
+ * Template for all handlers:
+ *   1. ensureReady()
+ *   2. Write each input JSON file to Pyodide VFS via FS.writeFile
+ *   3. Call the Python handler via runPythonAsync (import + single function call)
+ *   4. Read the output JSON file from Pyodide VFS via FS.readFile
+ *   5. Return parsed result
+ *
+ * @param handlerExpr - Python statement: import + function call.
+ *   e.g. "from experiment_engine.pyodide_handlers import handle_analyze; handle_analyze('/tmp/a.json', '/tmp/b.json', '/tmp/out.json')"
+ * @param inputSpecs - Array of [vfsPath, jsonData] pairs to write before running.
+ * @param outputPath - VFS path where the Python handler writes its JSON result.
+ * @returns Parsed JSON output from the Python handler.
+ */
+async function runHandler(
+  handlerExpr: string,
+  inputSpecs: Array<[string, any]>,
+  outputPath: string,
+): Promise<any> {
+  ensureReady();
+
+  for (const [path, data] of inputSpecs) {
+    pyodide.FS.writeFile(path, JSON.stringify(data), { encoding: 'utf8' });
+  }
+
+  await pyodide.runPythonAsync(handlerExpr);
+  const raw = pyodide.FS.readFile(outputPath, { encoding: 'utf8' });
+  return JSON.parse(raw);
 }
 
 // ─── Python code template for mounting project modules ─────────────────────
@@ -114,7 +149,7 @@ self.onmessage = async (event: MessageEvent<PyodideWorkerRequest>) => {
         respond({
           type: 'package-status',
           packages: Object.fromEntries(
-            loadedPackages.map((p) => [p, 'loaded'])
+            loadedPackages.map((p) => [p, 'loaded']),
           ),
         });
         break;
@@ -256,66 +291,17 @@ for _pkg in _packages:
 
 async function handleCalibrate(
   texts: TextCorpusEntry[],
-  conditionSet: any
+  conditionSet: any,
 ): Promise<void> {
-  ensureReady();
-
   try {
-    // Serialize inputs and write to Pyodide VFS to avoid code injection via template literals
-    const textsJson = JSON.stringify(texts);
-    const conditionSetJson = JSON.stringify(conditionSet);
-
-    pyodide.FS.writeFile('/tmp/texts.json', textsJson, { encoding: 'utf8' });
-    pyodide.FS.writeFile('/tmp/condition_set.json', conditionSetJson, { encoding: 'utf8' });
-
-    const resultJson = await pyodide.runPythonAsync(`
-import json
-from experiment_engine.text_calibration.calibrator import TextCalibrationStage
-from experiment_engine.text_calibration.condition import _condition_set_from_dict
-from experiment_engine.models import TrainingSample
-
-with open('/tmp/texts.json', 'r', encoding='utf-8') as f:
-    _texts = json.load(f)
-with open('/tmp/condition_set.json', 'r', encoding='utf-8') as f:
-    _cs_dict = json.load(f)
-_condition_set = _condition_set_from_dict(_cs_dict)
-
-# Build TrainingSample objects
-_samples = []
-for _t in _texts:
-    _s = TrainingSample(
-        text_id=_t['text_id'],
-        text=_t['text'],
-        metadata=_t.get('metadata', {})
-    )
-    _samples.append(_s)
-
-_calibrator = TextCalibrationStage(condition_set=_condition_set)
-_calibrator.setup()
-
-# Process samples → fuzzy-set data
-_fuzzy_data = None
-for _s in _samples:
-    _result = _calibrator.calibrate_one(_s)
-    if _fuzzy_data is None:
-        import numpy as np
-        _arr = np.array([_result])
-    else:
-        _arr = np.vstack([_fuzzy_data, _result])
-
-# Build the serializable output
-_json_out = {
-    "membership": _fuzzy_data.membership.tolist() if hasattr(_fuzzy_data, 'membership') else _arr.tolist(),
-    "case_ids": _fuzzy_data.case_ids if hasattr(_fuzzy_data, 'case_ids') else [],
-    "condition_names": _fuzzy_data.condition_names if hasattr(_fuzzy_data, 'condition_names') else [],
-    "outcome_name": _fuzzy_data.outcome_name if hasattr(_fuzzy_data, 'outcome_name') else "",
-    "texts": [t.text for t in _samples],
-    "metadata": {}
-}
-json.dumps(_json_out)
-`);
-
-    const fuzzyData = JSON.parse(resultJson);
+    const fuzzyData = await runHandler(
+      "from experiment_engine.pyodide_handlers import handle_calibrate; handle_calibrate('/tmp/texts.json', '/tmp/condition_set.json', '/tmp/calibrate_output.json')",
+      [
+        ['/tmp/texts.json', texts],
+        ['/tmp/condition_set.json', conditionSet],
+      ],
+      '/tmp/calibrate_output.json',
+    );
     respond({ type: 'calibrate-done', fuzzyData });
   } catch (err: any) {
     const msg = err.message || String(err);
@@ -327,52 +313,17 @@ json.dumps(_json_out)
 
 async function handleCalibratePrototype(
   textCases: any[],
-  conditionSet: any
+  conditionSet: any,
 ): Promise<void> {
-  ensureReady();
-
   try {
-    const casesJson = JSON.stringify(textCases);
-    const csJson = JSON.stringify(conditionSet);
-
-    pyodide.FS.writeFile('/tmp/text_cases.json', casesJson, { encoding: 'utf8' });
-    pyodide.FS.writeFile('/tmp/condition_set.json', csJson, { encoding: 'utf8' });
-
-    const resultJson = await pyodide.runPythonAsync(`
-import json
-import numpy as np
-from experiment_engine.text_calibration.calibrator import TextCalibrationStage
-from experiment_engine.text_calibration.condition import _condition_set_from_dict
-from experiment_engine.models import InputData
-
-with open('/tmp/text_cases.json', 'r', encoding='utf-8') as f:
-    _cases = json.load(f)
-with open('/tmp/condition_set.json', 'r', encoding='utf-8') as f:
-    _cs_dict = json.load(f)
-_condition_set = _condition_set_from_dict(_cs_dict)
-
-_texts = [c['text'] for c in _cases]
-_outcomes = np.array([c.get('outcome', 0) for c in _cases], dtype=np.float64)
-_case_ids = [c['text_id'] for c in _cases]
-
-_calibrator = TextCalibrationStage(condition_set=_condition_set)
-_calibrator.setup()
-
-_data = InputData(data=np.array(_texts, dtype=object), index=_case_ids)
-_result = _calibrator.process_with_outcome(_data, _outcomes)
-_fuzzy = _result.processed
-
-json.dumps({
-    "membership": _fuzzy.membership.tolist(),
-    "case_ids": _fuzzy.case_ids,
-    "condition_names": _fuzzy.condition_names,
-    "outcome_name": _fuzzy.outcome_name,
-    "texts": _texts,
-    "metadata": _fuzzy.metadata,
-})
-`);
-
-    const fuzzyData = JSON.parse(resultJson);
+    const fuzzyData = await runHandler(
+      "from experiment_engine.pyodide_handlers import handle_calibrate_prototype; handle_calibrate_prototype('/tmp/text_cases.json', '/tmp/condition_set.json', '/tmp/calibrate_proto_output.json')",
+      [
+        ['/tmp/text_cases.json', textCases],
+        ['/tmp/condition_set.json', conditionSet],
+      ],
+      '/tmp/calibrate_proto_output.json',
+    );
     respond({ type: 'calibrate-prototype-done', fuzzyData });
   } catch (err: any) {
     const msg = err.message || String(err);
@@ -398,50 +349,17 @@ async function handleLoadCorpus(source: any): Promise<void> {
 
 async function handleAnalyze(
   fuzzyDataJson: any,
-  params: any
+  params: any,
 ): Promise<void> {
-  ensureReady();
-
   try {
-    const fdJson = JSON.stringify(fuzzyDataJson);
-    const paramsJson = JSON.stringify(params);
-
-    pyodide.FS.writeFile('/tmp/fuzzy_data.json', fdJson, { encoding: 'utf8' });
-    pyodide.FS.writeFile('/tmp/params.json', paramsJson, { encoding: 'utf8' });
-
-    const resultJson = await pyodide.runPythonAsync(`
-import json
-import numpy as np
-from experiment_engine.models import FuzzySetData
-from experiment_engine.qca_engine.analyzer import QCAnalyzerStage
-
-with open('/tmp/fuzzy_data.json', 'r', encoding='utf-8') as f:
-    _fd_dict = json.load(f)
-with open('/tmp/params.json', 'r', encoding='utf-8') as f:
-    _params = json.load(f)
-
-_fuzzy = FuzzySetData(
-    membership=np.array(_fd_dict['membership']),
-    case_ids=_fd_dict.get('case_ids'),
-    condition_names=_fd_dict.get('condition_names', []),
-    outcome_name=_fd_dict.get('outcome_name', ''),
-    texts=_fd_dict.get('texts'),
-    metadata=_fd_dict.get('metadata', {})
-)
-
-_analyzer = QCAnalyzerStage(
-    consistency_threshold=_params.get('consistency_threshold', 0.75),
-    frequency_threshold=_params.get('frequency_threshold', 1.0),
-)
-_analyzer.setup()
-_result = _analyzer.analyze(_fuzzy)
-
-# Serialize to JSON-safe dict
-_out = _result.model_dump(mode='json')
-json.dumps(_out, default=str)
-`);
-
-    const result = JSON.parse(resultJson);
+    const result = await runHandler(
+      "from experiment_engine.pyodide_handlers import handle_analyze; handle_analyze('/tmp/fuzzy_data.json', '/tmp/params.json', '/tmp/analyze_output.json')",
+      [
+        ['/tmp/fuzzy_data.json', fuzzyDataJson],
+        ['/tmp/params.json', params],
+      ],
+      '/tmp/analyze_output.json',
+    );
     respond({ type: 'analyze-done', result });
   } catch (err: any) {
     const msg = err.message || String(err);
@@ -453,44 +371,17 @@ json.dumps(_out, default=str)
 
 async function handleRobustness(
   fuzzyDataJson: any,
-  analysisResultJson: any
+  analysisResultJson: any,
 ): Promise<void> {
-  ensureReady();
-
   try {
-    const fdJson = JSON.stringify(fuzzyDataJson);
-    const arJson = JSON.stringify(analysisResultJson);
-
-    pyodide.FS.writeFile('/tmp/fuzzy_data.json', fdJson, { encoding: 'utf8' });
-    pyodide.FS.writeFile('/tmp/analysis_result.json', arJson, { encoding: 'utf8' });
-
-    const resultJson = await pyodide.runPythonAsync(`
-import json
-import numpy as np
-from experiment_engine.models import FuzzySetData, QCAAnalysisResult
-from experiment_engine.qca_engine.advanced.robustness import RobustnessTester
-
-with open('/tmp/fuzzy_data.json', 'r', encoding='utf-8') as f:
-    _fd_dict = json.load(f)
-with open('/tmp/analysis_result.json', 'r', encoding='utf-8') as f:
-    _ar_dict = json.load(f)
-
-_fuzzy = FuzzySetData(
-    membership=np.array(_fd_dict['membership']),
-    case_ids=_fd_dict.get('case_ids'),
-    condition_names=_fd_dict.get('condition_names', []),
-    outcome_name=_fd_dict.get('outcome_name', ''),
-)
-
-_baseline = QCAAnalysisResult(**_ar_dict)
-
-_tester = RobustnessTester()
-_report = _tester.run_all(_fuzzy, _baseline)
-
-json.dumps(_report.model_dump(mode='json'), default=str)
-`);
-
-    const report = JSON.parse(resultJson);
+    const report = await runHandler(
+      "from experiment_engine.pyodide_handlers import handle_robustness; handle_robustness('/tmp/fuzzy_data.json', '/tmp/analysis_result.json', '/tmp/robustness_output.json')",
+      [
+        ['/tmp/fuzzy_data.json', fuzzyDataJson],
+        ['/tmp/analysis_result.json', analysisResultJson],
+      ],
+      '/tmp/robustness_output.json',
+    );
     respond({ type: 'robustness-done', report });
   } catch (err: any) {
     const msg = err.message || String(err);
@@ -502,44 +393,17 @@ json.dumps(_report.model_dump(mode='json'), default=str)
 
 async function handleCounterfactuals(
   fuzzyDataJson: any,
-  analysisResultJson: any
+  analysisResultJson: any,
 ): Promise<void> {
-  ensureReady();
-
   try {
-    const fdJson = JSON.stringify(fuzzyDataJson);
-    const arJson = JSON.stringify(analysisResultJson);
-
-    pyodide.FS.writeFile('/tmp/fuzzy_data.json', fdJson, { encoding: 'utf8' });
-    pyodide.FS.writeFile('/tmp/analysis_result.json', arJson, { encoding: 'utf8' });
-
-    const resultJson = await pyodide.runPythonAsync(`
-import json
-import numpy as np
-from experiment_engine.models import FuzzySetData, QCAAnalysisResult
-from experiment_engine.qca_engine.advanced.counterfactual import CounterfactualAnalyzer
-
-with open('/tmp/fuzzy_data.json', 'r', encoding='utf-8') as f:
-    _fd_dict = json.load(f)
-with open('/tmp/analysis_result.json', 'r', encoding='utf-8') as f:
-    _ar_dict = json.load(f)
-
-_fuzzy = FuzzySetData(
-    membership=np.array(_fd_dict['membership']),
-    case_ids=_fd_dict.get('case_ids'),
-    condition_names=_fd_dict.get('condition_names', []),
-    outcome_name=_fd_dict.get('outcome_name', ''),
-)
-
-_baseline = QCAAnalysisResult(**_ar_dict)
-
-_cf_analyzer = CounterfactualAnalyzer()
-_report = _cf_analyzer.analyze(_fuzzy, _baseline)
-
-json.dumps(_report.model_dump(mode='json'), default=str)
-`);
-
-    const report = JSON.parse(resultJson);
+    const report = await runHandler(
+      "from experiment_engine.pyodide_handlers import handle_counterfactuals; handle_counterfactuals('/tmp/fuzzy_data.json', '/tmp/analysis_result.json', '/tmp/counterfactuals_output.json')",
+      [
+        ['/tmp/fuzzy_data.json', fuzzyDataJson],
+        ['/tmp/analysis_result.json', analysisResultJson],
+      ],
+      '/tmp/counterfactuals_output.json',
+    );
     respond({ type: 'counterfactuals-done', report });
   } catch (err: any) {
     const msg = err.message || String(err);
@@ -554,50 +418,17 @@ json.dumps(_report.model_dump(mode='json'), default=str)
 
 async function handleExport(
   format: 'csv' | 'json' | 'latex',
-  resultJson: any
+  resultJson: any,
 ): Promise<void> {
-  ensureReady();
-
   try {
-    const rJson = JSON.stringify(resultJson);
-
-    pyodide.FS.writeFile('/tmp/export_result.json', rJson, { encoding: 'utf8' });
-
-    const { data, mimeType } = await pyodide.runPythonAsync(`
-import json, io
-from experiment_engine.models import QCAAnalysisResult
-
-with open('/tmp/export_result.json', 'r', encoding='utf-8') as f:
-    _ar_dict = json.load(f)
-_result = QCAAnalysisResult(**_ar_dict)
-
-fmt = '${format}'
-
-if fmt == 'json':
-    out = json.dumps(_result.model_dump(mode='json'), indent=2, ensure_ascii=False, default=str)
-    mime = 'application/json'
-elif fmt == 'csv':
-    buf = io.StringIO()
-    import csv as _csv
-    if _result.fuzzy_data:
-        w = _csv.writer(buf)
-        header = _result.fuzzy_data.condition_names + [_result.fuzzy_data.outcome_name]
-        w.writerow(header)
-        for row in _result.fuzzy_data.membership:
-            w.writerow(row.tolist())
-    out = buf.getvalue()
-    mime = 'text/csv'
-elif fmt == 'latex':
-    from experiment_engine.report.qca_reporter import QCAReporter
-    _reporter = QCAReporter()
-    out = _reporter.generate(_result)
-    mime = 'application/x-latex'
-else:
-    raise ValueError(f'Unknown export format: {fmt}')
-
-(out, mime)
-`);
-
+    const { data, mime: mimeType } = await runHandler(
+      "from experiment_engine.pyodide_handlers import handle_export; handle_export('/tmp/export_result.json', '/tmp/export_config.json', '/tmp/export_output.json')",
+      [
+        ['/tmp/export_result.json', resultJson],
+        ['/tmp/export_config.json', { format }],
+      ],
+      '/tmp/export_output.json',
+    );
     respond({ type: 'export-done', data, mimeType });
   } catch (err: any) {
     const msg = err.message || String(err);
@@ -608,37 +439,12 @@ else:
 // ─── Validate Condition Set ──────────────────────────────────────────────
 
 async function handleValidate(conditionSet: any): Promise<void> {
-  ensureReady();
-
   try {
-    const csJson = JSON.stringify(conditionSet);
-
-    pyodide.FS.writeFile('/tmp/condition_set.json', csJson, { encoding: 'utf8' });
-
-    const resultJson = await pyodide.runPythonAsync(`
-import json
-from experiment_engine.text_calibration.condition import _condition_set_from_dict
-
-with open('/tmp/condition_set.json', 'r', encoding='utf-8') as f:
-    _cs_dict = json.load(f)
-_cs = _condition_set_from_dict(_cs_dict)
-
-warnings = []
-if not _cs.conditions:
-    warnings.append("No causal conditions defined")
-if _cs.outcome is None:
-    warnings.append("No outcome condition defined")
-for c in _cs.conditions:
-    if not c.keywords:
-        warnings.append(f"Condition '{c.name}' has no keywords")
-    if c.calibration_params is None:
-        warnings.append(f"Condition '{c.name}' has no calibration parameters")
-
-valid = len(warnings) == 0
-json.dumps({"valid": valid, "warnings": warnings})
-`);
-
-    const { valid, warnings } = JSON.parse(resultJson);
+    const { valid, warnings } = await runHandler(
+      "from experiment_engine.pyodide_handlers import handle_validate; handle_validate('/tmp/condition_set.json', '/tmp/validate_output.json')",
+      [['/tmp/condition_set.json', conditionSet]],
+      '/tmp/validate_output.json',
+    );
     respond({ type: 'validate-done', valid, warnings });
   } catch (err: any) {
     const msg = err.message || String(err);

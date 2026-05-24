@@ -113,6 +113,7 @@ ignore = ["B008", "ARG001", "ARG002", "E501"]
 "tests/test_viz.py" = ["SLF001"]  # private access in unit tests is expected
 "tests/test_pipeline.py" = ["B017", "SLF001"]  # broad Exception + private access in unit tests
 "tests/test_prototype_similarity.py" = ["RUF001", "SLF001", "B017"]  # CJK chars + private access + pytest.raises(Exception)
+"tests/test_qca_core.py" = ["RUF001", "SLF001"]  # CJK chars in test strings + private method access in unit tests
 
 [tool.ruff.format]
 quote-style = "double"

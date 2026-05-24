@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T12:42:08.975Z
-> Files: 101 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T13:06:43.792Z
+> Files: 104 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -14,12 +14,12 @@
 - `.gitignore` — Git ignore rules (~134 tok)
 - `.pre-commit-config.yaml` (~116 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
-- `FIXME.md` — FIXME — QCA Analysis Tool (~1994 tok)
+- `FIXME.md` — FIXME — QCA Analysis Tool (~2076 tok)
 - `HACK.md` — HACK — QCA Analysis Tool (~1201 tok)
 - `index.html` — QCA Simulation Tool (~130 tok)
 - `package-lock.json` — npm lock file (~17146 tok)
 - `package.json` — Node.js package manifest (~160 tok)
-- `pyproject.toml` — QCA Text Analysis Tool: citizen feedback text to fuzzy-set QCA analysis (~1235 tok)
+- `pyproject.toml` — QCA Text Analysis Tool: citizen feedback text to fuzzy-set QCA analysis (~1266 tok)
 - `TODO.md` — 功能需求与增强计划（51 项：8 P0 + 23 P1 + 20 P2，含交叉引用） (~4300 tok)
 - `tsconfig.app.json` (~160 tok)
 - `tsconfig.json` — TypeScript configuration (~34 tok)
@@ -69,6 +69,7 @@
 - `models.py` — Pydantic data models for the experiment-engine pipeline framework. (~9703 tok)
 - `pipeline.py` — Pipeline and Stage abstract base classes. (~5114 tok)
 - `plugins.py` — BasePlugin + PluginRegistry + @register_stage (~1200 tok)
+- `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~3518 tok)
 
 ## src/experiment_engine/algorithms/
 
@@ -160,7 +161,7 @@
 ## src/services/
 
 - `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~3295 tok)
-- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~6121 tok)
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~4552 tok)
 
 ## src/store/
 
@@ -176,6 +177,8 @@
 - `test_integration.py` — Integration tests for experiment-engine. (~11590 tok)
 - `test_pipeline.py` — Unit tests for the experiment-engine pipeline framework. (~9264 tok)
 - `test_prototype_similarity.py` — Unit tests for prototype-based text similarity engine. (~4412 tok)
+- `test_qca_core.py` — Unit tests for QCA core modules (consistency, truth table, minimization, necessity, sufficiency, calibration, keyword matching). 104 tests. (~4000 tok)
+- `test_qca_core.py` — Unit tests for QCA core modules. (~14779 tok)
 - `test_viz.py` — Unit tests for visualization module (~11630 tok)
 
 ## tmp/

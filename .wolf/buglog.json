@@ -915,7 +915,14 @@
       "file": "src/experiment_engine/qca_engine/minimization.py",
       "root_cause": "No guard existed on n_vars in minimize(). For k>12, the exponential enumeration of 2^k truth table rows blocks the single-threaded WASM environment indefinitely.",
       "fix": "Added k<=12 guard at top of minimize(): compute n_vars = len(minterms[0]), raise ValueError if n_vars > 12 with message guiding user to reduce conditions or use alternative algorithms.",
-      "tags": ["P0-1", "qm", "guard", "browser-hang", "wasm", "py"],
+      "tags": [
+        "P0-1",
+        "qm",
+        "guard",
+        "browser-hang",
+        "wasm",
+        "py"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24T20:00:00.000Z"
@@ -927,8 +934,17 @@
       "file": "src/experiment_engine/report/qca_reporter.py",
       "root_cause": "No escaping was applied to any user-provided text before LaTeX insertion. ~ becomes non-breaking space, _ triggers subscript, %/$/#/&/{/} have special LaTeX meanings. Formula with ~ and * placed directly in math mode also causes errors.",
       "fix": "Added _escape_latex() static method (escapes % $ # & { } _ with backslashes, replaces ~ with \\textasciitilde{}). Added _escape_latex_formula() static method (converts ~*+ to \\neg \\land \\lor for math mode). Applied escaping to: outcome_name, config_label, condition_name, term labels, test names, parameter_varied, report summary, and solution formulas.",
-      "tags": ["FIXME-10", "latex", "escaping", "report", "py"],
-      "related_bugs": ["bug-047", "bug-048"],
+      "tags": [
+        "FIXME-10",
+        "latex",
+        "escaping",
+        "report",
+        "py"
+      ],
+      "related_bugs": [
+        "bug-047",
+        "bug-048"
+      ],
       "occurrences": 1,
       "last_seen": "2026-05-24T20:00:00.000Z"
     },
@@ -939,7 +955,14 @@
       "file": "src/experiment_engine/report/qca_reporter.py",
       "root_cause": "t.solution_stability[0] and t.solution_stability[-1] accessed without checking if the list is empty.",
       "fix": "Added guard: if t.solution_stability: ... else: stability_range = 'N/A'.",
-      "tags": ["FIXME-11", "indexerror", "robustness", "report", "guard", "py"],
+      "tags": [
+        "FIXME-11",
+        "indexerror",
+        "robustness",
+        "report",
+        "guard",
+        "py"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24T20:00:00.000Z"
@@ -951,10 +974,71 @@
       "file": "src/experiment_engine/qca_engine/minimization.py",
       "root_cause": "hash((imp1, tuple(cov1))) used to track which implicants were combined. hash() has theoretical collision risk and depends on PYTHONHASHSEED which varies across process invocations.",
       "fix": "Replaced hash-based identity with itertools.count() sequential ID counter. Each implicant gets a unique integer ID at creation: (id, pattern, coverage). combined_this_round and used_in_combination track integer IDs instead of hash values. Updated all loops to 3-tuple unpacking.",
-      "tags": ["FIXME-21", "hash", "identity", "qm", "collision", "py"],
+      "tags": [
+        "FIXME-21",
+        "hash",
+        "identity",
+        "qm",
+        "collision",
+        "py"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24T20:00:00.000Z"
+    },
+    {
+      "id": "bug-058",
+      "timestamp": "2026-05-24T12:59:35.009Z",
+      "error_message": "Significant refactor of ",
+      "file": "tests/test_qca_core.py",
+      "root_cause": "10 lines replaced/restructured",
+      "fix": "Rewrote 10→4 lines (10 removed) | Also: ConceptPrototype,; ConditionSet,",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-24T13:01:57.685Z"
+    },
+    {
+      "id": "bug-059",
+      "timestamp": "2026-05-24T12:00:00.000Z",
+      "error_message": "pyodide.worker.ts handleCalibrate: _fuzzy_data variable never updated in accumulation loop — only last sample processed; _arr wraps FuzzySetData in object array, causing json.dumps failure",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Variable name confusion: _fuzzy_data initialized to None then never reassigned (intended to accumulate). _arr repeatedly overwritten as np.array([FuzzySetData]), and json.dumps would fail on Python object.",
+      "fix": "Fixed in pyodide_handlers.py handle_calibrate: _fuzzy_data correctly reassigned in loop; membership extracted directly via _fuzzy_data.membership.tolist() instead of broken _arr.tolist() fallback.",
+      "tags": [
+        "pyodide",
+        "calibrate",
+        "bug",
+        "data-loss"
+      ],
+      "related_bugs": [
+        "bug-060"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-24"
+    },
+    {
+      "id": "bug-060",
+      "timestamp": "2026-05-24T12:00:00.000Z",
+      "error_message": "pyodide.worker.ts handleExport imports non-existent class QCAReporter from qca_reporter; actual class is QCALaTeXReporter",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Class name mismatch: worker references QCAReporter but the module defines QCALaTeXReporter. Would cause ImportError at runtime.",
+      "fix": "Fixed in pyodide_handlers.py handle_export: corrected import to QCALaTeXReporter.",
+      "tags": [
+        "pyodide",
+        "export",
+        "import-error",
+        "bug"
+      ],
+      "related_bugs": [
+        "bug-059"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-24"
     }
   ]
 }

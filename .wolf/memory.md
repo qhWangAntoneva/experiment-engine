@@ -402,3 +402,28 @@
 | 20:42 | Edited tmp/test_escaping.py | 3→2 lines | ~36 |
 | 20:44 | Fixed P0-1 QM k<=12 guard, FIXME-10 LaTeX escaping, FIXME-11 empty solution_stability guard, FIXME-21 hash→ID identity | minimization.py, qca_reporter.py | All 361 tests pass, ruff clean, functional tests pass | ~1800t |
 | 20:47 | Session end: 57 writes across 13 files (counterfactual.py, minimization.py, calibrator.py, models.py, sufficiency.py) | 20 reads | ~81479 tok |
+| 20:52 | Session end: 57 writes across 13 files (counterfactual.py, minimization.py, calibrator.py, models.py, sufficiency.py) | 20 reads | ~84053 tok |
+| 20:57 | Created tests/test_qca_core.py | — | ~14948 |
+| 20:58 | Created src/experiment_engine/pyodide_handlers.py | — | ~3528 |
+| 20:58 | Edited src/experiment_engine/pyodide_handlers.py | 2→2 lines | ~44 |
+| 20:58 | Edited tests/test_qca_core.py | assert_array_equal() → assert_array_almost_equal() | ~93 |
+| 20:59 | Edited tests/test_qca_core.py | inline fix | ~19 |
+| 20:59 | Edited tests/test_qca_core.py | modified test_apply_calibration_invalid_enum_raises() | ~76 |
+| 20:59 | Created src/services/pyodide.worker.ts | — | ~4552 |
+| 20:59 | Edited tests/test_qca_core.py | 4→4 lines | ~60 |
+| 21:01 | Edited tests/test_qca_core.py | reduced (-8 lines) | ~62 |
+| 21:02 | Edited tests/test_qca_core.py | 3→2 lines | ~28 |
+| 21:02 | Edited tests/test_qca_core.py | 3→2 lines | ~30 |
+| 21:02 | Edited pyproject.toml | 1→2 lines | ~64 |
+| 21:03 | Edited src/experiment_engine/pyodide_handlers.py | inline fix | ~26 |
+| 21:03 | Edited tests/test_qca_core.py | modified test_necessity_threshold() | ~372 |
+| 21:03 | Edited tests/test_qca_core.py | inline fix | ~18 |
+| 21:03 | Edited tests/test_qca_core.py | inline fix | ~19 |
+| 21:05 | Implemented P0-3: wrote comprehensive unit tests for QCA core modules (104 tests in test_qca_core.py). Covers consistency, truth table, minimization, necessity, sufficiency, calibration, keyword matching. Uses Lipset gold-standard benchmark. Full suite: 465 passed. | tests/test_qca_core.py, pyproject.toml, .wolf/anatomy.md | Pass | ~12000 |
+| 21:05 | Session end: 73 writes across 17 files (counterfactual.py, minimization.py, calibrator.py, models.py, sufficiency.py) | 28 reads | ~141273 tok |
+| 21:05 | Edited FIXME.md | inline fix | ~20 |
+| 21:05 | Edited FIXME.md | 7→7 lines | ~180 |
+| 21:06 | Edited FIXME.md | 6 → 5 | ~4 |
+| 21:06 | Edited FIXME.md | 20 → 19 | ~6 |
+| 21:07 | P0-2/FIXME-15: extracted 7 handler functions from pyodide.worker.ts into pyodide_handlers.py; worker -195 lines (-24%); fixed 2 hidden bugs (bug-059, bug-060); build passes, 464 tests pass, ruff clean | src/experiment_engine/pyodide_handlers.py, src/services/pyodide.worker.ts, FIXME.md, .wolf/buglog.json | success | ~13000 |
+| 21:08 | Session end: 77 writes across 17 files (counterfactual.py, minimization.py, calibrator.py, models.py, sufficiency.py) | 28 reads | ~141498 tok |

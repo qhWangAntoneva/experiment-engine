@@ -125,12 +125,12 @@
 **修复**: 在 tokenize 时保留标点位置信息（插入句子边界标记），或使用带位置验证的匹配方式。考虑到无 jieba 约束，当前方案可接受但需注意。
 **来源**: 评审者#15
 
-### FIXME-15: pyodide.worker.ts — 10 个 handler 大量重复代码
+### ~~FIXME-15: pyodide.worker.ts — 10 个 handler 大量重复代码~~ [已修复 2026-05-24]
 
 **文件**: `src/services/pyodide.worker.ts`
 **严重程度**: 🔴 严重
 **问题**: 每个 handler 重复 `ensureReady() → JSON.stringify → FS.writeFile → runPythonAsync(40行字符串) → JSON.parse → respond()` 模式，内嵌 Python 代码无法被 pytest/linter 覆盖。
-**修复**: 提取为 `pyodide_handlers.py` 独立函数，worker handler 简化为通用模板。
+**修复**: 提取 7 个 handler 函数到 `src/experiment_engine/pyodide_handlers.py` (333 行)，Worker 添加通用 `runHandler()` 模板 (ensureReady → FS.writeFile → runPythonAsync → FS.readFile)，每个 handler 从 ~50 行缩减到 ~8 行。Worker 从 659 行/22611 字节缩减到 464 行/17205 字节 (-24%)。同步修复 2 个隐蔽 bug：handleCalibrate 的 _fuzzy_data 累积变量错误 (bug-059) 和 handleExport 的 QCAReporter/QCalLaTeXReporter 类名不匹配 (bug-060)。
 **来源**: 技术顾问#2
 
 ### FIXME-16: models.py — 上帝对象
@@ -199,7 +199,7 @@
 
 | 严重程度 | 数量 |
 |----------|------|
-| 🔴 严重 | 6 |
+| 🔴 严重 | 5 |
 | 🟡 警告 | 8 |
 | 🟢 建议 | 6 |
-| **合计** | **20** |
+| **合计** | **19** |
