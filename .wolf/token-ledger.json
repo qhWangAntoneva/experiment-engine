@@ -2,14 +2,14 @@
   "version": 1,
   "created_at": "2026-05-15T12:06:18.944Z",
   "lifetime": {
-    "total_tokens_estimated": 2103446,
-    "total_reads": 826,
-    "total_writes": 766,
+    "total_tokens_estimated": 2276554,
+    "total_reads": 862,
+    "total_writes": 836,
     "total_sessions": 8,
-    "anatomy_hits": 451,
-    "anatomy_misses": 288,
-    "repeated_reads_blocked": 588,
-    "estimated_savings_vs_bare_cli": 1937755
+    "anatomy_hits": 476,
+    "anatomy_misses": 290,
+    "repeated_reads_blocked": 633,
+    "estimated_savings_vs_bare_cli": 2113619
   },
   "sessions": [
     {
@@ -9399,6 +9399,623 @@
         "writes_count": 7,
         "repeated_reads_blocked": 6,
         "anatomy_lookups": 5
+      }
+    },
+    {
+      "id": "session-2026-05-24-1944",
+      "started": "2026-05-24T11:44:49.352Z",
+      "ended": "2026-05-24T12:09:13.456Z",
+      "reads": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/TODO.md",
+          "tokens_estimated": 4300,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/HACK.md",
+          "tokens_estimated": 1201,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/FIXME.md",
+          "tokens_estimated": 1996,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/models.py",
+          "tokens_estimated": 9501,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/text_calibration/calibrator.py",
+          "tokens_estimated": 7749,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/minimization.py",
+          "tokens_estimated": 2622,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/advanced/counterfactual.py",
+          "tokens_estimated": 1945,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tests/test_integration.py",
+          "tokens_estimated": 11274,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/advanced/counterfactual.py",
+          "tokens_estimated": 350,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/advanced/counterfactual.py",
+          "tokens_estimated": 405,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/minimization.py",
+          "tokens_estimated": 480,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/minimization.py",
+          "tokens_estimated": 296,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/text_calibration/calibrator.py",
+          "tokens_estimated": 5564,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/text_calibration/calibrator.py",
+          "tokens_estimated": 13,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/text_calibration/calibrator.py",
+          "tokens_estimated": 23,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 40588,
+        "output_tokens_estimated": 7131,
+        "reads_count": 8,
+        "writes_count": 7,
+        "repeated_reads_blocked": 10,
+        "anatomy_lookups": 5
+      }
+    },
+    {
+      "id": "session-2026-05-24-1944",
+      "started": "2026-05-24T11:44:49.352Z",
+      "ended": "2026-05-24T12:18:21.888Z",
+      "reads": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/TODO.md",
+          "tokens_estimated": 4300,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/HACK.md",
+          "tokens_estimated": 1201,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/FIXME.md",
+          "tokens_estimated": 1996,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/models.py",
+          "tokens_estimated": 9501,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/text_calibration/calibrator.py",
+          "tokens_estimated": 7749,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/minimization.py",
+          "tokens_estimated": 2622,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/advanced/counterfactual.py",
+          "tokens_estimated": 2064,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tests/test_integration.py",
+          "tokens_estimated": 11274,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pipeline.py",
+          "tokens_estimated": 1800,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/sufficiency.py",
+          "tokens_estimated": 1526,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/__init__.py",
+          "tokens_estimated": 452,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 5358,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/PipelineStatus.tsx",
+          "tokens_estimated": 1125,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tests/test_pipeline.py",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/advanced/counterfactual.py",
+          "tokens_estimated": 350,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/advanced/counterfactual.py",
+          "tokens_estimated": 405,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/minimization.py",
+          "tokens_estimated": 480,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/minimization.py",
+          "tokens_estimated": 296,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/text_calibration/calibrator.py",
+          "tokens_estimated": 5564,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/text_calibration/calibrator.py",
+          "tokens_estimated": 13,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/text_calibration/calibrator.py",
+          "tokens_estimated": 23,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/models.py",
+          "tokens_estimated": 131,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/models.py",
+          "tokens_estimated": 73,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/advanced/counterfactual.py",
+          "tokens_estimated": 294,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/sufficiency.py",
+          "tokens_estimated": 269,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/models.py",
+          "tokens_estimated": 104,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pipeline.py",
+          "tokens_estimated": 119,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pipeline.py",
+          "tokens_estimated": 124,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/advanced/counterfactual.py",
+          "tokens_estimated": 26,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/sufficiency.py",
+          "tokens_estimated": 21,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/sufficiency.py",
+          "tokens_estimated": 90,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/sufficiency.py",
+          "tokens_estimated": 88,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pipeline.py",
+          "tokens_estimated": 924,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pipeline.py",
+          "tokens_estimated": 91,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 105,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 52,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 184,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 620,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 206,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 81,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/FIXME.md",
+          "tokens_estimated": 128,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/FIXME.md",
+          "tokens_estimated": 106,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/FIXME.md",
+          "tokens_estimated": 14,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 91,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 50968,
+        "output_tokens_estimated": 11072,
+        "reads_count": 14,
+        "writes_count": 30,
+        "repeated_reads_blocked": 17,
+        "anatomy_lookups": 10
+      }
+    },
+    {
+      "id": "session-2026-05-24-1944",
+      "started": "2026-05-24T11:44:49.352Z",
+      "ended": "2026-05-24T12:24:06.280Z",
+      "reads": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/TODO.md",
+          "tokens_estimated": 4300,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/HACK.md",
+          "tokens_estimated": 1201,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/FIXME.md",
+          "tokens_estimated": 1996,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/models.py",
+          "tokens_estimated": 9501,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/text_calibration/calibrator.py",
+          "tokens_estimated": 7749,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/minimization.py",
+          "tokens_estimated": 2622,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/advanced/counterfactual.py",
+          "tokens_estimated": 2064,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tests/test_integration.py",
+          "tokens_estimated": 11586,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pipeline.py",
+          "tokens_estimated": 1800,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/sufficiency.py",
+          "tokens_estimated": 1526,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/__init__.py",
+          "tokens_estimated": 452,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 5358,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/PipelineStatus.tsx",
+          "tokens_estimated": 1125,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tests/test_pipeline.py",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/advanced/counterfactual.py",
+          "tokens_estimated": 350,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/advanced/counterfactual.py",
+          "tokens_estimated": 405,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/minimization.py",
+          "tokens_estimated": 480,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/minimization.py",
+          "tokens_estimated": 296,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/text_calibration/calibrator.py",
+          "tokens_estimated": 5564,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/text_calibration/calibrator.py",
+          "tokens_estimated": 13,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/text_calibration/calibrator.py",
+          "tokens_estimated": 23,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/models.py",
+          "tokens_estimated": 131,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/models.py",
+          "tokens_estimated": 73,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/advanced/counterfactual.py",
+          "tokens_estimated": 294,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/sufficiency.py",
+          "tokens_estimated": 269,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/models.py",
+          "tokens_estimated": 104,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pipeline.py",
+          "tokens_estimated": 119,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pipeline.py",
+          "tokens_estimated": 124,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/advanced/counterfactual.py",
+          "tokens_estimated": 26,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/sufficiency.py",
+          "tokens_estimated": 21,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/sufficiency.py",
+          "tokens_estimated": 90,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/qca_engine/sufficiency.py",
+          "tokens_estimated": 88,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pipeline.py",
+          "tokens_estimated": 924,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pipeline.py",
+          "tokens_estimated": 91,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 105,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 52,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 184,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 620,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 206,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 81,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/FIXME.md",
+          "tokens_estimated": 128,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/FIXME.md",
+          "tokens_estimated": 106,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/FIXME.md",
+          "tokens_estimated": 14,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/parallel.py",
+          "tokens_estimated": 91,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tests/test_pipeline.py",
+          "tokens_estimated": 700,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tests/test_integration.py",
+          "tokens_estimated": 159,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tests/test_integration.py",
+          "tokens_estimated": 138,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 51280,
+        "output_tokens_estimated": 12069,
+        "reads_count": 14,
+        "writes_count": 33,
+        "repeated_reads_blocked": 18,
+        "anatomy_lookups": 10
       }
     }
   ],

@@ -77,12 +77,12 @@
 **修复**: 添加 `test_bootstrap()` 方法，带放回案例重抽样，比较不同 bootstrap sample 的解稳定性。
 **来源**: 评审者#10
 
-### FIXME-9: counterfactual.py:57 — `theoretical_expectation` 字段始终为 None
+### ~~FIXME-9: counterfactual.py:57 — `theoretical_expectation` 字段始终为 None~~ [已修复 2026-05-24]
 
 **文件**: `src/experiment_engine/qca_engine/advanced/counterfactual.py`
 **严重程度**: 🟡 警告
 **问题**: `theo_exp` 初始化为 `None` 后从未赋值，导致 `CounterfactualClassification.theoretical_expectation` 对观察到的行永远是 None。
-**修复**: 从 `directional_expectations` 中查找理论期望并赋值。
+**修复**: 在 `analyze()` 循环中从 `directional_expectations` 构建 `theo_exp` 字符串（"+name" 表示预期 present，"-name" 表示预期 absent，多条件用 ", " 连接）。无方向性期望时保持 None。
 **来源**: 评审者#7
 
 ### FIXME-10: qca_reporter.py — LaTeX 特殊字符未转义
@@ -109,12 +109,12 @@
 **修复**: 根据 `baseline.fuzzy_data.n_cases` 自适应调整阈值范围。
 **来源**: 评审者#14
 
-### FIXME-13: sufficiency.py:135-137 — 条件名不匹配时静默跳过
+### ~~FIXME-13: sufficiency.py:135-137 — 条件名不匹配时静默跳过~~ [已修复 2026-05-24]
 
 **文件**: `src/experiment_engine/qca_engine/sufficiency.py`
 **严重程度**: 🟡 警告
 **问题**: `_compute_term_membership` 中 condition name 不匹配时 `pass`（静默视为 1.0），隐藏 term label 与 condition_matrix 列名不匹配的 bug。
-**修复**: 至少 print warning，或 raise KeyError 附上不匹配的条件名。
+**修复**: 否定/非否定分支均添加 `warnings.warn()` 输出 warning（含 stacklevel=2 指向调用方），并显示不匹配的条件名和可用列名。
 **来源**: 评审者#11
 
 ### FIXME-14: keyword_dict.py:83-96 — bigram 跨标点误匹配
@@ -200,6 +200,6 @@
 | 严重程度 | 数量 |
 |----------|------|
 | 🔴 严重 | 6 |
-| 🟡 警告 | 10 |
+| 🟡 警告 | 8 |
 | 🟢 建议 | 6 |
-| **合计** | **22** |
+| **合计** | **20** |

@@ -54,7 +54,17 @@ class CounterfactualAnalyzer:
             freq = row.frequency
             is_observed = freq >= 1.0
             cf_type: str | None = None
-            theo_exp: str | None = None
+
+            # Build theoretical expectation string from directional expectations
+            theo_parts: list[str] = []
+            for name, _val in zip(
+                truth_table.condition_names, row.config, strict=False
+            ):
+                exp = expectations.get(name)
+                if exp:
+                    marker = "+" if exp == "present" else "-"
+                    theo_parts.append(f"{marker}{name}")
+            theo_exp: str | None = ", ".join(theo_parts) if theo_parts else None
 
             if not is_observed:
                 n_remainder += 1

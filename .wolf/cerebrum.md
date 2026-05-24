@@ -280,11 +280,15 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 - [2026-05-24] **calibrate_ragin 实现的是分段线性而非 log-odds**（见 FIXME-3）：docstring 声称 Ragin log-odds 直接法但实际是分段线性插值。应用 logistic 公式 `exp(dev)/(1+exp(dev))` 重写。【已修复：2026-05-24 — 用 np.where/np.exp/logistic formula 重写 calibrate_ragin()；添加 deviation clipping ([-700, 700]) 防 exp overflow；floor/ceiling 通过 np.clip(result, 0.05, 0.95) 实现】
 - [2026-05-24] **calibrator.py 混合 scoring_source 列索引偏移**（见 FIXME-2）：KEYWORD/HYBRID/PROTOTYPE 混合时，`col_idx` 直接索引 `match_corpus()` 返回矩阵导致列错位。需建立 col_idx→kw_col_idx 映射。【已修复：2026-05-24 — 新增 _precompute_kw_context() 构建映射；_compute_raw_scores() 接受可选 kw_matrix+col_to_kw 参数；同时修复 FIXME-4 match_corpus 缓存】
 - [2026-05-24] **match_corpus() 每个条件重复调用**（见 FIXME-4）：O(n_conditions × n_texts × n_keywords) 冗余。在 process() 开头缓存一次。【已修复：2026-05-24 — _precompute_kw_context() 调用 match_corpus() 一次并缓存；process/process_with_outcome/calibrate_one 全部复用；同时修复 FIXME-20 通过提取 _process_core() 消除 process/process_with_outcome 间 ~60 行重复代码】
-- [2026-05-24] **pipeline Stage 失败后静默传递损坏数据**（见 FIXME-5）：Stage 失败后 Pipeline 传递上一次正常数据给下游。需加 fail_fast 配置项。
+- [2026-05-24] **pipeline Stage 失败后静默传递损坏数据**（见 FIXME-5）：Stage 失败后 Pipeline 传递上一次正常数据给下游。【已修复：2026-05-24 — 添加 fail_fast: bool = True 到 Pipeline/ParallelPipeline；添加 data_quality 字段到 StageResult（valid/stale/None）；添加 failed_stages 属性和 fail_fast 字段到 PipelineResult。fail_fast=True 时 set PipelineStatus.FAILED + break。Pipeline.process() 在 fail_fast=True 时 re-raise。更新 3 个测试适配新默认行为。】
 - [2026-05-24] **robustness coverage_stability 始终为 0**（见 FIXME-6）：`hasattr(tt, "solution_coverage")` 始终 False（TruthTable 无此字段）。应 run minimization+sufficiency 计算真实 coverage。
 - [2026-05-24] **qca_reporter.py LaTeX 特殊字符未转义**（见 FIXME-10）：`*` `~` `_` 等字符直接插入 LaTeX 导致编译失败。需添加转义函数。
 
+- [2026-05-24] **counterfactual.py theoretical_expectation 始终为 None**（见 FIXME-9）：`theo_exp` 初始化为 None 后从未赋值，所有行的 `CounterfactualClassification.theoretical_expectation` 始终为 None。修复方式：在 `analyze()` 循环中从 `directional_expectations` 构建 `theo_exp` 字符串，格式为 "+name1, -name2"（分别代表预期 present/absent）。【已修复：2026-05-24】
+- [2026-05-24] **sufficiency.py 条件名不匹配时静默跳过**（见 FIXME-13）：`_compute_term_membership` 中 condition name 不匹配时 silent pass（视为 1.0），隐藏 term label 与 condition_matrix 列名不匹配的 bug。修复方式：添加 `warnings.warn()` 分别在否定和非否定分支输出 warning，使用 `stacklevel=2` 指向调用方。【已修复：2026-05-24】
+
 ---
+
 
 ## 10. 决策日志
 
@@ -307,3 +311,5 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
   - **FIXME-4 (重复 match_corpus)**：`_precompute_kw_context()` 缓存一次 match_corpus 结果，process/process_with_outcome/calibrate_one 全部复用
   - **FIXME-20 (代码重复)**：提取 `_process_core(texts, kw_matrix, col_to_kw, outcome_provider)` 消除 process/process_with_outcome 间 ~60 行重复，outcome_provider 回调分离 outcome 列赋值逻辑。calibrate_one 也使用 `_precompute_kw_context`
   - 所有 360 测试通过，ruff 干净
+- [2026-05-24] **修复 FIXME-9 (counterfactual.py theoretical_expectation 始终为 None)**：在 `analyze()` 循环中新增代码，从 `directional_expectations` 构建 `theo_exp` 字符串，格式为 "+name" 或 "-name"（用 ', ' 连接多条期望）。若无方向性期望则保持 None。所有 353 测试通过，ruff 干净。
+- [2026-05-24] **修复 FIXME-13 (sufficiency.py 条件名不匹配时静默跳过)**：在 `_compute_term_membership` 的两处 silent pass（否定/非否定分支）添加 `warnings.warn()` 调用，使用 `stacklevel=2` 指向调用方。导入 `warnings` 模块。所有 353 测试通过，ruff 干净。

@@ -647,7 +647,9 @@
       "occurrences": 1,
       "last_seen": "2026-05-24",
       "severity": "critical",
-      "source": "3-agent code review (technical-advisor subagent)"
+      "source": "3-agent code review (technical-advisor subagent)",
+      "fixed": "2026-05-24T12:21:00.000Z",
+      "fixed_by": "Added fail_fast: bool = True to Pipeline and ParallelPipeline. On failure with fail_fast=True: set PipelineStatus.FAILED, break loop. Added data_quality field to StageResult ('valid'/'stale'/None for failures). Added failed_stages property and fail_fast field to PipelineResult. Updated Pipeline.process() to re-raise on fail_fast=True. Updated 3 tests to match new behavior."
     },
     {
       "id": "bug-039",
@@ -705,6 +707,90 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-05-24T19:54:39.323562"
+    },
+    {
+      "id": "bug-042",
+      "timestamp": "2026-05-24T12:11:24.380Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/qca_engine/sufficiency.py",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 12→21 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T12:11:24.380Z"
+    },
+    {
+      "id": "bug-043",
+      "timestamp": "2026-05-24T12:12:08.372Z",
+      "error_message": "Wrong reference: val should be _val",
+      "file": "src/experiment_engine/qca_engine/advanced/counterfactual.py",
+      "root_cause": "Used \"val\" instead of \"_val\"",
+      "fix": "Changed val → _val",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T12:12:08.372Z"
+    },
+    {
+      "id": "bug-044",
+      "timestamp": "2026-05-24T12:20:00.000Z",
+      "error_message": "theoretical_expectation field always None for observed rows",
+      "file": "src/experiment_engine/qca_engine/advanced/counterfactual.py",
+      "root_cause": "theo_exp initialized to None at line 57 and never assigned; _classify_counterfactual() used directional_expectations for easy/hard classification but never populated theo_exp",
+      "fix": "Added loop in analyze() to build theo_exp string from directional_expectations: for each condition with an expectation, append '+name' or '-name'; join with ', '; set to None if no expectations exist",
+      "tags": [
+        "fixme-9",
+        "fixme",
+        "counterfactual",
+        "theoretical_expectation",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T12:20:00.000Z"
+    },
+    {
+      "id": "bug-045",
+      "timestamp": "2026-05-24T12:20:00.000Z",
+      "error_message": "Condition name mismatch silently skipped in _compute_term_membership",
+      "file": "src/experiment_engine/qca_engine/sufficiency.py",
+      "root_cause": "When a condition name (or negated condition name) didn't match any column in condition_matrix, the code silently passed (treated as 1.0 with no warning), hiding potential bugs",
+      "fix": "Added warnings.warn() with stacklevel=2 in both the negated and non-negated branches when condition name not found; imported warnings module",
+      "tags": [
+        "fixme-13",
+        "fixme",
+        "sufficiency",
+        "warnings",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T12:20:00.000Z"
+    },
+    {
+      "id": "bug-046",
+      "timestamp": "2026-05-24T12:17:18.023Z",
+      "error_message": "Significant refactor of ",
+      "file": "FIXME.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 7→7 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T12:17:18.023Z"
     }
   ]
 }

@@ -172,10 +172,12 @@ class Pipeline(Stage):
         stages: list[PipelineElement] | None = None,
         config: dict[str, Any] | None = None,
         verbose: bool = False,
+        fail_fast: bool = True,
     ) -> None:
         super().__init__(name=name, config=config)
         self.stages: list[PipelineElement] = stages or []
         self.verbose = verbose
+        self.fail_fast = fail_fast
 
     # ── Stage management ───────────────────────
 
@@ -282,6 +284,8 @@ class Pipeline(Stage):
                 self.logger.error(
                     "  [red]✗[/] Stage [bold]%s[/] failed: %s", stage.name, exc
                 )
+                if self.fail_fast:
+                    raise
                 # Continue with the last good data
         return current
 
@@ -343,6 +347,7 @@ class Pipeline(Stage):
         self.logger.info("[bold]Phase 2: Process[/]")
         current = data
         overall_status = PipelineStatus.COMPLETED
+        data_degraded = False
 
         with Progress(
             SpinnerColumn(),
@@ -363,6 +368,7 @@ class Pipeline(Stage):
                         stage_name=stage.name,
                         stage_type=stage.__class__.__name__,
                         status=StageStatus.SKIPPED,
+                        data_quality="valid" if not data_degraded else "stale",
                         started_at=datetime.now(timezone.utc).isoformat(),
                         completed_at=datetime.now(timezone.utc).isoformat(),
                     )
@@ -375,6 +381,7 @@ class Pipeline(Stage):
                     stage_name=stage.name,
                     stage_type=stage.__class__.__name__,
                     status=StageStatus.RUNNING,
+                    data_quality="stale" if data_degraded else "valid",
                     started_at=datetime.now(timezone.utc).isoformat(),
                 )
 
@@ -386,7 +393,12 @@ class Pipeline(Stage):
                     except Exception as exc:
                         sr.status = StageStatus.FAILED
                         sr.error = f"{type(exc).__name__}: {exc}"
-                        overall_status = PipelineStatus.PARTIAL
+                        sr.data_quality = None
+                        if self.fail_fast:
+                            overall_status = PipelineStatus.FAILED
+                        else:
+                            data_degraded = True
+                            overall_status = PipelineStatus.PARTIAL
                         self.logger.error(
                             "  [red]✗[/] Stage [bold]%s[/] failed: %s",
                             stage.name,
@@ -408,6 +420,9 @@ class Pipeline(Stage):
                 )
                 progress.advance(task)
 
+                if sr.status == StageStatus.FAILED and self.fail_fast:
+                    break
+
         # ── Teardown phase ──
         self.logger.info("[bold]Phase 3: Teardown[/]")
         self.teardown()
@@ -418,6 +433,7 @@ class Pipeline(Stage):
         result.total_duration_ms = sum(s.duration_ms for s in result.stages)
         result.status = overall_status
         result.output = current
+        result.fail_fast = self.fail_fast
 
         self._log_summary(result)
         return result

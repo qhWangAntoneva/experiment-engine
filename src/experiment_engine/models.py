@@ -284,6 +284,14 @@ class StageResult(BaseModel):
     started_at: str | None = Field(None, description="Start timestamp (ISO)")
     completed_at: str | None = Field(None, description="Completion timestamp (ISO)")
     error: str | None = Field(None, description="Error message on failure")
+    data_quality: str | None = Field(
+        None,
+        description=(
+            "Data quality indicator for this stage's input: "
+            "'valid' (reliable), 'stale' (from prior run), "
+            "or 'uninitialized' (no prior data)"
+        ),
+    )
     metadata: dict[str, Any] = Field(
         default_factory=dict, description="Stage-specific result metadata"
     )
@@ -319,6 +327,9 @@ class PipelineResult(BaseModel):
     metadata: dict[str, Any] = Field(
         default_factory=dict, description="Pipeline-level metadata"
     )
+    fail_fast: bool = Field(
+        True, description="Whether fail_fast mode was enabled for this run"
+    )
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -351,6 +362,15 @@ class PipelineResult(BaseModel):
     def failure_count(self) -> int:
         """Number of stages that failed."""
         return sum(1 for s in self.stages if s.status == StageStatus.FAILED)
+
+    @property
+    def failed_stages(self) -> list[dict[str, str]]:
+        """List of failed stages with names and error messages."""
+        return [
+            {"stage_name": s.stage_name, "error": s.error or "unknown"}
+            for s in self.stages
+            if s.status == StageStatus.FAILED
+        ]
 
     @property
     def total_stages(self) -> int:

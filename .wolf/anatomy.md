@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T11:57:04.576Z
-> Files: 99 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T12:20:11.050Z
+> Files: 100 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -14,7 +14,7 @@
 - `.gitignore` — Git ignore rules (~134 tok)
 - `.pre-commit-config.yaml` (~116 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
-- `FIXME.md` — FIXME — QCA Analysis Tool (~1996 tok)
+- `FIXME.md` — FIXME — QCA Analysis Tool (~1994 tok)
 - `HACK.md` — HACK — QCA Analysis Tool (~1201 tok)
 - `index.html` — QCA Simulation Tool (~130 tok)
 - `package-lock.json` — npm lock file (~17146 tok)
@@ -66,8 +66,8 @@
 - `__main__.py` — CLI 入口点 (~50 tok)
 - `cli.py` — QCA Text Analysis CLI — complete QCA workflow commands. (~6716 tok)
 - `config.py` — YAML/JSON 配置加载 + merge_defaults + CLI 覆盖 (~800 tok)
-- `models.py` — Pydantic data models for the experiment-engine pipeline framework. (~9501 tok)
-- `pipeline.py` — Stage (ABC: setup/process/teardown) + Pipeline (~1800 tok)
+- `models.py` — Pydantic data models for the experiment-engine pipeline framework. (~9703 tok)
+- `pipeline.py` — Pipeline and Stage abstract base classes. (~5114 tok)
 - `plugins.py` — BasePlugin + PluginRegistry + @register_stage (~1200 tok)
 
 ## src/experiment_engine/algorithms/
@@ -77,7 +77,7 @@
 ## src/experiment_engine/core/
 
 - `__init__.py` — 重新导出 Pipeline/Stage (~100 tok)
-- `parallel.py` — ParallelStageGroup + ParallelPipeline (ThreadPoolExecutor) (~1000 tok)
+- `parallel.py` — Parallel stage execution support. (~5370 tok)
 
 ## src/experiment_engine/io/
 
@@ -95,13 +95,13 @@
 - `minimization.py` — Quine-McCluskey Boolean minimization for QCA. (~2622 tok)
 - `necessity.py` — Necessary condition analysis (~1107 tok)
 - `solution.py` — Solution formula formatting and term label generation (~1338 tok)
-- `sufficiency.py` — Sufficiency analysis (~1375 tok)
+- `sufficiency.py` — Sufficiency analysis for QCA solutions. (~1526 tok)
 - `truth_table.py` — Truth Table construction from fuzzy-set data (~1373 tok)
 
 ## src/experiment_engine/qca_engine/advanced/
 
 - `__init__.py` — Advanced QCA: robustness, counterfactuals, multi-outcome (~125 tok)
-- `counterfactual.py` — Counterfactual analysis for QCA. (~1945 tok)
+- `counterfactual.py` — Counterfactual analysis for QCA. (~2064 tok)
 - `multi_outcome.py` — Multi-outcome comparison (~799 tok)
 - `robustness.py` — Robustness and sensitivity tests for QCA results. (~2055 tok)
 
@@ -173,6 +173,7 @@
 
 ## tests/
 
-- `test_integration.py` — Integration tests for experiment-engine. (~11274 tok)
+- `test_integration.py` — Integration tests for experiment-engine. (~11590 tok)
+- `test_pipeline.py` — Unit tests for the experiment-engine pipeline framework. (~9264 tok)
 - `test_prototype_similarity.py` — Unit tests for prototype-based text similarity engine. (~4412 tok)
 - `test_viz.py` — Unit tests for visualization module (~11630 tok)

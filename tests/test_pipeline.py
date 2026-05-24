@@ -235,6 +235,7 @@ class TestPipeline:
         assert result.stages[1].status == StageStatus.COMPLETED
 
     def test_stage_failure(self) -> None:
+        """Default fail_fast=True: pipeline aborts on first stage failure."""
         pipeline = Pipeline(
             name="failure_test",
             stages=[
@@ -244,11 +245,47 @@ class TestPipeline:
             ],
         )
         result = pipeline.run("test_data")
-        # Error stage should fail, but pipeline continues
+        # Error stage should fail and abort the pipeline
         assert result.stages[0].status == StageStatus.COMPLETED
         assert result.stages[1].status == StageStatus.FAILED
         assert "Intentional stage failure" in (result.stages[1].error or "")
+        assert result.status == PipelineStatus.FAILED
+        assert result.fail_fast is True
+        # Third stage should NOT have run (aborted)
+        assert len(result.stages) == 2
+        # Data quality: first stage valid, failed stage has None
+        assert result.stages[0].data_quality == "valid"
+        assert result.stages[1].data_quality is None
+        # Check failed_stages property
+        assert len(result.failed_stages) == 1
+        assert result.failed_stages[0]["stage_name"] == "error_stage"
+
+    def test_stage_failure_continue(self) -> None:
+        """fail_fast=False: pipeline continues after failure, marking data stale."""
+        pipeline = Pipeline(
+            name="failure_continue_test",
+            stages=[
+                IdentityStage(name="first"),
+                ErrorStage(name="error_stage"),
+                UppercaseStage(name="after_error"),
+            ],
+            fail_fast=False,
+        )
+        result = pipeline.run("test_data")
+        assert result.stages[0].status == StageStatus.COMPLETED
+        assert result.stages[1].status == StageStatus.FAILED
+        assert "Intentional stage failure" in (result.stages[1].error or "")
+        # Pipeline continues after failure
+        assert result.stages[2].status == StageStatus.COMPLETED
         assert result.status == PipelineStatus.PARTIAL
+        assert result.fail_fast is False
+        # Data quality tracking
+        assert result.stages[0].data_quality == "valid"
+        assert result.stages[1].data_quality is None  # failed stage
+        assert result.stages[2].data_quality == "stale"  # ran with stale data
+        assert result.output == "TEST_DATA"  # UppercaseStage still ran
+        # Failed stages list
+        assert len(result.failed_stages) == 1
 
     def test_composition_sub_pipeline(self) -> None:
         """Test that pipelines can contain sub-pipelines."""

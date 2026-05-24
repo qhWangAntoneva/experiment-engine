@@ -341,3 +341,35 @@
 | 19:57 | Edited src/experiment_engine/text_calibration/calibrator.py | 4→1 lines | ~23 |
 | 19:59 | Fixed FIXME-2 (col index offset via col_to_kw mapping), FIXME-3 (calibrate_ragin logistic rewrite), FIXME-4 (match_corpus caching in _precompute_kw_context), FIXME-20 (dedup via _process_core). All 360 tests pass. | calibrator.py, buglog.json, cerebrum.md, anatomy.md | All 3 bugs fixed, ruff clean, 360/360 tests pass | ~2500 |
 | 20:01 | Session end: 7 writes across 3 files (counterfactual.py, minimization.py, calibrator.py) | 8 reads | ~47719 tok |
+| 20:09 | Session end: 7 writes across 3 files (counterfactual.py, minimization.py, calibrator.py) | 8 reads | ~47719 tok |
+| 20:11 | Edited src/experiment_engine/models.py | expanded (+8 lines) | ~131 |
+| 20:11 | Edited src/experiment_engine/models.py | 5→8 lines | ~73 |
+| 20:11 | Edited src/experiment_engine/qca_engine/advanced/counterfactual.py | modified zip() | ~294 |
+| 20:11 | Edited src/experiment_engine/qca_engine/sufficiency.py | modified startswith() | ~269 |
+| 20:11 | Edited src/experiment_engine/models.py | modified failed_stages() | ~104 |
+| 20:11 | Edited src/experiment_engine/pipeline.py | modified __init__() | ~119 |
+| 20:11 | Edited src/experiment_engine/pipeline.py | 10→12 lines | ~124 |
+| 20:12 | Edited src/experiment_engine/qca_engine/advanced/counterfactual.py | inline fix | ~26 |
+| 20:12 | Edited src/experiment_engine/qca_engine/sufficiency.py | added 1 import(s) | ~21 |
+| 20:12 | Edited src/experiment_engine/qca_engine/sufficiency.py | print() → warn() | ~90 |
+| 20:12 | Edited src/experiment_engine/qca_engine/sufficiency.py | print() → warn() | ~88 |
+| 20:12 | Edited src/experiment_engine/pipeline.py | expanded (+11 lines) | ~924 |
+| 20:12 | Edited src/experiment_engine/pipeline.py | 6→7 lines | ~91 |
+| 20:12 | Edited src/experiment_engine/core/parallel.py | modified __init__() | ~105 |
+| 20:12 | Edited src/experiment_engine/core/parallel.py | 4→5 lines | ~52 |
+| 20:12 | Edited src/experiment_engine/core/parallel.py | 12→13 lines | ~184 |
+| 20:13 | Edited src/experiment_engine/core/parallel.py | expanded (+9 lines) | ~620 |
+| 20:13 | Edited src/experiment_engine/core/parallel.py | expanded (+8 lines) | ~206 |
+| 20:14 | Edited src/experiment_engine/core/parallel.py | 5→8 lines | ~81 |
+| 20:20 | Fixed FIXME-9: theoretical_expectation now populated from directional_expectations in counterfactual.py analyze() | counterfactual.py (+5 lines) | theo_exp no longer None, build "+name"/"-name" string | ~150 |
+| 20:20 | Fixed FIXME-13: added warnings.warn() for condition name mismatches in sufficiency.py _compute_term_membership | sufficiency.py (+10 lines, import warnings) | silent pass replaced with UserWarning | ~120 |
+| 20:17 | Edited FIXME.md | 7→7 lines | ~120 |
+| 20:17 | Edited FIXME.md | 7→7 lines | ~99 |
+| 20:17 | Edited FIXME.md | 3→3 lines | ~13 |
+| 20:18 | Edited src/experiment_engine/core/parallel.py | 6→7 lines | ~91 |
+| 20:18 | Session end: 30 writes across 8 files (counterfactual.py, minimization.py, calibrator.py, models.py, sufficiency.py) | 14 reads | ~62040 tok |
+| 20:19 | Edited tests/test_pipeline.py | modified test_stage_failure() | ~700 |
+| 20:19 | Edited tests/test_integration.py | modified test_pipeline_stage_failure_continues() | ~159 |
+| 20:20 | Edited tests/test_integration.py | 13→13 lines | ~138 |
+| 20:21 | FIXME-5/P0-8: added fail_fast to Pipeline/ParallelPipeline, data_quality to StageResult, failed_stages to PipelineResult | pipeline.py, models.py, core/parallel.py, tests | 361/361 tests pass, smoke tests pass | ~1200 tok |
+| 20:24 | Session end: 33 writes across 10 files (counterfactual.py, minimization.py, calibrator.py, models.py, sufficiency.py) | 14 reads | ~63349 tok |

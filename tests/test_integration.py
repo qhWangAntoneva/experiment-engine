@@ -779,7 +779,7 @@ class TestErrorPaths:
             load_config(str(path))
 
     def test_pipeline_stage_failure_continues(self) -> None:
-        """A failing stage does not crash the pipeline; later stages still run."""
+        """A failing stage does not crash the pipeline; later stages still run (fail_fast=False)."""
 
         class FailStage(Stage):
             def process(self, data: Any) -> Any:
@@ -792,6 +792,7 @@ class TestErrorPaths:
                 FailStage(name="exploder"),
                 UppercaseStage(name="after"),
             ],
+            fail_fast=False,
         )
         result = pipeline.run("hello")
         assert result.stages[0].status == StageStatus.COMPLETED
@@ -999,7 +1000,7 @@ class TestParallelExecution:
             ParallelStageGroup,
         )
 
-        pipe = ParallelPipeline(name="partial_fail")
+        pipe = ParallelPipeline(name="partial_fail", fail_fast=False)
 
         group = ParallelStageGroup(name="analysis", max_workers=2)
         group.add_stage(self._DoubleStage(name="good"))
@@ -1010,7 +1011,7 @@ class TestParallelExecution:
 
         result = pipe.run(5)
 
-        # Overall status is PARTIAL because a sub-stage failed
+        # Overall status is PARTIAL because fail_fast=False
         assert result.status == PipelineStatus.PARTIAL
         # 3 stage results: good, bad, after
         assert len(result.stages) == 3

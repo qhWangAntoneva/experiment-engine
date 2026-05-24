@@ -7,6 +7,8 @@ conditions) with respect to the outcome. Also computes the full solutions'
 
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 
 from experiment_engine.models import (
@@ -129,11 +131,22 @@ class SufficiencyAnalyzer:
                     result = np.minimum(
                         result, 1.0 - condition_matrix[:, name_to_idx[name]]
                     )
+                else:
+                    warnings.warn(
+                        f"Negated condition '{name}' not found in "
+                        f"condition_matrix columns {condition_names}. "
+                        f"Treating as 1.0 (don't-care).",
+                        stacklevel=2,
+                    )
             else:
                 if cond in name_to_idx:
                     result = np.minimum(result, condition_matrix[:, name_to_idx[cond]])
                 else:
-                    # Condition not found, treat as 1.0 (don't-care)
-                    pass
+                    warnings.warn(
+                        f"Condition '{cond}' not found in "
+                        f"condition_matrix columns {condition_names}. "
+                        f"Treating as 1.0 (don't-care).",
+                        stacklevel=2,
+                    )
 
         return result

@@ -310,8 +310,15 @@ class ParallelPipeline(Pipeline):
         stages: list[PipelineElement] | None = None,
         config: dict[str, Any] | None = None,
         verbose: bool = False,
+        fail_fast: bool = True,
     ) -> None:
-        super().__init__(name=name, stages=stages, config=config, verbose=verbose)
+        super().__init__(
+            name=name,
+            stages=stages,
+            config=config,
+            verbose=verbose,
+            fail_fast=fail_fast,
+        )
 
     def run(
         self,
@@ -360,6 +367,7 @@ class ParallelPipeline(Pipeline):
         logger.info("[bold]Phase 2: Process[/]")
         current = data
         overall_status = PipelineStatus.COMPLETED
+        data_degraded = False
 
         # Count total items for progress bar (expand ParallelStageGroups)
         total_items = 0
@@ -388,6 +396,7 @@ class ParallelPipeline(Pipeline):
                         stage_name=stage.name,
                         stage_type=stage.__class__.__name__,
                         status=StageStatus.SKIPPED,
+                        data_quality="valid" if not data_degraded else "stale",
                         started_at=datetime.now(timezone.utc).isoformat(),
                         completed_at=datetime.now(timezone.utc).isoformat(),
                     )
@@ -401,10 +410,18 @@ class ParallelPipeline(Pipeline):
 
                     # Collect latest non-exception output for data flow
                     # (last sub-stage wins if multiple succeed)
+                    group_any_failed = False
                     for sub_sr in sub_results:
+                        sub_sr.data_quality = "stale" if data_degraded else "valid"
                         result.stages.append(sub_sr)
                         if sub_sr.status == StageStatus.FAILED:
-                            overall_status = PipelineStatus.PARTIAL
+                            group_any_failed = True
+                            sub_sr.data_quality = None
+                            if self.fail_fast:
+                                overall_status = PipelineStatus.FAILED
+                            else:
+                                data_degraded = True
+                                overall_status = PipelineStatus.PARTIAL
                             logger.error(
                                 "  [red]✗[/] Sub-stage [bold]%s[/] in group "
                                 "[bold]%s[/] failed: %s",
@@ -433,12 +450,16 @@ class ParallelPipeline(Pipeline):
                         current = outputs  # dict with all outputs
                     # If all failed, keep current unchanged
 
+                    if group_any_failed and self.fail_fast:
+                        break
+
                 else:
                     # ── Regular stage ──
                     sr = StageResult(
                         stage_name=stage.name,
                         stage_type=stage.__class__.__name__,
                         status=StageStatus.RUNNING,
+                        data_quality="stale" if data_degraded else "valid",
                         started_at=datetime.now(timezone.utc).isoformat(),
                     )
 
@@ -450,7 +471,12 @@ class ParallelPipeline(Pipeline):
                         except Exception as exc:
                             sr.status = StageStatus.FAILED
                             sr.error = f"{type(exc).__name__}: {exc}"
-                            overall_status = PipelineStatus.PARTIAL
+                            sr.data_quality = None
+                            if self.fail_fast:
+                                overall_status = PipelineStatus.FAILED
+                            else:
+                                data_degraded = True
+                                overall_status = PipelineStatus.PARTIAL
                             logger.error(
                                 "  [red]✗[/] Stage [bold]%s[/] failed: %s",
                                 stage.name,
@@ -474,6 +500,9 @@ class ParallelPipeline(Pipeline):
                     )
                     progress.advance(task)
 
+                    if sr.status == StageStatus.FAILED and self.fail_fast:
+                        break
+
         # ── Teardown phase ──
         logger.info("[bold]Phase 3: Teardown[/]")
         self.teardown()
@@ -484,6 +513,7 @@ class ParallelPipeline(Pipeline):
         result.total_duration_ms = sum(s.duration_ms for s in result.stages)
         result.status = overall_status
         result.output = current
+        result.fail_fast = self.fail_fast
 
         self._log_summary(result)
         return result
