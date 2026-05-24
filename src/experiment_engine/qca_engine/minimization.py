@@ -25,13 +25,20 @@ class QuineMcCluskey:
         """List of (implicant_pattern, covered_minterms) tuples."""
 
     def minimize(
-        self, minterms: list[list[int]], condition_names: list[str]
+        self,
+        minterms: list[list[int]],
+        condition_names: list[str],
+        dont_care_minterms: list[list[int]] | None = None,
     ) -> list[list[str]]:
         """Find minimal Boolean expression covering all minterms.
 
         Args:
-            minterms: List of binary configurations (e.g., [[1,0,1], [1,1,0]]).
+            minterms: List of binary configurations that must be covered
+                (e.g., [[1,0,1], [1,1,0]]).
             condition_names: Names of conditions for each bit position.
+            dont_care_minterms: Optional don't-care minterms. These
+                participate in prime implicant generation (helping merge
+                and simplify) but are NOT required to be covered.
 
         Returns:
             List of solution terms, each a list of condition names
@@ -40,13 +47,17 @@ class QuineMcCluskey:
         if not minterms:
             return []
 
-        len(minterms[0])
-        list(range(len(minterms)))
+        # Combine regular and don't-care minterms for prime implicant generation.
+        # Regular minterms have indices 0..n_reg-1 (must be covered).
+        # Don't-care minterms have indices n_reg..n_total-1 (optional).
+        dc_list = dont_care_minterms or []
+        all_minterms: list[list[int]] = list(minterms) + list(dc_list)
+        n_reg = len(minterms)
 
         # Step 1-2: Find all prime implicants
         implicant_map: dict[int, list[tuple[tuple[int | None, ...], list[int]]]] = {}
-        # Group by number of 1-bits
-        for idx, mt in enumerate(minterms):
+        # Group by number of 1-bits (all minterms participate in combining)
+        for idx, mt in enumerate(all_minterms):
             ones = sum(mt)
             key = ones
             if key not in implicant_map:
@@ -109,19 +120,21 @@ class QuineMcCluskey:
         if not prime_implicants:
             return []
 
-        # Step 3: Build prime implicant chart
-        n_minterms = len(minterms)
+        # Step 3: Build prime implicant chart (regular minterms only).
+        # Don't-care minterms (indices >= n_reg) are excluded from the chart
+        # because they do not need to be covered.
         n_pi = len(prime_implicants)
-        chart = np.zeros((n_pi, n_minterms), dtype=np.int32)
+        chart = np.zeros((n_pi, n_reg), dtype=np.int32)
         for i, (_, covered) in enumerate(prime_implicants):
             for idx in covered:
-                chart[i, idx] = 1
+                if idx < n_reg:  # Only regular minterms require coverage
+                    chart[i, idx] = 1
 
         # Step 4: Find essential prime implicants
         essential_indices = self._find_essential(chart)
 
-        # Step 5: Find minimal cover for remaining minterms
-        covered = np.zeros(n_minterms, dtype=np.int32)
+        # Step 5: Find minimal cover for remaining uncovered regular minterms
+        covered = np.zeros(n_reg, dtype=np.int32)
         for ei in essential_indices:
             covered += chart[ei, :]
 

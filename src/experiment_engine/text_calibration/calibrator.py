@@ -7,6 +7,8 @@ methods (direct, indirect, or Ragin's fuzzy direct method).
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import numpy as np
 
 from experiment_engine.models import (
@@ -71,25 +73,99 @@ class TextCalibrationStage(Stage):
             conds.append(self.condition_set.outcome)
         return conds
 
-    def process(self, data: InputData) -> OutputData:
-        texts = self._extract_texts(data)
+    # ── Pre-computation helpers (FIXME-2, FIXME-4) ────────────────────────
+
+    def _precompute_kw_context(
+        self, texts: list[str]
+    ) -> tuple[np.ndarray | None, dict[int, int]]:
+        """Pre-compute keyword matrix and col_idx -> kw_col_idx mapping.
+
+        FIXME-2: Builds the mapping from global condition index to keyword
+        matrix column, so that PROTOTYPE conditions interleaved with
+        KEYWORD/HYBRID conditions do not cause column index offset.
+
+        FIXME-4: Calls match_corpus() once and caches the result matrix,
+        avoiding O(n_conditions) redundant recomputation.
+        """
         all_conditions = self._all_conditions()
 
+        kw_conditions = [
+            c
+            for c in all_conditions
+            if c.scoring_source in (ScoringSource.KEYWORD, ScoringSource.HYBRID)
+        ]
+        kw_matrix = self._dict.match_corpus(texts) if kw_conditions else None
+
+        col_to_kw: dict[int, int] = {}
+        kw_idx = 0
+        for j, cond in enumerate(all_conditions):
+            if cond.scoring_source in (ScoringSource.KEYWORD, ScoringSource.HYBRID):
+                col_to_kw[j] = kw_idx
+                kw_idx += 1
+
+        return kw_matrix, col_to_kw
+
+    def _process_core(
+        self,
+        texts: list[str],
+        kw_matrix: np.ndarray | None,
+        col_to_kw: dict[int, int],
+        outcome_provider: Callable[[int], np.ndarray | None],
+    ) -> np.ndarray:
+        """Core membership computation shared by process/process_with_outcome.
+
+        FIXME-20: Extracted common logic from process() and
+        process_with_outcome() to eliminate ~60 lines of duplicated code.
+
+        Args:
+            texts: List of text strings.
+            kw_matrix: Pre-computed keyword match matrix (or None).
+            col_to_kw: Mapping from global col_idx to keyword matrix column.
+            outcome_provider: Called as outcome_provider(col_idx) for each
+                column. Returns a membership vector for the outcome column,
+                or None if this column is a regular condition.
+
+        Returns:
+            membership matrix of shape (n_texts, n_conditions).
+        """
+        all_conditions = self._all_conditions()
         n_cases = len(texts)
         n_conds = len(all_conditions)
         membership = np.zeros((n_cases, n_conds), dtype=np.float64)
 
         for j, cond in enumerate(all_conditions):
-            raw_scores = self._compute_raw_scores(texts, cond, j, all_conditions)
+            outcome_vals = outcome_provider(j)
+            if outcome_vals is not None:
+                membership[:, j] = outcome_vals.astype(np.float64)
+            else:
+                raw_scores = self._compute_raw_scores(
+                    texts, cond, j, kw_matrix, col_to_kw
+                )
+                cal_type = self._method_override or cond.calibration_type
+                params = cond.calibration_params or CalibrationParams(
+                    threshold_full_in=0.80,
+                    threshold_full_out=0.20,
+                    crossover_point=0.50,
+                )
+                membership[:, j] = self._apply_calibration(raw_scores, cal_type, params)
 
-            cal_type = self._method_override or cond.calibration_type
-            params = cond.calibration_params or CalibrationParams(
-                threshold_full_in=0.80,
-                threshold_full_out=0.20,
-                crossover_point=0.50,
-            )
-            membership[:, j] = self._apply_calibration(raw_scores, cal_type, params)
+        return membership
 
+    # ── Main processing methods ───────────────────────────────────────────
+
+    def process(self, data: InputData) -> OutputData:
+        texts = self._extract_texts(data)
+        kw_matrix, col_to_kw = self._precompute_kw_context(texts)
+
+        n_conds = len(self._all_conditions())
+        membership = self._process_core(
+            texts,
+            kw_matrix,
+            col_to_kw,
+            outcome_provider=lambda _j: None,
+        )
+
+        n_cases = len(texts)
         condition_names = self.condition_set.condition_names
         outcome_name = (
             self.condition_set.outcome.name if self.condition_set.outcome else ""
@@ -126,45 +202,62 @@ class TextCalibrationStage(Stage):
         texts: list[str],
         cond: ConditionDefinition,
         col_idx: int,
-        all_conditions: list[ConditionDefinition],
+        kw_matrix: np.ndarray | None = None,
+        col_to_kw: dict[int, int] | None = None,
     ) -> np.ndarray:
-        """Compute raw scores for a condition based on its scoring source."""
+        """Compute raw scores for a condition based on its scoring source.
+
+        Args:
+            texts: List of text strings.
+            cond: The condition definition.
+            col_idx: Global column index in all_conditions.
+            kw_matrix: Pre-computed keyword match matrix (FIXME-4).
+            col_to_kw: Mapping from global col_idx to keyword matrix column
+                (FIXME-2). When provided, fixes column index offset when
+                PROTOTYPE conditions are interleaved with KEYWORD/HYBRID.
+        """
         if cond.scoring_source == ScoringSource.PROTOTYPE:
             if not cond.prototypes:
-                # No prototypes defined — return zeros (outcome handled separately)
                 return np.zeros(len(texts), dtype=np.float64)
             proto_map = {cond.name: cond.prototypes}
             matrix = self._prototype_engine.compute_similarities(texts, proto_map)
             return matrix[:, 0]
-        if cond.scoring_source == ScoringSource.HYBRID:
-            kw_scores = self._dict.match_corpus(texts)
-            # Find this condition's column in the keyword dict output
-            kw_conds = [
-                c
-                for c in all_conditions
-                if c.scoring_source in (ScoringSource.KEYWORD, ScoringSource.HYBRID)
-            ]
-            kw_idx = kw_conds.index(cond) if cond in kw_conds else col_idx
-            kw_col = (
-                kw_scores[:, kw_idx] if kw_scores.shape[1] > kw_idx else kw_scores[:, 0]
-            )
 
-            proto_map = {cond.name: cond.prototypes} if cond.prototypes else {}
-            if proto_map:
-                proto_matrix = self._prototype_engine.compute_similarities(
-                    texts, proto_map
-                )
-                proto_col = proto_matrix[:, 0]
+        # KEYWORD and HYBRID: determine the keyword matrix column.
+        # Use the corrected mapping when available (FIXME-2), otherwise fall
+        # back to col_idx (legacy behaviour, only correct when all conditions
+        # are KEYWORD/HYBRID).
+        kw_col = col_to_kw.get(col_idx, 0) if col_to_kw is not None else col_idx
+
+        if kw_matrix is not None:
+            if kw_matrix.shape[1] > kw_col:
+                kw_scores = kw_matrix[:, kw_col]
             else:
-                proto_col = np.zeros(len(texts), dtype=np.float64)
+                kw_scores = kw_matrix[:, 0]
+        else:
+            # Fallback: compute on the fly (backward compat for callers that
+            # do not pre-compute).
+            kw_scores_full = self._dict.match_corpus(texts)
+            if kw_scores_full.shape[1] > kw_col:
+                kw_scores = kw_scores_full[:, kw_col]
+            else:
+                kw_scores = kw_scores_full[:, 0]
 
-            return (
-                cond.hybrid_keyword_weight * kw_col
-                + cond.hybrid_prototype_weight * proto_col
-            )
-        # KEYWORD — use existing keyword dictionary
-        raw_scores = self._dict.match_corpus(texts)
-        return raw_scores[:, col_idx]
+        if cond.scoring_source == ScoringSource.KEYWORD:
+            return kw_scores.astype(np.float64)
+
+        # HYBRID — blend keyword score with prototype similarity
+        proto_map = {cond.name: cond.prototypes} if cond.prototypes else {}
+        if proto_map:
+            proto_matrix = self._prototype_engine.compute_similarities(texts, proto_map)
+            proto_col = proto_matrix[:, 0]
+        else:
+            proto_col = np.zeros(len(texts), dtype=np.float64)
+
+        return (
+            cond.hybrid_keyword_weight * kw_scores
+            + cond.hybrid_prototype_weight * proto_col
+        )
 
     def process_with_outcome(
         self, data: InputData, outcome_vector: np.ndarray
@@ -182,29 +275,21 @@ class TextCalibrationStage(Stage):
             OutputData with FuzzySetData where the last column is the outcome.
         """
         texts = self._extract_texts(data)
-        all_conditions = self._all_conditions()
+        kw_matrix, col_to_kw = self._precompute_kw_context(texts)
+
+        n_conds = len(self._all_conditions())
+        has_outcome = self.condition_set.outcome is not None
+
+        membership = self._process_core(
+            texts,
+            kw_matrix,
+            col_to_kw,
+            outcome_provider=(
+                lambda j: outcome_vector if (has_outcome and j == n_conds - 1) else None
+            ),
+        )
+
         n_cases = len(texts)
-        n_conds = len(all_conditions)
-        membership = np.zeros((n_cases, n_conds), dtype=np.float64)
-
-        for j, cond in enumerate(all_conditions):
-            # Check if this is the outcome column
-            is_outcome = (
-                self.condition_set.outcome is not None
-                and cond.name == self.condition_set.outcome.name
-            )
-            if is_outcome:
-                membership[:, j] = outcome_vector.astype(np.float64)
-            else:
-                raw_scores = self._compute_raw_scores(texts, cond, j, all_conditions)
-                cal_type = self._method_override or cond.calibration_type
-                params = cond.calibration_params or CalibrationParams(
-                    threshold_full_in=0.80,
-                    threshold_full_out=0.20,
-                    crossover_point=0.50,
-                )
-                membership[:, j] = self._apply_calibration(raw_scores, cal_type, params)
-
         condition_names = self.condition_set.condition_names
         outcome_name = (
             self.condition_set.outcome.name if self.condition_set.outcome else ""
@@ -241,12 +326,13 @@ class TextCalibrationStage(Stage):
             FuzzySetData with membership shape (1, n_conditions + 1).
         """
         texts = [sample.text]
+        kw_matrix, col_to_kw = self._precompute_kw_context(texts)
         all_conditions = self._all_conditions()
         n_conds = len(all_conditions)
         membership = np.zeros((1, n_conds), dtype=np.float64)
 
         for j, cond in enumerate(all_conditions):
-            raw_scores = self._compute_raw_scores(texts, cond, j, all_conditions)
+            raw_scores = self._compute_raw_scores(texts, cond, j, kw_matrix, col_to_kw)
             cal_type = self._method_override or cond.calibration_type
             params = cond.calibration_params or CalibrationParams(
                 threshold_full_in=0.80,
@@ -391,29 +477,49 @@ class TextCalibrationStage(Stage):
     ) -> np.ndarray:
         """Ragin's fuzzy direct method: log-odds of raw scores relative to anchors.
 
-        Uses the three qualitative anchors (full non-membership threshold,
-        crossover point, full membership threshold) directly as log-odds
-        calibration targets.
+        Uses logistic transformation based on the three qualitative anchors:
+        - threshold_full_out  -> fuzzy membership 0.05 (floor)
+        - crossover_point     -> fuzzy membership 0.50
+        - threshold_full_in   -> fuzzy membership 0.95 (ceiling)
+
+        The membership is computed by scaling the deviation from crossover
+        into log-odds space and applying the logistic function::
+
+            log_odds_95 = ln(0.95 / 0.05)
+            deviation   = (raw - crossover) * scale_factor
+            membership  = exp(deviation) / (1 + exp(deviation))
+
+        The scale factor differs above and below the crossover to ensure
+        that raw==full_in maps to membership==0.95 and raw==full_out maps
+        to membership==0.05.
         """
-        result = np.zeros_like(raw_scores, dtype=np.float64)
         lo = params.threshold_full_out
         hi = params.threshold_full_in
         cross = params.crossover_point
 
-        # Compute intermediate log-odds (deviation from crossover)
-        # Scale so that lo→0, cross→0.5, hi→1
-        for i in range(len(raw_scores)):
-            s = raw_scores[i]
-            if s <= lo:
-                result[i] = 0.05  # near but not quite zero (fuzzy set floor)
-            elif s >= hi:
-                result[i] = 0.95  # near but not quite one (fuzzy set ceiling)
-            else:
-                # Linear interpolation between the three anchors
-                if s <= cross:
-                    result[i] = 0.5 * (s - lo) / (cross - lo)
-                else:
-                    result[i] = 0.5 + 0.5 * (s - cross) / (hi - cross)
+        # Log-odds of the ceiling membership
+        log_odds_95 = np.log(0.95 / 0.05)
+
+        # Scale factors for the two sides of the crossover.
+        # Guard against degenerate anchors (hi==cross or cross==lo).
+        scale_up = log_odds_95 / (hi - cross) if hi > cross else 0.0
+        scale_down = log_odds_95 / (cross - lo) if cross > lo else 0.0
+
+        # Deviation from crossover in log-odds space
+        deviation = np.where(
+            raw_scores >= cross,
+            (raw_scores - cross) * scale_up,
+            (raw_scores - cross) * scale_down,
+        )
+
+        # Clip deviation to prevent exp() overflow with extreme raw scores
+        deviation = np.clip(deviation, -700.0, 700.0)
+
+        # Logistic transformation
+        result = np.exp(deviation) / (1.0 + np.exp(deviation))
+
+        # Apply fuzzy-set floor and ceiling
+        result = np.clip(result, 0.05, 0.95)
 
         if params.direction == "descending":
             result = 1.0 - result

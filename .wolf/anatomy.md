@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T10:25:38.200Z
-> Files: 96 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T11:57:04.576Z
+> Files: 99 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -14,10 +14,13 @@
 - `.gitignore` — Git ignore rules (~134 tok)
 - `.pre-commit-config.yaml` (~116 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
+- `FIXME.md` — FIXME — QCA Analysis Tool (~1996 tok)
+- `HACK.md` — HACK — QCA Analysis Tool (~1201 tok)
 - `index.html` — QCA Simulation Tool (~130 tok)
 - `package-lock.json` — npm lock file (~17146 tok)
 - `package.json` — Node.js package manifest (~160 tok)
 - `pyproject.toml` — QCA Text Analysis Tool: citizen feedback text to fuzzy-set QCA analysis (~1235 tok)
+- `TODO.md` — 功能需求与增强计划（51 项：8 P0 + 23 P1 + 20 P2，含交叉引用） (~4300 tok)
 - `tsconfig.app.json` (~160 tok)
 - `tsconfig.json` — TypeScript configuration (~34 tok)
 - `tsconfig.node.json` (~139 tok)
@@ -89,7 +92,7 @@
 - `__init__.py` — QCA engine: truth table, Boolean minimization, analysis (~218 tok)
 - `analyzer.py` — Main QCA analysis pipeline stage (~1639 tok)
 - `consistency.py` — Core consistency and coverage calculations (~1366 tok)
-- `minimization.py` — Quine-McCluskey Boolean minimization (~2384 tok)
+- `minimization.py` — Quine-McCluskey Boolean minimization for QCA. (~2622 tok)
 - `necessity.py` — Necessary condition analysis (~1107 tok)
 - `solution.py` — Solution formula formatting and term label generation (~1338 tok)
 - `sufficiency.py` — Sufficiency analysis (~1375 tok)
@@ -98,7 +101,7 @@
 ## src/experiment_engine/qca_engine/advanced/
 
 - `__init__.py` — Advanced QCA: robustness, counterfactuals, multi-outcome (~125 tok)
-- `counterfactual.py` — Counterfactual analysis (~1864 tok)
+- `counterfactual.py` — Counterfactual analysis for QCA. (~1945 tok)
 - `multi_outcome.py` — Multi-outcome comparison (~799 tok)
 - `robustness.py` — Robustness and sensitivity tests for QCA results. (~2055 tok)
 
@@ -111,7 +114,7 @@
 ## src/experiment_engine/text_calibration/
 
 - `__init__.py` — Text calibration layer: raw text → fuzzy-set membership scores. (~295 tok)
-- `calibrator.py` — Text calibration stage: keyword scores → fuzzy-set membership (0-1). (~4434 tok)
+- `calibrator.py` — Text calibration stage: keyword scores → fuzzy-set membership (0-1). FIXME-2,3,4,20 fixed: logistic calibrate_ragin, col_idx mapping, cached match_corpus, dedup via _process_core. (~7749 tok)
 - `condition.py` — Condition set I/O helpers — YAML serialization for QCA condition definitions. (~2463 tok)
 - `domains.py` — Pre-built keyword dictionaries for 5 text domains (~2655 tok)
 - `keyword_dict.py` — Chinese keyword matching engine using character n-gram (~1774 tok)

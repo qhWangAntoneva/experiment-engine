@@ -291,3 +291,53 @@
 | %H:%M | Debug session: 7 bugs fixed (KI-001/002/003 + 4 discovered). 360 tests pass, ruff clean, tsc clean. | tests/test_algorithms.py (deleted), src/experiment_engine/io/readers.py, pyproject.toml, cli.py, robustness.py, test_integration.py | 360 pass, 0 fail, 6 xfail | ~35000 tok || 18:17 | Session end: 19 writes across 6 files (readers.py, pyproject.toml, experiment-engine-roadmap.json, test_integration.py, cli.py) | 16 reads | ~51024 tok |
 | 18:21 | Session end: 19 writes across 6 files (readers.py, pyproject.toml, experiment-engine-roadmap.json, test_integration.py, cli.py) | 16 reads | ~51024 tok |
 | 18:25 | Edited .claude/settings.json | expanded (+10 lines) | ~138 |
+| 18:28 | Session end: 20 writes across 7 files (readers.py, pyproject.toml, experiment-engine-roadmap.json, test_integration.py, cli.py) | 17 reads | ~51603 tok |
+
+## Session: 2026-05-24 18:29
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 19:29 | Created TODO.md | — | ~1672 |
+| 19:29 | Created FIXME.md | — | ~2127 |
+| 19:29 | Created HACK.md | — | ~1280 |
+| 19:33 | Edited TODO.md | inline fix | ~64 |
+| 19:33 | Edited TODO.md | inline fix | ~52 |
+| 19:33 | Edited TODO.md | inline fix | ~48 |
+| 19:33 | Edited TODO.md | inline fix | ~44 |
+| 19:33 | Edited TODO.md | inline fix | ~48 |
+| 19:33 | Edited TODO.md | inline fix | ~42 |
+| 19:34 | Edited TODO.md | inline fix | ~43 |
+| 19:34 | Edited TODO.md | inline fix | ~57 |
+| 19:34 | Edited TODO.md | inline fix | ~47 |
+| 19:34 | Edited TODO.md | inline fix | ~31 |
+| 19:34 | Edited TODO.md | inline fix | ~37 |
+| 19:34 | Edited TODO.md | inline fix | ~33 |
+| 19:34 | Edited TODO.md | inline fix | ~35 |
+| 19:34 | Edited TODO.md | inline fix | ~34 |
+| 19:34 | Edited TODO.md | inline fix | ~37 |
+| 19:34 | Edited FIXME.md | 3→3 lines | ~34 |
+| 19:34 | Edited FIXME.md | 2→2 lines | ~8 |
+| 19:35 | Edited FIXME.md | 4→4 lines | ~69 |
+| 19:35 | Edited HACK.md | 2→2 lines | ~18 |
+| 19:35 | Edited HACK.md | 2→2 lines | ~19 |
+| 19:35 | Edited HACK.md | 2→2 lines | ~18 |
+| 19:35 | 三方审查完成：生成 TODO.md(51项)/FIXME.md(22项)/HACK.md(12项)，评审者验收通过 | TODO.md, FIXME.md, HACK.md | 交叉引用已添加，FIXME-15 升级为🔴 | ~12k tok |
+| 19:35 | Session end: 24 writes across 3 files (TODO.md, FIXME.md, HACK.md) | 43 reads | ~132757 tok |
+| 19:43 | 交接文档更新：cerebrum.md 添加快速上手指南+7条Do-Not-Repeat+决策日志，buglog.json 新增5个严重Bug(bug-34~38) | cerebrum.md, buglog.json, anatomy.md | 下一session按P0优先级修复 | ~2k tok |
+| 19:43 | Session end: 24 writes across 3 files (TODO.md, FIXME.md, HACK.md) | 43 reads | ~132757 tok |
+
+## Session: 2026-05-24 19:44
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 19:51 | Edited src/experiment_engine/qca_engine/advanced/counterfactual.py | modified produce_parsimonious_solution() | ~350 |
+| 19:51 | Edited src/experiment_engine/qca_engine/advanced/counterfactual.py | modified produce_intermediate_solution() | ~405 |
+| 19:51 | Edited src/experiment_engine/qca_engine/minimization.py | modified minimize() | ~480 |
+| 19:51 | Edited src/experiment_engine/qca_engine/minimization.py | modified enumerate() | ~296 |
+| 19:55 | Fix FIXME-1, FIXME-17, FIXME-18, HACK-5 — parsimonious solution algorithm + QM don't-care support | counterfactual.py, minimization.py | 360 tests pass | ~1200 tok |
+| 19:56 | Session end: 4 writes across 2 files (counterfactual.py, minimization.py) | 8 reads | ~38566 tok |
+| 19:56 | Created src/experiment_engine/text_calibration/calibrator.py | — | ~5564 |
+| 19:57 | Edited src/experiment_engine/text_calibration/calibrator.py | inline fix | ~13 |
+| 19:57 | Edited src/experiment_engine/text_calibration/calibrator.py | 4→1 lines | ~23 |
+| 19:59 | Fixed FIXME-2 (col index offset via col_to_kw mapping), FIXME-3 (calibrate_ragin logistic rewrite), FIXME-4 (match_corpus caching in _precompute_kw_context), FIXME-20 (dedup via _process_core). All 360 tests pass. | calibrator.py, buglog.json, cerebrum.md, anatomy.md | All 3 bugs fixed, ruff clean, 360/360 tests pass | ~2500 |
+| 20:01 | Session end: 7 writes across 3 files (counterfactual.py, minimization.py, calibrator.py) | 8 reads | ~47719 tok |

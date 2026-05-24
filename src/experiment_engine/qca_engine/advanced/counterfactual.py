@@ -100,62 +100,69 @@ class CounterfactualAnalyzer:
         truth_table: TruthTable,
         directional_expectations: dict[str, str] | None = None,
     ) -> list[list[str]]:
-        """Parsimonious solution: include easy counterfactuals as don't-care rows.
+        """Parsimonious solution: include ALL logical remainders as don't-care.
 
-        Easy counterfactuals are logical remainders consistent with theoretical
-        expectations. They are added as optional minterms to the minimization.
+        In standard QCA (Ragin 2008), the parsimonious solution treats ALL
+        logical remainders as don't-care minterms, without distinguishing
+        between easy and hard counterfactuals. This differs from the
+        intermediate solution which only includes easy counterfactuals.
         """
-        expectations = directional_expectations or {}
-
-        # All included positive rows + easy counterfactuals
+        # Regular minterms: observed positive rows that must be covered
         minterms: list[list[int]] = [
             r.config
             for r in truth_table.rows
             if r.included and r.outcome_value == 1 and r.frequency >= 1.0
         ]
 
-        # Add easy counterfactuals (logical remainders) as don't-care
-        for row in truth_table.rows:
-            if row.frequency < 1.0:  # logical remainder
-                cf_type = self._classify_counterfactual(
-                    row.config, truth_table.condition_names, expectations
-                )
-                if cf_type == "easy":
-                    minterms.append(row.config)
+        # ALL logical remainders as don't-care (no easy/hard filtering)
+        dont_care: list[list[int]] = [
+            r.config for r in truth_table.rows if r.frequency < 1.0
+        ]
 
         if not minterms:
             return []
-        return self._qm.minimize(minterms, truth_table.condition_names)
+        return self._qm.minimize(
+            minterms,
+            truth_table.condition_names,
+            dont_care_minterms=dont_care,
+        )
 
     def produce_intermediate_solution(
         self,
         truth_table: TruthTable,
         directional_expectations: dict[str, str],
     ) -> list[list[str]]:
-        """Intermediate solution: include only theoretically plausible counterfactuals.
+        """Intermediate solution: include only easy counterfactuals as don't-care.
 
-        This is the most commonly reported solution type in QCA research.
+        Easy counterfactuals (logical remainders consistent with theoretical
+        directional expectations) are passed as don't-care minterms. Hard
+        counterfactuals are excluded. This is the most commonly reported
+        solution type in QCA research.
         """
-        # Only include easy counterfactuals that have explicit directional expectations
-        set(directional_expectations.keys())
-
+        # Regular minterms: observed positive rows that must be covered
         minterms: list[list[int]] = [
             r.config
             for r in truth_table.rows
             if r.included and r.outcome_value == 1 and r.frequency >= 1.0
         ]
 
+        # Easy counterfactuals as don't-care (filtered by directional expectations)
+        dont_care: list[list[int]] = []
         for row in truth_table.rows:
             if row.frequency < 1.0:
                 cf_type = self._classify_counterfactual(
                     row.config, truth_table.condition_names, directional_expectations
                 )
                 if cf_type == "easy":
-                    minterms.append(row.config)
+                    dont_care.append(row.config)
 
         if not minterms:
             return []
-        return self._qm.minimize(minterms, truth_table.condition_names)
+        return self._qm.minimize(
+            minterms,
+            truth_table.condition_names,
+            dont_care_minterms=dont_care,
+        )
 
     @staticmethod
     def _classify_counterfactual(

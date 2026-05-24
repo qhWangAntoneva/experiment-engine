@@ -546,6 +546,165 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24T10:16:11.550433Z"
+    },
+    {
+      "id": "bug-34",
+      "timestamp": "2026-05-24T12:00:00.000Z",
+      "error_message": "counterfactual.py produce_parsimonious_solution only includes easy counterfactuals, not all logical remainders",
+      "file": "src/experiment_engine/qca_engine/advanced/counterfactual.py",
+      "root_cause": "The method filters logical remainders through _classify_counterfactual, only adding easy counterfactuals. Standard QCA (Ragin 2008) requires ALL logical remainders as don't-care rows for parsimonious solution.",
+      "fix": "Add all rows with frequency < 1.0 as don't-care minterms (not just easy counterfactuals). Requires extending QM to support don't-care concept.",
+      "tags": [
+        "algorithm-bug",
+        "qca",
+        "parsimonious-solution",
+        "counterfactual"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24",
+      "severity": "critical",
+      "source": "3-agent code review (reviewer subagent)"
+    },
+    {
+      "id": "bug-35",
+      "timestamp": "2026-05-24T12:00:00.000Z",
+      "error_message": "calibrate_ragin implements piecewise linear interpolation, not Ragin log-odds direct method",
+      "file": "src/experiment_engine/text_calibration/calibrator.py",
+      "root_cause": "The docstring claims Ragin log-odds method but the code at lines 389-421 is piecewise linear identical to calibrate_direct (only floor/ceiling changed to 0.05/0.95).",
+      "fix": "Rewrite with logistic formula: log_odds = ln(m/(1-m)), deviation = (raw - crossover) * (log_odds_95 / (full_in - crossover)), membership = exp(deviation) / (1 + exp(deviation))",
+      "tags": [
+        "algorithm-bug",
+        "qca",
+        "calibration",
+        "ragin-method"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24",
+      "severity": "critical",
+      "source": "3-agent code review (reviewer subagent)",
+      "fixed": "2026-05-24T14:00:00.000Z",
+      "fixed_by": "Rewrote calibrate_ragin() with logistic formula: log_odds_95 = ln(0.95/0.05), deviation = (raw - cross) * scale, membership = exp(dev) / (1+exp(dev)). Added np.clip(deviation, -700, 700) for overflow safety. All tests pass (360/360)."
+    },
+    {
+      "id": "bug-36",
+      "timestamp": "2026-05-24T12:00:00.000Z",
+      "error_message": "calibrator.py column index offset when mixing KEYWORD/HYBRID/PROTOTYPE scoring sources",
+      "file": "src/experiment_engine/text_calibration/calibrator.py",
+      "root_cause": "_compute_raw_scores() at line 165-167 uses col_idx (global position) to index match_corpus() result matrix (only KEYWORD/HYBRID columns). When PROTOTYPE conditions interleave with KEYWORD, the index is shifted.",
+      "fix": "Build a col_idx -> kw_col_idx mapping before indexing.",
+      "tags": [
+        "algorithm-bug",
+        "calibration",
+        "index-offset",
+        "scoring-source"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24",
+      "severity": "critical",
+      "source": "3-agent code review (reviewer subagent)",
+      "fixed": "2026-05-24T14:00:00.000Z",
+      "fixed_by": "Added _precompute_kw_context() that builds col_idx -> kw_col_idx mapping. _compute_raw_scores() now accepts optional kw_matrix and col_to_kw params and uses the mapping. process_with_outcome() and calibrate_one() also updated."
+    },
+    {
+      "id": "bug-37",
+      "timestamp": "2026-05-24T12:00:00.000Z",
+      "error_message": "match_corpus() called once per KEYWORD condition causing O(n_conditions * n_texts * n_keywords) redundancy",
+      "file": "src/experiment_engine/text_calibration/calibrator.py",
+      "root_cause": "_compute_raw_scores at line 140,166 calls self._dict.match_corpus(texts) inside the per-condition loop. Each KEYWORD/HYBRID condition re-runs the full corpus match.",
+      "fix": "Call match_corpus() once in process() and cache the result matrix. Reference cached columns by index.",
+      "tags": [
+        "performance",
+        "calibration",
+        "redundant-computation"
+      ],
+      "related_bugs": [
+        "bug-36"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-24",
+      "severity": "high",
+      "source": "3-agent code review (reviewer subagent)",
+      "fixed": "2026-05-24T14:00:00.000Z",
+      "fixed_by": "Fixed alongside bug-36. _precompute_kw_context() caches match_corpus() result once. All callers (process, process_with_outcome, calibrate_one) use the cached matrix."
+    },
+    {
+      "id": "bug-38",
+      "timestamp": "2026-05-24T12:00:00.000Z",
+      "error_message": "Pipeline passes corrupted data downstream after stage failure (silent data corruption)",
+      "file": "src/experiment_engine/pipeline.py",
+      "root_cause": "Pipeline.process() at line 277-286 catches stage exceptions but continues with \"last good data\". If TextCalibrationStage fails, QCAnalyzerStage receives raw text instead of fuzzy sets.",
+      "fix": "Add fail_fast: bool config (default True for QCA pipelines). On stage failure, abort immediately with PipelineStatus.FAILED.",
+      "tags": [
+        "data-integrity",
+        "pipeline",
+        "error-handling",
+        "silent-failure"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24",
+      "severity": "critical",
+      "source": "3-agent code review (technical-advisor subagent)"
+    },
+    {
+      "id": "bug-039",
+      "timestamp": "2026-05-24T11:51:35.878Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/qca_engine/minimization.py",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 28→39 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T11:51:35.878Z"
+    },
+    {
+      "id": "bug-013",
+      "timestamp": "2026-05-24T19:54:39.323562",
+      "error_message": "produce_parsimonious_solution produced identical output to intermediate solution — filtered logical remainders through _classify_counterfactual instead of treating ALL remainders as don't-care",
+      "file": "src/experiment_engine/qca_engine/advanced/counterfactual.py",
+      "root_cause": "produce_parsimonious_solution applied _classify_counterfactual filter to logical remainders (matching intermediate solution behavior). Standard QCA (Ragin 2008) requires the parsimonious solution to treat ALL logical remainders as don't-care without easy/hard discrimination.",
+      "fix": "Changed produce_parsimonious_solution to collect ALL frequency<1.0 rows as dont_care_minterms (no filtering). Extended QuineMcCluskey.minimize() with dont_care_minterms parameter — don't-care minterms participate in prime implicant generation but are excluded from the prime implicant chart covering requirement.",
+      "tags": [
+        "algorithm",
+        "qca",
+        "parsimonious",
+        "counterfactual",
+        "quine-mccluskey",
+        "dont-care",
+        "FIXME-1"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T19:54:39.323562"
+    },
+    {
+      "id": "bug-014",
+      "timestamp": "2026-05-24T19:54:39.323562",
+      "error_message": "Quine-McCluskey did not support don't-care minterms, making parsimonious/intermediate solutions treat all remainders as outcome=1 minterms",
+      "file": "src/experiment_engine/qca_engine/minimization.py",
+      "root_cause": "QM implementation only handled outcome=1 minterms with no concept of don't-care, preventing proper parsimonious solution generation.",
+      "fix": "Added dont_care_minterms parameter to minimize(). All minterms (regular + don't-care) participate in grouping/combining. Chart columns only cover regular minterms (idx < n_reg). Don't-care minterms (idx >= n_reg) are excluded from the covering requirement. Removed dead code lines 43-44 (FIXME-18).",
+      "tags": [
+        "algorithm",
+        "qca",
+        "quine-mccluskey",
+        "dont-care",
+        "HACK-5",
+        "FIXME-18"
+      ],
+      "related_bugs": [
+        "bug-013"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T19:54:39.323562"
     }
   ]
 }

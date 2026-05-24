@@ -2,6 +2,25 @@
 
 > OpenWolf 学习记忆。最后一次全面更新：2026-05-24
 > 用途：新 agent 接手时的项目全貌参考。
+> **当前状态**: 三方审查已完成，TODO/FIXME/HACK 就绪，下一 session 开始逐一修复。
+
+---
+
+## 0. 快速上手（新 session 必读）
+
+**在开始任何工作前，先读这三个文件获取当前状态**：
+- `TODO.md` — 51 项待办（8 P0 + 23 P1 + 20 P2），按优先级排序
+- `FIXME.md` — 22 项 Bug/缺陷（6 🔴严重 + 10 🟡警告 + 6 🟢建议），含精确文件:行号
+- `HACK.md` — 12 项技术债务与设计权衡
+
+**推荐的开工顺序**（P0 优先）：
+1. FIXME-1 → counterfactual.py parsimonious 算法错误（最严重的正确性 bug）
+2. FIXME-3 → calibrate_ragin 实现错误（分段线性→logistic）
+3. FIXME-2 → calibrator.py 列索引偏移
+4. FIXME-4 → match_corpus() 重复调用优化
+5. FIXME-5 → pipeline 错误处理 fail_fast
+6. FIXME-6 → robustness coverage_stability=0
+7. P0-3 → 为核心 QCA 模块补充单元测试（先写后修）
 
 ---
 
@@ -257,11 +276,19 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 - [2026-05-24] **Pyodide mountFromInline 必须写 __init__.py**：仅创建目录（os.makedirs）不能让 Python 识别为包。必须在每个包目录写入 `__init__.py` 文件。遗漏会导致 `ModuleNotFoundError`。
 - [2026-05-24] **PipelineStage 类型交叉验证**：每次添加新的 PipelineStage 值时，必须同时确认所有 dispatch 调用使用了该值（而非写死的字符串），否则 TypeScript 编译通过但运行时语义错误（如 'running-robustness' 被用于 counterfactuals）。
 - [2026-05-24] **pre-commit stash-conflict 无限循环**：git commit 时如果存在未暂存的修改（unstaged changes），pre-commit hooks（ruff-format、end-of-file-fixer）自动格式化后，unstash 会因冲突而回滚修复，导致 commit 反复失败。解决方案：(1) 已添加 PreToolUse hook（`.wolf/hooks/pre-commit.js`），在每次 git commit 前自动执行 `ruff format . && ruff check --fix . && git add -u`；(2) 如手动提交，先确保 `git add -u` 后再 commit。
+- [2026-05-24] **counterfactual.py produce_parsimonious_solution 算法错误**（见 FIXME-1）：精简解应包含全部逻辑余项作为 don't-care 行，当前仅添加 easy counterfactuals，行为与 intermediate solution 完全相同。修复时需同步扩展 QM 以支持 don't-care minterm。【已修复：2026-05-24 — produce_parsimonious_solution 现在所有 remainder 作为 dont_care_minterms 传入，不通过 _classify_counterfactual 过滤；QM.minimize() 新增 dont_care_minterms 参数，don't-care 参与合并但不进入覆盖表；同时修复 FIXME-17 (counterfactual.py:140 dead code)、FIXME-18 (minimization.py:43-44 dead code)、HACK-5 (QM don't-care 支持)】
+- [2026-05-24] **calibrate_ragin 实现的是分段线性而非 log-odds**（见 FIXME-3）：docstring 声称 Ragin log-odds 直接法但实际是分段线性插值。应用 logistic 公式 `exp(dev)/(1+exp(dev))` 重写。【已修复：2026-05-24 — 用 np.where/np.exp/logistic formula 重写 calibrate_ragin()；添加 deviation clipping ([-700, 700]) 防 exp overflow；floor/ceiling 通过 np.clip(result, 0.05, 0.95) 实现】
+- [2026-05-24] **calibrator.py 混合 scoring_source 列索引偏移**（见 FIXME-2）：KEYWORD/HYBRID/PROTOTYPE 混合时，`col_idx` 直接索引 `match_corpus()` 返回矩阵导致列错位。需建立 col_idx→kw_col_idx 映射。【已修复：2026-05-24 — 新增 _precompute_kw_context() 构建映射；_compute_raw_scores() 接受可选 kw_matrix+col_to_kw 参数；同时修复 FIXME-4 match_corpus 缓存】
+- [2026-05-24] **match_corpus() 每个条件重复调用**（见 FIXME-4）：O(n_conditions × n_texts × n_keywords) 冗余。在 process() 开头缓存一次。【已修复：2026-05-24 — _precompute_kw_context() 调用 match_corpus() 一次并缓存；process/process_with_outcome/calibrate_one 全部复用；同时修复 FIXME-20 通过提取 _process_core() 消除 process/process_with_outcome 间 ~60 行重复代码】
+- [2026-05-24] **pipeline Stage 失败后静默传递损坏数据**（见 FIXME-5）：Stage 失败后 Pipeline 传递上一次正常数据给下游。需加 fail_fast 配置项。
+- [2026-05-24] **robustness coverage_stability 始终为 0**（见 FIXME-6）：`hasattr(tt, "solution_coverage")` 始终 False（TruthTable 无此字段）。应 run minimization+sufficiency 计算真实 coverage。
+- [2026-05-24] **qca_reporter.py LaTeX 特殊字符未转义**（见 FIXME-10）：`*` `~` `_` 等字符直接插入 LaTeX 导致编译失败。需添加转义函数。
 
 ---
 
 ## 10. 决策日志
 
+- [2026-05-24] **三方角色审查完成**：派 3 个 subagent 分别扮演技术顾问（架构优化）、客户代表（需求提出）、评审者（代码评估），对项目进行深度审查。产出 TODO.md（51项）、FIXME.md（22项）、HACK.md（12项）。发现 5 个严重算法 Bug（parsimonious 算法错误、calibrate_ragin 实现错误、列索引偏移、match_corpus 重复调用、管道静默数据损坏）。由 reviewer subagent 验收通过。下一 session 按 P0 优先级开始修复。
 - [2026-05-24] **新增原型匹配校准模式**：用户可通过"condition, 原型文本, 隶属(0/1)"格式提供概念原型，用 bigram Jaccard 相似度计算文本与正/负例原型的匹配度，最终得分 = max(pos_sims) - max(neg_sims)。前端新增模式选择器（关键词/原型），原型模式用表格编辑器+结构化 CSV 输入（编号,文本,结果）。结果列直接作为 crisp-set membership。所有新字段有默认值，keyword 模式完全向后兼容。
 - [2026-05-24] 将 experiment-engine 从通用"算法实验框架"重构为领域特定的 QCA 文本分析系统。这是该框架的**全部功能**（非附加模块）。
 - [2026-05-24] 删除了 `algorithms/linear_regression.py` 和 `algorithms/kmeans.py`——与 QCA 无关
@@ -273,3 +300,10 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 - [2026-05-24] **单仓库 gh-pages 部署**：选择 Option B（同一 repo 的 gh-pages 分支），避免跨仓库 PAT 复杂度。URL: `qhWangAntoneva.github.io/experiment-engine/`
 - [2026-05-24] **pydantic v2 → dataclass 双后端方案**：pydantic-core 为 Rust 二进制无法在 Pyodide 运行。采用 `IN_BROWSER` 门控选择模型后端：CLI 保持 Pydantic v2，浏览器使用 dataclass shim (models_browser.py)。
 - [2026-05-24] **Plotly.js 替代 matplotlib**：浏览器端仅用 Plotly（纯 Python + HTML/JS 输出），matplotlib Agg 后端仅用于 PNG 导出。Plotly.js 惰性加载节省首屏体积。
+- [2026-05-24] **修复 FIXME-1/HACK-5/FIXME-17/FIXME-18**：重写 `produce_parsimonious_solution` 使其包含所有逻辑余项为 don't-care（不经过 `_classify_counterfactual` 过滤），对齐 Ragin 2008。扩展 `QuineMcCluskey.minimize()` 新增 `dont_care_minterms` 参数：don't-care 参与质蕴含生成（帮助合并）但不进入覆盖表（idx >= n_reg 的行不建列）。同时修复 `produce_intermediate_solution` 使其 easy counterfactuals 也经由 don't-care 传入（不再作为 outcome=1 行）。清理 FIXME-17（counterfactual.py:140 死代码）和 FIXME-18（minimization.py:43-44 死代码）。HACK-5 已解决。
+- [2026-05-24] **修复 FIXME-2/3/4/20（calibrator.py 四个 Bug）**：
+  - **FIXME-3 (calibrate_ragin)**：重写为 logistic 公式 `exp(dev)/(1+exp(dev))`，deviation 为 `(raw-cross)*scale`，添加 np.clip(deviation, -700, 700) 防 overflow
+  - **FIXME-2 (列索引偏移)**：新增 `_precompute_kw_context()` 构建 col_idx→kw_col_idx 映射，`_compute_raw_scores()` 接受可选 kw_matrix+col_to_kw 参数
+  - **FIXME-4 (重复 match_corpus)**：`_precompute_kw_context()` 缓存一次 match_corpus 结果，process/process_with_outcome/calibrate_one 全部复用
+  - **FIXME-20 (代码重复)**：提取 `_process_core(texts, kw_matrix, col_to_kw, outcome_provider)` 消除 process/process_with_outcome 间 ~60 行重复，outcome_provider 回调分离 outcome 列赋值逻辑。calibrate_one 也使用 `_precompute_kw_context`
+  - 所有 360 测试通过，ruff 干净
