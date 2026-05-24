@@ -1,0 +1,146 @@
+# ==============================================================================
+# deploy.yml — Pyodide QCA Text Analysis Tool → GitHub Pages
+# ==============================================================================
+# Strategy: Option B — single-repo gh-pages branch deployment.
+#   URL: https://qhWangAntoneva.github.io/experiment-engine/
+#
+#   Rationale over Option A (separate qca-web repo):
+#     - One repo to manage (no cross-repo token/secrets dance).
+#     - `peaceiris/actions-gh-pages@v4` handles the branch isolation cleanly.
+#     - Switch to cross-repo later by adding `external_repository` to the deploy
+#       step and a PAT secret — no workflow restructure needed.
+#
+#   Rationale over Option C (<username>.github.io repo):
+#     - Would occupy the root domain, blocking other project pages.
+#     - Only justified if custom domain + apex deployment is required (not yet).
+#
+# Pyodide asset strategy: CDN (cdn.jsdelivr.net/pyodide/v0.26.4/full/)
+#   - GitHub Pages has a 1 GB soft limit; self-hosting 50 MB of Pyodide assets
+#     wastes ~5% of quota on unchanging files.
+#   - CDN is the community-standard approach (Pyodide docs recommend it).
+#   - The npm `pyodide` package provides the TypeScript loader; heavy assets
+#     (.asm.js, .whl files) are fetched from CDN at runtime with browser cache.
+#   - Only the ~80 KB experiment_engine Python source tar.gz is self-hosted.
+# ==============================================================================
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      pyodide_version:
+        description: 'Pyodide CDN version (e.g. 0.26.4)'
+        required: false
+        default: '0.26.4'
+
+# ── Permissions ─────────────────────────────────────────────────────────────
+# `contents: write` is required for peaceiris/actions-gh-pages to push the
+# gh-pages branch. `pages: write` + `id-token: write` are for the official
+# GitHub Pages deployment API (optional fallback).
+permissions:
+  contents: write
+
+# Prevent parallel deploys from racing on the gh-pages branch.
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      # ── 1. Checkout ─────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Node.js + npm ci ─────────────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      # ── 3. Build Vite + React frontend ──────────────────────────────────
+      #    Vite picks up `base: '/experiment-engine/'` from vite.config.ts
+      #    in production mode, so all asset paths are prefixed correctly.
+      - name: Build frontend
+        run: npm run build
+
+      # ── 4. Bundle Python package for Pyodide ────────────────────────────
+      #    Creates a gzipped tar of experiment_engine/ excluding modules that
+      #    depend on native/display libraries unavailable in Pyodide:
+      #      - viz/       (matplotlib, plotly, rich — no browser display)
+      #      - report/    (LaTeX generation — irrelevant in browser)
+      #      - cli.py     (Click-based CLI — not used in browser)
+      #      - __main__.py
+      #      - io/db.py   (SQLite/PostgreSQL — no filesystem DB in browser)
+      #      - core/parallel.py  (ThreadPoolExecutor — Pyodide has no threads)
+      #    The tar is served from /experiment-engine/py/experiment_engine.tar.gz
+      #    and fetched by the Pyodide engine at runtime.
+      - name: Bundle Python package for Pyodide
+        run: |
+          mkdir -p dist/py
+          cd src
+          tar czf ../dist/py/experiment_engine.tar.gz \
+            --exclude='experiment_engine/viz'         \
+            --exclude='experiment_engine/report'       \
+            --exclude='experiment_engine/cli.py'       \
+            --exclude='experiment_engine/__main__.py'  \
+            --exclude='experiment_engine/io/db.py'     \
+            --exclude='experiment_engine/core/parallel.py' \
+            experiment_engine/
+          cd ..
+          echo "::notice::Python bundle size: $(du -h dist/py/experiment_engine.tar.gz | cut -f1)"
+          echo "::notice::Module listing:"
+          tar tzf dist/py/experiment_engine.tar.gz | head -30
+
+      # ── 5. Copy Pyodide version manifest (optional; for runtime checks) ──
+      - name: Write Pyodide version manifest
+        run: |
+          cat > dist/py/pyodide-manifest.json << 'MANIFEST'
+          {
+            "pyodide_version": "${{ inputs.pyodide_version || '0.26.4' }}",
+            "packages": ["numpy", "pydantic", "pyyaml"],
+            "python_module": "experiment_engine.tar.gz",
+            "excluded": ["viz", "report", "cli.py", "__main__.py", "io/db.py", "core/parallel.py"]
+          }
+          MANIFEST
+
+      # ── 6. Deploy to gh-pages branch ───────────────────────────────────
+      #    `force_orphan: true` ensures a single-commit gh-pages branch
+      #    (no history bloat from CI commits).
+      #    `publish_dir: ./dist` — Vite's default output directory.
+      #    `destination_dir: .` — deploys to repo root of gh-pages so assets
+      #    are at /experiment-engine/ not /experiment-engine/dist/.
+      #    To switch to cross-repo Option A later, add:
+      #      external_repository: qhWangAntoneva/qca-web
+      #      personal_token: ${{ secrets.CROSS_REPO_PAT }}
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: "deploy: ${{ github.sha }} [skip ci]"
+
+      # ── 7. Post-deploy summary ──────────────────────────────────────────
+      - name: Deployment summary
+        run: |
+          echo "## Deployment Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| URL | https://qhWangAntoneva.github.io/experiment-engine/ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | ${{ github.sha }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Pyodide | ${{ inputs.pyodide_version || '0.26.4' }} (CDN) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Python bundle | $(du -h dist/py/experiment_engine.tar.gz | cut -f1) |" >> "$GITHUB_STEP_SUMMARY"

@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T03:40:20.701Z
-> Files: 76 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T05:16:07.117Z
+> Files: 94 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -9,17 +9,18 @@
 
 ## ./
 
+- `.github/workflows/deploy.yml` — CI/CD: build + Pyodide bundle + gh-pages deploy (~2000 tok)
 - `.gitignore` — Git ignore rules (~7 tok)
 - `.pre-commit-config.yaml` (~116 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
 - `index.html` — QCA Simulation Tool (~130 tok)
 - `package-lock.json` — npm lock file (~17146 tok)
-- `package.json` — Node.js package manifest (~142 tok)
+- `package.json` — Node.js package manifest (~160 tok)
 - `pyproject.toml` — QCA Text Analysis Tool: citizen feedback text to fuzzy-set QCA analysis (~1214 tok)
 - `tsconfig.app.json` (~160 tok)
 - `tsconfig.json` — TypeScript configuration (~34 tok)
 - `tsconfig.node.json` (~139 tok)
-- `vite.config.ts` — Vite build configuration (~52 tok)
+- `vite.config.ts` — ============================================================================= (~334 tok)
 
 ## .claude/
 
@@ -29,16 +30,31 @@
 
 - `openwolf.md` (~313 tok)
 
+## .github/workflows/
+
+- `deploy.yml` — ============================================================================== (~1906 tok)
+
+## roadmap/
+
+- `experiment-engine-roadmap.json` (~5044 tok)
+
 ## src/
 
-- `App.tsx` — App (~201 tok)
+- `App.tsx` — App (~240 tok)
 - `index.css` — Styles: 19 rules, 34 vars (~1412 tok)
-- `main.tsx` (~93 tok)
+- `main.tsx` — ============================================================================= (~331 tok)
+- `vite-env.d.ts` — / <reference types="vite/client" /> (~173 tok)
 
 ## src/components/
 
+- `DistributionPlot.tsx` — Distribution histogram for fuzzy-set membership scores. (~899 tok)
+- `FuzzySetHeatmap.tsx` — Plotly-based heatmap for truth table visualization. (~1294 tok)
+- `NecessityXYPlot.tsx` — Necessity/Consistency XY scatter plot. (~1034 tok)
+- `PipelineStatus.tsx` — Pipeline Status Indicator — shows current stage, progress bar, elapsed time, (~1154 tok)
 - `Sidebar.css` — Styles: 14 rules (~537 tok)
-- `Sidebar.tsx` — navItems (~393 tok)
+- `Sidebar.tsx` — navItems (~392 tok)
+- `SolutionViewer.tsx` — Solution Viewer — displays one or all QCA solution types (complex, (~1202 tok)
+- `TruthTableViewer.tsx` — Truth Table Viewer — renders the QCA truth table as a sortable/filterable (~1483 tok)
 
 ## src/experiment_engine/
 
@@ -110,6 +126,11 @@
 - `qca_plots.py` — QCA 专用图（热力图/XY图/分布直方图/柱状图） (~1324 tok)
 - `streamlit_dashboard.py` — Streamlit Web 仪表板 (~1200 tok)
 
+## src/hooks/
+
+- `usePyodide.ts` — React hook wrapping the Pyodide bridge singleton. (~452 tok)
+- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. (~1736 tok)
+
 ## src/layouts/
 
 - `MainLayout.css` — Styles: 2 rules (~54 tok)
@@ -118,17 +139,32 @@
 ## src/pages/
 
 - `Dashboard.css` — Styles: 22 rules (~534 tok)
-- `Dashboard.tsx` — metrics — renders table (~973 tok)
+- `Dashboard.tsx` — Dashboard — QCA pipeline overview with pipeline status widget, (~2824 tok)
 - `DataInput.css` — Styles: 11 rules (~398 tok)
-- `DataInput.tsx` — fieldGroups — renders form — uses useState (~2015 tok)
+- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~5169 tok)
 - `Results.css` — Styles: 17 rules (~484 tok)
-- `Results.tsx` — results — renders table (~1182 tok)
+- `Results.tsx` — Results — displays all QCA analysis output in organized sections: (~3472 tok)
 - `Settings.css` — Styles: 16 rules (~443 tok)
-- `Settings.tsx` — settings — renders form (~1484 tok)
+- `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~3563 tok)
+
+## src/pyodide/
+
+- `engine.ts` — PyodideEngine singleton: CDN Pyodide load, micropip deps, tar extract, runPython bridge (~3692 tok)
+- `types.ts` — JS<->Python bridge types: CalibrationInput/Output, AnalysisInput/Output, FuzzySetRecord (~717 tok)
+
+## src/services/
+
+- `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~3177 tok)
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~5041 tok)
+
+## src/store/
+
+- `QCAPipelineContext.tsx` — React Context for tracking the QCA pipeline lifecycle. (~2204 tok)
 
 ## src/types/
 
-- `index.ts` — Exports SimulationParams, SimulationResult, MetricCardData, NavItem (~173 tok)
+- `index.ts` — Legacy types — kept for backward compatibility with existing UI components. (~400 tok)
+- `qca.ts` — QCA-specific TypeScript interfaces mirroring experiment_engine/models.py. (~2623 tok)
 
 ## tests/
 

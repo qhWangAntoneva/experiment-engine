@@ -2,9 +2,9 @@
   "metadata": {
     "project": "experiment-engine",
     "version": "1.0.0",
-    "last_updated": "2026-05-16T01:00",
-    "description": "A modular algorithm experimentation framework: input → computation → visualization → report",
-    "tech_stack": ["Python >=3.10", "Pydantic v2", "Click", "Rich", "Matplotlib", "Plotly", "PyYAML", "NumPy"],
+    "last_updated": "2026-05-24T03:40",
+    "description": "QCA Text Analysis Tool: Chinese citizen feedback text → fuzzy-set QCA. CLI + Pyodide Web (browser-based, zero-server deployment to GitHub Pages).",
+    "tech_stack": ["Python >=3.10", "Pydantic v2 (CLI) / dataclass (Browser)", "NumPy", "PyYAML", "Plotly", "Pyodide v0.29", "React 18", "TypeScript 5", "Vite 5", "Plotly.js", "GitHub Pages"],
     "repo": "https://github.com/qhWangAntoneva/experiment-engine.git",
     "branch": "master"
   },
@@ -306,19 +306,141 @@
           "files": ["src/experiment_engine/core/parallel.py"]
         }
       ]
+    },
+    "phase_6_web_deployment": {
+      "title": "Web 部署 — Pyodide 浏览器端运行 (Web Deployment)",
+      "priority": "HIGH",
+      "summary": "通过 Pyodide 将 QCA Python 引擎编译到 WebAssembly，在浏览器端运行，部署至 GitHub Pages (qhWangAntoneva.github.io/experiment-engine/)。前端 React + TypeScript 已实现 Pyodide Web Worker 桥接层、Plotly.js 可视化组件、QCA 流水线状态管理。",
+      "architecture": {
+        "runtime": "Pyodide v0.29.x via CDN (jsDelivr)",
+        "python_packages": ["numpy (OK)", "pyyaml (OK)", "plotly (OK)", "pandas (可选)"],
+        "blocked_packages": ["pydantic>=2.0 (pydantic-core 为 Rust 二进制)", "matplotlib (仅 Agg 后端)", "click/rich (浏览器无关)"],
+        "frontend": "React 18 + Vite 5 + TypeScript + Plotly.js",
+        "deployment": "GitHub Pages (gh-pages 分支), GitHub Actions CI/CD",
+        "url": "https://qhWangAntoneva.github.io/experiment-engine/"
+      },
+      "tasks": [
+        {
+          "id": "W1",
+          "description": "pydantic v2 阻塞点解决：创建 dataclass 双后端模型层 (models_browser.py)，通过 IN_BROWSER 门控选择后端，保持 CLI 兼容",
+          "effort_hours": 8.0,
+          "dependencies": ["F2"],
+          "status": "PENDING",
+          "blocker": "pydantic-core 是 Rust 原生二进制，无法在 Emscripten/Wasm 中运行。需将 30+ Pydantic 模型复制为 Python dataclass + 手动验证。",
+          "files": ["src/experiment_engine/models_browser.py", "src/experiment_engine/__init__.py"]
+        },
+        {
+          "id": "W2",
+          "description": "Pyodide Web Worker 桥接层：实现主线程 ↔ Worker postMessage 通信协议 (9 种请求类型: init/calibrate/load_corpus/analyze/run_robustness/run_counterfactuals/export_result/validate_condition_set/get_package_status)",
+          "effort_hours": 4.0,
+          "dependencies": ["W1"],
+          "status": "PROTOTYPE",
+          "files": ["src/services/pyodide.worker.ts", "src/services/pyodide.ts", "src/hooks/usePyodide.ts", "src/hooks/useQCAWorkflow.ts"]
+        },
+        {
+          "id": "W3",
+          "description": "TypeScript 类型层：将 30+ Pydantic 模型镜像为 TypeScript 接口 (qca.ts)，确保 Python↔JS JSON 序列化字段名一致",
+          "effort_hours": 2.0,
+          "dependencies": ["F2"],
+          "status": "PROTOTYPE",
+          "files": ["src/types/qca.ts", "src/pyodide/types.ts"]
+        },
+        {
+          "id": "W4",
+          "description": "Plotly.js QCA 可视化组件：真值表热力图、必要性/充分性 XY 散点图、模糊隶属分布直方图、解公式展示、流水线进度条 (替代 matplotlib)",
+          "effort_hours": 5.0,
+          "dependencies": ["W2"],
+          "status": "PROTOTYPE",
+          "files": ["src/components/FuzzySetHeatmap.tsx", "src/components/NecessityXYPlot.tsx", "src/components/DistributionPlot.tsx", "src/components/TruthTableViewer.tsx", "src/components/SolutionViewer.tsx", "src/components/PipelineStatus.tsx"]
+        },
+        {
+          "id": "W5",
+          "description": "React 状态管理：QCAPipelineContext (useReducer) 驱动 14 阶段流水线状态机 (idle→loading-pyodide→calibrating→analyzing→running-robustness→done/error)",
+          "effort_hours": 2.0,
+          "dependencies": ["W2"],
+          "status": "PROTOTYPE",
+          "files": ["src/store/QCAPipelineContext.tsx"]
+        },
+        {
+          "id": "W6",
+          "description": "页面重构：DataInput (文件上传+粘贴+条件集YAML编辑器)、Results (标签页: 解/真值表/必要性/稳健性+导出)、Dashboard (引擎初始化+流水线状态)、Settings (校准参数+分析阈值+本地持久化)",
+          "effort_hours": 6.0,
+          "dependencies": ["W4", "W5"],
+          "status": "PROTOTYPE",
+          "files": ["src/pages/Dashboard.tsx", "src/pages/DataInput.tsx", "src/pages/Results.tsx", "src/pages/Settings.tsx"]
+        },
+        {
+          "id": "W7",
+          "description": "Python 模块打包：构建脚本将 src/experiment_engine/ 精简后打包为 engine.tar.gz (~80KB)，排除 CLI/viz/console/db/streamlit 等浏览器无关模块",
+          "effort_hours": 1.5,
+          "dependencies": ["W1"],
+          "status": "PENDING",
+          "files": ["scripts/build-pyodide-bundle.py"]
+        },
+        {
+          "id": "W8",
+          "description": "GitHub Actions CI/CD 部署流水线：Node.js 构建 + Python bundle + 部署至 gh-pages 分支 (peaceiris/actions-gh-pages@v4)",
+          "effort_hours": 2.0,
+          "dependencies": ["W7"],
+          "status": "PROTOTYPE",
+          "files": [".github/workflows/deploy.yml"]
+        },
+        {
+          "id": "W9",
+          "description": "Vite 生产构建配置：GitHub Pages 子目录 base 路径、vendor chunk 分离 (react/vendor-plotly)、Web Worker 入口",
+          "effort_hours": 1.0,
+          "dependencies": ["W8"],
+          "status": "PROTOTYPE",
+          "files": ["vite.config.ts", "src/main.tsx", "src/vite-env.d.ts"]
+        },
+        {
+          "id": "W10",
+          "description": "运行时优化：惰性加载 Plotly.js (~3MB 动态 import)、Pyodide Service Worker 缓存首访加速、pandas 替换为 numpy.genfromtxt 轻量 CSV 解析",
+          "effort_hours": 3.0,
+          "dependencies": ["W6", "W7"],
+          "status": "PENDING",
+          "files": ["src/services/pyodide.worker.ts", "vite.config.ts"]
+        },
+        {
+          "id": "W11",
+          "description": "端到端集成测试：Web Worker 内 Pyodide 加载 → 文本校准 → QCA 分析 → 结果序列化 → Plotly 图表渲染验证",
+          "effort_hours": 3.0,
+          "dependencies": ["W10"],
+          "status": "PENDING",
+          "files": ["tests/test_pyodide_integration.ts"]
+        },
+        {
+          "id": "W12",
+          "description": "性能预算与监控：冷启动 <12s、热启动 <2s、1000 文本 QCA 分析 <3s、内存 <150MB、首屏 <3s Lighthouse",
+          "effort_hours": 1.5,
+          "dependencies": ["W10"],
+          "status": "PENDING",
+          "files": []
+        }
+      ],
+      "risk_register": [
+        {"risk": "Pyodide CDN 不可用", "mitigation": "备选 self-host Pyodide 资源 (50MB)，通过 GitHub Pages 或 Cloudflare Pages 托管", "severity": "MEDIUM"},
+        {"risk": "pydantic-core 无替代方案导致模型层重构工作量大", "mitigation": "已确定 dataclass shim 方案，优先完成 W1 再推进后续", "severity": "HIGH"},
+        {"risk": "大文本输入导致浏览器 OOM", "mitigation": "限制输入 ≤5000 条文本，前端分块处理 + Worker 内分批计算", "severity": "LOW"},
+        {"risk": "GitHub Pages 带宽限制 (100GB/月)", "mitigation": "Pyodide 资源走 CDN，仅 ~80KB 自托管", "severity": "LOW"}
+      ]
     }
   },
   "milestones": {
     "minimum_viable_release": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "FX1", "FX2", "FX3", "FX4", "FX5", "I1", "I2", "Q1"],
     "version_1_0_stable": ["ALL_TASKS_UP_TO_PHASE_4"],
-    "version_1_1_advanced": ["ALL_TASKS_UP_TO_PHASE_5"]
+    "version_1_1_advanced": ["ALL_TASKS_UP_TO_PHASE_5"],
+    "version_2_0_web": ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12"],
+    "web_prototype_demo": ["W2", "W3", "W4", "W5", "W6", "W8", "W9"]
   },
   "summary": {
-    "total_tasks": 32,
-    "total_estimated_effort_hours": 47.3,
-    "remaining_effort_hours": 5.8,
+    "total_tasks": 44,
+    "total_estimated_effort_hours": 86.3,
+    "remaining_effort_hours": 42.8,
     "completed_tasks": 30,
+    "prototype_tasks": 7,
+    "pending_tasks": 7,
     "completed_phases": ["phase_1_foundation", "phase_1_fix", "phase_2_integration", "phase_4_docs_polish"],
-    "active_phase": "phase_5_advanced"
+    "active_phase": "phase_6_web_deployment"
   }
 }

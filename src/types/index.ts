@@ -1,3 +1,8 @@
+/**
+ * Legacy types — kept for backward compatibility with existing UI components.
+ * New QCA-specific types are in ./qca.ts
+ */
+
 export interface SimulationParams {
   name: string
   description: string
@@ -27,3 +32,39 @@ export interface NavItem {
   path: string
   icon: string
 }
+
+// Re-export all QCA types
+export type {
+  TextDomain,
+  CalibrationType,
+  PipelineStage,
+  CalibrationParams,
+  KeywordEntry,
+  ConditionDefinition,
+  ConditionSet,
+  FuzzySetDataJSON,
+  TruthTableRow,
+  TruthTableJSON,
+  SolutionTerm,
+  QCASolution,
+  QCASolutions,
+  NecessityConditionResult,
+  NecessityResults,
+  SufficiencyResults,
+  QCAAnalysisResultJSON,
+  RobustnessTestResult,
+  RobustnessReport,
+  CounterfactualClassification,
+  CounterfactualReport,
+  TextCorpusEntry,
+  CorpusSource,
+  QCAAnalysisParams,
+  QCAPipelineState,
+  ExportResult,
+  SavedAnalysisRun,
+} from './qca'
+
+export {
+  DEFAULT_QCA_PARAMS,
+  INITIAL_PIPELINE_STATE,
+} from './qca'

@@ -85,3 +85,41 @@
 | 11:38 | Edited .pre-commit-config.yaml | 4.0 → 15.12 | ~5 |
 | 11:40 | Edited pyproject.toml | inline fix | ~12 |
 | 11:40 | Edited pyproject.toml | 1→2 lines | ~46 |
+| 11:43 | Session end: 21 writes across 6 files (pyproject.toml, test_algorithms.py, test_integration.py, test_viz.py, readers.py) | 5 reads | ~18023 tok |
+| 11:48 | Session end: 21 writes across 6 files (pyproject.toml, test_algorithms.py, test_integration.py, test_viz.py, readers.py) | 5 reads | ~18023 tok |
+| 13:01 | Session end: 21 writes across 6 files (pyproject.toml, test_algorithms.py, test_integration.py, test_viz.py, readers.py) | 10 reads | ~18645 tok |
+| 13:03 | Created src/types/qca.ts | — | ~2623 |
+| 13:04 | Created src/services/pyodide.worker.ts | — | ~5041 |
+| 13:04 | Created src/services/pyodide.ts | — | ~3177 |
+| 13:05 | Created src/store/QCAPipelineContext.tsx | — | ~2204 |
+| 13:05 | Session end: 25 writes across 10 files (pyproject.toml, test_algorithms.py, test_integration.py, test_viz.py, readers.py) | 36 reads | ~67185 tok |
+| 13:06 | Created src/hooks/usePyodide.ts | — | ~452 |
+| 13:06 | Created src/hooks/useQCAWorkflow.ts | — | ~1736 |
+| 13:06 | Created src/components/TruthTableViewer.tsx | — | ~1483 |
+| 13:06 | Created src/components/SolutionViewer.tsx | — | ~1202 |
+| 13:06 | Created .github/workflows/deploy.yml | — | ~1906 |
+| 13:06 | Created vite.config.ts | — | ~500 |
+| 13:06 | Created src/main.tsx | — | ~331 |
+| 13:06 | Created src/pyodide/engine.ts | — | ~3692 |
+| 13:06 | Created src/pyodide/types.ts | — | ~717 |
+| 13:06 | Edited package.json | 5→6 lines | ~39 |
+| 13:07 | Created src/components/FuzzySetHeatmap.tsx | — | ~1294 |
+| 13:07 | Created src/components/NecessityXYPlot.tsx | — | ~1034 |
+| 13:07 | Created src/components/DistributionPlot.tsx | — | ~899 |
+| 13:07 | Created src/components/PipelineStatus.tsx | — | ~1154 |
+| 05:07 | Deployment strategy designed: Option B (gh-pages same-repo). Created .github/workflows/deploy.yml, updated vite.config.ts (base path), updated main.tsx (BrowserRouter basename), created src/pyodide/engine.ts + types.ts, added pyodide 0.26.4 dep. Pyodide CDN strategy. | deploy.yml, vite.config.ts, main.tsx, engine.ts, types.ts, package.json | complete | ~6000 |
+| 13:09 | Created src/vite-env.d.ts | — | ~173 |
+| 13:09 | Created src/pages/Dashboard.tsx | — | ~2824 |
+| 13:09 | Created src/pages/DataInput.tsx | — | ~5169 |
+| 13:10 | Created src/pages/Results.tsx | — | ~3472 |
+| 13:10 | Created src/pages/Settings.tsx | — | ~3563 |
+| 13:11 | Created src/App.tsx | — | ~240 |
+| 13:11 | Created src/types/index.ts | — | ~400 |
+| 13:11 | Created src/components/Sidebar.tsx | — | ~392 |
+| 13:11 | Created vite.config.ts | — | ~334 |
+| 13:11 | Created package.json | — | ~160 |
+| 13:12 | Session end: 49 writes across 32 files (pyproject.toml, test_algorithms.py, test_integration.py, test_viz.py, readers.py) | 36 reads | ~100806 tok |
+| 05:13 | Designed Pyodide+React web architecture: wrote qca.ts (60+ TS interfaces mirroring Python models), pyodide.worker.ts (Web Worker entry), pyodide.ts (main-thread bridge), QCAPipelineContext.tsx (Context+reducer), usePyodide.ts, useQCAWorkflow.ts, 6 viz components (Plotly heatmap, XY plot, histogram, truth table, solutions, pipeline status), rewrote 4 pages (Dashboard/DataInput/Results/Settings), updated App.tsx (provider wrap), package.json (new deps), vite.config.ts (worker) | qca.ts, pyodide.ts, pyodide.worker.ts, QCAPipelineContext.tsx, hooks, components, pages | Completed: full frontend architecture integration code | ~8000 |
+| 13:15 | Edited roadmap/experiment-engine-roadmap.json | expanded (+118 lines) | ~2198 |
+| 13:15 | Edited roadmap/experiment-engine-roadmap.json | 13→17 lines | ~225 |
+| 13:16 | Edited roadmap/experiment-engine-roadmap.json | 3→3 lines | ~114 |

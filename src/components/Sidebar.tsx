@@ -4,7 +4,7 @@ import './Sidebar.css'
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', icon: '⊞' },
-  { label: 'Data Input', path: '/input', icon: '⇥' },
+  { label: 'Data Input', path: '/input', icon: '↥' },
   { label: 'Results', path: '/results', icon: '≡' },
   { label: 'Settings', path: '/settings', icon: '⚙' },
 ]
@@ -13,10 +13,10 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <span className="sidebar-logo">◈</span>
+        <span className="sidebar-logo">{'◈'}</span>
         <div>
-          <h1 className="sidebar-title">QCA Sim</h1>
-          <p className="sidebar-version">v0.1.0</p>
+          <h1 className="sidebar-title">QCA Text</h1>
+          <p className="sidebar-version">v0.2.0</p>
         </div>
       </div>
 
@@ -38,9 +38,9 @@ export default function Sidebar() {
       <div className="sidebar-footer">
         <div className="sidebar-status">
           <span className="sidebar-status-dot" />
-          <span>System Ready</span>
+          <span>QCA Engine</span>
         </div>
-        <p className="sidebar-footer-text">QCA Simulation Engine</p>
+        <p className="sidebar-footer-text">Pyodide + React</p>
       </div>
     </aside>
   )
