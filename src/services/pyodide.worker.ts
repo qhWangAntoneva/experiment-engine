@@ -89,6 +89,9 @@ self.onmessage = async (event: MessageEvent<PyodideWorkerRequest>) => {
       case 'calibrate':
         await handleCalibrate(req.payload.texts, req.payload.conditionSet);
         break;
+      case 'calibrate_prototype':
+        await handleCalibratePrototype(req.payload.texts, req.payload.conditionSet);
+        break;
       case 'load_corpus':
         await handleLoadCorpus(req.payload.source);
         break;
@@ -218,18 +221,32 @@ async function mountFromInline(): Promise<void> {
   try {
     await pyodide.runPythonAsync(`
 import sys, os
+
 # Ensure the package root is importable
 for path in ['/src', '/']:
     if path not in sys.path:
         sys.path.insert(0, path)
-os.makedirs('/src/experiment_engine/qca_engine/advanced', exist_ok=True)
-os.makedirs('/src/experiment_engine/text_calibration', exist_ok=True)
-os.makedirs('/src/experiment_engine/report', exist_ok=True)
-os.makedirs('/src/experiment_engine/viz', exist_ok=True)
-os.makedirs('/src/experiment_engine/io', exist_ok=True)
-os.makedirs('/src/experiment_engine/core', exist_ok=True)
+
+# Create package directories with __init__.py files so Python can import them
+_packages = [
+    '/src/experiment_engine',
+    '/src/experiment_engine/qca_engine',
+    '/src/experiment_engine/qca_engine/advanced',
+    '/src/experiment_engine/text_calibration',
+    '/src/experiment_engine/report',
+    '/src/experiment_engine/viz',
+    '/src/experiment_engine/io',
+    '/src/experiment_engine/core',
+]
+
+for _pkg in _packages:
+    os.makedirs(_pkg, exist_ok=True)
+    _init = os.path.join(_pkg, '__init__.py')
+    if not os.path.exists(_init):
+        with open(_init, 'w') as f:
+            f.write('# auto-generated package init\\n')
 `);
-    log('info', 'Inline module directories created');
+    log('info', 'Inline module directories created with __init__.py files');
   } catch (err: any) {
     log('error', `Inline mount failed: ${err.message || String(err)}`);
   }
@@ -244,9 +261,12 @@ async function handleCalibrate(
   ensureReady();
 
   try {
-    // Serialize inputs as JSON → Python dicts
+    // Serialize inputs and write to Pyodide VFS to avoid code injection via template literals
     const textsJson = JSON.stringify(texts);
     const conditionSetJson = JSON.stringify(conditionSet);
+
+    pyodide.FS.writeFile('/tmp/texts.json', textsJson, { encoding: 'utf8' });
+    pyodide.FS.writeFile('/tmp/condition_set.json', conditionSetJson, { encoding: 'utf8' });
 
     const resultJson = await pyodide.runPythonAsync(`
 import json
@@ -254,8 +274,10 @@ from experiment_engine.text_calibration.calibrator import TextCalibrationStage
 from experiment_engine.text_calibration.condition import _condition_set_from_dict
 from experiment_engine.models import TrainingSample
 
-_texts = json.loads('''${textsJson.replace(/'/g, "\\'")} ''')
-_cs_dict = json.loads('''${conditionSetJson.replace(/'/g, "\\'")} ''')
+with open('/tmp/texts.json', 'r', encoding='utf-8') as f:
+    _texts = json.load(f)
+with open('/tmp/condition_set.json', 'r', encoding='utf-8') as f:
+    _cs_dict = json.load(f)
 _condition_set = _condition_set_from_dict(_cs_dict)
 
 # Build TrainingSample objects
@@ -301,12 +323,75 @@ json.dumps(_json_out)
   }
 }
 
+// ─── Calibrate Prototype: text cases + prototype condition set → fuzzy-set ──
+
+async function handleCalibratePrototype(
+  textCases: any[],
+  conditionSet: any
+): Promise<void> {
+  ensureReady();
+
+  try {
+    const casesJson = JSON.stringify(textCases);
+    const csJson = JSON.stringify(conditionSet);
+
+    pyodide.FS.writeFile('/tmp/text_cases.json', casesJson, { encoding: 'utf8' });
+    pyodide.FS.writeFile('/tmp/condition_set.json', csJson, { encoding: 'utf8' });
+
+    const resultJson = await pyodide.runPythonAsync(`
+import json
+import numpy as np
+from experiment_engine.text_calibration.calibrator import TextCalibrationStage
+from experiment_engine.text_calibration.condition import _condition_set_from_dict
+from experiment_engine.models import InputData
+
+with open('/tmp/text_cases.json', 'r', encoding='utf-8') as f:
+    _cases = json.load(f)
+with open('/tmp/condition_set.json', 'r', encoding='utf-8') as f:
+    _cs_dict = json.load(f)
+_condition_set = _condition_set_from_dict(_cs_dict)
+
+_texts = [c['text'] for c in _cases]
+_outcomes = np.array([c.get('outcome', 0) for c in _cases], dtype=np.float64)
+_case_ids = [c['text_id'] for c in _cases]
+
+_calibrator = TextCalibrationStage(condition_set=_condition_set)
+_calibrator.setup()
+
+_data = InputData(data=np.array(_texts, dtype=object), index=_case_ids)
+_result = _calibrator.process_with_outcome(_data, _outcomes)
+_fuzzy = _result.processed
+
+json.dumps({
+    "membership": _fuzzy.membership.tolist(),
+    "case_ids": _fuzzy.case_ids,
+    "condition_names": _fuzzy.condition_names,
+    "outcome_name": _fuzzy.outcome_name,
+    "texts": _texts,
+    "metadata": _fuzzy.metadata,
+})
+`);
+
+    const fuzzyData = JSON.parse(resultJson);
+    respond({ type: 'calibrate-prototype-done', fuzzyData });
+  } catch (err: any) {
+    const msg = err.message || String(err);
+    respond({ type: 'calibrate-prototype-error', error: `Prototype calibration failed: ${msg}` });
+  }
+}
+
 // ─── Load Corpus: parse CSV/JSON/TXT in Python ────────────────────────────
 
 async function handleLoadCorpus(source: any): Promise<void> {
   ensureReady();
-  // TODO: implement full corpus loading via TextCorpusReader
-  // For now, pass-through
+  try {
+    // For now, pass through the source data directly.
+    // Full TextCorpusReader integration requires mounted Python modules.
+    respond({ type: 'corpus-loaded', entries: source });
+  } catch (err: any) {
+    const msg = err.message || String(err);
+    respond({ type: 'corpus-error', error: `Corpus loading failed: ${msg}` });
+  }
 }
 
 // ─── Analyze: fuzzy data → truth table + solutions + necessity/sufficiency ─
@@ -321,14 +406,19 @@ async function handleAnalyze(
     const fdJson = JSON.stringify(fuzzyDataJson);
     const paramsJson = JSON.stringify(params);
 
+    pyodide.FS.writeFile('/tmp/fuzzy_data.json', fdJson, { encoding: 'utf8' });
+    pyodide.FS.writeFile('/tmp/params.json', paramsJson, { encoding: 'utf8' });
+
     const resultJson = await pyodide.runPythonAsync(`
 import json
 import numpy as np
 from experiment_engine.models import FuzzySetData
 from experiment_engine.qca_engine.analyzer import QCAnalyzerStage
 
-_fd_dict = json.loads('''${fdJson.replace(/'/g, "\\'")} ''')
-_params = json.loads('''${paramsJson.replace(/'/g, "\\'")} ''')
+with open('/tmp/fuzzy_data.json', 'r', encoding='utf-8') as f:
+    _fd_dict = json.load(f)
+with open('/tmp/params.json', 'r', encoding='utf-8') as f:
+    _params = json.load(f)
 
 _fuzzy = FuzzySetData(
     membership=np.array(_fd_dict['membership']),
@@ -371,14 +461,19 @@ async function handleRobustness(
     const fdJson = JSON.stringify(fuzzyDataJson);
     const arJson = JSON.stringify(analysisResultJson);
 
+    pyodide.FS.writeFile('/tmp/fuzzy_data.json', fdJson, { encoding: 'utf8' });
+    pyodide.FS.writeFile('/tmp/analysis_result.json', arJson, { encoding: 'utf8' });
+
     const resultJson = await pyodide.runPythonAsync(`
 import json
 import numpy as np
 from experiment_engine.models import FuzzySetData, QCAAnalysisResult
 from experiment_engine.qca_engine.advanced.robustness import RobustnessTester
 
-_fd_dict = json.loads('''${fdJson.replace(/'/g, "\\'")} ''')
-_ar_dict = json.loads('''${arJson.replace(/'/g, "\\'")} ''')
+with open('/tmp/fuzzy_data.json', 'r', encoding='utf-8') as f:
+    _fd_dict = json.load(f)
+with open('/tmp/analysis_result.json', 'r', encoding='utf-8') as f:
+    _ar_dict = json.load(f)
 
 _fuzzy = FuzzySetData(
     membership=np.array(_fd_dict['membership']),
@@ -415,14 +510,19 @@ async function handleCounterfactuals(
     const fdJson = JSON.stringify(fuzzyDataJson);
     const arJson = JSON.stringify(analysisResultJson);
 
+    pyodide.FS.writeFile('/tmp/fuzzy_data.json', fdJson, { encoding: 'utf8' });
+    pyodide.FS.writeFile('/tmp/analysis_result.json', arJson, { encoding: 'utf8' });
+
     const resultJson = await pyodide.runPythonAsync(`
 import json
 import numpy as np
 from experiment_engine.models import FuzzySetData, QCAAnalysisResult
 from experiment_engine.qca_engine.advanced.counterfactual import CounterfactualAnalyzer
 
-_fd_dict = json.loads('''${fdJson.replace(/'/g, "\\'")} ''')
-_ar_dict = json.loads('''${arJson.replace(/'/g, "\\'")} ''')
+with open('/tmp/fuzzy_data.json', 'r', encoding='utf-8') as f:
+    _fd_dict = json.load(f)
+with open('/tmp/analysis_result.json', 'r', encoding='utf-8') as f:
+    _ar_dict = json.load(f)
 
 _fuzzy = FuzzySetData(
     membership=np.array(_fd_dict['membership']),
@@ -461,11 +561,14 @@ async function handleExport(
   try {
     const rJson = JSON.stringify(resultJson);
 
+    pyodide.FS.writeFile('/tmp/export_result.json', rJson, { encoding: 'utf8' });
+
     const { data, mimeType } = await pyodide.runPythonAsync(`
 import json, io
 from experiment_engine.models import QCAAnalysisResult
 
-_ar_dict = json.loads('''${rJson.replace(/'/g, "\\'")} ''')
+with open('/tmp/export_result.json', 'r', encoding='utf-8') as f:
+    _ar_dict = json.load(f)
 _result = QCAAnalysisResult(**_ar_dict)
 
 fmt = '${format}'
@@ -510,11 +613,14 @@ async function handleValidate(conditionSet: any): Promise<void> {
   try {
     const csJson = JSON.stringify(conditionSet);
 
+    pyodide.FS.writeFile('/tmp/condition_set.json', csJson, { encoding: 'utf8' });
+
     const resultJson = await pyodide.runPythonAsync(`
 import json
 from experiment_engine.text_calibration.condition import _condition_set_from_dict
 
-_cs_dict = json.loads('''${csJson.replace(/'/g, "\\'")} ''')
+with open('/tmp/condition_set.json', 'r', encoding='utf-8') as f:
+    _cs_dict = json.load(f)
 _cs = _condition_set_from_dict(_cs_dict)
 
 warnings = []

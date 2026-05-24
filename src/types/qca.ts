@@ -13,7 +13,8 @@ export type TextDomain =
   | 'trust'
   | 'gov_responsiveness';
 
-export type CalibrationType = 'direct' | 'indirect' | 'fuzzy_direct';
+export type CalibrationType = 'direct' | 'indirect' | 'fuzzy_direct' | 'passthrough';
+export type ScoringSource = 'keyword' | 'prototype' | 'hybrid';
 
 export type PipelineStage =
   | 'idle'
@@ -22,10 +23,14 @@ export type PipelineStage =
   | 'loading-texts'
   | 'calibrating'
   | 'calibrated'
+  | 'calibrating-prototype'
+  | 'calibrated-prototype'
   | 'analyzing'
   | 'analyzed'
   | 'running-robustness'
   | 'robustness-done'
+  | 'running-counterfactuals'
+  | 'counterfactuals-done'
   | 'exporting'
   | 'done'
   | 'error';
@@ -45,6 +50,12 @@ export interface KeywordEntry {
   scope: 'unigram' | 'bigram' | 'trigram' | 'regex' | 'exact';
 }
 
+export interface ConceptPrototype {
+  prototype_text: string;
+  is_member: 0 | 1;
+  weight: number;
+}
+
 export interface ConditionDefinition {
   name: string;
   display_name: string;
@@ -53,6 +64,10 @@ export interface ConditionDefinition {
   calibration_type: CalibrationType;
   calibration_params: CalibrationParams | null;
   description: string;
+  scoring_source: ScoringSource;
+  prototypes: ConceptPrototype[];
+  hybrid_keyword_weight: number;
+  hybrid_prototype_weight: number;
 }
 
 export interface ConditionSet {
@@ -61,6 +76,13 @@ export interface ConditionSet {
   conditions: ConditionDefinition[];
   outcome: ConditionDefinition | null;
   domain: TextDomain;
+  scoring_source: ScoringSource;
+}
+
+export interface TextCase {
+  text_id: string;
+  text: string;
+  outcome: 0 | 1;
 }
 
 // ─── Fuzzy-Set Data (serialized from numpy → list[list[number]]) ───────────
@@ -250,6 +272,7 @@ export const INITIAL_PIPELINE_STATE: QCAPipelineState = {
 export type PyodideWorkerRequest =
   | { type: 'init'; payload: { packages: string[] } }
   | { type: 'calibrate'; payload: { texts: TextCorpusEntry[]; conditionSet: ConditionSet } }
+  | { type: 'calibrate_prototype'; payload: { texts: TextCase[]; conditionSet: ConditionSet } }
   | { type: 'load_corpus'; payload: { source: CorpusSource } }
   | { type: 'analyze'; payload: { fuzzyData: FuzzySetDataJSON; params: QCAAnalysisParams } }
   | { type: 'run_robustness'; payload: { fuzzyData: FuzzySetDataJSON; analysisResult: QCAAnalysisResultJSON } }
@@ -265,6 +288,8 @@ export type PyodideWorkerResponse =
   | { type: 'init-error'; error: string }
   | { type: 'calibrate-done'; fuzzyData: FuzzySetDataJSON }
   | { type: 'calibrate-error'; error: string }
+  | { type: 'calibrate-prototype-done'; fuzzyData: FuzzySetDataJSON }
+  | { type: 'calibrate-prototype-error'; error: string }
   | { type: 'corpus-loaded'; entries: TextCorpusEntry[] }
   | { type: 'corpus-error'; error: string }
   | { type: 'analyze-done'; result: QCAAnalysisResultJSON }

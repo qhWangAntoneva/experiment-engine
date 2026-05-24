@@ -12,8 +12,10 @@ import yaml
 from experiment_engine.models import (
     CalibrationParams,
     CalibrationType,
+    ConceptPrototype,
     ConditionDefinition,
     ConditionSet,
+    ScoringSource,
     TextDomain,
 )
 
@@ -31,14 +33,41 @@ class ConditionDefinitionBuilder:
         self._display_name = display_name or name
         self._domain = domain
         self._keywords: list[dict[str, object]] = []
+        self._prototypes: list[dict[str, object]] = []
         self._calibration_type = CalibrationType.DIRECT
         self._calibration_params: CalibrationParams | None = None
         self._description = ""
+        self._scoring_source = ScoringSource.KEYWORD
+        self._hybrid_kw_weight = 0.5
+        self._hybrid_proto_weight = 0.5
 
     def add_keyword(
         self, pattern: str, weight: float = 1.0, scope: str = "bigram"
     ) -> ConditionDefinitionBuilder:
         self._keywords.append({"pattern": pattern, "weight": weight, "scope": scope})
+        return self
+
+    def add_prototype(
+        self, text: str, is_member: int = 1, weight: float = 1.0
+    ) -> ConditionDefinitionBuilder:
+        self._prototypes.append(
+            {
+                "prototype_text": text,
+                "is_member": is_member,
+                "weight": weight,
+            }
+        )
+        return self
+
+    def scoring(
+        self,
+        source: str = "keyword",
+        hybrid_kw_weight: float = 0.5,
+        hybrid_proto_weight: float = 0.5,
+    ) -> ConditionDefinitionBuilder:
+        self._scoring_source = ScoringSource(source)
+        self._hybrid_kw_weight = hybrid_kw_weight
+        self._hybrid_proto_weight = hybrid_proto_weight
         return self
 
     def calibration(
@@ -73,6 +102,10 @@ class ConditionDefinitionBuilder:
             calibration_type=self._calibration_type,
             calibration_params=self._calibration_params,
             description=self._description,
+            scoring_source=self._scoring_source,
+            prototypes=[ConceptPrototype(**p) for p in self._prototypes],
+            hybrid_keyword_weight=self._hybrid_kw_weight,
+            hybrid_prototype_weight=self._hybrid_proto_weight,
         )
 
 
@@ -134,6 +167,7 @@ def _condition_set_to_dict(cs: ConditionSet) -> dict:
         "name": cs.name,
         "description": cs.description,
         "domain": cs.domain.value,
+        "scoring_source": cs.scoring_source.value,
         "conditions": [_condition_to_dict(c) for c in cs.conditions],
         "outcome": _condition_to_dict(cs.outcome) if cs.outcome else None,
     }
@@ -146,9 +180,20 @@ def _condition_to_dict(cond: ConditionDefinition) -> dict:
         "domain": cond.domain.value,
         "calibration_type": cond.calibration_type.value,
         "description": cond.description,
+        "scoring_source": cond.scoring_source.value,
+        "hybrid_keyword_weight": cond.hybrid_keyword_weight,
+        "hybrid_prototype_weight": cond.hybrid_prototype_weight,
         "keywords": [
             {"pattern": k.pattern, "weight": k.weight, "scope": k.scope}
             for k in cond.keywords
+        ],
+        "prototypes": [
+            {
+                "prototype_text": p.prototype_text,
+                "is_member": p.is_member,
+                "weight": p.weight,
+            }
+            for p in cond.prototypes
         ],
     }
     if cond.calibration_params:
@@ -173,6 +218,7 @@ def _condition_set_from_dict(data: dict) -> ConditionSet:
         domain=domain,
         conditions=conditions,
         outcome=outcome,
+        scoring_source=ScoringSource(data.get("scoring_source", "keyword")),
     )
 
 
@@ -197,4 +243,8 @@ def _condition_from_dict(data: dict, domain: TextDomain) -> ConditionDefinition:
         calibration_type=CalibrationType(data.get("calibration_type", "direct")),
         calibration_params=cal_params,
         description=data.get("description", ""),
+        scoring_source=ScoringSource(data.get("scoring_source", "keyword")),
+        prototypes=[ConceptPrototype(**p) for p in data.get("prototypes", [])],
+        hybrid_keyword_weight=data.get("hybrid_keyword_weight", 0.5),
+        hybrid_prototype_weight=data.get("hybrid_prototype_weight", 0.5),
     )

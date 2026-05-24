@@ -11,6 +11,7 @@ import type {
   PyodideWorkerRequest,
   PyodideWorkerResponse,
   TextCorpusEntry,
+  TextCase,
   ConditionSet,
   QCAAnalysisParams,
   QCAAnalysisResultJSON,
@@ -136,6 +137,20 @@ export class PyodideBridge {
       { type: 'calibrate', payload: { texts, conditionSet } },
       'calibrate-done',
       'calibrate'
+    );
+  }
+
+  /**
+   * Run prototype-based calibration: text cases with binary outcomes.
+   */
+  async calibratePrototype(
+    textCases: TextCase[],
+    conditionSet: ConditionSet
+  ): Promise<FuzzySetDataJSON> {
+    return this.send<FuzzySetDataJSON>(
+      { type: 'calibrate_prototype', payload: { texts: textCases, conditionSet } },
+      'calibrate-prototype-done',
+      'calibrate-prototype'
     );
   }
 

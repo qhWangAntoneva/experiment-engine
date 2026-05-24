@@ -250,11 +250,18 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 - [2026-05-24] **pre-commit 版本不匹配陷阱**：本地 `uv run ruff` 和 pre-commit hook 的 ruff 版本必须一致。当 per-file-ignore 引用新规则（如 RUF043）但 hook 用旧版本时会报 "Unknown rule selector"。解决方案：升级 `.pre-commit-config.yaml` 中 ruff 的 `rev` 对齐 `uv.lock` 版本。
 - [2026-05-24] **PD901 规则已在 ruff 0.15.x 移除**：如果 pyproject.toml 中全局 ignore 了 PD901，升级 ruff 后会报 "rules have been removed" 警告。应及时从 ignore 列表中删除已废弃的规则。
 - [2026-05-24] **Windows Python GBK 陷阱也影响 buglog.json**：`python -c "import json; ..."` 默认用 GBK 读文件，会导致 UnicodeDecodeError。必须始终用 `open(path, encoding='utf-8')`。
+- [2026-05-24] **npm ci 失败会掩盖后续 TypeScript 错误**：CI 在 npm ci 步骤失败即退出，tsc -b 从未执行。修复 lock file 后才能看到真正的 TS 编译错误。应该在推送前跑 `npm run build` 本地验证。
+- [2026-05-24] **package-lock.json 与 package.json 不同步陷阱**：手动改 package.json 后没跑 `npm install`，且直接提交了旧的 lock file。lock file 中版本超出 semver 范围时 npm ci 会拒绝安装。修改依赖后必须跑 npm install 刷新 lock file。
+- [2026-05-24] **plotly.js-dist-min v2.x 无 TypeScript 类型声明**：v2.35.x 不内置 .d.ts（v3.x 才有）。需在 vite-env.d.ts 中加 `declare module 'plotly.js-dist-min';`。
+- [2026-05-24] **Pyodide 中严禁用 JS 模板字面量往 Python 代码注入数据**：`pyodide.runPython(\`x = ''''${json}\n''')` 的模式是代码注入漏洞。攻击者输入 `'''` 即可逃逸出 Python 字符串执行任意代码。安全方式：先用 `pyodide.FS.writeFile('/tmp/xxx.json', jsonStr)` 写入 VFS，再在 Python 中 `json.load(open('/tmp/xxx.json'))` 读取。
+- [2026-05-24] **Pyodide mountFromInline 必须写 __init__.py**：仅创建目录（os.makedirs）不能让 Python 识别为包。必须在每个包目录写入 `__init__.py` 文件。遗漏会导致 `ModuleNotFoundError`。
+- [2026-05-24] **PipelineStage 类型交叉验证**：每次添加新的 PipelineStage 值时，必须同时确认所有 dispatch 调用使用了该值（而非写死的字符串），否则 TypeScript 编译通过但运行时语义错误（如 'running-robustness' 被用于 counterfactuals）。
 
 ---
 
 ## 10. 决策日志
 
+- [2026-05-24] **新增原型匹配校准模式**：用户可通过"condition, 原型文本, 隶属(0/1)"格式提供概念原型，用 bigram Jaccard 相似度计算文本与正/负例原型的匹配度，最终得分 = max(pos_sims) - max(neg_sims)。前端新增模式选择器（关键词/原型），原型模式用表格编辑器+结构化 CSV 输入（编号,文本,结果）。结果列直接作为 crisp-set membership。所有新字段有默认值，keyword 模式完全向后兼容。
 - [2026-05-24] 将 experiment-engine 从通用"算法实验框架"重构为领域特定的 QCA 文本分析系统。这是该框架的**全部功能**（非附加模块）。
 - [2026-05-24] 删除了 `algorithms/linear_regression.py` 和 `algorithms/kmeans.py`——与 QCA 无关
 - [2026-05-24] CLI 入口点从 `experiment-engine` 更名为 `qca`

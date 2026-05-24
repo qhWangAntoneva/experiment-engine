@@ -417,6 +417,15 @@ class CalibrationType(str, Enum):
     DIRECT = "direct"  # piecewise linear
     INDIRECT = "indirect"  # log-odds transformation
     FUZZY_DIRECT = "fuzzy_direct"  # Ragin's direct method
+    PASSTHROUGH = "passthrough"  # use raw score as-is without transformation
+
+
+class ScoringSource(str, Enum):
+    """How a condition's raw score is computed."""
+
+    KEYWORD = "keyword"  # keyword dictionary matching
+    PROTOTYPE = "prototype"  # prototype text similarity
+    HYBRID = "hybrid"  # weighted combination of both
 
 
 class CalibrationParams(BaseModel):
@@ -465,6 +474,20 @@ class KeywordEntry(BaseModel):
     scope: str = Field("bigram", pattern=r"^(unigram|bigram|trigram|regex|exact)$")
 
 
+class ConceptPrototype(BaseModel):
+    """A prototype text labeled for membership in a condition.
+
+    Attributes:
+        prototype_text: Chinese text exemplifying (or not) the condition.
+        is_member: 1 = positive example (full member), 0 = negative example (non-member).
+        weight: Weight for aggregating multiple prototypes (0.0-1.0).
+    """
+
+    prototype_text: str = Field(..., min_length=1)
+    is_member: int = Field(1, ge=0, le=1)
+    weight: float = Field(1.0, ge=0.0, le=1.0)
+
+
 class ConditionDefinition(BaseModel):
     """Defines a single QCA condition for text analysis.
 
@@ -476,6 +499,8 @@ class ConditionDefinition(BaseModel):
         calibration_type: Method used for fuzzy-set calibration.
         calibration_params: Thresholds for calibration (fitted or manual).
         description: Optional longer description of the condition.
+        scoring_source: How raw scores are computed (keyword/prototype/hybrid).
+        prototypes: Prototype texts for prototype-based scoring.
     """
 
     name: str
@@ -485,6 +510,10 @@ class ConditionDefinition(BaseModel):
     calibration_type: CalibrationType = CalibrationType.DIRECT
     calibration_params: CalibrationParams | None = None
     description: str = ""
+    scoring_source: ScoringSource = ScoringSource.KEYWORD
+    prototypes: list[ConceptPrototype] = Field(default_factory=list)
+    hybrid_keyword_weight: float = Field(0.5, ge=0.0, le=1.0)
+    hybrid_prototype_weight: float = Field(0.5, ge=0.0, le=1.0)
 
 
 class ConditionSet(BaseModel):
@@ -496,6 +525,7 @@ class ConditionSet(BaseModel):
         conditions: List of causal condition definitions.
         outcome: The outcome condition definition.
         domain: The text domain.
+        scoring_source: Default scoring source for all conditions.
     """
 
     name: str = "qca_model"
@@ -503,6 +533,7 @@ class ConditionSet(BaseModel):
     conditions: list[ConditionDefinition] = Field(default_factory=list)
     outcome: ConditionDefinition | None = None
     domain: TextDomain = TextDomain.DISSATISFACTION
+    scoring_source: ScoringSource = ScoringSource.KEYWORD
 
     @property
     def condition_names(self) -> list[str]:
@@ -565,6 +596,22 @@ class TrainingDataset(BaseModel):
     @property
     def n_samples(self) -> int:
         return len(self.samples)
+
+
+class TextCase(BaseModel):
+    """A text with a binary outcome for prototype-based QCA analysis.
+
+    Attributes:
+        text_id: Unique identifier.
+        text: Raw Chinese text content.
+        outcome: Binary outcome (0 or 1) used directly as crisp-set membership.
+        metadata: Arbitrary additional metadata.
+    """
+
+    text_id: str
+    text: str
+    outcome: int = Field(0, ge=0, le=1)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 # ── Fuzzy-Set Data ──────────────────────────────────────────────────────

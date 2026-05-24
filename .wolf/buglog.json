@@ -88,10 +88,265 @@
       "file": "pyproject.toml",
       "root_cause": "pre-commit ruff v0.4.0 vs local ruff 0.15.12 version mismatch. RUF043 rule was added after v0.4.0. Also PD901 rule was removed in 0.15.x but still referenced in global ignore.",
       "fix": "Upgraded pre-commit ruff from v0.4.0 to v0.15.12, removed obsolete PD901 from global ignore, fixed RUF043 in test code (raw strings for match= patterns)",
-      "tags": ["ruff", "pre-commit", "version-mismatch", "tooling"],
+      "tags": [
+        "ruff",
+        "pre-commit",
+        "version-mismatch",
+        "tooling"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24T10:30:00.000Z"
+    },
+    {
+      "id": "bug-007",
+      "timestamp": "2026-05-24T05:47:21.139Z",
+      "error_message": "CSS fix: background",
+      "file": "src/components/PipelineStatus.tsx",
+      "root_cause": "background: state.stage === 'error' → 'var(--color-accent)',",
+      "fix": "Changed background: state.stage === 'error' → 'var(--color-accent)',",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T05:47:21.139Z"
+    },
+    {
+      "id": "bug-008",
+      "timestamp": "2026-05-24T05:47:21.708Z",
+      "error_message": "CSS fix: type",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "type: 'SET_CONDITION_SET', cs → 'SET_CONDITION_SET', conditionSet: cs",
+      "fix": "Changed type: 'SET_CONDITION_SET', cs → 'SET_CONDITION_SET', conditionSet: cs",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T05:47:21.708Z"
+    },
+    {
+      "id": "bug-009",
+      "timestamp": "2026-05-24T05:50:00.000Z",
+      "error_message": "GitHub Actions deploy CI failed 3x in a row. npm ci: lock file plotly.js-dist-min@3.5.1 does not satisfy package.json ^2.35.0. After fixing, tsc -b failed: missing plotly type decls, TS2367 unreachable code, TS2353 wrong prop name.",
+      "file": "package-lock.json, src/vite-env.d.ts, src/components/PipelineStatus.tsx, src/store/QCAPipelineContext.tsx",
+      "root_cause": "package-lock.json desynced from package.json (likely npm install ran without updating package.json). This masked 3 pre-existing TypeScript errors because CI never reached the build step.",
+      "fix": "(1) npm install to sync lock file, (2) declare module plotly.js-dist-min, (3) remove dead stage===error check inside error-excluded block, (4) rename dispatch prop cs->conditionSet.",
+      "tags": [
+        "CI",
+        "deploy",
+        "npm",
+        "typescript",
+        "plotly",
+        "github-actions"
+      ],
+      "related_bugs": [
+        "bug-007",
+        "bug-008"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T05:50:00.000Z"
+    },
+    {
+      "id": "bug-010",
+      "timestamp": "2026-05-24T07:19:23.770Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Had 'running-robustness'",
+      "fix": "Changed to 'running-counterfactuals'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T07:19:23.770Z"
+    },
+    {
+      "id": "bug-011",
+      "timestamp": "2026-05-24T07:19:28.178Z",
+      "error_message": "CSS fix: type",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "type: 'SET_COUNTERFACTUAL_REPORT', report → 'SET_STAGE',",
+      "fix": "Changed type: 'SET_COUNTERFACTUAL_REPORT', report → 'SET_STAGE',",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T07:19:28.178Z"
+    },
+    {
+      "id": "bug-012",
+      "timestamp": "2026-05-24T07:19:46.064Z",
+      "error_message": "Missing error handling in function",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T07:19:46.064Z"
+    },
+    {
+      "id": "bug-013",
+      "timestamp": "2026-05-24T07:20:41.664Z",
+      "error_message": "Type error",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: pyodide.FS.writeFile('/tmp/condition_set.json', csJson, { en; with open('/tmp/condition_set.json', 'r', encoding='utf-8') ",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-24T07:20:48.197Z"
+    },
+    {
+      "id": "bug-014",
+      "timestamp": "2026-05-24T12:00:00.000Z",
+      "error_message": "Code injection vulnerability: 6 handler functions embed JSON into Python code via template literals using .replace(/'/g, \"\\\\'\"), which fails if input contains triple single quotes '''",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "JSON data was interpolated directly into Python f-strings via JS template literals. The single-quote escaping does not prevent triple-quote breakouts. Malicious input containing ''' could execute arbitrary Python code.",
+      "fix": "Replaced all template literal injection with Pyodide VFS file writing: JSON is written to /tmp/*.json via pyodide.FS.writeFile(), then Python reads it with json.load(open(...)). Affected: handleCalibrate, handleAnalyze, handleRobustness, handleCounterfactuals, handleExport, handleValidate.",
+      "tags": [
+        "security",
+        "code-injection",
+        "pyodide",
+        "python",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T12:00:00.000Z"
+    },
+    {
+      "id": "bug-015",
+      "timestamp": "2026-05-24T12:00:00.000Z",
+      "error_message": "mountFromInline() only creates empty directories without __init__.py files, so Python cannot import packages like experiment_engine, qca_engine, etc.",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "The inline mount fallback created directory paths via os.makedirs() but never wrote __init__.py files, making them invisible to Python's import system.",
+      "fix": "Updated mountFromInline() to iterate over a _packages list and write an auto-generated __init__.py in each package directory, with experiment_engine as the root package included.",
+      "tags": [
+        "pyodide",
+        "python",
+        "import",
+        "module-mounting",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T12:00:00.000Z"
+    },
+    {
+      "id": "bug-016",
+      "timestamp": "2026-05-24T08:46:13.162Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/text_calibration/calibrator.py",
+      "root_cause": "12 lines replaced/restructured",
+      "fix": "Rewrote 62→218 lines (12 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T08:46:13.162Z"
+    },
+    {
+      "id": "bug-017",
+      "timestamp": "2026-05-24T08:48:36.197Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/types/qca.ts",
+      "root_cause": "Had 'load_corpus'",
+      "fix": "Changed to 'calibrate_prototype'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T08:48:36.197Z"
+    },
+    {
+      "id": "bug-018",
+      "timestamp": "2026-05-24T08:49:32.184Z",
+      "error_message": "Missing error handling in function",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T08:49:32.184Z"
+    },
+    {
+      "id": "bug-019",
+      "timestamp": "2026-05-24T08:53:12.015Z",
+      "error_message": "CSS fix: type",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "type: 'SET_STAGE', stage: 'calibrated', message: 'Calibration complete' → 'SET_STAGE', stage: 'calibrated-prototype', message: 'Prototype calibration complete'",
+      "fix": "Changed type: 'SET_STAGE', stage: 'calibrated', message: 'Calibration complete' → 'SET_STAGE', stage: 'calibrated-prototype', message: 'Prototype calibration complete'",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T08:53:12.015Z"
+    },
+    {
+      "id": "bug-020",
+      "timestamp": "2026-05-24T08:54:13.857Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T08:54:13.857Z"
+    },
+    {
+      "id": "bug-021",
+      "timestamp": "2026-05-24T08:55:03.308Z",
+      "error_message": "Missing guard clause",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "No early return/throw for edge case: match",
+      "fix": "Added guard clause: if (match)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T08:55:03.308Z"
     }
   ]
 }

@@ -167,3 +167,96 @@
 - `roadmap/experiment-engine-roadmap.json` — Phase 6 tasks and risk register
 - `src/experiment_engine/models.py` — Pydantic models to port (W1 blocker)
 - `src/services/pyodide.worker.ts` — Web Worker bridge (needs Python side wired up)
+| 13:37 | Session end: 52 writes across 33 files (pyproject.toml, test_algorithms.py, test_integration.py, test_viz.py, readers.py) | 36 reads | ~103343 tok |
+
+## Session: 2026-05-24 13:38
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:47 | Edited src/vite-env.d.ts | 9→14 lines | ~230 |
+| 13:47 | Edited src/components/PipelineStatus.tsx | 5→2 lines | ~23 |
+| 13:47 | Edited src/store/QCAPipelineContext.tsx | inline fix | ~17 |
+| 13:51 | Fixed CI deploy failures: package-lock sync + 3 TS errors | package-lock.json, src/vite-env.d.ts, PipelineStatus.tsx, QCAPipelineContext.tsx | CI passing, 2 commits pushed | ~800 |
+| 13:51 | Session end: 3 writes across 3 files (vite-env.d.ts, PipelineStatus.tsx, QCAPipelineContext.tsx) | 5 reads | ~7095 tok |
+
+## Session: 2026-05-24 14:36
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 15:19 | Edited src/types/qca.ts | 14→16 lines | ~89 |
+| 15:19 | Edited src/store/QCAPipelineContext.tsx | 2→2 lines | ~27 |
+| 15:19 | Edited src/store/QCAPipelineContext.tsx | CSS: stage, message | ~82 |
+| 15:19 | Edited src/services/pyodide.worker.ts | modified mountFromInline() | ~360 |
+| 15:19 | Edited src/services/pyodide.worker.ts | added error handling | ~122 |
+| 15:20 | Edited src/services/pyodide.worker.ts | 49→54 lines | ~566 |
+| 15:20 | Edited src/services/pyodide.worker.ts | 32→37 lines | ~360 |
+| 15:20 | Edited src/services/pyodide.worker.ts | 26→31 lines | ~313 |
+| 15:20 | Edited src/services/pyodide.worker.ts | 26→31 lines | ~320 |
+| 15:20 | Edited src/services/pyodide.worker.ts | 10→13 lines | ~119 |
+| 15:20 | Edited src/services/pyodide.worker.ts | 8→11 lines | ~120 |
+| 20:00 | Fixed bug-014: code injection in pyodide.worker.ts — replaced 6 template literal JSON injections with VFS file writing | src/services/pyodide.worker.ts | build passes | ~800 |
+| 20:00 | Fixed bug-015: mountFromInline() missing __init__.py — added package init files so Python imports work | src/services/pyodide.worker.ts | build passes | ~200 |
+| 20:00 | Fixed bug-010: stage typo in startCounterfactuals ('running-robustness' → 'running-counterfactuals') | src/store/QCAPipelineContext.tsx | build passes | ~100 |
+| 20:00 | Fixed bug-011: finishCounterfactuals missing stage transition — added SET_STAGE dispatch | src/store/QCAPipelineContext.tsx | build passes | ~80 |
+| 20:00 | Fixed handleLoadCorpus from empty stub to pass-through with try/catch | src/services/pyodide.worker.ts | build passes | ~80 |
+| 20:00 | Added 'running-counterfactuals' and 'counterfactuals-done' to PipelineStage type | src/types/qca.ts | build passes | ~50 |
+| 15:29 | anatomy.md restored after debugger stripped it (94 files) | .wolf/anatomy.md | DONE | ~200 tok |
+| 15:30 | Session end: 11 writes across 3 files (qca.ts, QCAPipelineContext.tsx, pyodide.worker.ts) | 32 reads | ~12897 tok |
+| 15:43 | localhost tester full test: 5/5 PASS (routes 200, sources verified, build clean, dev server OK) | pyodide.worker.ts, QCAPipelineContext.tsx, qca.ts | PASS | ~500 tok |
+| 15:43 | Session end: 11 writes across 3 files (qca.ts, QCAPipelineContext.tsx, pyodide.worker.ts) | 33 reads | ~13128 tok |
+
+## Session: 2026-05-24 15:44
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 16:42 | Created ../.claude/plans/velvety-humming-raccoon.md | — | ~1614 |
+| 16:43 | Edited src/experiment_engine/models.py | modified CalibrationType() | ~162 |
+| 16:44 | Edited src/experiment_engine/models.py | modified ConceptPrototype() | ~468 |
+| 16:44 | Edited src/experiment_engine/models.py | modified n_samples() | ~176 |
+| 16:44 | Edited src/experiment_engine/models.py | modified ConditionSet() | ~208 |
+| 16:44 | Edited src/experiment_engine/__init__.py | expanded (+7 lines) | ~135 |
+| 16:44 | Edited src/experiment_engine/__init__.py | expanded (+7 lines) | ~184 |
+| 16:45 | Created src/experiment_engine/text_calibration/prototype_similarity.py | — | ~1137 |
+| 16:45 | Edited src/experiment_engine/text_calibration/calibrator.py | expanded (+7 lines) | ~137 |
+| 16:46 | Edited src/experiment_engine/text_calibration/calibrator.py | modified setup() | ~2330 |
+| 16:46 | Edited src/experiment_engine/models.py | 2→4 lines | ~72 |
+| 16:46 | Edited src/experiment_engine/text_calibration/calibrator.py | modified _apply_calibration() | ~91 |
+| 16:46 | Edited src/experiment_engine/text_calibration/condition.py | 7→9 lines | ~53 |
+| 16:46 | Edited src/experiment_engine/text_calibration/condition.py | modified __init__() | ~186 |
+| 16:47 | Edited src/experiment_engine/text_calibration/condition.py | modified add_keyword() | ~261 |
+| 16:47 | Edited src/experiment_engine/text_calibration/condition.py | modified build() | ~211 |
+| 16:47 | Edited src/experiment_engine/text_calibration/condition.py | modified _condition_set_to_dict() | ~105 |
+| 16:47 | Edited src/experiment_engine/text_calibration/condition.py | modified _condition_to_dict() | ~347 |
+| 16:47 | Edited src/experiment_engine/text_calibration/condition.py | modified _condition_set_from_dict() | ~171 |
+| 16:47 | Edited src/experiment_engine/text_calibration/condition.py | modified _condition_from_dict() | ~355 |
+| 16:48 | Edited src/types/qca.ts | 1→2 lines | ~43 |
+| 16:48 | Edited src/types/qca.ts | 3→5 lines | ~30 |
+| 16:48 | Edited src/types/qca.ts | expanded (+10 lines) | ~136 |
+| 16:48 | Edited src/types/qca.ts | expanded (+7 lines) | ~82 |
+| 16:48 | Edited src/types/qca.ts | 2→3 lines | ~72 |
+| 16:48 | Edited src/types/qca.ts | 2→4 lines | ~67 |
+| 16:49 | Edited src/services/pyodide.worker.ts | 3→6 lines | ~71 |
+| 16:49 | Edited src/services/pyodide.worker.ts | added error handling | ~574 |
+| 16:49 | Edited src/services/pyodide.ts | 14→15 lines | ~93 |
+| 16:50 | Edited src/services/pyodide.ts | modified calibrate() | ~234 |
+| 16:52 | Edited src/experiment_engine/text_calibration/__init__.py | 14→18 lines | ~141 |
+| 16:53 | Edited src/store/QCAPipelineContext.tsx | CSS: startPrototypeCalibration, finishPrototypeCalibration | ~206 |
+| 16:53 | Edited src/store/QCAPipelineContext.tsx | expanded (+10 lines) | ~216 |
+| 16:53 | Edited src/store/QCAPipelineContext.tsx | 2→4 lines | ~30 |
+| 16:53 | Edited src/hooks/useQCAWorkflow.ts | 6→7 lines | ~45 |
+| 16:53 | Edited src/hooks/useQCAWorkflow.ts | expanded (+15 lines) | ~210 |
+| 16:53 | Created tests/test_prototype_similarity.py | — | ~4412 |
+| 16:54 | Edited src/hooks/useQCAWorkflow.ts | 3→5 lines | ~36 |
+| 16:54 | Edited src/hooks/useQCAWorkflow.ts | added error handling | ~768 |
+| 16:54 | Edited src/hooks/useQCAWorkflow.ts | 8→10 lines | ~48 |
+| 16:54 | Edited src/pages/DataInput.tsx | expanded (+9 lines) | ~51 |
+| 16:55 | Edited src/pages/DataInput.tsx | added 2 condition(s) | ~966 |
+| 16:58 | Created src/pages/DataInput.tsx | — | ~11486 |
+| 16:59 | Edited src/experiment_engine/text_calibration/calibrator.py | modified _compute_raw_scores() | ~163 |
+| 12:30 | Added prototype calibration support: Context mutations (startPrototypeCalibration/finishPrototypeCalibration), Workflow hook methods (runPrototypeCalibration/runPrototypeFullPipeline), DataInput page mode selector + prototype editor table | src/store/QCAPipelineContext.tsx, src/hooks/useQCAWorkflow.ts, src/pages/DataInput.tsx | tsc -b + vite build pass, no errors | ~6500 |
+| 17:02 | Session end: 44 writes across 13 files (velvety-humming-raccoon.md, models.py, __init__.py, prototype_similarity.py, calibrator.py) | 21 reads | ~103034 tok |
+| 17:08 | Prototype calibration feature: Python models + similarity engine + TS types + worker bridge + frontend UI. 171 tests pass, tsc clean | 10 files modified, 2 new | success | ~15000 tok |
+| 17:16 | Session end: 44 writes across 13 files (velvety-humming-raccoon.md, models.py, __init__.py, prototype_similarity.py, calibrator.py) | 21 reads | ~103034 tok |
+| 17:32 | Edited .gitignore | 3→6 lines | ~33 |
+| 17:41 | Session end: 45 writes across 14 files (velvety-humming-raccoon.md, models.py, __init__.py, prototype_similarity.py, calibrator.py) | 25 reads | ~114650 tok |
+| 17:49 | Session end: 45 writes across 14 files (velvety-humming-raccoon.md, models.py, __init__.py, prototype_similarity.py, calibrator.py) | 26 reads | ~115864 tok |

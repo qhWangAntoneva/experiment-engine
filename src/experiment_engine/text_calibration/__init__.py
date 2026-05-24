@@ -15,6 +15,9 @@ from experiment_engine.text_calibration.keyword_dict import (
     ChineseKeywordDictionary,
     KeywordMatcher,
 )
+from experiment_engine.text_calibration.prototype_similarity import (
+    PrototypeSimilarityEngine,
+)
 from experiment_engine.text_calibration.training import TrainingEngine
 
 __all__ = [
@@ -23,6 +26,7 @@ __all__ = [
     "ConditionDefinitionBuilder",
     "ConditionSetBuilder",
     "KeywordMatcher",
+    "PrototypeSimilarityEngine",
     "TextCalibrationStage",
     "TrainingEngine",
     "build_default_conditions",

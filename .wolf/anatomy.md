@@ -1,16 +1,17 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T05:16:07.117Z
-> Files: 94 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T09:32:36.666Z
+> Files: 97 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
 - `synthetic-orbiting-kurzweil.md` — QCA Text Analysis System — 顶层架构规划 (~1486 tok)
+- `velvety-humming-raccoon.md` — Prototype-Based QCA Text Calibration — Implementation Plan (~1513 tok)
 
 ## ./
 
 - `.github/workflows/deploy.yml` — CI/CD: build + Pyodide bundle + gh-pages deploy (~2000 tok)
-- `.gitignore` — Git ignore rules (~7 tok)
+- `.gitignore` — Git ignore rules (~134 tok)
 - `.pre-commit-config.yaml` (~116 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
 - `index.html` — QCA Simulation Tool (~130 tok)
@@ -20,7 +21,7 @@
 - `tsconfig.app.json` (~160 tok)
 - `tsconfig.json` — TypeScript configuration (~34 tok)
 - `tsconfig.node.json` (~139 tok)
-- `vite.config.ts` — ============================================================================= (~334 tok)
+- `vite.config.ts` — Vite configuration with GH Pages base, worker build, chunk splitting (~334 tok)
 
 ## .claude/
 
@@ -32,7 +33,7 @@
 
 ## .github/workflows/
 
-- `deploy.yml` — ============================================================================== (~1906 tok)
+- `deploy.yml` — CI/CD build + Pyodide bundle + gh-pages deploy (~1906 tok)
 
 ## roadmap/
 
@@ -42,29 +43,29 @@
 
 - `App.tsx` — App (~240 tok)
 - `index.css` — Styles: 19 rules, 34 vars (~1412 tok)
-- `main.tsx` — ============================================================================= (~331 tok)
-- `vite-env.d.ts` — / <reference types="vite/client" /> (~173 tok)
+- `main.tsx` — React 18 entry point with BrowserRouter (~331 tok)
+- `vite-env.d.ts` — Vite + plotly type declarations (~241 tok)
 
 ## src/components/
 
 - `DistributionPlot.tsx` — Distribution histogram for fuzzy-set membership scores. (~899 tok)
 - `FuzzySetHeatmap.tsx` — Plotly-based heatmap for truth table visualization. (~1294 tok)
 - `NecessityXYPlot.tsx` — Necessity/Consistency XY scatter plot. (~1034 tok)
-- `PipelineStatus.tsx` — Pipeline Status Indicator — shows current stage, progress bar, elapsed time, (~1154 tok)
+- `PipelineStatus.tsx` — Pipeline Status Indicator — shows current stage, progress bar, elapsed time. (~1125 tok)
 - `Sidebar.css` — Styles: 14 rules (~537 tok)
 - `Sidebar.tsx` — navItems (~392 tok)
-- `SolutionViewer.tsx` — Solution Viewer — displays one or all QCA solution types (complex, (~1202 tok)
-- `TruthTableViewer.tsx` — Truth Table Viewer — renders the QCA truth table as a sortable/filterable (~1483 tok)
+- `SolutionViewer.tsx` — Solution Viewer — displays QCA solution types (complex, parsimonious, intermediate). (~1202 tok)
+- `TruthTableViewer.tsx` — Truth Table Viewer — sortable/filterable truth table. (~1483 tok)
 
 ## src/experiment_engine/
 
-- `__init__.py` — v0.2.0 exports: 泛型模型 + QCA 模型 (FuzzySetData, TruthTable, QCASolutions, QCAAnalysisResult) (~368 tok)
+- `__init__.py` — QCA Text Analysis Tool — citizen feedback text → fuzzy-set QCA analysis. (~452 tok)
 - `__main__.py` — CLI 入口点 (~50 tok)
-- `cli.py` — 9 命令 CLI (calibrate/train/analyze/robustness/counterfactuals/report/run/validate/list-conditions) (~6655 tok)
+- `cli.py` — 9 命令 CLI (~6655 tok)
 - `config.py` — YAML/JSON 配置加载 + merge_defaults + CLI 覆盖 (~800 tok)
-- `models.py` — 30+ Pydantic v2 模型：泛型 (InputData/OutputData/PipelineResult) + QCA (FuzzySetData/TruthTable/QCASolutions...) (~8981 tok)
-- `pipeline.py` — Stage (ABC: setup/process/teardown) + Pipeline (composite Stage) (~1800 tok)
-- `plugins.py` — BasePlugin(Stage) + PluginRegistry (singleton) + @register_stage + PluginLoader (~1200 tok)
+- `models.py` — Pydantic data models for the experiment-engine pipeline framework. (~9501 tok)
+- `pipeline.py` — Stage (ABC: setup/process/teardown) + Pipeline (~1800 tok)
+- `plugins.py` — BasePlugin + PluginRegistry + @register_stage (~1200 tok)
 
 ## src/experiment_engine/algorithms/
 
@@ -77,44 +78,45 @@
 
 ## src/experiment_engine/io/
 
-- `__init__.py` — 导出所有 reader/exporter + _READER_MAP (含 text_corpus) (~495 tok)
+- `__init__.py` — 导出所有 reader/exporter + _READER_MAP (~495 tok)
 - `db.py` — SQLiteDataSource, SQLiteDataWriter + PostgreSQL stubs (~800 tok)
 - `exporters.py` — CSVExporter, JSONExporter, HTMLExporter (~500 tok)
-- `readers.py` — Data readers for experiment-engine. (~4776 tok)
+- `readers.py` — Data readers for experiment-engine (~4776 tok)
 - `sources.py` — DataSource, FileDataSource, StdinDataSource, GeneratorDataSource (~600 tok)
 
 ## src/experiment_engine/qca_engine/
 
-- `__init__.py` — QCA engine: truth table construction, Boolean minimization, and analysis. (~218 tok)
-- `analyzer.py` — Main QCA analysis pipeline stage — orchestrates the full analysis. (~1639 tok)
-- `consistency.py` — Core consistency and coverage calculations for QCA. (~1366 tok)
-- `minimization.py` — Quine-McCluskey Boolean minimization for QCA. (~2384 tok)
-- `necessity.py` — Necessary condition analysis for QCA. (~1107 tok)
-- `solution.py` — Solution formula formatting and term label generation. (~1338 tok)
-- `sufficiency.py` — Sufficiency analysis for QCA solutions. (~1375 tok)
-- `truth_table.py` — QCA Truth Table construction from fuzzy-set membership data. (~1373 tok)
+- `__init__.py` — QCA engine: truth table, Boolean minimization, analysis (~218 tok)
+- `analyzer.py` — Main QCA analysis pipeline stage (~1639 tok)
+- `consistency.py` — Core consistency and coverage calculations (~1366 tok)
+- `minimization.py` — Quine-McCluskey Boolean minimization (~2384 tok)
+- `necessity.py` — Necessary condition analysis (~1107 tok)
+- `solution.py` — Solution formula formatting and term label generation (~1338 tok)
+- `sufficiency.py` — Sufficiency analysis (~1375 tok)
+- `truth_table.py` — Truth Table construction from fuzzy-set data (~1373 tok)
 
 ## src/experiment_engine/qca_engine/advanced/
 
-- `__init__.py` — Advanced QCA analysis: robustness, counterfactuals, multi-outcome comparison. (~125 tok)
-- `counterfactual.py` — Counterfactual analysis for QCA. (~1864 tok)
-- `multi_outcome.py` — Multi-outcome comparison for QCA. (~799 tok)
-- `robustness.py` — Robustness and sensitivity tests for QCA results. (~2091 tok)
+- `__init__.py` — Advanced QCA: robustness, counterfactuals, multi-outcome (~125 tok)
+- `counterfactual.py` — Counterfactual analysis (~1864 tok)
+- `multi_outcome.py` — Multi-outcome comparison (~799 tok)
+- `robustness.py` — Robustness and sensitivity tests (~2091 tok)
 
 ## src/experiment_engine/report/
 
 - `__init__.py` — 导出 LaTeXReporter (~50 tok)
-- `latex_reporter.py` — 基础 LaTeX 报告（从 PipelineResult 生成） (~1200 tok)
-- `qca_reporter.py` — QCA 专用 LaTeX 报告（真值表+解+必要性+稳健性） (~2142 tok)
+- `latex_reporter.py` — 基础 LaTeX 报告 (~1200 tok)
+- `qca_reporter.py` — QCA 专用 LaTeX 报告 (~2142 tok)
 
 ## src/experiment_engine/text_calibration/
 
-- `__init__.py` — Text calibration layer: raw text → fuzzy-set membership scores. (~256 tok)
-- `calibrator.py` — Text calibration stage: keyword scores → fuzzy-set membership (0-1). (~2666 tok)
-- `condition.py` — Condition set I/O helpers — YAML serialization for QCA condition definitions. (~1863 tok)
-- `domains.py` — Pre-built keyword dictionaries and default conditions for 5 text domains. (~2655 tok)
-- `keyword_dict.py` — Chinese keyword matching engine using character n-gram tokenization. (~1774 tok)
-- `training.py` — Training engine for fitting calibration parameters from labeled samples. (~2252 tok)
+- `__init__.py` — Text calibration layer: raw text → fuzzy-set membership scores. (~295 tok)
+- `calibrator.py` — Text calibration stage: keyword scores → fuzzy-set membership (0-1). (~4434 tok)
+- `condition.py` — Condition set I/O helpers — YAML serialization for QCA condition definitions. (~2463 tok)
+- `domains.py` — Pre-built keyword dictionaries for 5 text domains (~2655 tok)
+- `keyword_dict.py` — Chinese keyword matching engine using character n-gram (~1774 tok)
+- `prototype_similarity.py` — Prototype-based text similarity engine for QCA fuzzy-set calibration. (~1137 tok)
+- `training.py` — Training engine for fitting calibration parameters (~2252 tok)
 
 ## src/experiment_engine/viz/
 
@@ -129,7 +131,7 @@
 ## src/hooks/
 
 - `usePyodide.ts` — React hook wrapping the Pyodide bridge singleton. (~452 tok)
-- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. (~1736 tok)
+- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. Has keyword + prototype calibration workflow methods. (~2900 tok)
 
 ## src/layouts/
 
@@ -139,35 +141,36 @@
 ## src/pages/
 
 - `Dashboard.css` — Styles: 22 rules (~534 tok)
-- `Dashboard.tsx` — Dashboard — QCA pipeline overview with pipeline status widget, (~2824 tok)
+- `Dashboard.tsx` — Dashboard — QCA pipeline overview with pipeline status widget (~2824 tok)
 - `DataInput.css` — Styles: 11 rules (~398 tok)
-- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~5169 tok)
+- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor + prototype calibration mode. (~13000 tok)
 - `Results.css` — Styles: 17 rules (~484 tok)
-- `Results.tsx` — Results — displays all QCA analysis output in organized sections: (~3472 tok)
+- `Results.tsx` — Results — displays all QCA analysis output (~3472 tok)
 - `Settings.css` — Styles: 16 rules (~443 tok)
-- `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~3563 tok)
+- `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults (~3563 tok)
 
 ## src/pyodide/
 
-- `engine.ts` — PyodideEngine singleton: CDN Pyodide load, micropip deps, tar extract, runPython bridge (~3692 tok)
-- `types.ts` — JS<->Python bridge types: CalibrationInput/Output, AnalysisInput/Output, FuzzySetRecord (~717 tok)
+- `engine.ts` — PyodideEngine singleton: CDN Pyodide load, micropip deps, tar extract (~3692 tok)
+- `types.ts` — JS<->Python bridge types (~717 tok)
 
 ## src/services/
 
-- `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~3177 tok)
-- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~5041 tok)
+- `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~3295 tok)
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~6121 tok)
 
 ## src/store/
 
-- `QCAPipelineContext.tsx` — React Context for tracking the QCA pipeline lifecycle. (~2204 tok)
+- `QCAPipelineContext.tsx` — React Context for tracking the QCA pipeline lifecycle. Supports keyword + prototype calibration. (~2600 tok)
 
 ## src/types/
 
-- `index.ts` — Legacy types — kept for backward compatibility with existing UI components. (~400 tok)
-- `qca.ts` — QCA-specific TypeScript interfaces mirroring experiment_engine/models.py. (~2623 tok)
+- `index.ts` — Legacy types — kept for backward compatibility (~400 tok)
+- `qca.ts` — QCA-specific TypeScript interfaces mirroring experiment_engine/models.py. (~2843 tok)
 
 ## tests/
 
-- `test_algorithms.py` — Tests for the built-in algorithm stages (linear regression, K-Means). (~2489 tok)
-- `test_integration.py` — Integration tests for experiment-engine. (~10623 tok)
-- `test_viz.py` — Unit tests for the experiment-engine visualization (viz) module. (~11630 tok)
+- `test_algorithms.py` — Tests for built-in algorithm stages (~2489 tok)
+- `test_integration.py` — Integration tests (~10623 tok)
+- `test_prototype_similarity.py` — Unit tests for prototype-based text similarity engine. (~4412 tok)
+- `test_viz.py` — Unit tests for visualization module (~11630 tok)

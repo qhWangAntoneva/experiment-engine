@@ -9,6 +9,10 @@ __license__ = "MIT"
 
 from experiment_engine.config import load_config, merge_defaults
 from experiment_engine.models import (
+    CalibrationType,
+    ConceptPrototype,
+    ConditionDefinition,
+    ConditionSet,
     ExperimentConfig,
     ExportConfig,
     FuzzySetData,
@@ -21,9 +25,12 @@ from experiment_engine.models import (
     QCAAnalysisResult,
     QCASolutions,
     RenderConfig,
+    ScoringSource,
     StageResult,
     StageStatus,
+    TextCase,
     Timer,
+    TrainingSample,
     TruthTable,
 )
 from experiment_engine.pipeline import Pipeline, Stage
@@ -36,6 +43,10 @@ from experiment_engine.plugins import (
 
 __all__ = [
     "BasePlugin",
+    "CalibrationType",
+    "ConceptPrototype",
+    "ConditionDefinition",
+    "ConditionSet",
     "ExperimentConfig",
     "ExportConfig",
     "FuzzySetData",
@@ -51,10 +62,13 @@ __all__ = [
     "QCAAnalysisResult",
     "QCASolutions",
     "RenderConfig",
+    "ScoringSource",
     "Stage",
     "StageResult",
     "StageStatus",
+    "TextCase",
     "Timer",
+    "TrainingSample",
     "TruthTable",
     "load_config",
     "merge_defaults",

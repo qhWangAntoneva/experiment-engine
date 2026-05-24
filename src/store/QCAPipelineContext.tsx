@@ -118,6 +118,8 @@ interface QCAPipelineContextValue {
   reset: () => void;
   startCalibration: () => void;
   finishCalibration: (fuzzyData: FuzzySetDataJSON) => void;
+  startPrototypeCalibration: () => void;
+  finishPrototypeCalibration: (fuzzyData: FuzzySetDataJSON) => void;
   startAnalysis: () => void;
   finishAnalysis: (result: QCAAnalysisResultJSON) => void;
   startRobustness: () => void;
@@ -164,6 +166,16 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_STAGE', stage: 'calibrated', message: 'Calibration complete' });
   }, []);
 
+  const startPrototypeCalibration = useCallback(() => {
+    startTimeRef.current = Date.now();
+    dispatch({ type: 'SET_STAGE', stage: 'calibrating-prototype', message: 'Calibrating with prototype method...' });
+  }, []);
+
+  const finishPrototypeCalibration = useCallback((fuzzyData: FuzzySetDataJSON) => {
+    dispatch({ type: 'SET_FUZZY_DATA', fuzzyData });
+    dispatch({ type: 'SET_STAGE', stage: 'calibrated-prototype', message: 'Prototype calibration complete' });
+  }, []);
+
   const startAnalysis = useCallback(() => {
     dispatch({ type: 'SET_STAGE', stage: 'analyzing', message: 'Running QCA analysis...' });
   }, []);
@@ -197,13 +209,18 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
   const startCounterfactuals = useCallback(() => {
     dispatch({
       type: 'SET_STAGE',
-      stage: 'running-robustness',
+      stage: 'running-counterfactuals',
       message: 'Running counterfactual analysis...',
     });
   }, []);
 
   const finishCounterfactuals = useCallback((report: CounterfactualReport) => {
     dispatch({ type: 'SET_COUNTERFACTUAL_REPORT', report });
+    dispatch({
+      type: 'SET_STAGE',
+      stage: 'counterfactuals-done',
+      message: 'Counterfactual analysis complete',
+    });
   }, []);
 
   const finishExport = useCallback((formats: string[]) => {
@@ -229,6 +246,8 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
     reset,
     startCalibration,
     finishCalibration,
+    startPrototypeCalibration,
+    finishPrototypeCalibration,
     startAnalysis,
     finishAnalysis,
     startRobustness,

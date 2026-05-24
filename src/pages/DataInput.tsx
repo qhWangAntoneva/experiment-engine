@@ -7,6 +7,7 @@
  *   - Condition set YAML editor with validation
  *   - Domain preset picker
  *   - Run calibration button
+ *   - Prototype calibration mode: structured text input + prototype editor table
  */
 
 import React, { useState, useCallback, useRef } from 'react';
@@ -16,7 +17,16 @@ import { useQCAWorkflow } from '../hooks/useQCAWorkflow';
 import { usePyodide } from '../hooks/usePyodide';
 import PipelineStatus from '../components/PipelineStatus';
 import DistributionPlot from '../components/DistributionPlot';
-import type { TextCorpusEntry, ConditionSet, TextDomain } from '../types/qca';
+import type {
+  TextCorpusEntry,
+  TextCase,
+  ConditionSet,
+  ConditionDefinition,
+  ConceptPrototype,
+  ScoringSource,
+  CalibrationType,
+  TextDomain,
+} from '../types/qca';
 import './DataInput.css';
 
 // ─── Default condition set YAML template ────────────────────────────────────
@@ -157,6 +167,118 @@ function parseTextContent(content: string, format: 'csv' | 'json' | 'txt'): Text
   }
 }
 
+// ─── Prototype mode helpers ────────────────────────────────────────────────
+
+interface PrototypeConditionRow {
+  id: string;
+  name: string;
+  displayName: string;
+  prototypesText: string;
+}
+
+let _protoRowIdCounter = 0;
+function newProtoRow(name: string = '', displayName: string = '', prototypesText: string = ''): PrototypeConditionRow {
+  _protoRowIdCounter += 1;
+  return { id: `pcr_${_protoRowIdCounter}`, name, displayName, prototypesText };
+}
+
+/** Parse prototype textarea lines into ConceptPrototype[] */
+function parsePrototypeTexts(text: string): ConceptPrototype[] {
+  return text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const match = line.match(/^\[([01])\]\s*(.+)/);
+      if (match) {
+        return {
+          prototype_text: match[2].trim(),
+          is_member: parseInt(match[1]) as 0 | 1,
+          weight: 1.0,
+        };
+      }
+      // Default: no prefix means membership = 1
+      return {
+        prototype_text: line,
+        is_member: 1 as const,
+        weight: 1.0,
+      };
+    });
+}
+
+/** Parse prototype CSV input (3 columns: 编号, 文本内容, 结果) into TextCase[] */
+function parsePrototypeCSV(content: string): TextCase[] {
+  const lines = content.split('\n').filter((l) => l.trim());
+  if (lines.length === 0) return [];
+
+  const firstLine = lines[0].toLowerCase();
+  const hasHeader =
+    firstLine.includes('编号') ||
+    firstLine.includes('文本') ||
+    firstLine.includes('结果') ||
+    firstLine.includes('text') ||
+    firstLine.includes('outcome');
+  const start = hasHeader ? 1 : 0;
+
+  return lines.slice(start).map((line, i) => {
+    const sep = line.includes('\t') ? '\t' : ',';
+    const parts = line.split(sep).map((p) => p.trim().replace(/^"|"$/g, ''));
+    return {
+      text_id: parts[0] || `case_${i + 1}`,
+      text: parts[1] || parts[0],
+      outcome: (parseInt(parts[2]) || 0) as 0 | 1,
+    };
+  });
+}
+
+/** Generate a ConditionSet from prototype editor rows */
+function generatePrototypeConditionSet(
+  rows: PrototypeConditionRow[],
+  domain: TextDomain
+): ConditionSet {
+  const conditions: ConditionDefinition[] = rows
+    .filter((row) => row.name.trim() !== '')
+    .map((row) => ({
+      name: row.name.trim(),
+      display_name: row.displayName.trim() || row.name.trim(),
+      domain,
+      keywords: [],
+      calibration_type: 'direct' as CalibrationType,
+      calibration_params: {
+        threshold_full_in: 0.80,
+        threshold_full_out: 0.20,
+        crossover_point: 0.50,
+        direction: 'ascending' as const,
+      },
+      description: '',
+      scoring_source: 'prototype' as ScoringSource,
+      prototypes: parsePrototypeTexts(row.prototypesText),
+      hybrid_keyword_weight: 0,
+      hybrid_prototype_weight: 0,
+    }));
+
+  return {
+    name: 'prototype-qca',
+    description: 'QCA model with prototype-based calibration',
+    conditions,
+    outcome: {
+      name: 'outcome',
+      display_name: 'Outcome',
+      domain,
+      calibration_type: 'passthrough',
+      calibration_params: null,
+      keywords: [],
+      description: 'Binary outcome from text input',
+      scoring_source: 'prototype' as ScoringSource,
+      prototypes: [],
+      hybrid_keyword_weight: 0,
+      hybrid_prototype_weight: 0,
+    },
+    domain,
+    scoring_source: 'prototype',
+  };
+}
+
 // ─── Component ─────────────────────────────────────────────────────────────
 
 export default function DataInput() {
@@ -165,19 +287,38 @@ export default function DataInput() {
 
   const { state } = useQCAPipeline();
   const { initState } = usePyodide();
-  const { runFullPipeline, runCalibrateOnly } = useQCAWorkflow();
+  const {
+    runFullPipeline,
+    runCalibrateOnly,
+    runPrototypeCalibration,
+    runPrototypeFullPipeline,
+  } = useQCAWorkflow();
 
-  // Form state
+  // ─── Calibration mode ────────────────────────────────────────────────────
+
+  const [calibrationMode, setCalibrationMode] = useState<'keyword' | 'prototype'>('keyword');
+
+  // Keyword mode form state
   const [texts, setTexts] = useState<TextCorpusEntry[]>([]);
   const [yamlContent, setYamlContent] = useState(DEFAULT_CONDITION_SET_YAML);
-  const [parsedConditionSet, setParsedConditionSet] = useState<ConditionSet | null>(null);
   const [textInputMode, setTextInputMode] = useState<'upload' | 'paste'>('paste');
   const [pasteContent, setPasteContent] = useState('');
   const [pasteFormat, setPasteFormat] = useState<'csv' | 'json' | 'txt'>('csv');
+  const [selectedDomain, setSelectedDomain] = useState<TextDomain>('dissatisfaction');
+
+  // Prototype mode form state
+  const [textCases, setTextCases] = useState<TextCase[]>([]);
+  const [protoPasteContent, setProtoPasteContent] = useState('');
+  const [protoConditions, setProtoConditions] = useState<PrototypeConditionRow[]>([
+    newProtoRow('', ''),
+    newProtoRow('', ''),
+  ]);
+
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
 
-  // Handle file upload
+  // ─── Keyword mode handlers ───────────────────────────────────────────────
+
   const handleFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
@@ -208,7 +349,6 @@ export default function DataInput() {
     []
   );
 
-  // Handle paste
   const handleParsePaste = useCallback(() => {
     try {
       const entries = parseTextContent(pasteContent, pasteFormat);
@@ -219,12 +359,10 @@ export default function DataInput() {
     }
   }, [pasteContent, pasteFormat]);
 
-  // Handle YAML changes
   const handleYamlChange = useCallback((value: string) => {
     setYamlContent(value);
   }, []);
 
-  // Handle drag-and-drop
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
@@ -250,61 +388,231 @@ export default function DataInput() {
     reader.readAsText(file, 'UTF-8');
   }, []);
 
-  // Run calibration only (texts → fuzzy membership)
+  // ─── Prototype mode handlers ─────────────────────────────────────────────
+
+  const handleParseProtoCSV = useCallback(() => {
+    try {
+      const cases = parsePrototypeCSV(protoPasteContent);
+      setTextCases(cases);
+      const outcome0 = cases.filter((c) => c.outcome === 0).length;
+      const outcome1 = cases.filter((c) => c.outcome === 1).length;
+      setValidationMessage(
+        `Parsed ${cases.length} text cases (outcome=0: ${outcome0}, outcome=1: ${outcome1})`
+      );
+    } catch (err: any) {
+      setValidationMessage(`Prototype CSV parse error: ${err.message}`);
+    }
+  }, [protoPasteContent]);
+
+  const handleProtoFileUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          const cases = parsePrototypeCSV(content);
+          setTextCases(cases);
+          const outcome0 = cases.filter((c) => c.outcome === 0).length;
+          const outcome1 = cases.filter((c) => c.outcome === 1).length;
+          setValidationMessage(
+            `Loaded ${cases.length} text cases from ${file.name} (outcome=0: ${outcome0}, outcome=1: ${outcome1})`
+          );
+        } catch (err: any) {
+          setValidationMessage(`Error: ${err.message}`);
+        }
+      };
+      reader.onerror = () => {
+        setValidationMessage('Error reading file');
+      };
+      reader.readAsText(file, 'UTF-8');
+    },
+    []
+  );
+
+  const handleProtoDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const content = ev.target?.result as string;
+        const cases = parsePrototypeCSV(content);
+        setTextCases(cases);
+        const outcome0 = cases.filter((c) => c.outcome === 0).length;
+        const outcome1 = cases.filter((c) => c.outcome === 1).length;
+        setValidationMessage(
+          `Loaded ${cases.length} text cases from ${file.name} (outcome=0: ${outcome0}, outcome=1: ${outcome1})`
+        );
+      } catch (err: any) {
+        setValidationMessage(`Error: ${err.message}`);
+      }
+    };
+    reader.readAsText(file, 'UTF-8');
+  }, []);
+
+  const updateProtoCondition = useCallback(
+    (index: number, field: keyof PrototypeConditionRow, value: string) => {
+      setProtoConditions((prev) => {
+        const next = [...prev];
+        next[index] = { ...next[index], [field]: value };
+        return next;
+      });
+    },
+    []
+  );
+
+  const addProtoCondition = useCallback(() => {
+    setProtoConditions((prev) => [...prev, newProtoRow('', '')]);
+  }, []);
+
+  const removeProtoCondition = useCallback((index: number) => {
+    setProtoConditions((prev) => {
+      if (prev.length <= 1) return prev;
+      return prev.filter((_, i) => i !== index);
+    });
+  }, []);
+
+  const handleReset = useCallback(() => {
+    if (calibrationMode === 'prototype') {
+      setTextCases([]);
+      setProtoPasteContent('');
+      setProtoConditions([newProtoRow('', ''), newProtoRow('', '')]);
+      setValidationMessage(null);
+    } else {
+      handleParsePaste();
+    }
+  }, [calibrationMode, handleParsePaste]);
+
+  const handleSwitchMode = useCallback((mode: 'keyword' | 'prototype') => {
+    setCalibrationMode(mode);
+    setValidationMessage(null);
+    if (mode === 'prototype') {
+      setTextCases([]);
+      setProtoPasteContent('');
+      setProtoConditions([newProtoRow('', ''), newProtoRow('', '')]);
+    }
+  }, []);
+
+  // ─── Calibration / Pipeline triggers (mode-dependent) ────────────────────
+
   const handleCalibrate = useCallback(async () => {
-    if (texts.length === 0) {
-      setValidationMessage('No text data loaded. Upload or paste text first.');
-      return;
+    if (calibrationMode === 'prototype') {
+      if (textCases.length === 0) {
+        setValidationMessage('No prototype text cases loaded. Paste or upload CSV first.');
+        return;
+      }
+      const validRows = protoConditions.filter((r) => r.name.trim() !== '');
+      if (validRows.length === 0) {
+        setValidationMessage('No conditions defined. Add at least one condition in the prototype editor.');
+        return;
+      }
+
+      setIsRunning(true);
+      setValidationMessage(null);
+
+      try {
+        const conditionSet = generatePrototypeConditionSet(protoConditions, selectedDomain);
+        await runPrototypeCalibration({ texts: textCases, conditionSet });
+        setValidationMessage('Prototype calibration complete. Navigate to Results to analyze.');
+      } catch (err: any) {
+        setValidationMessage(`Calibration failed: ${err.message}`);
+      } finally {
+        setIsRunning(false);
+      }
+    } else {
+      if (texts.length === 0) {
+        setValidationMessage('No text data loaded. Upload or paste text first.');
+        return;
+      }
+
+      setIsRunning(true);
+      setValidationMessage(null);
+
+      try {
+        await runCalibrateOnly({
+          texts,
+          conditionSet: yamlContent as any, // Worker will parse YAML
+        });
+        setValidationMessage('Calibration complete. Navigate to Results to analyze.');
+      } catch (err: any) {
+        setValidationMessage(`Calibration failed: ${err.message}`);
+      } finally {
+        setIsRunning(false);
+      }
     }
+  }, [
+    calibrationMode,
+    textCases, texts, yamlContent,
+    protoConditions, selectedDomain,
+    runCalibrateOnly, runPrototypeCalibration,
+  ]);
 
-    setIsRunning(true);
-    setValidationMessage(null);
-
-    try {
-      // Parse YAML to ConditionSet via Pyodide
-      // The condition set is sent as a YAML string to the worker for parsing
-      // For now, we construct it from the YAML editor content
-      // In production, this would use js-yaml for client-side preview + Pyodide for validation
-
-      // Send YAML string as raw input; the worker will parse it
-      await runCalibrateOnly({
-        texts,
-        conditionSet: yamlContent as any, // Worker will parse YAML
-      });
-
-      setValidationMessage('Calibration complete. Navigate to Results to analyze.');
-    } catch (err: any) {
-      setValidationMessage(`Calibration failed: ${err.message}`);
-    } finally {
-      setIsRunning(false);
-    }
-  }, [texts, yamlContent, runCalibrateOnly]);
-
-  // Run full pipeline
   const handleRunPipeline = useCallback(async () => {
-    if (texts.length === 0) {
-      setValidationMessage('No text data loaded.');
-      return;
-    }
+    if (calibrationMode === 'prototype') {
+      if (textCases.length === 0) {
+        setValidationMessage('No prototype text cases loaded.');
+        return;
+      }
+      const validRows = protoConditions.filter((r) => r.name.trim() !== '');
+      if (validRows.length === 0) {
+        setValidationMessage('No conditions defined. Add at least one condition in the prototype editor.');
+        return;
+      }
 
-    setIsRunning(true);
-    setValidationMessage(null);
+      setIsRunning(true);
+      setValidationMessage(null);
 
-    try {
-      await runFullPipeline({
-        texts,
-        conditionSet: yamlContent as any,
-        runRobustness: true,
-        runCounterfactuals: false,
-      });
-      setValidationMessage('Analysis complete!');
-      setTimeout(() => navigate('/results'), 500);
-    } catch (err: any) {
-      setValidationMessage(`Pipeline failed: ${err.message}`);
-    } finally {
-      setIsRunning(false);
+      try {
+        const conditionSet = generatePrototypeConditionSet(protoConditions, selectedDomain);
+        await runPrototypeFullPipeline({
+          texts: textCases,
+          conditionSet,
+          runRobustness: true,
+          runCounterfactuals: false,
+        });
+        setValidationMessage('Analysis complete!');
+        setTimeout(() => navigate('/results'), 500);
+      } catch (err: any) {
+        setValidationMessage(`Pipeline failed: ${err.message}`);
+      } finally {
+        setIsRunning(false);
+      }
+    } else {
+      if (texts.length === 0) {
+        setValidationMessage('No text data loaded.');
+        return;
+      }
+
+      setIsRunning(true);
+      setValidationMessage(null);
+
+      try {
+        await runFullPipeline({
+          texts,
+          conditionSet: yamlContent as any,
+          runRobustness: true,
+          runCounterfactuals: false,
+        });
+        setValidationMessage('Analysis complete!');
+        setTimeout(() => navigate('/results'), 500);
+      } catch (err: any) {
+        setValidationMessage(`Pipeline failed: ${err.message}`);
+      } finally {
+        setIsRunning(false);
+      }
     }
-  }, [texts, yamlContent, runFullPipeline, navigate]);
+  }, [
+    calibrationMode,
+    textCases, texts, yamlContent,
+    protoConditions, selectedDomain,
+    runFullPipeline, runPrototypeFullPipeline,
+    navigate,
+  ]);
 
   return (
     <div className="data-input">
@@ -332,160 +640,431 @@ export default function DataInput() {
         </div>
       )}
 
-      {/* === Section 1: Text Corpus Input === */}
+      {/* === Section 0: Calibration Mode Selector === */}
       <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
-        <h3 className="section-title">Text Corpus Input</h3>
-
-        {/* Mode toggle */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-          <button
-            className={`btn ${textInputMode === 'paste' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setTextInputMode('paste')}
-            style={{ fontSize: '0.8125rem' }}
-          >
-            Paste Text
-          </button>
-          <button
-            className={`btn ${textInputMode === 'upload' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setTextInputMode('upload')}
-            style={{ fontSize: '0.8125rem' }}
-          >
-            Upload File
-          </button>
+        <h3 className="section-title">Calibration Mode</h3>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.875rem' }}>
+            <input
+              type="radio"
+              name="calibrationMode"
+              value="keyword"
+              checked={calibrationMode === 'keyword'}
+              onChange={() => handleSwitchMode('keyword')}
+              style={{ accentColor: 'var(--color-accent)' }}
+            />
+            Keyword Mode
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.875rem' }}>
+            <input
+              type="radio"
+              name="calibrationMode"
+              value="prototype"
+              checked={calibrationMode === 'prototype'}
+              onChange={() => handleSwitchMode('prototype')}
+              style={{ accentColor: 'var(--color-accent)' }}
+            />
+            Prototype Mode
+          </label>
         </div>
+      </div>
 
-        {textInputMode === 'paste' ? (
-          <div>
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '8px', alignItems: 'center' }}>
-              <label className="label" style={{ marginBottom: 0 }}>Format:</label>
-              <select
-                className="input"
-                value={pasteFormat}
-                onChange={(e) => setPasteFormat(e.target.value as any)}
-                style={{ width: 120 }}
-              >
-                <option value="csv">CSV</option>
-                <option value="json">JSON</option>
-                <option value="txt">Plain Text</option>
-              </select>
-              <button className="btn btn-secondary" onClick={handleParsePaste} style={{ fontSize: '0.8125rem', marginLeft: 'auto' }}>
-                Parse Text
-              </button>
+      {/* ── Keyword mode: Text Corpus Input ── */}
+      {calibrationMode === 'keyword' && (
+        <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
+          <h3 className="section-title">Text Corpus Input</h3>
+
+          {/* Mode toggle */}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+            <button
+              className={`btn ${textInputMode === 'paste' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setTextInputMode('paste')}
+              style={{ fontSize: '0.8125rem' }}
+            >
+              Paste Text
+            </button>
+            <button
+              className={`btn ${textInputMode === 'upload' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setTextInputMode('upload')}
+              style={{ fontSize: '0.8125rem' }}
+            >
+              Upload File
+            </button>
+          </div>
+
+          {textInputMode === 'paste' ? (
+            <div>
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '8px', alignItems: 'center' }}>
+                <label className="label" style={{ marginBottom: 0 }}>Format:</label>
+                <select
+                  className="input"
+                  value={pasteFormat}
+                  onChange={(e) => setPasteFormat(e.target.value as any)}
+                  style={{ width: 120 }}
+                >
+                  <option value="csv">CSV</option>
+                  <option value="json">JSON</option>
+                  <option value="txt">Plain Text</option>
+                </select>
+                <button className="btn btn-secondary" onClick={handleParsePaste} style={{ fontSize: '0.8125rem', marginLeft: 'auto' }}>
+                  Parse Text
+                </button>
+              </div>
+              <textarea
+                className="input input-mono"
+                rows={8}
+                value={pasteContent}
+                onChange={(e) => setPasteContent(e.target.value)}
+                placeholder={
+                  pasteFormat === 'csv'
+                    ? 'id,text\ncase_1,投诉内容...\ncase_2,建议内容...'
+                    : pasteFormat === 'json'
+                      ? '[{"text_id": "1", "text": "投诉内容..."}]'
+                      : '每条文本用空行分隔...'
+                }
+                style={{ resize: 'vertical', fontSize: '0.8125rem' }}
+              />
             </div>
+          ) : (
+            <div
+              onDrop={handleDrop}
+              onDragOver={(e) => e.preventDefault()}
+              style={{
+                border: '2px dashed var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: '32px',
+                textAlign: 'center',
+                cursor: 'pointer',
+                background: 'var(--color-bg-input)',
+              }}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv,.json,.txt"
+                onChange={handleFileUpload}
+                style={{ display: 'none' }}
+              />
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                Drop a CSV, JSON, or TXT file here
+              </p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
+                or click to browse
+              </p>
+            </div>
+          )}
+
+          {/* Text preview */}
+          {texts.length > 0 && (
+            <div style={{ marginTop: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
+                  {texts.length} cases loaded
+                </span>
+              </div>
+              <div className="table-container" style={{ maxHeight: 200, overflowY: 'auto' }}>
+                <table style={{ fontSize: '0.75rem' }}>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Text (truncated)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {texts.slice(0, 20).map((t, i) => (
+                      <tr key={i}>
+                        <td className="mono">{t.text_id}</td>
+                        <td style={{ maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {t.text.substring(0, 80)}{t.text.length > 80 ? '...' : ''}
+                        </td>
+                      </tr>
+                    ))}
+                    {texts.length > 20 && (
+                      <tr>
+                        <td colSpan={2} style={{ textAlign: 'center', color: 'var(--color-text-secondary)' }}>
+                          ... and {texts.length - 20} more cases
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Prototype mode: Structured Text Input ── */}
+      {calibrationMode === 'prototype' && (
+        <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
+          <h3 className="section-title">Prototype Text Input (CSV with Outcomes)</h3>
+
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
+            Format: 3-column CSV with headers <code>编号,文本内容,结果</code> (or <code>id,text,outcome</code>).
+            Outcome must be 0 or 1. Each row = one text case.
+          </p>
+
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '8px', alignItems: 'center' }}>
+            <button
+              className={`btn ${textInputMode === 'paste' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setTextInputMode('paste')}
+              style={{ fontSize: '0.8125rem' }}
+            >
+              Paste CSV
+            </button>
+            <button
+              className={`btn ${textInputMode === 'upload' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setTextInputMode('upload')}
+              style={{ fontSize: '0.8125rem' }}
+            >
+              Upload File
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={handleParseProtoCSV}
+              style={{ fontSize: '0.8125rem', marginLeft: 'auto' }}
+            >
+              Parse CSV
+            </button>
+          </div>
+
+          {textInputMode === 'paste' ? (
             <textarea
               className="input input-mono"
               rows={8}
-              value={pasteContent}
-              onChange={(e) => setPasteContent(e.target.value)}
-              placeholder={
-                pasteFormat === 'csv'
-                  ? 'id,text\ncase_1,投诉内容...\ncase_2,建议内容...'
-                  : pasteFormat === 'json'
-                    ? '[{"text_id": "1", "text": "投诉内容..."}]'
-                    : '每条文本用空行分隔...'
-              }
+              value={protoPasteContent}
+              onChange={(e) => setProtoPasteContent(e.target.value)}
+              placeholder="编号,文本内容,结果&#10;case_1,服务态度非常差，等了很久没人理,0&#10;case_2,问题已解决，效率很高很满意,1&#10;case_3,噪音扰民严重，无法正常休息,0"
               style={{ resize: 'vertical', fontSize: '0.8125rem' }}
             />
-          </div>
-        ) : (
-          <div
-            onDrop={handleDrop}
-            onDragOver={(e) => e.preventDefault()}
-            style={{
-              border: '2px dashed var(--color-border)',
-              borderRadius: 'var(--radius-md)',
-              padding: '32px',
-              textAlign: 'center',
-              cursor: 'pointer',
-              background: 'var(--color-bg-input)',
-            }}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv,.json,.txt"
-              onChange={handleFileUpload}
-              style={{ display: 'none' }}
-            />
-            <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-              Drop a CSV, JSON, or TXT file here
-            </p>
-            <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
-              or click to browse
-            </p>
-          </div>
-        )}
-
-        {/* Text preview */}
-        {texts.length > 0 && (
-          <div style={{ marginTop: '12px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-              <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
-                {texts.length} cases loaded
-              </span>
+          ) : (
+            <div
+              onDrop={handleProtoDrop}
+              onDragOver={(e) => e.preventDefault()}
+              style={{
+                border: '2px dashed var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: '32px',
+                textAlign: 'center',
+                cursor: 'pointer',
+                background: 'var(--color-bg-input)',
+              }}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                onChange={handleProtoFileUpload}
+                style={{ display: 'none' }}
+              />
+              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
+                Drop a CSV file here (3 columns: id, text, outcome)
+              </p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
+                or click to browse
+              </p>
             </div>
-            <div className="table-container" style={{ maxHeight: 200, overflowY: 'auto' }}>
-              <table style={{ fontSize: '0.75rem' }}>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Text (truncated)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {texts.slice(0, 20).map((t, i) => (
-                    <tr key={i}>
-                      <td className="mono">{t.text_id}</td>
-                      <td style={{ maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {t.text.substring(0, 80)}{t.text.length > 80 ? '...' : ''}
-                      </td>
-                    </tr>
-                  ))}
-                  {texts.length > 20 && (
+          )}
+
+          {/* Prototype text case preview */}
+          {textCases.length > 0 && (
+            <div style={{ marginTop: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
+                  {textCases.length} cases loaded
+                </span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
+                  Outcome 0: {textCases.filter((c) => c.outcome === 0).length} | Outcome 1: {textCases.filter((c) => c.outcome === 1).length}
+                </span>
+              </div>
+              <div className="table-container" style={{ maxHeight: 200, overflowY: 'auto' }}>
+                <table style={{ fontSize: '0.75rem' }}>
+                  <thead>
                     <tr>
-                      <td colSpan={2} style={{ textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-                        ... and {texts.length - 20} more cases
-                      </td>
+                      <th>ID</th>
+                      <th>Text (truncated)</th>
+                      <th>Outcome</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {textCases.slice(0, 20).map((t, i) => (
+                      <tr key={i}>
+                        <td className="mono">{t.text_id}</td>
+                        <td style={{ maxWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {t.text.substring(0, 80)}{t.text.length > 80 ? '...' : ''}
+                        </td>
+                        <td style={{ textAlign: 'center', fontWeight: 600, color: t.outcome === 1 ? 'var(--color-success)' : 'var(--color-error)' }}>
+                          {t.outcome}
+                        </td>
+                      </tr>
+                    ))}
+                    {textCases.length > 20 && (
+                      <tr>
+                        <td colSpan={3} style={{ textAlign: 'center', color: 'var(--color-text-secondary)' }}>
+                          ... and {textCases.length - 20} more cases
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* Distribution plot (appears after calibration) */}
-        {state.fuzzyData && (
-          <div style={{ marginTop: '16px' }}>
-            <DistributionPlot fuzzyData={state.fuzzyData} height={300} />
-          </div>
-        )}
-      </div>
-
-      {/* === Section 2: Condition Set YAML Editor === */}
-      <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
-        <h3 className="section-title">Condition Set (YAML)</h3>
-
-        {/* Domain picker */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-          <label className="label" style={{ marginBottom: 0 }}>Domain Preset:</label>
-          <select className="input" style={{ width: 180 }}>
-            {DOMAIN_PRESETS.map((d) => (
-              <option key={d} value={d}>{DOMAIN_LABELS[d]}</option>
-            ))}
-          </select>
+          )}
         </div>
+      )}
 
-        <textarea
-          className="input input-mono"
-          rows={22}
-          value={yamlContent}
-          onChange={(e) => handleYamlChange(e.target.value)}
-          style={{ resize: 'vertical', fontSize: '0.75rem', lineHeight: 1.5 }}
-          spellCheck={false}
-        />
-      </div>
+      {/* Distribution plot (appears after calibration, shared across modes) */}
+      {state.fuzzyData && (
+        <div style={{ marginBottom: '16px' }}>
+          <DistributionPlot fuzzyData={state.fuzzyData} height={300} />
+        </div>
+      )}
+
+      {/* ── Keyword mode: Condition Set YAML Editor ── */}
+      {calibrationMode === 'keyword' && (
+        <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
+          <h3 className="section-title">Condition Set (YAML)</h3>
+
+          {/* Domain picker */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+            <label className="label" style={{ marginBottom: 0 }}>Domain Preset:</label>
+            <select
+              className="input"
+              style={{ width: 180 }}
+              value={selectedDomain}
+              onChange={(e) => setSelectedDomain(e.target.value as TextDomain)}
+            >
+              {DOMAIN_PRESETS.map((d) => (
+                <option key={d} value={d}>{DOMAIN_LABELS[d]}</option>
+              ))}
+            </select>
+          </div>
+
+          <textarea
+            className="input input-mono"
+            rows={22}
+            value={yamlContent}
+            onChange={(e) => handleYamlChange(e.target.value)}
+            style={{ resize: 'vertical', fontSize: '0.75rem', lineHeight: 1.5 }}
+            spellCheck={false}
+          />
+        </div>
+      )}
+
+      {/* ── Prototype mode: Prototype Editor ── */}
+      {calibrationMode === 'prototype' && (
+        <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <h3 className="section-title" style={{ marginBottom: 0, borderBottom: 'none', paddingBottom: 0 }}>
+              Prototype Editor (Conditions)
+            </h3>
+            <button className="btn btn-secondary" onClick={addProtoCondition} style={{ fontSize: '0.8125rem' }}>
+              + Add Condition
+            </button>
+          </div>
+
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '12px' }}>
+            Define each condition's prototypes. Use <code>[1] text</code> for member prototypes and <code>[0] text</code>{' '}
+            for non-member prototypes. Lines without a prefix default to member (1).
+          </p>
+
+          {/* Domain picker (shared for all prototype conditions) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+            <label className="label" style={{ marginBottom: 0 }}>Domain Preset:</label>
+            <select
+              className="input"
+              style={{ width: 180 }}
+              value={selectedDomain}
+              onChange={(e) => setSelectedDomain(e.target.value as TextDomain)}
+            >
+              {DOMAIN_PRESETS.map((d) => (
+                <option key={d} value={d}>{DOMAIN_LABELS[d]}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Condition rows */}
+          {protoConditions.map((row, index) => (
+            <div
+              key={row.id}
+              style={{
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-md)',
+                padding: '12px',
+                marginBottom: '12px',
+                background: 'var(--color-bg-input)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
+                  Condition {index + 1}
+                </span>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => removeProtoCondition(index)}
+                  style={{ fontSize: '0.75rem', padding: '2px 8px' }}
+                  disabled={protoConditions.length <= 1}
+                  title="Remove condition"
+                >
+                  x
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
+                <div style={{ flex: 1 }}>
+                  <label className="label" style={{ fontSize: '0.75rem' }}>Name</label>
+                  <input
+                    className="input input-mono"
+                    style={{ width: '100%' }}
+                    value={row.name}
+                    onChange={(e) => updateProtoCondition(index, 'name', e.target.value)}
+                    placeholder="e.g. negative_affect"
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label className="label" style={{ fontSize: '0.75rem' }}>Display Name</label>
+                  <input
+                    className="input"
+                    style={{ width: '100%' }}
+                    value={row.displayName}
+                    onChange={(e) => updateProtoCondition(index, 'displayName', e.target.value)}
+                    placeholder="e.g. 负面情感"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="label" style={{ fontSize: '0.75rem' }}>
+                  Prototype Texts (one per line, prefix with [1] or [0])
+                </label>
+                <textarea
+                  className="input input-mono"
+                  rows={4}
+                  value={row.prototypesText}
+                  onChange={(e) => updateProtoCondition(index, 'prototypesText', e.target.value)}
+                  placeholder={`[1] 非常不满，投诉多次无果\n[1] 严重扰民，无法忍受\n[0] 有点小问题但可以接受`}
+                  style={{ resize: 'vertical', fontSize: '0.75rem', lineHeight: 1.5 }}
+                  spellCheck={false}
+                />
+              </div>
+            </div>
+          ))}
+
+          {/* Generated condition set preview */}
+          {protoConditions.some((r) => r.name.trim() !== '') && (
+            <div style={{ marginTop: '12px', padding: '8px 12px', background: 'var(--color-bg-input)', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
+              <strong>Generated Condition Set:</strong>{' '}
+              {protoConditions.filter((r) => r.name.trim() !== '').length} condition(s){' '}
+              with {protoConditions
+                .filter((r) => r.name.trim() !== '')
+                .reduce((sum, r) => sum + parsePrototypeTexts(r.prototypesText).length, 0)}{' '}
+              prototype(s) total. Outcome: <code>passthrough</code> (from CSV output column).
+            </div>
+          )}
+        </div>
+      )}
 
       {/* === Validation / Status Message === */}
       {validationMessage && (
@@ -519,7 +1098,10 @@ export default function DataInput() {
           type="button"
           className="btn btn-primary"
           onClick={handleCalibrate}
-          disabled={texts.length === 0 || isRunning}
+          disabled={
+            isRunning ||
+            (calibrationMode === 'keyword' ? texts.length === 0 : textCases.length === 0)
+          }
         >
           {isRunning ? 'Calibrating...' : 'Calibrate (Text to Fuzzy-Set)'}
         </button>
@@ -527,14 +1109,17 @@ export default function DataInput() {
           type="button"
           className="btn btn-primary"
           onClick={handleRunPipeline}
-          disabled={texts.length === 0 || isRunning}
+          disabled={
+            isRunning ||
+            (calibrationMode === 'keyword' ? texts.length === 0 : textCases.length === 0)
+          }
         >
           {isRunning ? 'Running...' : 'Run Full Pipeline'}
         </button>
         <button
           type="button"
           className="btn btn-secondary"
-          onClick={handleParsePaste}
+          onClick={handleReset}
         >
           Reset
         </button>

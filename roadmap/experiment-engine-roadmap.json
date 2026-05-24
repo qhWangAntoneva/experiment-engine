@@ -4,7 +4,19 @@
     "version": "1.0.0",
     "last_updated": "2026-05-24T03:40",
     "description": "QCA Text Analysis Tool: Chinese citizen feedback text → fuzzy-set QCA. CLI + Pyodide Web (browser-based, zero-server deployment to GitHub Pages).",
-    "tech_stack": ["Python >=3.10", "Pydantic v2 (CLI) / dataclass (Browser)", "NumPy", "PyYAML", "Plotly", "Pyodide v0.29", "React 18", "TypeScript 5", "Vite 5", "Plotly.js", "GitHub Pages"],
+    "tech_stack": [
+      "Python >=3.10",
+      "Pydantic v2 (CLI) / dataclass (Browser)",
+      "NumPy",
+      "PyYAML",
+      "Plotly",
+      "Pyodide v0.29",
+      "React 18",
+      "TypeScript 5",
+      "Vite 5",
+      "Plotly.js",
+      "GitHub Pages"
+    ],
     "repo": "https://github.com/qhWangAntoneva/experiment-engine.git",
     "branch": "master"
   },
@@ -20,63 +32,100 @@
           "effort_hours": 2.0,
           "dependencies": [],
           "status": "DONE",
-          "files": ["pyproject.toml", "src/experiment_engine/", "README.md", "docs/ARCHITECTURE.md"]
+          "files": [
+            "pyproject.toml",
+            "src/experiment_engine/",
+            "README.md",
+            "docs/ARCHITECTURE.md"
+          ]
         },
         {
           "id": "F2",
           "description": "Pydantic数据模型：ExperimentConfig, PipelineStageConfig, InputData, OutputData, StageResult, PipelineResult, StageStatus, PipelineStatus, Timer",
           "effort_hours": 3.0,
-          "dependencies": ["F1"],
+          "dependencies": [
+            "F1"
+          ],
           "status": "DONE",
-          "files": ["src/experiment_engine/models.py"]
+          "files": [
+            "src/experiment_engine/models.py"
+          ]
         },
         {
           "id": "F3",
           "description": "Pipeline + Stage ABC：setup/process/teardown生命周期、嵌套子Pipeline、run()方法带rich进度条和摘要表",
           "effort_hours": 4.0,
-          "dependencies": ["F2"],
+          "dependencies": [
+            "F2"
+          ],
           "status": "DONE",
-          "files": ["src/experiment_engine/pipeline.py"]
+          "files": [
+            "src/experiment_engine/pipeline.py"
+          ]
         },
         {
           "id": "F4",
           "description": "Plugin系统：PluginRegistry单例+@register_stage装饰器+PluginLoader目录扫描+BasePlugin元数据",
           "effort_hours": 3.0,
-          "dependencies": ["F3"],
+          "dependencies": [
+            "F3"
+          ],
           "status": "DONE",
-          "files": ["src/experiment_engine/plugins.py"]
+          "files": [
+            "src/experiment_engine/plugins.py"
+          ]
         },
         {
           "id": "F5",
           "description": "配置加载：load_config(YAML/JSON)、merge_defaults、apply_cli_overrides点路径、generate_example_config",
           "effort_hours": 2.5,
-          "dependencies": ["F2"],
+          "dependencies": [
+            "F2"
+          ],
           "status": "DONE",
-          "files": ["src/experiment_engine/config.py"]
+          "files": [
+            "src/experiment_engine/config.py"
+          ]
         },
         {
           "id": "F6",
           "description": "Click CLI入口：run / validate / list-plugins 三个命令",
           "effort_hours": 1.5,
-          "dependencies": ["F3", "F5"],
+          "dependencies": [
+            "F3",
+            "F5"
+          ],
           "status": "DONE",
-          "files": ["src/experiment_engine/cli.py", "src/experiment_engine/__main__.py"]
+          "files": [
+            "src/experiment_engine/cli.py",
+            "src/experiment_engine/__main__.py"
+          ]
         },
         {
           "id": "F7",
           "description": "OpenWolf上下文管理集成（.wolf/目录、CLAUDE.md、cerebrum/anatomy/memory）",
           "effort_hours": 1.0,
-          "dependencies": ["F1"],
+          "dependencies": [
+            "F1"
+          ],
           "status": "DONE",
-          "files": [".wolf/", "CLAUDE.md"]
+          "files": [
+            ".wolf/",
+            "CLAUDE.md"
+          ]
         },
         {
           "id": "F8",
           "description": "git-auto-push.sh脚本 + .gitignore配置",
           "effort_hours": 0.5,
-          "dependencies": ["F1"],
+          "dependencies": [
+            "F1"
+          ],
           "status": "DONE",
-          "files": ["scripts/git-auto-push.sh", ".gitignore"]
+          "files": [
+            "scripts/git-auto-push.sh",
+            ".gitignore"
+          ]
         }
       ]
     },
@@ -89,33 +138,52 @@
           "id": "FX1",
           "description": "修复configs/config.yaml：当前使用旧格式(input/algorithm/visualization/output)，应改为ExperimentConfig模型支持的stages列表格式",
           "effort_hours": 0.5,
-          "dependencies": ["F5"],
+          "dependencies": [
+            "F5"
+          ],
           "status": "DONE",
-          "files": ["configs/config.yaml"]
+          "files": [
+            "configs/config.yaml"
+          ]
         },
         {
           "id": "FX2",
           "description": "修复CLI run命令：当前data=None是placeholder，需集成io/模块加载数据和viz/模块渲染结果，实现端到端流水线",
           "effort_hours": 2.0,
-          "dependencies": ["F6", "I1", "I2"],
+          "dependencies": [
+            "F6",
+            "I1",
+            "I2"
+          ],
           "status": "DONE",
-          "files": ["src/experiment_engine/cli.py"]
+          "files": [
+            "src/experiment_engine/cli.py"
+          ]
         },
         {
           "id": "FX3",
           "description": "pyproject.toml添加[pypi] entry points配置：experiment_engine.algorithms/loaders/visualizers，对接PluginRegistry文档描述的三种发现机制",
           "effort_hours": 0.5,
-          "dependencies": ["F4"],
+          "dependencies": [
+            "F4"
+          ],
           "status": "DONE",
-          "files": ["pyproject.toml"]
+          "files": [
+            "pyproject.toml"
+          ]
         },
         {
           "id": "FX4",
           "description": "创建examples/data.csv示例数据 + examples/run_experiment.py可运行示例脚本",
           "effort_hours": 1.0,
-          "dependencies": ["FX2"],
+          "dependencies": [
+            "FX2"
+          ],
           "status": "DONE",
-          "files": ["examples/data.csv", "examples/run_experiment.py"]
+          "files": [
+            "examples/data.csv",
+            "examples/run_experiment.py"
+          ]
         },
         {
           "id": "FX5",
@@ -123,7 +191,9 @@
           "effort_hours": 0.2,
           "dependencies": [],
           "status": "DONE",
-          "files": ["pyproject.toml"]
+          "files": [
+            "pyproject.toml"
+          ]
         }
       ]
     },
@@ -136,33 +206,50 @@
           "id": "I1",
           "description": "io/模块审计：验证readers.py(CSV/JSON/YAML)、sources.py、exporters.py的API对齐InputData模型，修复接口不一致",
           "effort_hours": 1.5,
-          "dependencies": ["F2", "F5"],
+          "dependencies": [
+            "F2",
+            "F5"
+          ],
           "status": "DONE",
-          "files": ["src/experiment_engine/io/"]
+          "files": [
+            "src/experiment_engine/io/"
+          ]
         },
         {
           "id": "I2",
           "description": "viz/模块审计：验证base.py(base Renderer ABC)、matplotlib_renderer.py、plotly_renderer.py、console.py、streamlit_dashboard.py的API对齐PipelineResult",
           "effort_hours": 1.5,
-          "dependencies": ["F3"],
+          "dependencies": [
+            "F3"
+          ],
           "status": "DONE",
-          "files": ["src/experiment_engine/viz/"]
+          "files": [
+            "src/experiment_engine/viz/"
+          ]
         },
         {
           "id": "I3",
           "description": "编写io/模块测试：测试CSVLoader/JSONLoader/YAMLLoader读写、sources和exporters的边界条件",
           "effort_hours": 2.0,
-          "dependencies": ["I1"],
+          "dependencies": [
+            "I1"
+          ],
           "status": "DONE",
-          "files": ["tests/test_io.py"]
+          "files": [
+            "tests/test_io.py"
+          ]
         },
         {
           "id": "I4",
           "description": "编写viz/模块测试：测试各Renderer的pipeline集成输出",
           "effort_hours": 2.0,
-          "dependencies": ["I2"],
+          "dependencies": [
+            "I2"
+          ],
           "status": "DONE",
-          "files": ["tests/test_viz.py"]
+          "files": [
+            "tests/test_viz.py"
+          ]
         }
       ]
     },
@@ -175,33 +262,53 @@
           "id": "Q1",
           "description": "配置 ruff + mypy：在pyproject.toml添加[tool.ruff]和[tool.mypy]配置，确保代码风格统一",
           "effort_hours": 1.0,
-          "dependencies": ["F1"],
+          "dependencies": [
+            "F1"
+          ],
           "status": "DONE",
-          "files": ["pyproject.toml"]
+          "files": [
+            "pyproject.toml"
+          ]
         },
         {
           "id": "Q2",
           "description": "设置 pre-commit hooks：基于.pre-commit-config.yaml配置ruff lint/format、trailing-whitespace、end-of-file-fixer、check-yaml/toml",
           "effort_hours": 1.0,
-          "dependencies": ["Q1"],
+          "dependencies": [
+            "Q1"
+          ],
           "status": "DONE",
-          "files": [".pre-commit-config.yaml"]
+          "files": [
+            ".pre-commit-config.yaml"
+          ]
         },
         {
           "id": "Q3",
           "description": "搭建GitHub CI/CD：创建.github/workflows/ci.yml，包含pytest + ruff + mypy + coverage",
           "effort_hours": 1.5,
-          "dependencies": ["Q1"],
+          "dependencies": [
+            "Q1"
+          ],
           "status": "PENDING",
-          "files": [".github/workflows/ci.yml"]
+          "files": [
+            ".github/workflows/ci.yml"
+          ]
         },
         {
           "id": "Q4",
           "description": "补充pipeline集成测试：CLI端到端测试（用Click CliRunner模拟）、config加载与pipeline执行的集成",
           "effort_hours": 2.0,
-          "dependencies": ["F6", "F3", "F5", "FX2"],
+          "dependencies": [
+            "F6",
+            "F3",
+            "F5",
+            "FX2"
+          ],
           "status": "DONE",
-          "files": ["tests/test_cli.py", "tests/test_integration.py"]
+          "files": [
+            "tests/test_cli.py",
+            "tests/test_integration.py"
+          ]
         }
       ]
     },
@@ -214,9 +321,13 @@
           "id": "D1",
           "description": "编写 CONTRIBUTING.md：代码规范、PR流程、测试要求",
           "effort_hours": 1.0,
-          "dependencies": ["Q2"],
+          "dependencies": [
+            "Q2"
+          ],
           "status": "DONE",
-          "files": ["CONTRIBUTING.md"]
+          "files": [
+            "CONTRIBUTING.md"
+          ]
         },
         {
           "id": "D2",
@@ -224,15 +335,21 @@
           "effort_hours": 0.5,
           "dependencies": [],
           "status": "DONE",
-          "files": ["CHANGELOG.md"]
+          "files": [
+            "CHANGELOG.md"
+          ]
         },
         {
           "id": "D3",
           "description": "生成徽章（README）：pytest passing、coverage、Python版本、license",
           "effort_hours": 0.3,
-          "dependencies": ["Q3"],
+          "dependencies": [
+            "Q3"
+          ],
           "status": "PENDING",
-          "files": ["README.md"]
+          "files": [
+            "README.md"
+          ]
         },
         {
           "id": "D4",
@@ -240,15 +357,23 @@
           "effort_hours": 2.0,
           "dependencies": [],
           "status": "DONE",
-          "files": ["mkdocs.yml", "docs/index.md", "docs/api/"]
+          "files": [
+            "mkdocs.yml",
+            "docs/index.md",
+            "docs/api/"
+          ]
         },
         {
           "id": "D5",
           "description": "pyproject.toml添加发布配置：long_description、classifiers完善、project.urls真实化",
           "effort_hours": 0.3,
-          "dependencies": ["D2"],
+          "dependencies": [
+            "D2"
+          ],
           "status": "DONE",
-          "files": ["pyproject.toml"]
+          "files": [
+            "pyproject.toml"
+          ]
         }
       ]
     },
@@ -261,49 +386,75 @@
           "id": "A1",
           "description": "内置算法：实现线性回归、k-means作为内置AlgorithmBase子类，通过@register_stage注册",
           "effort_hours": 3.0,
-          "dependencies": ["F4", "I1", "FX2"],
+          "dependencies": [
+            "F4",
+            "I1",
+            "FX2"
+          ],
           "status": "DONE",
-          "files": ["src/experiment_engine/algorithms/"]
+          "files": [
+            "src/experiment_engine/algorithms/"
+          ]
         },
         {
           "id": "A2",
           "description": "增强Streamlit Dashboard：实时pipeline运行可视化、结果对比视图",
           "effort_hours": 2.0,
-          "dependencies": ["I2"],
+          "dependencies": [
+            "I2"
+          ],
           "status": "DONE",
-          "files": ["src/experiment_engine/viz/streamlit_dashboard.py"]
+          "files": [
+            "src/experiment_engine/viz/streamlit_dashboard.py"
+          ]
         },
         {
           "id": "A3",
           "description": "数据库连接器：SQLite/PostgreSQL的DataReader/DataWriter实现",
           "effort_hours": 2.0,
-          "dependencies": ["I1"],
+          "dependencies": [
+            "I1"
+          ],
           "status": "DONE",
-          "files": ["src/experiment_engine/io/db.py"]
+          "files": [
+            "src/experiment_engine/io/db.py"
+          ]
         },
         {
           "id": "A4",
           "description": "实验报告导出：自动生成LaTeX/PDF报告，包含config快照、metrics和图表引用",
           "effort_hours": 2.5,
-          "dependencies": ["I2"],
+          "dependencies": [
+            "I2"
+          ],
           "status": "DONE",
-          "files": ["src/experiment_engine/report/"]
+          "files": [
+            "src/experiment_engine/report/"
+          ]
         },
         {
           "id": "A5",
           "description": "实验比较器：支持多次运行结果对比（metrics表格、重叠图表）",
           "effort_hours": 2.0,
-          "dependencies": ["A1"],
+          "dependencies": [
+            "A1"
+          ],
           "status": "PENDING",
-          "files": ["src/experiment_engine/viz/comparison.py"]
+          "files": [
+            "src/experiment_engine/viz/comparison.py"
+          ]
         },
         {
           "id": "A6",
           "description": "并行stage执行：可选在线程池中并行执行独立stage",
           "effort_hours": 1.5,
-          "dependencies": ["F3"],
+          "dependencies": [
+            "F3"
+          ],
           "status": "DONE",
-          "files": ["src/experiment_engine/core/parallel.py"]
+          "files": [
+            "src/experiment_engine/core/parallel.py"
+          ]
         }
       ]
     },
@@ -313,8 +464,17 @@
       "summary": "通过 Pyodide 将 QCA Python 引擎编译到 WebAssembly，在浏览器端运行，部署至 GitHub Pages (qhWangAntoneva.github.io/experiment-engine/)。前端 React + TypeScript 已实现 Pyodide Web Worker 桥接层、Plotly.js 可视化组件、QCA 流水线状态管理。",
       "architecture": {
         "runtime": "Pyodide v0.29.x via CDN (jsDelivr)",
-        "python_packages": ["numpy (OK)", "pyyaml (OK)", "plotly (OK)", "pandas (可选)"],
-        "blocked_packages": ["pydantic>=2.0 (pydantic-core 为 Rust 二进制)", "matplotlib (仅 Agg 后端)", "click/rich (浏览器无关)"],
+        "python_packages": [
+          "numpy (OK)",
+          "pyyaml (OK)",
+          "plotly (OK)",
+          "pandas (可选)"
+        ],
+        "blocked_packages": [
+          "pydantic>=2.0 (pydantic-core 为 Rust 二进制)",
+          "matplotlib (仅 Agg 后端)",
+          "click/rich (浏览器无关)"
+        ],
         "frontend": "React 18 + Vite 5 + TypeScript + Plotly.js",
         "deployment": "GitHub Pages (gh-pages 分支), GitHub Actions CI/CD",
         "url": "https://qhWangAntoneva.github.io/experiment-engine/"
@@ -324,114 +484,236 @@
           "id": "W1",
           "description": "pydantic v2 阻塞点解决：创建 dataclass 双后端模型层 (models_browser.py)，通过 IN_BROWSER 门控选择后端，保持 CLI 兼容",
           "effort_hours": 8.0,
-          "dependencies": ["F2"],
+          "dependencies": [
+            "F2"
+          ],
           "status": "PENDING",
           "blocker": "pydantic-core 是 Rust 原生二进制，无法在 Emscripten/Wasm 中运行。需将 30+ Pydantic 模型复制为 Python dataclass + 手动验证。",
-          "files": ["src/experiment_engine/models_browser.py", "src/experiment_engine/__init__.py"]
+          "files": [
+            "src/experiment_engine/models_browser.py",
+            "src/experiment_engine/__init__.py"
+          ]
         },
         {
           "id": "W2",
           "description": "Pyodide Web Worker 桥接层：实现主线程 ↔ Worker postMessage 通信协议 (9 种请求类型: init/calibrate/load_corpus/analyze/run_robustness/run_counterfactuals/export_result/validate_condition_set/get_package_status)",
           "effort_hours": 4.0,
-          "dependencies": ["W1"],
+          "dependencies": [
+            "W1"
+          ],
           "status": "PROTOTYPE",
-          "files": ["src/services/pyodide.worker.ts", "src/services/pyodide.ts", "src/hooks/usePyodide.ts", "src/hooks/useQCAWorkflow.ts"]
+          "files": [
+            "src/services/pyodide.worker.ts",
+            "src/services/pyodide.ts",
+            "src/hooks/usePyodide.ts",
+            "src/hooks/useQCAWorkflow.ts"
+          ]
         },
         {
           "id": "W3",
           "description": "TypeScript 类型层：将 30+ Pydantic 模型镜像为 TypeScript 接口 (qca.ts)，确保 Python↔JS JSON 序列化字段名一致",
           "effort_hours": 2.0,
-          "dependencies": ["F2"],
+          "dependencies": [
+            "F2"
+          ],
           "status": "PROTOTYPE",
-          "files": ["src/types/qca.ts", "src/pyodide/types.ts"]
+          "files": [
+            "src/types/qca.ts",
+            "src/pyodide/types.ts"
+          ]
         },
         {
           "id": "W4",
           "description": "Plotly.js QCA 可视化组件：真值表热力图、必要性/充分性 XY 散点图、模糊隶属分布直方图、解公式展示、流水线进度条 (替代 matplotlib)",
           "effort_hours": 5.0,
-          "dependencies": ["W2"],
+          "dependencies": [
+            "W2"
+          ],
           "status": "PROTOTYPE",
-          "files": ["src/components/FuzzySetHeatmap.tsx", "src/components/NecessityXYPlot.tsx", "src/components/DistributionPlot.tsx", "src/components/TruthTableViewer.tsx", "src/components/SolutionViewer.tsx", "src/components/PipelineStatus.tsx"]
+          "files": [
+            "src/components/FuzzySetHeatmap.tsx",
+            "src/components/NecessityXYPlot.tsx",
+            "src/components/DistributionPlot.tsx",
+            "src/components/TruthTableViewer.tsx",
+            "src/components/SolutionViewer.tsx",
+            "src/components/PipelineStatus.tsx"
+          ]
         },
         {
           "id": "W5",
           "description": "React 状态管理：QCAPipelineContext (useReducer) 驱动 14 阶段流水线状态机 (idle→loading-pyodide→calibrating→analyzing→running-robustness→done/error)",
           "effort_hours": 2.0,
-          "dependencies": ["W2"],
+          "dependencies": [
+            "W2"
+          ],
           "status": "PROTOTYPE",
-          "files": ["src/store/QCAPipelineContext.tsx"]
+          "files": [
+            "src/store/QCAPipelineContext.tsx"
+          ]
         },
         {
           "id": "W6",
           "description": "页面重构：DataInput (文件上传+粘贴+条件集YAML编辑器)、Results (标签页: 解/真值表/必要性/稳健性+导出)、Dashboard (引擎初始化+流水线状态)、Settings (校准参数+分析阈值+本地持久化)",
           "effort_hours": 6.0,
-          "dependencies": ["W4", "W5"],
+          "dependencies": [
+            "W4",
+            "W5"
+          ],
           "status": "PROTOTYPE",
-          "files": ["src/pages/Dashboard.tsx", "src/pages/DataInput.tsx", "src/pages/Results.tsx", "src/pages/Settings.tsx"]
+          "files": [
+            "src/pages/Dashboard.tsx",
+            "src/pages/DataInput.tsx",
+            "src/pages/Results.tsx",
+            "src/pages/Settings.tsx"
+          ]
         },
         {
           "id": "W7",
           "description": "Python 模块打包：构建脚本将 src/experiment_engine/ 精简后打包为 engine.tar.gz (~80KB)，排除 CLI/viz/console/db/streamlit 等浏览器无关模块",
           "effort_hours": 1.5,
-          "dependencies": ["W1"],
+          "dependencies": [
+            "W1"
+          ],
           "status": "PENDING",
-          "files": ["scripts/build-pyodide-bundle.py"]
+          "files": [
+            "scripts/build-pyodide-bundle.py"
+          ]
         },
         {
           "id": "W8",
           "description": "GitHub Actions CI/CD 部署流水线：Node.js 构建 + Python bundle + 部署至 gh-pages 分支 (peaceiris/actions-gh-pages@v4)",
           "effort_hours": 2.0,
-          "dependencies": ["W7"],
+          "dependencies": [
+            "W7"
+          ],
           "status": "PROTOTYPE",
-          "files": [".github/workflows/deploy.yml"]
+          "files": [
+            ".github/workflows/deploy.yml"
+          ]
         },
         {
           "id": "W9",
           "description": "Vite 生产构建配置：GitHub Pages 子目录 base 路径、vendor chunk 分离 (react/vendor-plotly)、Web Worker 入口",
           "effort_hours": 1.0,
-          "dependencies": ["W8"],
+          "dependencies": [
+            "W8"
+          ],
           "status": "PROTOTYPE",
-          "files": ["vite.config.ts", "src/main.tsx", "src/vite-env.d.ts"]
+          "files": [
+            "vite.config.ts",
+            "src/main.tsx",
+            "src/vite-env.d.ts"
+          ]
         },
         {
           "id": "W10",
           "description": "运行时优化：惰性加载 Plotly.js (~3MB 动态 import)、Pyodide Service Worker 缓存首访加速、pandas 替换为 numpy.genfromtxt 轻量 CSV 解析",
           "effort_hours": 3.0,
-          "dependencies": ["W6", "W7"],
+          "dependencies": [
+            "W6",
+            "W7"
+          ],
           "status": "PENDING",
-          "files": ["src/services/pyodide.worker.ts", "vite.config.ts"]
+          "files": [
+            "src/services/pyodide.worker.ts",
+            "vite.config.ts"
+          ]
         },
         {
           "id": "W11",
           "description": "端到端集成测试：Web Worker 内 Pyodide 加载 → 文本校准 → QCA 分析 → 结果序列化 → Plotly 图表渲染验证",
           "effort_hours": 3.0,
-          "dependencies": ["W10"],
+          "dependencies": [
+            "W10"
+          ],
           "status": "PENDING",
-          "files": ["tests/test_pyodide_integration.ts"]
+          "files": [
+            "tests/test_pyodide_integration.ts"
+          ]
         },
         {
           "id": "W12",
           "description": "性能预算与监控：冷启动 <12s、热启动 <2s、1000 文本 QCA 分析 <3s、内存 <150MB、首屏 <3s Lighthouse",
           "effort_hours": 1.5,
-          "dependencies": ["W10"],
+          "dependencies": [
+            "W10"
+          ],
           "status": "PENDING",
           "files": []
         }
       ],
       "risk_register": [
-        {"risk": "Pyodide CDN 不可用", "mitigation": "备选 self-host Pyodide 资源 (50MB)，通过 GitHub Pages 或 Cloudflare Pages 托管", "severity": "MEDIUM"},
-        {"risk": "pydantic-core 无替代方案导致模型层重构工作量大", "mitigation": "已确定 dataclass shim 方案，优先完成 W1 再推进后续", "severity": "HIGH"},
-        {"risk": "大文本输入导致浏览器 OOM", "mitigation": "限制输入 ≤5000 条文本，前端分块处理 + Worker 内分批计算", "severity": "LOW"},
-        {"risk": "GitHub Pages 带宽限制 (100GB/月)", "mitigation": "Pyodide 资源走 CDN，仅 ~80KB 自托管", "severity": "LOW"}
+        {
+          "risk": "Pyodide CDN 不可用",
+          "mitigation": "备选 self-host Pyodide 资源 (50MB)，通过 GitHub Pages 或 Cloudflare Pages 托管",
+          "severity": "MEDIUM"
+        },
+        {
+          "risk": "pydantic-core 无替代方案导致模型层重构工作量大",
+          "mitigation": "已确定 dataclass shim 方案，优先完成 W1 再推进后续",
+          "severity": "HIGH"
+        },
+        {
+          "risk": "大文本输入导致浏览器 OOM",
+          "mitigation": "限制输入 ≤5000 条文本，前端分块处理 + Worker 内分批计算",
+          "severity": "LOW"
+        },
+        {
+          "risk": "GitHub Pages 带宽限制 (100GB/月)",
+          "mitigation": "Pyodide 资源走 CDN，仅 ~80KB 自托管",
+          "severity": "LOW"
+        }
       ]
     }
   },
   "milestones": {
-    "minimum_viable_release": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "FX1", "FX2", "FX3", "FX4", "FX5", "I1", "I2", "Q1"],
-    "version_1_0_stable": ["ALL_TASKS_UP_TO_PHASE_4"],
-    "version_1_1_advanced": ["ALL_TASKS_UP_TO_PHASE_5"],
-    "version_2_0_web": ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12"],
-    "web_prototype_demo": ["W2", "W3", "W4", "W5", "W6", "W8", "W9"]
+    "minimum_viable_release": [
+      "F1",
+      "F2",
+      "F3",
+      "F4",
+      "F5",
+      "F6",
+      "F7",
+      "F8",
+      "FX1",
+      "FX2",
+      "FX3",
+      "FX4",
+      "FX5",
+      "I1",
+      "I2",
+      "Q1"
+    ],
+    "version_1_0_stable": [
+      "ALL_TASKS_UP_TO_PHASE_4"
+    ],
+    "version_1_1_advanced": [
+      "ALL_TASKS_UP_TO_PHASE_5"
+    ],
+    "version_2_0_web": [
+      "W1",
+      "W2",
+      "W3",
+      "W4",
+      "W5",
+      "W6",
+      "W7",
+      "W8",
+      "W9",
+      "W10",
+      "W11",
+      "W12"
+    ],
+    "web_prototype_demo": [
+      "W2",
+      "W3",
+      "W4",
+      "W5",
+      "W6",
+      "W8",
+      "W9"
+    ]
   },
   "summary": {
     "total_tasks": 44,
@@ -440,7 +722,41 @@
     "completed_tasks": 30,
     "prototype_tasks": 7,
     "pending_tasks": 7,
-    "completed_phases": ["phase_1_foundation", "phase_1_fix", "phase_2_integration", "phase_4_docs_polish"],
+    "completed_phases": [
+      "phase_1_foundation",
+      "phase_1_fix",
+      "phase_2_integration",
+      "phase_4_docs_polish"
+    ],
     "active_phase": "phase_6_web_deployment"
-  }
+  },
+  "known_issues": [
+    {
+      "id": "KI-001",
+      "title": "test_prototype_similarity.py ruff lint violations",
+      "severity": "low",
+      "status": "open",
+      "session": "2026-05-24 prototype calibration feature",
+      "description": "RUF001 (Chinese commas), SLF001 (private _jaccard/_apply_calibration), B017 (broad Exception). All cosmetic.",
+      "fix_plan": "Add per-file-ignore for RUF001+SLF001+B017 on tests/test_prototype_similarity.py. Replace pytest.raises(Exception) with pytest.raises(ValidationError)."
+    },
+    {
+      "id": "KI-002",
+      "title": "Stale test_algorithms.py references deleted modules",
+      "severity": "low",
+      "status": "open",
+      "session": "pre-existing (Phase 1 QCA refactoring)",
+      "description": "test_algorithms.py imports deleted KMeansStage/LinearRegressionStage.",
+      "fix_plan": "Rewrite or remove test_algorithms.py."
+    },
+    {
+      "id": "KI-003",
+      "title": "test_integration.py requires pandas",
+      "severity": "low",
+      "status": "open",
+      "session": "pre-existing (Phase 6)",
+      "description": "test_integration.py imports pandas not in dev extras.",
+      "fix_plan": "Add pandas to dev extras or guard import."
+    }
+  ]
 }
