@@ -123,3 +123,47 @@
 | 13:15 | Edited roadmap/experiment-engine-roadmap.json | expanded (+118 lines) | ~2198 |
 | 13:15 | Edited roadmap/experiment-engine-roadmap.json | 13→17 lines | ~225 |
 | 13:16 | Edited roadmap/experiment-engine-roadmap.json | 3→3 lines | ~114 |
+| 13:22 | Session end: 52 writes across 33 files (pyproject.toml, test_algorithms.py, test_integration.py, test_viz.py, readers.py) | 36 reads | ~103343 tok |
+
+## HANDOFF: 2026-05-24 Session Wrap
+
+### Commits pushed (3)
+1. `dd6dcc2` — Phase 3: QCA text analysis refactoring (66 files, +12074/-247)
+2. `f0545d0` — Upgrade pre-commit hooks: ruff v0.4.0→v0.15.12 + pre-commit-hooks v4.6.0→v5.0.0
+3. `a1d6ea7` — Phase 6: Pyodide web deployment — frontend architecture + roadmap (34 files, +6236/-446)
+
+### Current state
+- **Working tree**: clean (only .wolf tracking files modified)
+- **Branch**: master, synced with origin
+- **Tests**: not run this session (352 baseline from prior session)
+- **Active phase**: Phase 6 — Web Deployment (prototype 7/12 tasks, 5 pending)
+
+### Key Deliverables this session
+- Full QCA engine committed (qca_engine/, text_calibration/, report/)
+- Pre-commit tooling upgraded and aligned (ruff v0.15.12, all hooks pass)
+- Pyodide Web Worker bridge with 9 request types
+- React state machine (QCAPipelineContext, 14 stages)
+- 6 Plotly.js visualization components (heatmap, XY plot, histogram, truth table, solution viewer, pipeline status)
+- All 4 pages rewritten for QCA workflow
+- 60+ TypeScript interfaces mirroring Python Pydantic models
+- GitHub Actions CI/CD for gh-pages deployment
+- Vite config with GH Pages base path + worker + chunk splitting
+
+### Critical blocker for next session
+**W1 — pydantic v2 → dataclass shim layer (est. 8h)**
+- pydantic-core is Rust binary, cannot run in Pyodide/Wasm
+- 30+ Pydantic models in models.py need dataclass equivalents
+- Plan: `models_browser.py` with dataclass + `IN_BROWSER` gate in `__init__.py`
+- This is the single biggest remaining task before the web demo works end-to-end
+
+### Do-Not-Repeat (new this session)
+- ruff pre-commit version must match uv.lock version; per-file-ignore rules must exist in that version
+- PD901 rule removed in ruff 0.15.x — remove from global ignore on upgrade
+- Windows Python open() defaults to GBK — always use encoding='utf-8' (also affects buglog.json reads)
+- pytest.raises match= patterns should use raw strings to avoid RUF043
+
+### Files to read first next session
+- `.wolf/cerebrum.md` — project overview, Do-Not-Repeat, decision log
+- `roadmap/experiment-engine-roadmap.json` — Phase 6 tasks and risk register
+- `src/experiment_engine/models.py` — Pydantic models to port (W1 blocker)
+- `src/services/pyodide.worker.ts` — Web Worker bridge (needs Python side wired up)

@@ -247,6 +247,9 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 - [2026-05-24] `_print_fit_metrics` 函数需要在模块级别定义（不能嵌套在 train 函数内）
 - [2026-05-24] rf-string 中的 `\begin{center}` 被解析为 Python 表达式 `{center}`，造成 F821 错误；应用字符串拼接替代
 - [2026-05-24] Ruff RUF001 对中文标点（，。！？等）报 ambiguous 是预期行为，在 keyword_dict.py 中已通过 per-file-ignore 抑制
+- [2026-05-24] **pre-commit 版本不匹配陷阱**：本地 `uv run ruff` 和 pre-commit hook 的 ruff 版本必须一致。当 per-file-ignore 引用新规则（如 RUF043）但 hook 用旧版本时会报 "Unknown rule selector"。解决方案：升级 `.pre-commit-config.yaml` 中 ruff 的 `rev` 对齐 `uv.lock` 版本。
+- [2026-05-24] **PD901 规则已在 ruff 0.15.x 移除**：如果 pyproject.toml 中全局 ignore 了 PD901，升级 ruff 后会报 "rules have been removed" 警告。应及时从 ignore 列表中删除已废弃的规则。
+- [2026-05-24] **Windows Python GBK 陷阱也影响 buglog.json**：`python -c "import json; ..."` 默认用 GBK 读文件，会导致 UnicodeDecodeError。必须始终用 `open(path, encoding='utf-8')`。
 
 ---
 
@@ -256,3 +259,9 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 - [2026-05-24] 删除了 `algorithms/linear_regression.py` 和 `algorithms/kmeans.py`——与 QCA 无关
 - [2026-05-24] CLI 入口点从 `experiment-engine` 更名为 `qca`
 - [2026-05-24] 全局忽略 ruff E501（行长度）——中文关键词和 LaTeX 字符串自然较长
+- [2026-05-24] 全局忽略 PD901（df 变量名）——pandas 生态中 `df` 是通用惯例，ruff 0.15.x 已将该规则移除
+- [2026-05-24] **采用 Pyodide 浏览器端运行方案**：将 QCA Python 引擎通过 Pyodide 编译为 WebAssembly 在浏览器中运行，零后端服务器。React + Vite + TypeScript 前端，GitHub Pages 部署。
+- [2026-05-24] **Pyodide CDN 策略**：Pyodide 核心 50MB 从 jsDelivr CDN 加载（利用全球缓存），仅 ~80KB Python 源模块自托管。避免 GitHub Pages 1GB 软限制。
+- [2026-05-24] **单仓库 gh-pages 部署**：选择 Option B（同一 repo 的 gh-pages 分支），避免跨仓库 PAT 复杂度。URL: `qhWangAntoneva.github.io/experiment-engine/`
+- [2026-05-24] **pydantic v2 → dataclass 双后端方案**：pydantic-core 为 Rust 二进制无法在 Pyodide 运行。采用 `IN_BROWSER` 门控选择模型后端：CLI 保持 Pydantic v2，浏览器使用 dataclass shim (models_browser.py)。
+- [2026-05-24] **Plotly.js 替代 matplotlib**：浏览器端仅用 Plotly（纯 Python + HTML/JS 输出），matplotlib Agg 后端仅用于 PNG 导出。Plotly.js 惰性加载节省首屏体积。
