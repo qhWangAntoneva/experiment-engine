@@ -1039,6 +1039,22 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-05-24"
+    },
+    {
+      "id": "bug-061",
+      "timestamp": "2026-05-24T13:19:49.099Z",
+      "error_message": "Significant refactor of ",
+      "file": "HACK.md",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 6→6 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T13:19:49.099Z"
     }
   ]
 }

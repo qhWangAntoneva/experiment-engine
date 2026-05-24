@@ -43,13 +43,12 @@
 **何时重新审视**: 当浏览器支持 SharedArrayBuffer + Pyodide 多线程或迁移到服务端方案时。
 **来源**: 架构分析
 
-### HACK-5: Quine-McCluskey 不支持 don't-care minterm
+### ~~HACK-5: Quine-McCluskey 不支持 don't-care minterm~~ [已解决 2026-05-24]
 
 **位置**: `src/experiment_engine/qca_engine/minimization.py`
 **性质**: 功能缺口
-**描述**: 当前 QM 实现仅处理 outcome=1 的 minterm，不支持 don't-care（逻辑余项）概念。导致 `counterfactual.py` 无法正确生成精简解（见 FIXME-1），易反事实被错误作为 outcome=1 行处理。
-**风险**: 精简解和中间解在某些逻辑余项配置下可能不正确。
-**何时重新审视**: 修复 FIXME-1 时同步实现。
+**描述**: QM 现已支持 `dont_care_minterms` 参数。所有 minterms（常规 + don't-care）参与 prime implicant 生成，但 don't-care 不进入覆盖表（idx >= n_reg 的列不建）。见 FIXME-1。
+**提交**: c4c6aa2
 **来源**: 评审者#1
 
 ---
@@ -74,13 +73,12 @@
 **何时重新审视**: 实现 TODO P1-16（前端解析归一到 Pyodide Worker）时同步解决。
 **来源**: 技术顾问#7
 
-### HACK-8: pyodide.worker.ts 使用 JS 模板字符串嵌入 Python 代码
+### ~~HACK-8: pyodide.worker.ts 使用 JS 模板字符串嵌入 Python 代码~~ [已解决 2026-05-24]
 
-**位置**: `src/services/pyodide.worker.ts:271-316, 341-373, 409-410, 457-465, 513-514, 564-565`
-**性质**: 技术债务（安全性已修复，维护性仍差）
-**描述**: 虽然代码注入漏洞已通过 FS.writeFile + JSON VFS 序列化修复，但 10 个 handler 中各嵌入 20-50 行 Python 代码字符串。这些代码无法被 pytest/linter/ruff 覆盖，修改 Python API 时容易遗漏。
-**风险**: 维护性差，Python API 变更可能在运行时才暴露错误。
-**何时重新审视**: 实现 TODO P0-2 时解决。 @see TODO P0-2, FIXME-15
+**位置**: `src/services/pyodide.worker.ts`, `src/experiment_engine/pyodide_handlers.py` (新增)
+**性质**: 技术债务（维护性已修复）
+**描述**: Python handler 代码已提取到 `pyodide_handlers.py` 的独立函数中（pytest/ruff/mypy 可覆盖）。Worker 使用通用 `runHandler()` 模板，每个 handler 从 ~50 行缩减到 ~8 行。Worker 从 659 行缩减到 464 行。同步修复 2 个隐蔽运行时 bug。
+**提交**: d08786c
 **来源**: 技术顾问#2
 
 ### HACK-9: PluginRegistry 全局单例
@@ -105,13 +103,12 @@
 
 ## 测试层面
 
-### HACK-11: QCA 核心算法仅通过集成测试覆盖
+### ~~HACK-11: QCA 核心算法仅通过集成测试覆盖~~ [已解决 2026-05-24]
 
-**位置**: `tests/test_integration.py`
+**位置**: `tests/test_qca_core.py` (新增)
 **性质**: 测试策略缺口
-**描述**: consistency.py/truth_table.py/minimization.py/necessity.py/sufficiency.py/calibrator.py 没有独立的单元测试，所有覆盖来自端到端集成测试。集成测试跑全流程，一个 bug 可能被另一个 bug 掩盖（如 FIXME-9 coverage_stability 始终为 0 未被任何测试发现）。
-**风险**: 重构核心算法时缺乏快速反馈，bug 定位困难。
-**何时重新审视**: 实现 TODO P0-3 时解决。
+**描述**: 新增 104 个单元测试覆盖全部 7 个核心 QCA 模块（consistency/truth_table/minimization/necessity/sufficiency/calibrator/keyword_dict），使用 Ragin (2008) Lipset 数据集作为黄金标准基准。测试套件 361→465。
+**提交**: d08786c
 **来源**: 技术顾问#3, 评审者#20
 
 ### HACK-12: 零前端自动化测试
@@ -129,7 +126,7 @@
 
 | 类别 | 数量 |
 |------|------|
-| 架构层面 | 5 |
-| 代码层面 | 5 |
-| 测试层面 | 2 |
-| **合计** | **12** |
+| 架构层面 | 5 (1 已解决) |
+| 代码层面 | 4 (1 已解决) |
+| 测试层面 | 0 (2 已解决) |
+| **合计** | **9** (3 已解决)

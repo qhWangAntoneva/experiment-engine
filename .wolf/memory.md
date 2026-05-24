@@ -427,3 +427,10 @@
 | 21:06 | Edited FIXME.md | 20 → 19 | ~6 |
 | 21:07 | P0-2/FIXME-15: extracted 7 handler functions from pyodide.worker.ts into pyodide_handlers.py; worker -195 lines (-24%); fixed 2 hidden bugs (bug-059, bug-060); build passes, 464 tests pass, ruff clean | src/experiment_engine/pyodide_handlers.py, src/services/pyodide.worker.ts, FIXME.md, .wolf/buglog.json | success | ~13000 |
 | 21:08 | Session end: 77 writes across 17 files (counterfactual.py, minimization.py, calibrator.py, models.py, sufficiency.py) | 28 reads | ~141498 tok |
+| 21:13 | Session end: 77 writes across 17 files (counterfactual.py, minimization.py, calibrator.py, models.py, sufficiency.py) | 28 reads | ~129119 tok |
+| 21:18 | Created FIXME.md | — | ~1906 |
+| 21:19 | Created TODO.md | — | ~1674 |
+| 21:19 | Edited HACK.md | 8→7 lines | ~84 |
+| 21:19 | Edited HACK.md | 8→7 lines | ~107 |
+| 21:19 | Edited HACK.md | 8→7 lines | ~84 |
+| 21:19 | Edited HACK.md | 6→6 lines | ~31 |

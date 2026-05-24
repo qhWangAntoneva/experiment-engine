@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T13:06:43.792Z
-> Files: 104 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24 (Phase 4 complete)
+> Files: 104 tracked | Anatomy hits: 0 | Misses: 0 | Tests: 465 pass
 
 ## ../.claude/plans/
 
@@ -14,13 +14,13 @@
 - `.gitignore` — Git ignore rules (~134 tok)
 - `.pre-commit-config.yaml` (~116 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
-- `FIXME.md` — FIXME — QCA Analysis Tool (~2076 tok)
-- `HACK.md` — HACK — QCA Analysis Tool (~1201 tok)
+- `FIXME.md` — FIXME — QCA Analysis Tool (~1787 tok)
+- `HACK.md` — HACK — QCA Analysis Tool (~1155 tok)
 - `index.html` — QCA Simulation Tool (~130 tok)
 - `package-lock.json` — npm lock file (~17146 tok)
 - `package.json` — Node.js package manifest (~160 tok)
 - `pyproject.toml` — QCA Text Analysis Tool: citizen feedback text to fuzzy-set QCA analysis (~1266 tok)
-- `TODO.md` — 功能需求与增强计划（51 项：8 P0 + 23 P1 + 20 P2，含交叉引用） (~4300 tok)
+- `TODO.md` — TODO — QCA Analysis Tool (~1569 tok)
 - `tsconfig.app.json` (~160 tok)
 - `tsconfig.json` — TypeScript configuration (~34 tok)
 - `tsconfig.node.json` (~139 tok)
@@ -177,8 +177,7 @@
 - `test_integration.py` — Integration tests for experiment-engine. (~11590 tok)
 - `test_pipeline.py` — Unit tests for the experiment-engine pipeline framework. (~9264 tok)
 - `test_prototype_similarity.py` — Unit tests for prototype-based text similarity engine. (~4412 tok)
-- `test_qca_core.py` — Unit tests for QCA core modules (consistency, truth table, minimization, necessity, sufficiency, calibration, keyword matching). 104 tests. (~4000 tok)
-- `test_qca_core.py` — Unit tests for QCA core modules. (~14779 tok)
+- `test_qca_core.py` — Unit tests for QCA core modules (consistency, truth table, minimization, necessity, sufficiency, calibration, keyword matching). 104 tests across 7 modules. (~14779 tok)
 - `test_viz.py` — Unit tests for visualization module (~11630 tok)
 
 ## tmp/

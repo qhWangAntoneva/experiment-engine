@@ -2,25 +2,28 @@
 
 > OpenWolf 学习记忆。最后一次全面更新：2026-05-24
 > 用途：新 agent 接手时的项目全貌参考。
-> **当前状态**: 三方审查已完成，TODO/FIXME/HACK 就绪，下一 session 开始逐一修复。
+> **当前状态**: 四阶段 P0 修复已完成（2026-05-24），8/8 P0 全部解决，18/22 FIXME 已修复，465 测试通过。剩余 4 个 🟡🟢 FIXME + 17 P1 + 20 P2 待下一 session 推进。
 
 ---
 
 ## 0. 快速上手（新 session 必读）
 
 **在开始任何工作前，先读这三个文件获取当前状态**：
-- `TODO.md` — 51 项待办（8 P0 + 23 P1 + 20 P2），按优先级排序
-- `FIXME.md` — 22 项 Bug/缺陷（6 🔴严重 + 10 🟡警告 + 6 🟢建议），含精确文件:行号
-- `HACK.md` — 12 项技术债务与设计权衡
+- `TODO.md` — 37 项待办（0 P0 + 17 P1 + 20 P2），P0 全部完成
+- `FIXME.md` — 4 项剩余缺陷（2 🟡警告 + 2 🟢建议），18/22 已修复
+- `HACK.md` — 9 项技术债务（3 已解决）
 
-**推荐的开工顺序**（P0 优先）：
-1. FIXME-1 → counterfactual.py parsimonious 算法错误（最严重的正确性 bug）
-2. FIXME-3 → calibrate_ragin 实现错误（分段线性→logistic）
-3. FIXME-2 → calibrator.py 列索引偏移
-4. FIXME-4 → match_corpus() 重复调用优化
-5. FIXME-5 → pipeline 错误处理 fail_fast
-6. FIXME-6 → robustness coverage_stability=0
-7. P0-3 → 为核心 QCA 模块补充单元测试（先写后修）
+**当前项目基线**：
+- 测试：465 passed, 6 xfailed（新增 104 个 QCA 核心单元测试）
+- TypeScript：build 通过
+- Python：ruff 全部干净
+- Git：master 分支，4 次提交已推送 (c4c6aa2, 9842e11, 9b58081, d08786c)
+
+**推荐的开工顺序**（P1 优先）：
+1. P1-14 → models.py 拆分为 models/framework.py + models/qca.py（解决 FIXME-16）
+2. P1-15 → 校准器策略模式重构（解决 HACK-6）
+3. P1-16 + P1-17 → 前端解析归一 + numpy 向量化
+4. P1-1 ~ P1-13 → 功能需求按客户优先级
 
 ---
 
@@ -34,7 +37,7 @@
 | **Python** | >=3.10 |
 | **包管理器** | uv |
 | **CLI 入口** | `qca` (9 个子命令) |
-| **测试框架** | pytest (352 passed 历史基线) |
+| **测试框架** | pytest (465 passed 历史基线) |
 
 ---
 
@@ -242,11 +245,12 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 | `tests/test_pipeline.py` | Stage/Pipeline 生命周期 |
 | `tests/test_io.py` | 读取器/导出器/数据源 |
 | `tests/test_integration.py` | 端到端流水线 |
+| `tests/test_qca_core.py` | **QCA 核心模块单元测试**（104 测试，7 模块），Lipset 数据集黄金标准 |
 | `tests/test_viz.py` | 可视化渲染器 |
 | `tests/test_algorithms.py` | 旧算法测试（待更新为 QCA 测试） |
 | `tests/test_report.py` | 报告生成 |
 | **运行**：`uv run pytest` |
-| **QCA 标准验证**：用 Ragin (2008) 教材经典数据集验证分析结果 |
+| **QCA 标准验证**：用 Ragin (2008) 教材 Lipset 数据集作为黄金标准基准测试 |
 
 ---
 
