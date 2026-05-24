@@ -54,12 +54,12 @@ class DirectCalibration(CalibrationStrategy):
                 linear interpolation between crossover and thresholds otherwise.
 
     Raw scores are first min-max normalized to [0, 1].
+    Uses numpy vectorized np.select for WASM performance.
     """
 
     def calibrate(
         self, raw_scores: np.ndarray, params: CalibrationParams
     ) -> np.ndarray:
-        out = np.zeros_like(raw_scores, dtype=np.float64)
         lo = params.threshold_full_out
         hi = params.threshold_full_in
         cross = params.crossover_point
@@ -72,23 +72,50 @@ class DirectCalibration(CalibrationStrategy):
         else:
             normalized = np.full_like(raw_scores, 0.5)
 
-        for i in range(len(normalized)):
-            s = normalized[i]
-            if s <= lo:
-                out[i] = 0.0
-            elif s >= hi:
-                out[i] = 1.0
-            elif s <= cross:
-                # Linear: 0 -> 0.5 between full_out and crossover
-                out[i] = 0.5 * (s - lo) / (cross - lo)
-            else:
-                # Linear: 0.5 -> 1.0 between crossover and full_in
-                out[i] = 0.5 + 0.5 * (s - cross) / (hi - cross)
+        # Guard against degenerate anchors: if thresholds collapse,
+        # all points lie in the same region and the for-loop fallback
+        # would assign everything to either 0.0 or 1.0 depending on
+        # which threshold is degenerate.
+        denom_low = cross - lo
+        denom_hi = hi - cross
+
+        # Vectorized piecewise linear transformation using np.select.
+        # Conditions match the original if/elif/else order exactly:
+        #   1. s <= lo          -> 0.0
+        #   2. s >= hi          -> 1.0
+        #   3. s <= cross       -> 0.5 * (s - lo) / (cross - lo)
+        #   4. otherwise        -> 0.5 + 0.5 * (s - cross) / (hi - cross)
+        #
+        # NaN propagates correctly: all NaN comparisons are False,
+        # so NaN falls through to the default (choice 4), which
+        # produces NaN — matching the original for-loop behaviour.
+        condlist: list[np.ndarray] = [
+            normalized <= lo,
+            normalized >= hi,
+            normalized <= cross,
+        ]
+        choicelist: list[np.ndarray | float] = [
+            0.0,
+            1.0,
+            (
+                0.5 * (normalized - lo) / denom_low
+                if denom_low > 0
+                else np.full_like(normalized, 0.0)
+            ),
+        ]
+        default_val: np.ndarray | float = (
+            0.5 + 0.5 * (normalized - cross) / denom_hi
+            if denom_hi > 0
+            else np.full_like(normalized, 0.5)
+        )
+
+        with np.errstate(divide="ignore", invalid="ignore"):
+            out = np.select(condlist, choicelist, default=default_val)
 
         if params.direction == "descending":
             out = 1.0 - out
 
-        return out
+        return out.astype(np.float64)
 
 
 class IndirectCalibration(CalibrationStrategy):
@@ -97,6 +124,8 @@ class IndirectCalibration(CalibrationStrategy):
     Rescales raw scores to [0, 1] via min-max normalization, then applies
     a logistic transformation centered at the crossover point to produce
     fuzzy membership values in [0, 1].
+
+    Uses numpy vectorized operations for WASM performance.
     """
 
     def calibrate(
@@ -113,26 +142,38 @@ class IndirectCalibration(CalibrationStrategy):
         cross = params.crossover_point
         k = 10.0  # steepness factor
 
-        result = np.zeros_like(normalized, dtype=np.float64)
-        for i in range(len(normalized)):
-            s = normalized[i]
-            if s <= 0.0:
-                result[i] = 0.0
-            elif s >= 1.0:
-                result[i] = 1.0
-            else:
-                # Log-odds transform centered at crossover
-                log_odds = np.log(s / (1.0 - s)) if s > 0 and s < 1 else 0.0
-                cross_log_odds = (
-                    np.log(cross / (1.0 - cross)) if cross > 0 and cross < 1 else 0.0
-                )
-                scaled = 1.0 / (1.0 + np.exp(-k * (log_odds - cross_log_odds)))
-                result[i] = float(scaled)
+        # Pre-compute crossover log-odds (constant across all elements)
+        cross_log_odds = float(np.log(cross / (1.0 - cross))) if 0 < cross < 1 else 0.0
+
+        # Vectorized: replace the original if/elif/else for-loop with
+        # np.select. Conditions match the original logic:
+        #   1. s <= 0.0  -> 0.0
+        #   2. s >= 1.0  -> 1.0
+        #   3. otherwise -> logistic(log_odds(s))
+        #
+        # NaN: all three comparison conditions are False, so NaN falls
+        # through to the default where log_odds=0.0 (matching the
+        # original for-loop's "else: if s>0 and s<1 else 0.0" behaviour).
+        mask_mid = (normalized > 0.0) & (normalized < 1.0)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            log_odds = np.where(
+                mask_mid,
+                np.log(normalized / (1.0 - normalized)),
+                0.0,
+            )
+        logistic_val = 1.0 / (1.0 + np.exp(-k * (log_odds - cross_log_odds)))
+
+        with np.errstate(divide="ignore", invalid="ignore"):
+            result = np.select(
+                [normalized <= 0.0, normalized >= 1.0],
+                [0.0, 1.0],
+                default=logistic_val,
+            )
 
         if params.direction == "descending":
             result = 1.0 - result
 
-        return result
+        return result.astype(np.float64)
 
 
 class RaginCalibration(CalibrationStrategy):

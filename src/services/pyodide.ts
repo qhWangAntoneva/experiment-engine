@@ -155,20 +155,22 @@ export class PyodideBridge {
   }
 
   /**
-   * Load a corpus from uploaded file content.
+   * Load a corpus from raw file content via Python TextCorpusReader.
+   *
+   * The worker writes the raw content to a VFS file, calls
+   * TextCorpusReader.read(), and returns parsed TextCorpusEntry[].
    */
   async loadCorpus(
-    source: TextCorpusEntry[] | { type: 'paste'; content: string; format: 'csv' | 'json' | 'txt' }
+    fileName: string,
+    content: string,
+    format: 'csv' | 'json' | 'txt',
   ): Promise<TextCorpusEntry[]> {
-    if (Array.isArray(source)) {
-      // Already parsed by frontend — skip worker
-      return source;
-    }
-    return this.send<TextCorpusEntry[]>(
-      { type: 'load_corpus', payload: { source } },
+    const resp = await this.send<{ entries: TextCorpusEntry[] }>(
+      { type: 'load_corpus', payload: { fileName, content, format } },
       'corpus-loaded',
       'load-corpus'
     );
+    return resp.entries;
   }
 
   /**

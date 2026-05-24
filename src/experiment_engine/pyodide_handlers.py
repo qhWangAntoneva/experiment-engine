@@ -249,6 +249,53 @@ def handle_counterfactuals(fuzzy_data_path, analysis_result_path, output_path):
         json.dump(_report.model_dump(mode="json"), f, ensure_ascii=False, default=str)
 
 
+# ─── Load Corpus: raw content → TextCorpusEntry[] via TextCorpusReader ───────
+
+
+def handle_load_corpus(corpus_config_path, output_path):
+    """Parse raw text corpus content using TextCorpusReader.
+
+    Replaces the former frontend parseTextContent() with Python-side
+    parsing so that CSV/JSON/TXT logic lives in a single location.
+
+    Args:
+        corpus_config_path: VFS path to JSON with keys
+            ``fileName`` (str), ``content`` (str), ``format``
+            (one of ``csv``, ``json``, ``txt``).
+        output_path: VFS path to write the JSON array of
+            ``{text_id, text, metadata}`` entries.
+    """
+    from experiment_engine.io.readers import TextCorpusReader
+
+    with open(corpus_config_path, encoding="utf-8") as f:
+        config = json.load(f)
+
+    vfs_file = f"/tmp/{config['fileName']}"
+    with open(vfs_file, "w", encoding="utf-8") as f:
+        f.write(config["content"])
+
+    reader = TextCorpusReader()
+    result = reader.read(vfs_file)
+
+    entries = []
+    for i in range(len(result.data)):
+        text_id = (
+            result.index[i]
+            if result.index and i < len(result.index)
+            else f"case_{i + 1}"
+        )
+        entries.append(
+            {
+                "text_id": str(text_id),
+                "text": str(result.data[i]),
+                "metadata": {},
+            }
+        )
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(entries, f, ensure_ascii=False)
+
+
 # ─── Export ─────────────────────────────────────────────────────────────────
 
 

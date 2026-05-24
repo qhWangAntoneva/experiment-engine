@@ -128,7 +128,11 @@ self.onmessage = async (event: MessageEvent<PyodideWorkerRequest>) => {
         await handleCalibratePrototype(req.payload.texts, req.payload.conditionSet);
         break;
       case 'load_corpus':
-        await handleLoadCorpus(req.payload.source);
+        await handleLoadCorpus(
+          req.payload.fileName,
+          req.payload.content,
+          req.payload.format,
+        );
         break;
       case 'analyze':
         await handleAnalyze(req.payload.fuzzyData, req.payload.params);
@@ -331,14 +335,20 @@ async function handleCalibratePrototype(
   }
 }
 
-// ─── Load Corpus: parse CSV/JSON/TXT in Python ────────────────────────────
+// ─── Load Corpus: parse CSV/JSON/TXT in Python via TextCorpusReader ────────
 
-async function handleLoadCorpus(source: any): Promise<void> {
-  ensureReady();
+async function handleLoadCorpus(
+  fileName: string,
+  content: string,
+  format: 'csv' | 'json' | 'txt',
+): Promise<void> {
   try {
-    // For now, pass through the source data directly.
-    // Full TextCorpusReader integration requires mounted Python modules.
-    respond({ type: 'corpus-loaded', entries: source });
+    const entries = await runHandler(
+      "from experiment_engine.pyodide_handlers import handle_load_corpus; handle_load_corpus('/tmp/corpus_config.json', '/tmp/corpus_output.json')",
+      [['/tmp/corpus_config.json', { fileName, content, format }]],
+      '/tmp/corpus_output.json',
+    );
+    respond({ type: 'corpus-loaded', entries });
   } catch (err: any) {
     const msg = err.message || String(err);
     respond({ type: 'corpus-error', error: `Corpus loading failed: ${msg}` });

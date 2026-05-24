@@ -1103,6 +1103,102 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24T14:21:33.563Z"
+    },
+    {
+      "id": "bug-065",
+      "timestamp": "2026-05-24T14:37:19.645Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/text_calibration/strategies.py",
+      "root_cause": "13 lines replaced/restructured",
+      "fix": "Rewrote 43→70 lines (13 removed) | Also: result = np.zeros_like(normalized, dtype=np.float6; for i in range(len(normalized)):",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-24T14:37:37.563Z"
+    },
+    {
+      "id": "bug-066",
+      "timestamp": "2026-05-24T14:39:07.868Z",
+      "error_message": "Missing await",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:39:07.868Z"
+    },
+    {
+      "id": "bug-067",
+      "timestamp": "2026-05-24T14:39:28.991Z",
+      "error_message": "Missing await",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:39:28.991Z"
+    },
+    {
+      "id": "bug-068",
+      "timestamp": "2026-05-24T14:39:44.877Z",
+      "error_message": "Missing await",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:39:44.877Z"
+    },
+    {
+      "id": "bug-069",
+      "timestamp": "2026-05-24T14:40:46.955Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "43 lines replaced/restructured",
+      "fix": "Rewrote 51→26 lines (43 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:40:46.955Z"
+    },
+    {
+      "id": "bug-070",
+      "timestamp": "2026-05-24T14:41:05.704Z",
+      "error_message": "Missing await",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call | Also: const handleParsePaste = useCallback(async () => {; // Generate a synthetic file name so Python TextCorpusReader | Also: const sizeError = checkFileSize(file);; if (sizeError) {",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-05-24T14:41:24.116Z"
     }
   ]
 }

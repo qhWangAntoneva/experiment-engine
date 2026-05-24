@@ -60,6 +60,13 @@ interface UseQCAWorkflowReturn {
   /** Export current results */
   runExport: (format: 'csv' | 'json' | 'latex') => Promise<Blob>;
 
+  /** Load a text corpus from raw content via Python TextCorpusReader */
+  loadCorpus: (
+    fileName: string,
+    content: string,
+    format: 'csv' | 'json' | 'txt',
+  ) => Promise<TextCorpusEntry[]>;
+
   /** Abort any running operation */
   abort: () => void;
 }
@@ -295,6 +302,18 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
     [bridge, state.analysisResult]
   );
 
+  const loadCorpusFn = useCallback(
+    async (
+      fileName: string,
+      content: string,
+      format: 'csv' | 'json' | 'txt',
+    ): Promise<TextCorpusEntry[]> => {
+      await ensureReady();
+      return bridge.loadCorpus(fileName, content, format);
+    },
+    [ensureReady, bridge],
+  );
+
   const abort = useCallback(() => {
     // Web Workers cannot be cancelled mid-operation, but we can terminate and re-create
     bridge.terminate();
@@ -308,6 +327,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
     runPrototypeFullPipeline,
     runAnalyzeOnly,
     runExport,
+    loadCorpus: loadCorpusFn,
     abort,
   };
 }

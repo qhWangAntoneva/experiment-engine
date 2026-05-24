@@ -273,7 +273,7 @@ export type PyodideWorkerRequest =
   | { type: 'init'; payload: { packages: string[] } }
   | { type: 'calibrate'; payload: { texts: TextCorpusEntry[]; conditionSet: ConditionSet } }
   | { type: 'calibrate_prototype'; payload: { texts: TextCase[]; conditionSet: ConditionSet } }
-  | { type: 'load_corpus'; payload: { source: CorpusSource } }
+  | { type: 'load_corpus'; payload: { fileName: string; content: string; format: 'csv' | 'json' | 'txt' } }
   | { type: 'analyze'; payload: { fuzzyData: FuzzySetDataJSON; params: QCAAnalysisParams } }
   | { type: 'run_robustness'; payload: { fuzzyData: FuzzySetDataJSON; analysisResult: QCAAnalysisResultJSON } }
   | { type: 'run_counterfactuals'; payload: { fuzzyData: FuzzySetDataJSON; analysisResult: QCAAnalysisResultJSON } }

@@ -466,3 +466,21 @@
 | 22:24 | Edited HACK.md | 8→7 lines | ~104 |
 | 22:24 | Edited HACK.md | 4→4 lines | ~24 |
 | 22:25 | Edited HACK.md | 4→4 lines | ~24 |
+| 22:31 | Session end: 23 writes across 9 files (framework.py, qca.py, training.py, __init__.py, FIXME.md) | 15 reads | ~65018 tok |
+| 22:37 | Edited src/experiment_engine/text_calibration/strategies.py | modified calibrate() | ~761 |
+| 22:37 | Edited src/experiment_engine/text_calibration/strategies.py | modified calibrate() | ~618 |
+| 22:37 | Edited src/experiment_engine/text_calibration/strategies.py | modified errstate() | ~100 |
+| 22:38 | Edited src/experiment_engine/pyodide_handlers.py | modified handle_load_corpus() | ~443 |
+| 22:39 | Edited src/services/pyodide.worker.ts | modified handleLoadCorpus() | ~203 |
+| 22:39 | Edited src/services/pyodide.worker.ts | 3→7 lines | ~51 |
+| 22:39 | Edited src/types/qca.ts | inline fix | ~31 |
+| 22:39 | Edited src/services/pyodide.ts | isArray() → read() | ~161 |
+| 22:39 | Edited src/hooks/useQCAWorkflow.ts | expanded (+7 lines) | ~76 |
+| 22:39 | Edited src/hooks/useQCAWorkflow.ts | modified useCallback() | ~199 |
+| 22:40 | Edited src/pages/DataInput.tsx | added 2 condition(s) | ~275 |
+| 22:40 | Edited src/pages/DataInput.tsx | 6→7 lines | ~44 |
+| 22:41 | Edited src/pages/DataInput.tsx | added 1 condition(s) | ~274 |
+| 22:41 | Edited src/pages/DataInput.tsx | modified catch() | ~183 |
+| 22:41 | Edited src/pages/DataInput.tsx | added 1 condition(s) | ~236 |
+| %H:%M | P1-17: vectorized DirectCalibration + IndirectCalibration in strategies.py (for-loop → np.select) | strategies.py | 12/12 calibration tests pass, no warnings | ~1800 |
+| %H:%M | P1-16: moved text parsing from frontend to Python TextCorpusReader via worker | pyodide_handlers.py, pyodide.worker.ts, pyodide.ts, qca.ts, useQCAWorkflow.ts, DataInput.tsx | removed parseTextContent(), added detectCorpusFormat() + checkFileSize() frontend helpers | ~2500 |

@@ -115,56 +115,31 @@ const DOMAIN_LABELS: Record<TextDomain, string> = {
   gov_responsiveness: 'Gov Responsiveness',
 };
 
-// ─── Helper: parse uploaded text into TextCorpusEntry[] ────────────────────
+// ─── Frontend-only helpers: file detection (lightweight pre-checks) ────────
+// All actual text parsing is delegated to Python's TextCorpusReader
+// via the Pyodide worker to avoid duplicating CSV/JSON/TXT logic.
 
-function parseTextContent(content: string, format: 'csv' | 'json' | 'txt'): TextCorpusEntry[] {
-  switch (format) {
-    case 'csv': {
-      const lines = content.split('\n').filter((l) => l.trim());
-      if (lines.length === 0) return [];
-      // Auto-detect header
-      const firstLine = lines[0].toLowerCase();
-      const hasHeader = firstLine.includes('text') || firstLine.includes('id') || firstLine.includes('content');
-      const start = hasHeader ? 1 : 0;
+/** Detect corpus format from file extension (frontend pre-check only). */
+function detectCorpusFormat(fileName: string): 'csv' | 'json' | 'txt' {
+  const lower = fileName.toLowerCase();
+  if (lower.endsWith('.csv')) return 'csv';
+  if (lower.endsWith('.json')) return 'json';
+  return 'txt';
+}
 
-      return lines.slice(start).map((line, i) => {
-        // Support both comma and tab separators
-        const sep = line.includes('\t') ? '\t' : ',';
-        const parts = line.split(sep).map((p) => p.trim().replace(/^"|"$/g, ''));
-        return {
-          text_id: parts[0] || `case_${i + 1}`,
-          text: parts[1] || parts[0],
-          metadata: parts.length > 2 ? { source: parts[2] } : {},
-        };
-      });
-    }
-    case 'json': {
-      try {
-        const parsed = JSON.parse(content);
-        const arr = Array.isArray(parsed) ? parsed : parsed.data || parsed.cases || [];
-        return arr.map((item: any, i: number) => ({
-          text_id: item.id || item.text_id || `case_${i + 1}`,
-          text: item.text || item.content || String(item),
-          metadata: item.metadata || {},
-        }));
-      } catch {
-        throw new Error('Invalid JSON format. Expected array of objects with "text" field.');
-      }
-    }
-    case 'txt':
-    default: {
-      // Split by double newline for paragraph-level cases
-      const paragraphs = content
-        .split(/\n\s*\n/)
-        .map((p) => p.trim())
-        .filter(Boolean);
-      return paragraphs.map((p, i) => ({
-        text_id: `txt_${i + 1}`,
-        text: p,
-        metadata: {},
-      }));
-    }
+/** Maximum upload file size: 10 MB. */
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+
+/**
+ * Check that a File object is within the acceptable size limit.
+ * Returns an error message string on failure, or null if OK.
+ */
+function checkFileSize(file: File): string | null {
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+    return `File too large: ${sizeMB} MB (max 10 MB)`;
   }
+  return null;
 }
 
 // ─── Prototype mode helpers ────────────────────────────────────────────────
@@ -292,6 +267,7 @@ export default function DataInput() {
     runCalibrateOnly,
     runPrototypeCalibration,
     runPrototypeFullPipeline,
+    loadCorpus,
   } = useQCAWorkflow();
 
   // ─── Calibration mode ────────────────────────────────────────────────────
@@ -324,17 +300,19 @@ export default function DataInput() {
       const file = event.target.files?.[0];
       if (!file) return;
 
-      const format = file.name.endsWith('.json')
-        ? 'json'
-        : file.name.endsWith('.csv')
-          ? 'csv'
-          : 'txt';
+      const sizeError = checkFileSize(file);
+      if (sizeError) {
+        setValidationMessage(`Error: ${sizeError}`);
+        return;
+      }
+
+      const format = detectCorpusFormat(file.name);
 
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         try {
           const content = e.target?.result as string;
-          const entries = parseTextContent(content, format);
+          const entries = await loadCorpus(file.name, content, format);
           setTexts(entries);
           setValidationMessage(`Loaded ${entries.length} cases from ${file.name}`);
         } catch (err: any) {
@@ -346,18 +324,24 @@ export default function DataInput() {
       };
       reader.readAsText(file, 'UTF-8');
     },
-    []
+    [loadCorpus]
   );
 
-  const handleParsePaste = useCallback(() => {
+  const handleParsePaste = useCallback(async () => {
     try {
-      const entries = parseTextContent(pasteContent, pasteFormat);
+      // Generate a synthetic file name so Python TextCorpusReader
+      // can detect the format from the extension.
+      const fileName =
+        pasteFormat === 'csv' ? 'pasted.csv'
+        : pasteFormat === 'json' ? 'pasted.json'
+        : 'pasted.txt';
+      const entries = await loadCorpus(fileName, pasteContent, pasteFormat);
       setTexts(entries);
       setValidationMessage(`Parsed ${entries.length} cases from pasted text`);
     } catch (err: any) {
       setValidationMessage(`Parse error: ${err.message}`);
     }
-  }, [pasteContent, pasteFormat]);
+  }, [pasteContent, pasteFormat, loadCorpus]);
 
   const handleYamlChange = useCallback((value: string) => {
     setYamlContent(value);
@@ -368,17 +352,19 @@ export default function DataInput() {
     const file = e.dataTransfer.files?.[0];
     if (!file) return;
 
-    const format = file.name.endsWith('.json')
-      ? 'json'
-      : file.name.endsWith('.csv')
-        ? 'csv'
-        : 'txt';
+    const sizeError = checkFileSize(file);
+    if (sizeError) {
+      setValidationMessage(`Error: ${sizeError}`);
+      return;
+    }
+
+    const format = detectCorpusFormat(file.name);
 
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       try {
         const content = ev.target?.result as string;
-        const entries = parseTextContent(content, format);
+        const entries = await loadCorpus(file.name, content, format);
         setTexts(entries);
         setValidationMessage(`Loaded ${entries.length} cases from ${file.name}`);
       } catch (err: any) {
@@ -386,7 +372,7 @@ export default function DataInput() {
       }
     };
     reader.readAsText(file, 'UTF-8');
-  }, []);
+  }, [loadCorpus]);
 
   // ─── Prototype mode handlers ─────────────────────────────────────────────
 

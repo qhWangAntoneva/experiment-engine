@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T14:25:18.206Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T14:41:24.098Z
 > Files: 107 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
@@ -68,7 +68,7 @@
 - `config.py` — YAML/JSON 配置加载 + merge_defaults + CLI 覆盖 (~800 tok)
 - `pipeline.py` — Pipeline and Stage abstract base classes. (~5114 tok)
 - `plugins.py` — BasePlugin + PluginRegistry + @register_stage (~1200 tok)
-- `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~3518 tok)
+- `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~3954 tok)
 
 ## src/experiment_engine/algorithms/
 
@@ -126,7 +126,7 @@
 - `domains.py` — Pre-built keyword dictionaries for 5 text domains (~2655 tok)
 - `keyword_dict.py` — Chinese keyword matching engine using character n-gram (~1774 tok)
 - `prototype_similarity.py` — Prototype-based text similarity engine for QCA fuzzy-set calibration. (~1137 tok)
-- `strategies.py` — Calibration strategy pattern — pluggable fuzzy-set calibration algorithms. (~2674 tok)
+- `strategies.py` — Calibration strategy pattern — pluggable fuzzy-set calibration algorithms. (~3184 tok)
 - `training.py` — Training engine for fitting calibration parameters (~2252 tok)
 
 ## src/experiment_engine/viz/
@@ -142,7 +142,7 @@
 ## src/hooks/
 
 - `usePyodide.ts` — React hook wrapping the Pyodide bridge singleton. (~452 tok)
-- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. Has keyword + prototype calibration workflow methods. (~2900 tok)
+- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. (~2794 tok)
 
 ## src/layouts/
 
@@ -154,7 +154,7 @@
 - `Dashboard.css` — Styles: 22 rules (~534 tok)
 - `Dashboard.tsx` — Dashboard — QCA pipeline overview with pipeline status widget (~2824 tok)
 - `DataInput.css` — Styles: 11 rules (~398 tok)
-- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor + prototype calibration mode. (~13000 tok)
+- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~11370 tok)
 - `Results.css` — Styles: 17 rules (~484 tok)
 - `Results.tsx` — Results — displays all QCA analysis output (~3472 tok)
 - `Settings.css` — Styles: 16 rules (~443 tok)
@@ -167,8 +167,8 @@
 
 ## src/services/
 
-- `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~3295 tok)
-- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~4552 tok)
+- `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~3322 tok)
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~4635 tok)
 
 ## src/store/
 
@@ -177,7 +177,7 @@
 ## src/types/
 
 - `index.ts` — Legacy types — kept for backward compatibility (~400 tok)
-- `qca.ts` — QCA-specific TypeScript interfaces mirroring experiment_engine/models.py. (~2843 tok)
+- `qca.ts` — QCA-specific TypeScript interfaces mirroring experiment_engine/models.py. (~2856 tok)
 
 ## tests/
 
