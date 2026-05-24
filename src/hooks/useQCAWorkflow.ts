@@ -60,6 +60,12 @@ interface UseQCAWorkflowReturn {
   /** Run only analysis (fuzzy-set → QCA results), assumes data already calibrated */
   runAnalyzeOnly: (opts: {
     params?: Partial<QCAAnalysisParams>;
+    usePrototype?: boolean;
+  }) => Promise<void>;
+
+  /** Run QCA analysis on prototype fuzzy data */
+  runAnalyzeOnlyForPrototype: (opts: {
+    params?: Partial<QCAAnalysisParams>;
   }) => Promise<void>;
 
   /** Export current results */
@@ -98,6 +104,8 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
     finishCalibration,
     startAnalysis,
     finishAnalysis,
+    startPrototypeAnalysis,
+    finishPrototypeAnalysis,
     startRobustness,
     finishRobustness,
     startCounterfactuals,
@@ -141,12 +149,14 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
 
 
   const runAnalyzeOnly = useCallback(
-    async (opts: { params?: Partial<QCAAnalysisParams> }) => {
+    async (opts: { params?: Partial<QCAAnalysisParams>; usePrototype?: boolean }) => {
       try {
         await ensureReady();
 
-        if (!state.fuzzyData) {
-          throw new Error('No fuzzy-set data available. Run calibration first.');
+        const fuzzyData = opts.usePrototype ? state.prototypeFuzzyData : state.fuzzyData;
+        if (!fuzzyData) {
+          const label = opts.usePrototype ? 'prototype' : '';
+          throw new Error(`No ${label} fuzzy-set data available. Run calibration first.`);
         }
 
         const params: QCAAnalysisParams = {
@@ -154,15 +164,28 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
           ...opts.params,
         };
 
-        startAnalysis();
-        const result = await bridge.analyze(state.fuzzyData, params);
-        finishAnalysis(result);
+        if (opts.usePrototype) {
+          startPrototypeAnalysis();
+          const result = await bridge.analyze(fuzzyData, params);
+          finishPrototypeAnalysis(result);
+        } else {
+          startAnalysis();
+          const result = await bridge.analyze(fuzzyData, params);
+          finishAnalysis(result);
+        }
       } catch (err: any) {
         fail(err.message || 'Analysis failed');
         throw err;
       }
     },
-    [ensureReady, bridge, state.fuzzyData, startAnalysis, finishAnalysis, fail]
+    [ensureReady, bridge, state.fuzzyData, state.prototypeFuzzyData, startAnalysis, finishAnalysis, startPrototypeAnalysis, finishPrototypeAnalysis, fail]
+  );
+
+  const runAnalyzeOnlyForPrototype = useCallback(
+    async (opts: { params?: Partial<QCAAnalysisParams> }) => {
+      return runAnalyzeOnly({ ...opts, usePrototype: true });
+    },
+    [runAnalyzeOnly]
   );
 
   const runFullPipeline = useCallback(
@@ -193,7 +216,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
         const fuzzyData = calResult.fuzzyData;
         finishCalibration(fuzzyData, calResult.prototypeFuzzyData);
 
-        // 3. Analyze
+        // 3. Analyze (raw texts)
         const params: QCAAnalysisParams = {
           ...DEFAULT_QCA_PARAMS,
           ...opts.params,
@@ -201,6 +224,14 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
         startAnalysis();
         const result = await bridge.analyze(fuzzyData, params);
         finishAnalysis(result);
+
+        // 3b. Analyze (prototype texts) — if prototype data exists
+        const protoFuzzy = calResult.prototypeFuzzyData;
+        if (protoFuzzy) {
+          startPrototypeAnalysis();
+          const protoResult = await bridge.analyze(protoFuzzy, params);
+          finishPrototypeAnalysis(protoResult);
+        }
 
         // 4. Robustness (optional)
         if (opts.runRobustness) {
@@ -226,6 +257,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
       ensureReady, bridge, setConditionSet,
       startCalibration, finishCalibration,
       startAnalysis, finishAnalysis,
+      startPrototypeAnalysis, finishPrototypeAnalysis,
       startRobustness, finishRobustness,
       startCounterfactuals, finishCounterfactuals,
       finishExport, fail,
@@ -290,6 +322,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
     runFullPipeline,
     runCalibrateOnly,
     runAnalyzeOnly,
+    runAnalyzeOnlyForPrototype,
     runExport,
     loadCorpus: loadCorpusFn,
     importKeywords: importKeywordsFn,

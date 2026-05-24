@@ -2,6 +2,7 @@
 
 > Chronological action log. Hooks and AI append to this file automatically.
 
+| 2026-05-25 | P1-31: Verified build + committed raw-prototype contrast view (pre-existing implementation). TODO.md stats updated. | qca.ts, QCAPipelineContext.tsx, useQCAWorkflow.ts, Results.tsx, Results.css, PipelineStatus.tsx, TODO.md | npm build clean, 0 errors | ~800 |
 | 2026-05-24 | Reconciled TODO/FIXME/HACK after 3-agent requirement change review: fixed P1-15/16/17 done status, unchecked P2-20 (k=10 still hardcoded), reordered P2 section, corrected all stats tables | TODO.md, FIXME.md, HACK.md | 3 stats tables corrected, 4 checkbox fixes, 2 contradictions resolved, 1 section reordered | ~600 |
 | 2026-05-25 | BERT 架构决策定案：Explore Agent 深度复审 bert-vs-keyword-analysis.md + 技术顾问设计浏览器端双 Worker 架构 + 评审者 16 项批判 + 定量对比（86x WASM CPU 推理差距、5.9x 冷启动差距）+ 最终决议 BERT 作为 CLI 辅助工具不做主引擎 | .wolf/bert-vs-keyword-analysis.md, TODO.md, HACK.md, cerebrum.md | 文档已更新，P1-32/33 范围缩小为纯 Python CLI，P2-25/26 添加条件门控 | ~35000 |
 > Old sessions are consolidated by the daemon weekly.
@@ -730,3 +731,36 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 01:53 | Session end: 99 writes across 17 files (qca.py, qca.ts, __init__.py, strategies.py, index.ts) | 34 reads | ~61853 tok |
 | 01:57 | Edited src/pages/DataInput.tsx | 4→3 lines | ~28 |
 | 02:01 | Removed extra `)} ` on line 921 of DataInput.tsx — leftover from P0-9 calibrationMode wrapper removal | src/pages/DataInput.tsx | npx tsc -b clean, 490 pytest pass | ~50 |
+| 02:14 | Session end: 100 writes across 17 files (qca.py, qca.ts, __init__.py, strategies.py, index.ts) | 35 reads | ~73884 tok |
+| 02:18 | Session end: 100 writes across 17 files (qca.py, qca.ts, __init__.py, strategies.py, index.ts) | 36 reads | ~83938 tok |
+| 02:21 | Edited TODO.md | 4→4 lines | ~152 |
+| 02:21 | Edited TODO.md | 7→7 lines | ~271 |
+| 02:21 | Edited TODO.md | 18→16 lines | ~172 |
+| 02:21 | Session end: 103 writes across 18 files (qca.py, qca.ts, __init__.py, strategies.py, index.ts) | 36 reads | ~84575 tok |
+
+## Session: 2026-05-24 02:27
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 02:36 | Edited src/types/qca.ts | 16→18 lines | ~104 |
+| 02:36 | Edited src/types/qca.ts | 21→24 lines | ~209 |
+| 02:36 | Edited src/store/QCAPipelineContext.tsx | 2→3 lines | ~60 |
+| 02:36 | Edited src/store/QCAPipelineContext.tsx | CSS: prototypeAnalysisResult | ~67 |
+| 02:36 | Edited src/store/QCAPipelineContext.tsx | CSS: startPrototypeAnalysis, finishPrototypeAnalysis | ~64 |
+| 02:36 | Edited src/store/QCAPipelineContext.tsx | expanded (+13 lines) | ~147 |
+| 02:36 | Edited src/store/QCAPipelineContext.tsx | 3→5 lines | ~34 |
+| 02:37 | Edited src/hooks/useQCAWorkflow.ts | expanded (+6 lines) | ~112 |
+| 02:37 | Edited src/hooks/useQCAWorkflow.ts | 3→5 lines | ~34 |
+| 02:37 | Edited src/hooks/useQCAWorkflow.ts | added 1 condition(s) | ~332 |
+| 02:37 | Edited src/hooks/useQCAWorkflow.ts | expanded (+7 lines) | ~71 |
+| 02:38 | Edited src/hooks/useQCAWorkflow.ts | added 1 condition(s) | ~178 |
+| 02:38 | Edited src/hooks/useQCAWorkflow.ts | 2→3 lines | ~38 |
+| 02:39 | Edited src/hooks/useQCAWorkflow.ts | 2→3 lines | ~19 |
+| 02:39 | Edited src/components/PipelineStatus.tsx | 3→5 lines | ~76 |
+| 02:41 | Created src/pages/Results.tsx | — | ~7952 |
+| 02:41 | Edited src/pages/Results.css | modified not() | ~436 |
+| 02:47 | Session end: 17 writes across 6 files (qca.ts, QCAPipelineContext.tsx, useQCAWorkflow.ts, PipelineStatus.tsx, Results.tsx) | 8 reads | ~21171 tok |
+| 02:52 | Edited TODO.md | inline fix | ~41 |
+| 02:52 | Edited TODO.md | inline fix | ~11 |
+| 02:52 | Edited TODO.md | inline fix | ~13 |
+| 02:53 | Edited TODO.md | inline fix | ~8 |

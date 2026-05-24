@@ -53,10 +53,10 @@
 
 ### 需求变更导致的阻塞项（2026-05-24 评审者审查）
 
-- [ ] **P0-9: 消除 "原型模式" 独立管道** — 当前 `ScoringSource.PROTOTYPE` 将原型文本视为独立校准模式（前端模式选择器、独立 handler、独立 pipeline 状态）。需求澄清后：raw text 和 prototype text 是同一管道的两个输入批次，仅在最后分别输出各自的 score 和 QCA result。需统一处理管道。(工作量: L, 来源: 需求变更, @see FIXME-23)
-- [ ] **P0-10: csQCA（清晰集）校准全链路实现** — 当前 `CalibrationType` 仅含模糊集校准方法（direct/indirect/fuzzy_direct/passthrough），缺失 crisp-set 校准。需新增 `CRISP_SET` 校准类型：单一阈值将 raw score 二分为 0/1。同时需在 strategies.py、calibrator.py、truth_table.py、CLI、前端 Settings 全链路支持。(工作量: L, 来源: 需求变更, @see FIXME-24)
-- [ ] **P0-11: `FuzzySetData` 重命名为 `MembershipData`（或更通用的名称）** — 类名暗示仅支持模糊集，但实际上 0/1 crisp-set 值也通过该结构流通。csQCA 使用时会语义混淆。(工作量: M, 来源: 需求变更, @see FIXME-25)
-- [ ] **P0-12: `CalibrationType` 重命名为 `CalibrationMethod` + 析出 fsQCA/csQCA 区分** — 当前 `CalibrationType` 混合了校准算法（direct/indirect/ragin）和 set 类型区别。应新增顶层 `QCAVariant: fsQCA | csQCA` 枚举，`CalibrationMethod` 仅表示算法。(工作量: M, 来源: 需求变更, @see FIXME-26)
+- [x] **P0-9: 消除 "原型模式" 独立管道** ✅ [DONE 2026-05-25, 提交 9696999] — raw text 和 prototype text 统一为同一管道双输入批次。(工作量: L, 来源: 需求变更, @see FIXME-23)
+- [x] **P0-10: csQCA（清晰集）校准全链路实现** ✅ [DONE 2026-05-25, 提交 6bf170d] — 全链路支持 CRISP_SET + QCAVariant。(工作量: L, 来源: 需求变更, @see FIXME-24)
+- [x] **P0-11: `FuzzySetData` 重命名为 `MembershipData`** ✅ [DONE 2026-05-25, 提交 f8f2d22] — 类名 + 向后兼容别名。(工作量: M, 来源: 需求变更, @see FIXME-25)
+- [x] **P0-12: `CalibrationType` 重命名为 `CalibrationMethod` + `QCAVariant` 枚举** ✅ [DONE 2026-05-25, 提交 f8f2d22] — 类型系统重构 + CRISP_SET。(工作量: M, 来源: 需求变更, @see FIXME-26)
 
 ### 已完成的 P0
 
@@ -91,14 +91,14 @@
 
 ### 需求变更相关（原型管道统一 + csQCA）
 
-- [ ] **P1-24: 删除 `ScoringSource.PROTOTYPE` 独立分支** — calibrator.py `_compute_raw_scores()` 中 PROTOTYPE/HYBRID 分支不再是独立模式。原型相似度应作为所有条件的通用 scoring 选项之一（和 keyword 并列），而非管道级模式切换。(工作量: L, 来源: 需求变更, @see FIXME-23)
-- [ ] **P1-25: 统一 `handle_calibrate` 和 `handle_calibrate_prototype`** — pyodide_handlers.py 和 pyodide.worker.ts 中双 handler 合并为单一 `handle_calibrate(texts, conditionSet)`，支持传入两组文本（raw + prototype）。(工作量: M, 来源: 需求变更)
-- [ ] **P1-26: 前端去除 prototype/keyword mode selector** — DataInput.tsx 的模式切换器移除，原型文本输入和 raw text 输入同时可见。条件编辑器中 prototype 文本不再独占一个 tab，而是作为条件的可选字段。(工作量: L, 来源: 需求变更)
-- [ ] **P1-27: 新增 `QCAVariant` 枚举（fsQCA vs csQCA）** — models/qca.py 新增 `QCAVariant` 枚举，`ConditionSet` 新增 `qca_variant` 字段。fsQCA 使用连续模糊校准，csQCA 使用二分 crisp 校准。Settings 页新增 variant 选择开关。(工作量: M, 来源: 需求变更, @see FIXME-26)
-- [ ] **P1-28: 新增 `CrispCalibration` 策略** — strategies.py 新增 `CrispCalibration(CalibrationStrategy)`：单一阈值二分 raw score。threshold >= crossover → 1，否则 → 0。注册到 `CalibrationStrategyRegistry`。(工作量: S, 来源: 需求变更, @see FIXME-24)
-- [ ] **P1-29: TruthTableBuilder 支持 crisp-set 配置隶属度计算** — 当前 `_compute_config_membership` 用 `min(membership, 1-membership)`（模糊逻辑 AND），csQCA 需使用 `min(value, 1-value)`（布尔逻辑）。(工作量: S, 来源: 需求变更)
-- [ ] **P1-30: 前端 QCAPipelineContext 去除 prototype 专用 stage** — 移除 `calibrating-prototype`、`calibrated-prototype` stage，移除 `startPrototypeCalibration`/`finishPrototypeCalibration` action。(工作量: S, 来源: 需求变更)
-- [ ] **P1-31: Result 页新增 raw-prototype 对比视图** — 两侧并排展示 raw text 的 QCA result 和 prototype text 的 QCA result，差异高亮。(工作量: M, 来源: 需求变更)
+- [x] **P1-24: 删除 `ScoringSource.PROTOTYPE` 独立分支** ✅ [DONE 2026-05-25, 提交 9696999] — PROTOTYPE 分支已标记弃用，向后兼容保留。(工作量: L, 来源: 需求变更, @see FIXME-23)
+- [x] **P1-25: 统一 `handle_calibrate` 和 `handle_calibrate_prototype`** ✅ [DONE 2026-05-25, 提交 9696999] — 统一 handler + 旧 handler 转为 wrapper。(工作量: M, 来源: 需求变更)
+- [x] **P1-26: 前端去除 prototype/keyword mode selector** ✅ [DONE 2026-05-25, 提交 9696999] — 模式切换器已移除，双输入同时可见。(工作量: L, 来源: 需求变更)
+- [x] **P1-27: 新增 `QCAVariant` 枚举（fsQCA vs csQCA）** ✅ [DONE 2026-05-25, 提交 f8f2d22] — 枚举 + ConditionSet 字段 + Settings 开关。(工作量: M, 来源: 需求变更, @see FIXME-26)
+- [x] **P1-28: 新增 `CrispCalibration` 策略** ✅ [DONE 2026-05-25, 提交 6bf170d] — 策略 + 注册 + direction 支持。(工作量: S, 来源: 需求变更, @see FIXME-24)
+- [x] **P1-29: TruthTableBuilder 支持 crisp-set 配置隶属度计算** ✅ [DONE 2026-05-25, 提交 6bf170d] — min AND 天然兼容 0/1 数据，已文档化。(工作量: S, 来源: 需求变更)
+- [x] **P1-30: 前端 QCAPipelineContext 去除 prototype 专用 stage** ✅ [DONE 2026-05-25, 提交 9696999] — 已移除 calibrating-prototype/calibrated-prototype stage。(工作量: S, 来源: 需求变更)
+- [x] **P1-31: Result 页新增 raw-prototype 对比视图** ✅ [DONE 2026-05-25] — 两侧并排展示 raw text 的 QCA result 和 prototype text 的 QCA result，差异高亮。(工作量: M, 来源: 需求变更)
 
 ### 语义校准（BERT）路线图（客户代表分析新增）
 
@@ -172,19 +172,17 @@
 
 | 优先级 | 原始 | 已修复 | 新增(需求变更+客户代表) | 剩余 |
 |--------|------|--------|------------------------|------|
-| P0 | 8 | 8 | 4 | 4 |
-| P1 | 23 | 10 (P1-14~P1-23) | 11 | 24 |
+| P0 | 8 | 12 (P0-1~P0-12) | 4 | 0 |
+| P1 | 23 | 18 (P1-14~P1-31) | 11 | 16 |
 | P2 | 20 | 0 | 6 | 26 |
-| **合计** | **51** | **18** | **21** | **54** |
+| **合计** | **51** | **30** | **21** | **42** |
 
-预计剩余工作量：约 55-70 天（2-2.5 个全职工月），其中需求变更新增约 15-20 天，BERT 路线图约 5-10 天。
+预计剩余工作量：约 40-55 天（1.5-2 个全职工月）。P0 全部清除，P1-24~P1-30 在 P0 批次中一并完成。
 
-下一 session 建议按 P0 → P1 → P2 顺序推进，优先处理：
+> **重要架构决策（2026-05-25）**：BERT 作为辅助工具不做主引擎。关键词匹配是 QCA 方法论核心，不可替代。详见 `.wolf/bert-vs-keyword-analysis.md` 第 10 节。P1-32/33（BERT CLI 辅助工具）在 P0 完成后启动。P2-25/26（浏览器端 BERT）等待条件满足后再评估。
 
-> **重要架构决策（2026-05-25）**：BERT 作为辅助工具不做主引擎。关键词匹配是 QCA 方法论核心，不可替代。详见 `.wolf/bert-vs-keyword-analysis.md` 第 10 节。P1-32/33（BERT CLI 辅助工具）在 P0 需求变更完成后启动。P2-25/26（浏览器端 BERT）等待条件满足后再评估。
-
-1. P0-9 ~ P0-12 (需求变更导致的阻塞项：原型管道统一 + csQCA 支持)
-2. P1-24 ~ P1-31 (需求变更相关的 P1 项)
-3. P1-34 (预置词典在线编辑器)
-4. P1-1 ~ P1-13 (功能需求，按客户优先级)
-5. P1-32 + P1-33 (BERT CLI 辅助工具 — 范围已缩小为纯 Python CLI)
+**推荐推进顺序**（P0 全部完成后更新）：
+1. P1-1~P1-13 (功能需求，按客户优先级)
+2. P1-34 (预置词典在线编辑器)
+3. P1-32 + P1-33 (BERT CLI 辅助工具)
+4. P2 各项

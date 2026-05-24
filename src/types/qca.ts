@@ -40,6 +40,8 @@ export type PipelineStage =
   | 'calibrated'
   | 'analyzing'
   | 'analyzed'
+  | 'prototype-analyzing'
+  | 'prototype-analyzed'
   | 'running-robustness'
   | 'robustness-done'
   | 'running-counterfactuals'
@@ -266,6 +268,8 @@ export interface QCAPipelineState {
   /** Prototype-based calibration result (populated when prototype texts are provided) */
   prototypeFuzzyData: MembershipDataJSON | null;
   analysisResult: QCAAnalysisResultJSON | null;
+  /** Prototype-based QCA analysis result (populated when prototype texts are analyzed) */
+  prototypeAnalysisResult: QCAAnalysisResultJSON | null;
   robustnessReport: RobustnessReport | null;
   counterfactualReport: CounterfactualReport | null;
   exportFormats: string[];        // e.g. ['csv', 'json', 'latex']
@@ -282,6 +286,7 @@ export const INITIAL_PIPELINE_STATE: QCAPipelineState = {
   fuzzyData: null,
   prototypeFuzzyData: null,
   analysisResult: null,
+  prototypeAnalysisResult: null,
   robustnessReport: null,
   counterfactualReport: null,
   exportFormats: [],

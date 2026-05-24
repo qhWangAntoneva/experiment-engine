@@ -42,6 +42,7 @@ export type PipelineAction =
   | { type: 'SET_CONDITION_SET'; conditionSet: ConditionSet }
   | { type: 'SET_FUZZY_DATA'; fuzzyData: MembershipDataJSON; prototypeFuzzyData?: MembershipDataJSON }
   | { type: 'SET_ANALYSIS_RESULT'; result: QCAAnalysisResultJSON }
+  | { type: 'SET_PROTOTYPE_ANALYSIS_RESULT'; result: QCAAnalysisResultJSON }
   | { type: 'SET_ROBUSTNESS_REPORT'; report: RobustnessReport }
   | { type: 'SET_COUNTERFACTUAL_REPORT'; report: CounterfactualReport }
   | { type: 'SET_EXPORT_FORMATS'; formats: string[] }
@@ -94,6 +95,9 @@ function pipelineReducer(
     case 'SET_ANALYSIS_RESULT':
       return { ...state, analysisResult: action.result };
 
+    case 'SET_PROTOTYPE_ANALYSIS_RESULT':
+      return { ...state, prototypeAnalysisResult: action.result };
+
     case 'SET_ROBUSTNESS_REPORT':
       return { ...state, robustnessReport: action.report };
 
@@ -124,6 +128,8 @@ interface QCAPipelineContextValue {
   finishCalibration: (fuzzyData: MembershipDataJSON, prototypeFuzzyData?: MembershipDataJSON) => void;
   startAnalysis: () => void;
   finishAnalysis: (result: QCAAnalysisResultJSON) => void;
+  startPrototypeAnalysis: () => void;
+  finishPrototypeAnalysis: (result: QCAAnalysisResultJSON) => void;
   startRobustness: () => void;
   finishRobustness: (report: RobustnessReport) => void;
   startCounterfactuals: () => void;
@@ -181,6 +187,19 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
       type: 'SET_STAGE',
       stage: 'analyzed',
       message: 'QCA analysis complete',
+    });
+  }, []);
+
+  const startPrototypeAnalysis = useCallback(() => {
+    dispatch({ type: 'SET_STAGE', stage: 'prototype-analyzing', message: 'Running prototype QCA analysis...' });
+  }, []);
+
+  const finishPrototypeAnalysis = useCallback((result: QCAAnalysisResultJSON) => {
+    dispatch({ type: 'SET_PROTOTYPE_ANALYSIS_RESULT', result });
+    dispatch({
+      type: 'SET_STAGE',
+      stage: 'prototype-analyzed',
+      message: 'Prototype QCA analysis complete',
     });
   }, []);
 
@@ -243,6 +262,8 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
     finishCalibration,
     startAnalysis,
     finishAnalysis,
+    startPrototypeAnalysis,
+    finishPrototypeAnalysis,
     startRobustness,
     finishRobustness,
     startCounterfactuals,

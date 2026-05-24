@@ -17,6 +17,8 @@ function stageLabel(stage: PipelineStage): string {
     case 'calibrated': return 'Calibrated';
     case 'analyzing': return 'Analyzing...';
     case 'analyzed': return 'Analyzed';
+    case 'prototype-analyzing': return 'Analyzing Prototype...';
+    case 'prototype-analyzed': return 'Prototype Analyzed';
     case 'running-robustness': return 'Robustness...';
     case 'robustness-done': return 'Robustness Done';
     case 'exporting': return 'Exporting...';

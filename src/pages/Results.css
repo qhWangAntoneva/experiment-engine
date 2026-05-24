@@ -104,3 +104,65 @@
   border: 2px dashed var(--color-border);
   border-radius: var(--radius-lg);
 }
+
+/* ── View Mode Toggle ─────────────────────────────────────────────────── */
+
+.view-mode-toggle {
+  display: inline-flex;
+  gap: 0;
+  margin-bottom: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.view-mode-btn {
+  padding: 6px 16px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: none;
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.view-mode-btn:not(:last-child) {
+  border-right: 1px solid var(--color-border);
+}
+
+.view-mode-btn:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.view-mode-btn.active {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+/* ── Comparison Summary ────────────────────────────────────────────────── */
+
+.comparison-summary {
+  padding: 16px;
+  margin-bottom: 20px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* ── Compare Side-by-side Column ───────────────────────────────────────── */
+
+.compare-column {
+  flex: 1;
+  min-width: 0;
+}
+
+.compare-column-header {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

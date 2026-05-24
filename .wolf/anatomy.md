@@ -1,13 +1,14 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T17:57:22.519Z
-> Files: 13 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T18:53:00.644Z
+> Files: 17 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
 
 ## ./
 
+- `TODO.md` — TODO — QCA Analysis Tool (~3153 tok)
 
 ## .claude/
 
@@ -35,6 +36,7 @@
 
 ## src/components/
 
+- `PipelineStatus.tsx` — Pipeline Status Indicator — shows current stage, progress bar, elapsed time, (~1316 tok)
 
 ## src/experiment_engine/
 
@@ -75,7 +77,7 @@
 
 ## src/hooks/
 
-- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. (~2573 tok)
+- `useQCAWorkflow.ts` — Hook: Pyodide bridge to pipeline context. Includes prototype analysis workflow. (~3702 tok)
 
 ## src/layouts/
 
@@ -83,6 +85,8 @@
 ## src/pages/
 
 - `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~12003 tok)
+- `Results.css` — Styles for Results page + prototype contrast comparison view (~1362 tok)
+- `Results.tsx` — Results — QCA analysis output + raw/prototype contrast view with side-by-side comparison (~11309 tok)
 - `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~4949 tok)
 
 ## src/pyodide/
@@ -93,11 +97,11 @@
 
 ## src/store/
 
-- `QCAPipelineContext.tsx` — React Context for tracking the QCA pipeline lifecycle. (~2327 tok)
+- `QCAPipelineContext.tsx` — React Context for tracking the QCA pipeline lifecycle. Supports prototype analysis stages. (~3023 tok)
 
 ## src/types/
 
-- `qca.ts` — QCA-specific TypeScript interfaces mirroring experiment_engine/models.py. (~3181 tok)
+- `qca.ts` — QCA-specific TypeScript interfaces. Includes prototype analysis stage + result fields. (~3525 tok)
 
 ## tests/
 
