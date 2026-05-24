@@ -1012,7 +1012,7 @@ class TestCalibrateFunctions:
 
     def test_apply_calibration_invalid_enum_raises(self):
         """Invalid calibration enum value raises ValueError."""
-        with pytest.raises(ValueError, match="is not a valid CalibrationType"):
+        with pytest.raises(ValueError, match="is not a valid CalibrationMethod"):
             CalibrationType("bogus")  # type: ignore[arg-type]
 
 

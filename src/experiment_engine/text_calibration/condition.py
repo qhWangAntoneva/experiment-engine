@@ -173,6 +173,13 @@ def _condition_set_to_dict(cs: ConditionSet) -> dict:
     }
 
 
+def _kw_to_dict(k) -> dict:
+    d = {"pattern": k.pattern, "weight": k.weight, "scope": k.scope}
+    if k.notes:
+        d["notes"] = k.notes
+    return d
+
+
 def _condition_to_dict(cond: ConditionDefinition) -> dict:
     d: dict = {
         "name": cond.name,
@@ -183,10 +190,7 @@ def _condition_to_dict(cond: ConditionDefinition) -> dict:
         "scoring_source": cond.scoring_source.value,
         "hybrid_keyword_weight": cond.hybrid_keyword_weight,
         "hybrid_prototype_weight": cond.hybrid_prototype_weight,
-        "keywords": [
-            {"pattern": k.pattern, "weight": k.weight, "scope": k.scope}
-            for k in cond.keywords
-        ],
+        "keywords": [_kw_to_dict(k) for k in cond.keywords],
         "prototypes": [
             {
                 "prototype_text": p.prototype_text,

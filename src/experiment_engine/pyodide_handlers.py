@@ -388,3 +388,89 @@ def handle_validate(condition_set_path, output_path):
 
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump({"valid": valid, "warnings": warnings}, f, ensure_ascii=False)
+
+
+# ─── Import Keywords from CSV/JSON ───────────────────────────────────────────
+
+
+def handle_import_keywords(config_path, output_path):
+    """Import a keyword dictionary from CSV or JSON file on VFS.
+
+    Args:
+        config_path: VFS path to JSON dict with keys:
+            ``vfs_file`` (str) — path on VFS where the raw file content lives.
+            ``format`` (str) — ``"csv"`` or ``"json"``.
+            ``domain`` (str) — text domain for the resulting ConditionSet.
+            ``name`` (str) — optional ConditionSet name.
+        output_path: VFS path to write the JSON-serialized ConditionSet.
+    """
+    from experiment_engine.text_calibration.condition import _condition_set_to_dict
+    from experiment_engine.text_calibration.keyword_io import (
+        import_keywords_csv,
+        import_keywords_json,
+    )
+
+    with open(config_path, encoding="utf-8") as f:
+        _config = json.load(f)
+
+    _vfs_file = _config["vfs_file"]
+    _fmt = _config["format"]
+    _domain = _config.get("domain", "dissatisfaction")
+    _name = _config.get("name", "imported_keywords")
+
+    if _fmt == "csv":
+        _cs = import_keywords_csv(_vfs_file, domain=_domain, name=_name)
+    elif _fmt == "json":
+        _cs = import_keywords_json(_vfs_file, name=_name)
+    else:
+        raise ValueError(f"Unknown keywords import format: {_fmt}")
+
+    _out = _condition_set_to_dict(_cs)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(_out, f, ensure_ascii=False)
+
+
+# ─── Export Keywords to CSV/JSON ─────────────────────────────────────────────
+
+
+def handle_export_keywords(condition_set_path, config_path, output_path):
+    """Export a ConditionSet keyword dictionary to CSV or JSON.
+
+    Args:
+        condition_set_path: VFS path to JSON dict of ConditionSet.
+        config_path: VFS path to JSON dict with ``format`` key
+            (``"csv"`` or ``"json"``).
+        output_path: VFS path to write an output descriptor JSON with
+            keys ``data`` (exported content string) and
+            ``mime`` (MIME type string).
+    """
+    from experiment_engine.text_calibration.condition import _condition_set_from_dict
+    from experiment_engine.text_calibration.keyword_io import (
+        export_keywords_csv,
+        export_keywords_json,
+    )
+
+    with open(condition_set_path, encoding="utf-8") as f:
+        _cs_dict = json.load(f)
+    with open(config_path, encoding="utf-8") as f:
+        _config = json.load(f)
+
+    _cs = _condition_set_from_dict(_cs_dict)
+    _fmt = _config.get("format", "json")
+
+    # Write to a temp VFS file, then read back as string
+    _tmp_out = "/tmp/keywords_export_result"
+    if _fmt == "csv":
+        export_keywords_csv(_cs, _tmp_out)
+        _mime = "text/csv"
+    elif _fmt == "json":
+        export_keywords_json(_cs, _tmp_out)
+        _mime = "application/json"
+    else:
+        raise ValueError(f"Unknown keywords export format: {_fmt}")
+
+    with open(_tmp_out, encoding="utf-8") as f:
+        _data = f.read()
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump({"data": _data, "mime": _mime}, f, ensure_ascii=False)

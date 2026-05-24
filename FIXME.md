@@ -1,6 +1,6 @@
 # FIXME — QCA Analysis Tool
 
-> 自动生成于 2026-05-24 | 最后更新：2026-05-24 (需求变更审查)
+> 自动生成于 2026-05-24 | 最后更新：2026-05-24 (BERT-vs-关键词分析)
 > 严重程度：🔴 = 严重/必须修 | 🟡 = 警告/建议修 | 🟢 = 建议/锦上添花
 
 ---
@@ -231,25 +231,52 @@
 **修复**: (1) DataInput 页面添加"Edit Preset Dictionary"按钮，打开 inline 编辑表格（condition + keyword + weight + scope）；(2) 修改保存到 localStorage；(3) 添加"恢复默认词典"按钮。长期可考虑数据库持久化。(@see TODO P1-34, HACK-13)
 **来源**: 客户代表#2026-05-24
 
-### FIXME-33: 产品路线图 — BERT 语义校准无产品定位文档 [NEW 客户代表]
+### ~~FIXME-33: 产品路线图 — BERT 语义校准无产品定位文档~~ [已解决 2026-05-24]
 
-**文件**: N/A（产品设计文档缺失）
+**文件**: `.wolf/bert-vs-keyword-analysis.md` (新增)
+**修复**: 产出完整 BERT-vs-关键词架构分析（~6000 字），回答：BERT 能否完全替代关键词匹配（结论：否），BERT 与关键词的根本区别（理论操作化 vs 统计相似度），Pyodide/WASM 技术可行性（BERT 必须在 JS 侧运行），4 个方案对比，阶段性推荐路径。
+**提交**: 本分析
+
+### FIXME-34: keyword_dict.py — bigram 切词导致否定词构造被误匹配到反向条件 [NEW 技术顾问分析]
+
+**文件**: `src/experiment_engine/text_calibration/keyword_dict.py:32-58`
+**严重程度**: 🟡 警告
+**问题**: 文本"我对政府服务不满意"经 bigram 分词后为["我对", "对政", "政府", "府服", "服务", "务不", "不满", "满意"]。其中"满意"是一个独立 bigram，可以被 trust 领域的"满意"关键词（权重 0.6）匹配，导致同一条文本在 dissatisfaction 和 trust 两个互斥条件上都获得正分。这是 bigram 分词的固有限制——它无法识别"不满" 对 "满意" 的否定修饰关系。
+
+此问题与 FIXME-14（跨标点误匹配）同源但语义影响不同：FIXME-14 是跨句误匹配，本题是同一合成词内反向误匹配，对互斥条件对（dissatisfaction vs trust, dissatisfaction vs gov_responsiveness）的语义区分度有直接影响。
+**修复**: 在无 jieba 依赖约束下，可选方案：(1) 在分词时检测否定前缀（"不"、"没"、"无"等）并将后续字符标记为否定上下文；(2) 为互斥条件对（如 dissatisfaction 和 trust）设置互斥约束——同一文本在互斥条件上的分数不能同时高；(3) 引入 BERT 语义验证通道，标记存在否定构造的文本供人工审查。方案 (3) 与 BERT 路线图（P1-32/33）直接相关。
+**来源**: 技术顾问 BERT-vs-关键词分析#2026-05-24
+
+### FIXME-35: models/qca.py:41-47 — ScoringSource 枚举封闭，无 BERT/SEMANTIC 预留 [NEW 技术顾问分析]
+
+**文件**: `src/experiment_engine/models/qca.py`
+**严重程度**: 🟡 警告
+**问题**: `ScoringSource` 枚举目前仅有 `KEYWORD`、`PROTOTYPE`、`HYBRID` 三个值。BERT 语义相似度作为一种本质不同的 scoring 来源（需要 JS 侧推理、不同的 raw score 分布特征、不同的用户输入要求），在枚举中无预留位置。将来新增 BERT scoring 时需要修改 `ScoringSource` 枚举 + `_compute_raw_scores` 分支 + `calibrator.py` + 前端 TS 类型 + Worker handler，属于破坏性变更。
+
+HACK-17 记录了此设计缺口。本 FIXME 补充其严重程度和具体影响范围。
+**修复**: 在实现 P1-32（BERT 产品定位）阶段，提前在 `ScoringSource` 中新增 `BERT = "bert"` 值，并在 `_compute_raw_scores` 添加占位分支（抛出 NotImplementedError 附带提示信息）。这样 P2-25（条件级混合模式）实现时无需修改枚举定义。
+**来源**: 技术顾问 BERT-vs-关键词分析#2026-05-24
+
+### FIXME-36: strategies.py — 所有校准策略假设 raw score 来自关键词匹配的分布 [NEW 技术顾问分析]
+
+**文件**: `src/experiment_engine/text_calibration/strategies.py`
 **严重程度**: 🟢 建议
-**问题**: TODO P2-14 仅有一条"语义校准 — sentence-transformers 中文模型"的粗粒度描述，缺失：(1) 关键词匹配 vs BERT 语义匹配的适用场景划分；(2) 用户如何在两者之间选择；(3) BERT 与关键词的互补关系（而非替代关系）；(4) 用户是否需要"混合模式"（按条件粒度选择匹配方式）。
-**用户影响**: 如果直接将 BERT 作为"更好的关键词匹配"引入，用户会失去关键词匹配的高可解释性优势，同时无法理解 BERT 的判断依据（黑盒焦虑），反而降低对分析结果的信任度。
-**修复**: 产出产品定位文档，明确：(1) BERT 是补充不是替代；(2) 默认推荐"先用关键词匹配，再用 BERT 验证差异"的工作流；(3) 用户可按条件粒度选择匹配方式。将 BERT 路线图拆分为 P1-32（产品定位设计）、P1-33（可行性 PoC）、P2-25（混合模式）、P2-26（可解释性视图）。(@see TODO P1-32, P1-33)
-**来源**: 客户代表#2026-05-24
+**问题**: DirectCalibration、IndirectCalibration、RaginCalibration 三个策略类均通过 min-max 归一化（`(raw - min) / (max - min)`）将 raw score 映射到 [0,1]。这个归一化步骤假设 raw score 来自关键词匹配的计数求和分布（非负、有界、右偏）。BERT 余弦相似度的分布特征不同（理论范围 [0,1] 或 [-1,1]，实际集中在 [0.3, 0.9]，近似正态而非右偏），当前校准公式的交叉点设定和 logistic steepness 参数 k=10（见 FIXME-22）可能不适合 BERT 相似度的分布。
+
+这不是算法 bug——当前公式对关键词是正确的——但 BERT 集成后，用户可能对同一 `CalibrationParams` 配置在 keyword 和 BERT 两种 scoring 来源下产生不同的隶属度分布感到困惑。
+**修复**: (1) 为 BERT 相似度提供专用的默认校准参数建议（如阈值 full_in=0.85, full_out=0.40, crossover=0.65）；(2) 在 calibrator 中添加 raw score 分布诊断输出（mean, std, skew），帮助用户判断校准参数是否合理；(3) 长期可将校准参数的默认值与 ScoringSource 绑定。
+**来源**: 技术顾问 BERT-vs-关键词分析#2026-05-24
 
 ---
 
 ## 统计
 
-| 严重程度 | 原始 | 已修复 | 新增(需求变更+客户代表) | 剩余 |
+| 严重程度 | 原始 | 已修复 | 新增(需求变更+客户代表+技术顾问) | 剩余 |
 |----------|------|--------|----------------------|------|
 | 🔴 严重 | 5 (FIXME-1~5) | 5 | 2 | 2 (FIXME-23, 24) |
-| 🟡 警告 | 11 (FIXME-6~16) | 10 (FIXME-6~13, 15, 16) | 6 | 7 (FIXME-14, 25, 26, 27, 29, 30, 31) |
-| 🟢 建议 | 6 (FIXME-17~22) | 4 (FIXME-17, 18, 20, 21) | 3 | 5 (FIXME-19, 22, 28, 32, 33) |
-| **合计** | **22** | **19** | **11** | **14** |
+| 🟡 警告 | 11 (FIXME-6~16) | 10 (FIXME-6~13, 15, 16) | 8 | 9 (FIXME-14, 25, 26, 27, 29, 30, 31, 34, 35) |
+| 🟢 建议 | 6 (FIXME-17~22) | 5 (FIXME-17, 18, 20, 21, 33) | 4 | 5 (FIXME-19, 22, 28, 32, 36) |
+| **合计** | **22** | **20** | **14** | **16** |
 
 下一次 session 建议优先处理：
 1. 🔴 FIXME-23 → prototype 独立管道错误假设（阻塞所有 raw/prototype 统一工作）
@@ -258,4 +285,5 @@
 4. 🟡 FIXME-31 → DataInput 强制 raw/prototype 二选一（前端体验阻塞项）
 5. 🟡 FIXME-30 → Results 无并排对比视图（前端体验阻塞项）
 6. 🟡 FIXME-25/26/27 → 模型重命名和重构（需求变更阻塞项 P0-11/12）
-7. 其余按严重程度递减
+7. 🟡 FIXME-34/35/36 → BERT 架构预留（P1-32 阶段实现，非当前阻塞项）
+8. 其余按严重程度递减

@@ -1199,6 +1199,470 @@
       "related_bugs": [],
       "occurrences": 3,
       "last_seen": "2026-05-24T14:41:24.116Z"
+    },
+    {
+      "id": "bug-071",
+      "timestamp": "2026-05-24T14:51:12.956Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/text_calibration/condition.py",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→3 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:51:12.956Z"
+    },
+    {
+      "id": "bug-072",
+      "timestamp": "2026-05-24T14:53:37.663Z",
+      "error_message": "Missing await",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:53:37.663Z"
+    },
+    {
+      "id": "bug-073",
+      "timestamp": "2026-05-24T14:55:10.856Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:55:10.856Z"
+    },
+    {
+      "id": "bug-074",
+      "timestamp": "2026-05-24T14:55:29.730Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:55:29.730Z"
+    },
+    {
+      "id": "bug-075",
+      "timestamp": "2026-05-24T14:55:37.203Z",
+      "error_message": "CSS fix: conditionSet",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "conditionSet: yamlContent as any, // Worker will parse YAML → importedConditionSet || (yamlContent as any), // Use imported dict if available",
+      "fix": "Changed conditionSet: yamlContent as any, // Worker will parse YAML → importedConditionSet || (yamlContent as any), // Use imported dict if available",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-24T14:55:42.245Z"
+    },
+    {
+      "id": "bug-076",
+      "timestamp": "2026-05-24T14:56:25.499Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:56:25.499Z"
+    },
+    {
+      "id": "bug-077",
+      "timestamp": "2026-05-24T14:57:12.593Z",
+      "error_message": "Type error",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:57:12.593Z"
+    },
+    {
+      "id": "bug-078",
+      "timestamp": "2026-05-24T14:58:49.564Z",
+      "error_message": "Wrong reference: DescribeImportKeywordsCSV should be TestImportKeywordsCSV",
+      "file": "tests/test_keyword_io.py",
+      "root_cause": "Used \"DescribeImportKeywordsCSV\" instead of \"TestImportKeywordsCSV\"",
+      "fix": "Changed DescribeImportKeywordsCSV → TestImportKeywordsCSV",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 4,
+      "last_seen": "2026-05-24T14:58:50.594Z"
+    },
+    {
+      "id": "bug-079",
+      "timestamp": "2026-05-24T15:03:00.285Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/experiment_engine/text_calibration/keyword_io.py",
+      "root_cause": "Had \", encoding=\"",
+      "fix": "Changed to \"utf-8\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T15:03:00.285Z"
+    },
+    {
+      "id": "bug-080",
+      "timestamp": "2026-05-24T15:18:23.864Z",
+      "error_message": "Significant refactor of ",
+      "file": "TODO.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 17→26 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T15:18:23.864Z"
+    },
+    {
+      "id": "bug-081",
+      "timestamp": "2026-05-24T15:20:09.846Z",
+      "error_message": "Significant refactor of ",
+      "file": "FIXME.md",
+      "root_cause": "22 lines replaced/restructured",
+      "fix": "Rewrote 38→46 lines (22 removed) | Also: | 🔴 严重 | 6 | 6 | 0 |; | 🟡 警告 | 10 | 9 | 1 (FIXME-14) | | Also: | 严重程度 | 原始 | 已修复 | 剩余 |; |----------|------|--------|------|",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-05-24T15:23:14.006Z"
+    },
+    {
+      "id": "bug-082",
+      "timestamp": "2026-05-24T15:23:17.184Z",
+      "error_message": "Wrong reference: csQCA should be fsQCA",
+      "file": "TODO.md",
+      "root_cause": "Used \"csQCA\" instead of \"fsQCA\"",
+      "fix": "Changed csQCA → fsQCA",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T15:23:17.184Z"
+    },
+    {
+      "id": "bug-083",
+      "timestamp": "2026-05-24T15:23:44.203Z",
+      "error_message": "Significant refactor of ",
+      "file": ".claude/worktrees/agent-a182dd20ad100bc90/.wolf/cerebrum.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 3→3 lines (2 removed) | Also: **推荐的开工顺序**（P1 优先）：; 1. P1-15 → 校准器策略模式重构（解决 HACK-6） | Also: - `TODO.md` — 36 项待办（0 P0 + 16 P1 + 20 P2），P0 全部完成; - `FIXME.md` — 3 项剩余缺陷（1 🟡警告 + 2 🟢建议），19/22 已修复",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-05-24T15:24:04.376Z"
+    },
+    {
+      "id": "bug-084",
+      "timestamp": "2026-05-24T15:47:23.973Z",
+      "error_message": "Significant refactor of ",
+      "file": "FIXME.md",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 8→35 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T15:47:23.973Z"
+    },
+    {
+      "id": "bug-085",
+      "timestamp": "2026-05-24T15:48:05.579Z",
+      "error_message": "Significant refactor of ",
+      "file": "HACK.md",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 8→21 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T15:48:05.579Z"
+    },
+    {
+      "id": "bug-086",
+      "timestamp": "2026-05-24T16:46:37.378Z",
+      "error_message": "Significant refactor of ",
+      "file": "TODO.md",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 6→14 lines (5 removed) | Also: ### BERT 深度集成（客户代表分析新增，依赖 P1-33 PoC 通过）; - [ ] **P2-25: 条件级\"混合模式\"配置** [用户故事] 作为研究者，我对\"不满\"条件",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-24T16:47:11.026Z"
+    },
+    {
+      "id": "bug-087",
+      "timestamp": "2026-05-24T16:55:59.297Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/models/qca.py",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 10→25 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T16:55:59.297Z"
+    },
+    {
+      "id": "bug-088",
+      "timestamp": "2026-05-24T16:56:42.338Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "src/experiment_engine/models/qca.py",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T16:56:42.338Z"
+    },
+    {
+      "id": "bug-089",
+      "timestamp": "2026-05-24T16:56:54.598Z",
+      "error_message": "Wrong reference: CalibrationType should be CalibrationMethod",
+      "file": "src/types/qca.ts",
+      "root_cause": "Used \"CalibrationType\" instead of \"CalibrationMethod\"",
+      "fix": "Changed CalibrationType → CalibrationMethod",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-05-24T16:57:13.728Z"
+    },
+    {
+      "id": "bug-090",
+      "timestamp": "2026-05-24T16:57:29.534Z",
+      "error_message": "Wrong reference: CalibrationType should be CalibrationMethod",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Used \"CalibrationType\" instead of \"CalibrationMethod\"",
+      "fix": "Changed CalibrationType → CalibrationMethod",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-24T16:59:07.696Z"
+    },
+    {
+      "id": "bug-091",
+      "timestamp": "2026-05-24T16:57:29.978Z",
+      "error_message": "CSS fix: calibration_type",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "calibration_type: 'direct' as CalibrationType, → CalibrationMethod.DIRECT,",
+      "fix": "Changed calibration_type: 'direct' as CalibrationType, → CalibrationMethod.DIRECT,",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T16:57:29.978Z"
+    },
+    {
+      "id": "bug-092",
+      "timestamp": "2026-05-24T16:57:40.405Z",
+      "error_message": "Wrong reference: CalibrationType should be CalibrationMethod",
+      "file": "src/experiment_engine/text_calibration/strategies.py",
+      "root_cause": "Used \"CalibrationType\" instead of \"CalibrationMethod\"",
+      "fix": "Changed CalibrationType → CalibrationMethod",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T16:57:40.405Z"
+    },
+    {
+      "id": "bug-093",
+      "timestamp": "2026-05-24T16:57:46.819Z",
+      "error_message": "Wrong return value",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Was returning: this.send<FuzzySetDataJSON>(",
+      "fix": "Now returns: this.send<MembershipDataJSON>(",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T16:57:46.819Z"
+    },
+    {
+      "id": "bug-094",
+      "timestamp": "2026-05-24T16:57:47.301Z",
+      "error_message": "Wrong reference: FuzzySetDataJSON should be MembershipDataJSON",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Used \"FuzzySetDataJSON\" instead of \"MembershipDataJSON\"",
+      "fix": "Changed FuzzySetDataJSON → MembershipDataJSON",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 4,
+      "last_seen": "2026-05-24T16:58:24.978Z"
+    },
+    {
+      "id": "bug-095",
+      "timestamp": "2026-05-24T16:58:09.671Z",
+      "error_message": "Wrong reference: FuzzySetDataJSON should be MembershipDataJSON",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Used \"FuzzySetDataJSON\" instead of \"MembershipDataJSON\"",
+      "fix": "Changed FuzzySetDataJSON → MembershipDataJSON",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T16:58:09.671Z"
+    },
+    {
+      "id": "bug-096",
+      "timestamp": "2026-05-24T16:58:10.055Z",
+      "error_message": "Wrong reference: FuzzySetDataJSON should be MembershipDataJSON",
+      "file": "src/components/DistributionPlot.tsx",
+      "root_cause": "Used \"FuzzySetDataJSON\" instead of \"MembershipDataJSON\"",
+      "fix": "Changed FuzzySetDataJSON → MembershipDataJSON",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T16:58:10.055Z"
+    },
+    {
+      "id": "bug-097",
+      "timestamp": "2026-05-24T16:58:10.545Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "src/pyodide/engine.ts",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T16:58:10.545Z"
+    },
+    {
+      "id": "bug-098",
+      "timestamp": "2026-05-24T16:58:18.953Z",
+      "error_message": "Wrong reference: CalibrationType should be CalibrationMethod",
+      "file": "src/experiment_engine/text_calibration/calibrator.py",
+      "root_cause": "Used \"CalibrationType\" instead of \"CalibrationMethod\"",
+      "fix": "Changed CalibrationType → CalibrationMethod",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-24T17:01:58.790Z"
+    },
+    {
+      "id": "bug-099",
+      "timestamp": "2026-05-24T17:01:59.160Z",
+      "error_message": "Wrong reference: CalibrationType should be CalibrationMethod",
+      "file": "tests/test_qca_core.py",
+      "root_cause": "Used \"CalibrationType\" instead of \"CalibrationMethod\"",
+      "fix": "Changed CalibrationType → CalibrationMethod",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T17:01:59.160Z"
     }
   ]
 }

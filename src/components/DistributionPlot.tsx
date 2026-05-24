@@ -9,10 +9,10 @@
 
 import React, { useMemo, useState } from 'react';
 import { PlotlyChart } from './FuzzySetHeatmap';
-import type { FuzzySetDataJSON } from '../types/qca';
+import type { MembershipDataJSON } from '../types/qca';
 
 interface Props {
-  fuzzyData: FuzzySetDataJSON;
+  fuzzyData: MembershipDataJSON;
   height?: number;
 }
 

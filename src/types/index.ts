@@ -42,6 +42,7 @@ export type {
   KeywordEntry,
   ConditionDefinition,
   ConditionSet,
+  MembershipDataJSON,
   FuzzySetDataJSON,
   TruthTableRow,
   TruthTableJSON,
@@ -67,4 +68,6 @@ export type {
 export {
   DEFAULT_QCA_PARAMS,
   INITIAL_PIPELINE_STATE,
+  CalibrationMethod,
+  QCAVariant,
 } from './qca'

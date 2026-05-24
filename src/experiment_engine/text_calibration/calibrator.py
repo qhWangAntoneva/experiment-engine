@@ -16,12 +16,12 @@ from collections.abc import Callable
 import numpy as np
 
 from experiment_engine.models import (
+    CalibrationMethod,
     CalibrationParams,
-    CalibrationType,
     ConditionDefinition,
     ConditionSet,
-    FuzzySetData,
     InputData,
+    MembershipData,
     OutputData,
     ScoringSource,
     TrainingSample,
@@ -48,7 +48,7 @@ class TextCalibrationStage(Stage):
     1. Accepts raw text corpus via InputData
     2. Runs keyword matching to get raw scores per condition
     3. Applies the specified calibration function to produce 0-1 fuzzy values
-    4. Returns FuzzySetData
+    4. Returns MembershipData
 
     Attributes:
         condition_set: The QCA condition definitions.
@@ -58,7 +58,7 @@ class TextCalibrationStage(Stage):
     def __init__(
         self,
         condition_set: ConditionSet,
-        method: CalibrationType | None = None,
+        method: CalibrationMethod | None = None,
         name: str = "text_calibration",
     ) -> None:
         super().__init__(name=name)
@@ -181,7 +181,7 @@ class TextCalibrationStage(Stage):
             self.condition_set.outcome.name if self.condition_set.outcome else ""
         )
 
-        fuzzy_data = FuzzySetData(
+        fuzzy_data = MembershipData(
             membership=membership,
             case_ids=data.index if data.index else None,
             condition_names=condition_names,
@@ -282,7 +282,7 @@ class TextCalibrationStage(Stage):
             outcome_vector: 1D array of binary outcomes (0 or 1).
 
         Returns:
-            OutputData with FuzzySetData where the last column is the outcome.
+            OutputData with MembershipData where the last column is the outcome.
         """
         texts = self._extract_texts(data)
         kw_matrix, col_to_kw = self._precompute_kw_context(texts)
@@ -305,7 +305,7 @@ class TextCalibrationStage(Stage):
             self.condition_set.outcome.name if self.condition_set.outcome else ""
         )
 
-        fuzzy_data = FuzzySetData(
+        fuzzy_data = MembershipData(
             membership=membership,
             case_ids=data.index if data.index else None,
             condition_names=condition_names,
@@ -324,7 +324,7 @@ class TextCalibrationStage(Stage):
             },
         )
 
-    def calibrate_one(self, sample: TrainingSample) -> FuzzySetData:
+    def calibrate_one(self, sample: TrainingSample) -> MembershipData:
         """Calibrate a single training sample.
 
         Used by the Pyodide worker to process samples one at a time.
@@ -333,7 +333,7 @@ class TextCalibrationStage(Stage):
             sample: A TrainingSample with text and optional labeled_scores.
 
         Returns:
-            FuzzySetData with membership shape (1, n_conditions + 1).
+            MembershipData with membership shape (1, n_conditions + 1).
         """
         texts = [sample.text]
         kw_matrix, col_to_kw = self._precompute_kw_context(texts)
@@ -356,7 +356,7 @@ class TextCalibrationStage(Stage):
             self.condition_set.outcome.name if self.condition_set.outcome else ""
         )
 
-        return FuzzySetData(
+        return MembershipData(
             membership=membership,
             case_ids=[sample.text_id],
             condition_names=condition_names,
@@ -385,13 +385,13 @@ class TextCalibrationStage(Stage):
 
     # Class-level strategy registry. Pre-populated with the four default
     # strategies. External code can register custom strategies via
-    # TextCalibrationStage._registry.register(CalibrationType.DIRECT, my_impl).
+    # TextCalibrationStage._registry.register(CalibrationMethod.DIRECT, my_impl).
     _registry = CalibrationStrategyRegistry()
 
     @staticmethod
     def _apply_calibration(
         raw_scores: np.ndarray,
-        cal_type: CalibrationType,
+        cal_type: CalibrationMethod,
         params: CalibrationParams,
     ) -> np.ndarray:
         """Dispatch to the appropriate calibration strategy via registry.

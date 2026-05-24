@@ -1,9 +1,10 @@
-"""Calibration strategy pattern — pluggable fuzzy-set calibration algorithms.
+"""Calibration strategy pattern — pluggable membership calibration algorithms.
 
 Each strategy implements a specific calibration method (direct piecewise-linear,
-indirect log-odds, Ragin logistic, passthrough). The CalibrationStrategyRegistry
-maps CalibrationType enum values to strategy instances, enabling new calibration
-methods to be added without modifying the TextCalibrationStage.
+indirect log-odds, Ragin logistic, crisp-set threshold, passthrough). The
+CalibrationStrategyRegistry maps CalibrationMethod enum values to strategy
+instances, enabling new calibration methods to be added without modifying the
+TextCalibrationStage.
 
 References:
     - HACK-6: Resolved — replaces hardcoded if/elif dispatch with strategy pattern.
@@ -17,7 +18,7 @@ from typing import ClassVar
 
 import numpy as np
 
-from experiment_engine.models import CalibrationParams, CalibrationType
+from experiment_engine.models import CalibrationMethod, CalibrationParams
 
 
 class CalibrationStrategy(ABC):
@@ -242,8 +243,18 @@ class PassthroughCalibration(CalibrationStrategy):
         return raw_scores.astype(np.float64)
 
 
+class CrispCalibration(CalibrationStrategy):
+    """Crisp-set calibration: single threshold binarizes raw scores to 0 or 1."""
+
+    def calibrate(
+        self, raw_scores: np.ndarray, params: CalibrationParams
+    ) -> np.ndarray:
+        threshold = params.crossover_point
+        return np.where(raw_scores >= threshold, 1.0, 0.0)
+
+
 class CalibrationStrategyRegistry:
-    """Registry mapping CalibrationType enum values to strategy instances.
+    """Registry mapping CalibrationMethod enum values to strategy instances.
 
     New calibration methods can be added without modifying the registry's
     source code via ``register()``.
@@ -251,31 +262,32 @@ class CalibrationStrategyRegistry:
     Usage::
 
         # Look up a pre-registered strategy
-        strategy = CalibrationStrategyRegistry.get(CalibrationType.DIRECT)
+        strategy = CalibrationStrategyRegistry.get(CalibrationMethod.DIRECT)
         result = strategy.calibrate(raw_scores, params)
 
         # Register a custom strategy
         registry = CalibrationStrategyRegistry()
-        registry.register(CalibrationType.DIRECT, MyCustomDirect())
+        registry.register(CalibrationMethod.DIRECT, MyCustomDirect())
     """
 
-    _default_strategies: ClassVar[dict[CalibrationType, CalibrationStrategy]] = {
-        CalibrationType.DIRECT: DirectCalibration(),
-        CalibrationType.INDIRECT: IndirectCalibration(),
-        CalibrationType.FUZZY_DIRECT: RaginCalibration(),
-        CalibrationType.PASSTHROUGH: PassthroughCalibration(),
+    _default_strategies: ClassVar[dict[CalibrationMethod, CalibrationStrategy]] = {
+        CalibrationMethod.DIRECT: DirectCalibration(),
+        CalibrationMethod.INDIRECT: IndirectCalibration(),
+        CalibrationMethod.FUZZY_DIRECT: RaginCalibration(),
+        CalibrationMethod.PASSTHROUGH: PassthroughCalibration(),
+        CalibrationMethod.CRISP_SET: CrispCalibration(),
     }
 
     def __init__(self) -> None:
-        self._strategies: dict[CalibrationType, CalibrationStrategy] = dict(
+        self._strategies: dict[CalibrationMethod, CalibrationStrategy] = dict(
             self._default_strategies
         )
 
-    def register(self, name: CalibrationType, strategy: CalibrationStrategy) -> None:
+    def register(self, name: CalibrationMethod, strategy: CalibrationStrategy) -> None:
         """Register a strategy for a calibration type.
 
         Args:
-            name: The CalibrationType enum value to associate.
+            name: The CalibrationMethod enum value to associate.
             strategy: The strategy instance to use for this type.
         """
         if not isinstance(strategy, CalibrationStrategy):
@@ -284,11 +296,11 @@ class CalibrationStrategyRegistry:
             )
         self._strategies[name] = strategy
 
-    def get(self, name: CalibrationType) -> CalibrationStrategy:
+    def get(self, name: CalibrationMethod) -> CalibrationStrategy:
         """Retrieve the strategy for a given calibration type.
 
         Args:
-            name: The CalibrationType enum value.
+            name: The CalibrationMethod enum value.
 
         Returns:
             The registered CalibrationStrategy instance.
@@ -304,6 +316,6 @@ class CalibrationStrategyRegistry:
         return self._strategies[name]
 
     @property
-    def registered_types(self) -> list[CalibrationType]:
+    def registered_types(self) -> list[CalibrationMethod]:
         """Return all currently registered calibration types."""
         return list(self._strategies.keys())

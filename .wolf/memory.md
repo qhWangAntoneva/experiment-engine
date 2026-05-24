@@ -1,6 +1,9 @@
 # Memory
 
 > Chronological action log. Hooks and AI append to this file automatically.
+
+| 2026-05-24 | Reconciled TODO/FIXME/HACK after 3-agent requirement change review: fixed P1-15/16/17 done status, unchecked P2-20 (k=10 still hardcoded), reordered P2 section, corrected all stats tables | TODO.md, FIXME.md, HACK.md | 3 stats tables corrected, 4 checkbox fixes, 2 contradictions resolved, 1 section reordered | ~600 |
+| 2026-05-25 | BERT 架构决策定案：Explore Agent 深度复审 bert-vs-keyword-analysis.md + 技术顾问设计浏览器端双 Worker 架构 + 评审者 16 项批判 + 定量对比（86x WASM CPU 推理差距、5.9x 冷启动差距）+ 最终决议 BERT 作为 CLI 辅助工具不做主引擎 | .wolf/bert-vs-keyword-analysis.md, TODO.md, HACK.md, cerebrum.md | 文档已更新，P1-32/33 范围缩小为纯 Python CLI，P2-25/26 添加条件门控 | ~35000 |
 > Old sessions are consolidated by the daemon weekly.
 
 | 16:39 | Batch 1: CONTRIBUTING.md + CHANGELOG.md + MkDocs文档站（含16个API页面） | D1, D2, D4 | DONE — 3 parallel workers, reviewer passed | ~5000 tok |
@@ -484,3 +487,176 @@
 | 22:41 | Edited src/pages/DataInput.tsx | added 1 condition(s) | ~236 |
 | %H:%M | P1-17: vectorized DirectCalibration + IndirectCalibration in strategies.py (for-loop → np.select) | strategies.py | 12/12 calibration tests pass, no warnings | ~1800 |
 | %H:%M | P1-16: moved text parsing from frontend to Python TextCorpusReader via worker | pyodide_handlers.py, pyodide.worker.ts, pyodide.ts, qca.ts, useQCAWorkflow.ts, DataInput.tsx | removed parseTextContent(), added detectCorpusFormat() + checkFileSize() frontend helpers | ~2500 |
+| 22:48 | Verified P1-16+P1-17: 465 tests, ruff clean, npm build ok, strategies.py no for-loop, DataInput.tsx no parseTextContent, worker chain complete. Committed b9b1687. | src/, tests/ | pass | ~3500 |
+| 22:49 | Session end: 38 writes across 15 files (framework.py, qca.py, training.py, __init__.py, FIXME.md) | 23 reads | ~104634 tok |
+| 22:51 | Edited src/experiment_engine/models/qca.py | 3→4 lines | ~48 |
+| 22:51 | Edited src/experiment_engine/text_calibration/condition.py | 4→3 lines | ~24 |
+| 22:51 | Edited src/experiment_engine/text_calibration/condition.py | modified _kw_to_dict() | ~62 |
+| 22:52 | Created src/experiment_engine/text_calibration/keyword_io.py | — | ~4112 |
+| 22:52 | Edited src/experiment_engine/pyodide_handlers.py | modified handle_import_keywords() | ~930 |
+| 22:52 | Edited src/types/qca.ts | 12→14 lines | ~346 |
+| 22:53 | Edited src/types/qca.ts | 2→6 lines | ~101 |
+| 22:53 | Edited src/services/pyodide.worker.ts | expanded (+11 lines) | ~138 |
+| 22:53 | Edited src/services/pyodide.worker.ts | modified handleValidate() | ~676 |
+| 22:53 | Edited src/services/pyodide.ts | modified importKeywords() | ~416 |
+| 22:53 | Edited src/hooks/useQCAWorkflow.ts | expanded (+14 lines) | ~181 |
+| 22:53 | Edited src/hooks/useQCAWorkflow.ts | modified useCallback() | ~282 |
+| 22:54 | Edited src/hooks/useQCAWorkflow.ts | added 1 import(s) | ~38 |
+| 22:54 | Edited src/pages/DataInput.tsx | added 1 import(s) | ~49 |
+| 22:54 | Edited src/pages/DataInput.tsx | 2→5 lines | ~83 |
+| 22:55 | Edited src/pages/DataInput.tsx | added error handling | ~506 |
+| 22:55 | Edited src/pages/DataInput.tsx | added optional chaining | ~659 |
+| 22:55 | Edited src/pages/DataInput.tsx | 6→6 lines | ~76 |
+| 22:55 | Edited src/pages/DataInput.tsx | 6→6 lines | ~57 |
+| 22:55 | Edited src/pages/Settings.tsx | added 2 import(s) | ~98 |
+| 22:56 | Edited src/pages/Settings.tsx | CSS: state | ~76 |
+| 22:56 | Edited src/pages/Settings.tsx | added error handling | ~395 |
+| 22:57 | Edited src/pages/Settings.tsx | expanded (+41 lines) | ~535 |
+| 22:58 | Created tests/test_keyword_io.py | — | ~4530 |
+| 22:58 | Edited tests/test_keyword_io.py | inline fix | ~8 |
+| 22:58 | Edited tests/test_keyword_io.py | inline fix | ~9 |
+| 22:58 | Edited tests/test_keyword_io.py | inline fix | ~8 |
+| 22:58 | Edited tests/test_keyword_io.py | inline fix | ~9 |
+| 23:00 | Edited src/experiment_engine/text_calibration/keyword_io.py | 12→14 lines | ~144 |
+| 23:00 | Edited src/experiment_engine/text_calibration/keyword_io.py | 12→14 lines | ~153 |
+| 23:01 | Edited src/experiment_engine/models/qca.py | 4→4 lines | ~42 |
+| 23:02 | Edited src/experiment_engine/text_calibration/keyword_io.py | 6→6 lines | ~36 |
+| 23:03 | Edited src/experiment_engine/text_calibration/keyword_io.py | "r" → "utf-8" | ~13 |
+| 23:03 | Session end: 71 writes across 19 files (framework.py, qca.py, training.py, __init__.py, FIXME.md) | 27 reads | ~131007 tok |
+| 23:03 | Session end: 71 writes across 19 files (framework.py, qca.py, training.py, __init__.py, FIXME.md) | 27 reads | ~131007 tok |
+| 23:15 | Session end: 71 writes across 19 files (framework.py, qca.py, training.py, __init__.py, FIXME.md) | 27 reads | ~131007 tok |
+| 23:18 | Edited TODO.md | expanded (+9 lines) | ~576 |
+| 23:18 | Edited TODO.md | expanded (+11 lines) | ~448 |
+| 23:19 | Edited TODO.md | 2→6 lines | ~267 |
+| 23:19 | Edited TODO.md | 15→15 lines | ~116 |
+| 23:19 | Created .claude/worktrees/agent-a182dd20ad100bc90/TODO.md | — | ~2288 |
+| 23:20 | Edited FIXME.md | expanded (+8 lines) | ~682 |
+| 23:20 | Edited FIXME.md | expanded (+24 lines) | ~461 |
+| 23:20 | Edited TODO.md | expanded (+36 lines) | ~398 |
+| 23:20 | Created .claude/worktrees/agent-a182dd20ad100bc90/FIXME.md | — | ~2779 |
+| 23:21 | Edited TODO.md | expanded (+8 lines) | ~232 |
+| 23:21 | Edited TODO.md | expanded (+6 lines) | ~134 |
+| 23:21 | Edited FIXME.md | _compute_solution_coverage() → match_corpus() | ~613 |
+| 23:21 | Edited TODO.md | 16→17 lines | ~149 |
+| 23:21 | Edited FIXME.md | expanded (+8 lines) | ~250 |
+| 23:21 | Edited FIXME.md | 11→12 lines | ~115 |
+| 23:22 | Edited HACK.md | expanded (+9 lines) | ~284 |
+| 23:22 | Created .claude/worktrees/agent-a182dd20ad100bc90/HACK.md | — | ~2066 |
+| 23:22 | Edited HACK.md | expanded (+18 lines) | ~484 |
+| 23:22 | Edited HACK.md | 6→6 lines | ~31 |
+| 23:23 | Edited FIXME.md | expanded (+45 lines) | ~870 |
+| 23:23 | Edited .claude/worktrees/agent-a182dd20ad100bc90/FIXME.md | 10→10 lines | ~105 |
+| 23:23 | 需求变更审查: 分析 prototype 管道错误 + csQCA 缺失 + FuzzySetData 命名，更新 TODO.md/FIXME.md/HACK.md (新增 FIXME-23~28, HACK-13~15, TODO P0-9~12 + P1-24~31 + P2-21~24) | TODO.md, FIXME.md, HACK.md | 文档更新完成，待实施 | ~5000 |
+| 23:23 | Edited FIXME.md | 12→15 lines | ~174 |
+| 23:23 | Edited TODO.md | inline fix | ~64 |
+| 23:23 | Edited .claude/worktrees/agent-a182dd20ad100bc90/.wolf/cerebrum.md | expanded (+8 lines) | ~518 |
+| 23:23 | Edited .claude/worktrees/agent-a182dd20ad100bc90/.wolf/cerebrum.md | 3→3 lines | ~70 |
+| 23:23 | Edited HACK.md | expanded (+18 lines) | ~430 |
+| 23:23 | Edited .claude/worktrees/agent-a182dd20ad100bc90/.wolf/cerebrum.md | 4→7 lines | ~64 |
+| 23:23 | Edited HACK.md | 6→6 lines | ~34 |
+| 23:24 | Edited .claude/worktrees/agent-a182dd20ad100bc90/.wolf/cerebrum.md | 4→4 lines | ~59 |
+| 23:24 | Edited .claude/worktrees/agent-a182dd20ad100bc90/.wolf/memory.md | 4→6 lines | ~118 |
+| 23:24 | Session end: 101 writes across 21 files (framework.py, qca.py, training.py, __init__.py, FIXME.md) | 40 reads | ~171246 tok |
+| 23:24 | Session end: 101 writes across 21 files (framework.py, qca.py, training.py, __init__.py, FIXME.md) | 40 reads | ~171246 tok |
+| 23:24 | Edited .claude/worktrees/agent-a182dd20ad100bc90/.wolf/anatomy.md | 2→2 lines | ~44 |
+| 23:24 | Edited .claude/worktrees/agent-a182dd20ad100bc90/.wolf/anatomy.md | inline fix | ~25 |
+| 23:25 | Session end: 103 writes across 22 files (framework.py, qca.py, training.py, __init__.py, FIXME.md) | 41 reads | ~171320 tok |
+| 23:28 | Edited TODO.md | inline fix | ~41 |
+| 23:28 | Edited TODO.md | inline fix | ~50 |
+| 23:28 | Edited TODO.md | inline fix | ~48 |
+| 23:28 | Edited TODO.md | inline fix | ~54 |
+| 23:29 | Edited TODO.md | 20→20 lines | ~545 |
+| 23:29 | Edited TODO.md | 15→14 lines | ~134 |
+| 23:30 | Edited FIXME.md | 6→6 lines | ~103 |
+| 23:30 | Edited HACK.md | inline fix | ~4 |
+| 23:30 | Edited HACK.md | 6→6 lines | ~36 |
+| 23:34 | Session end: 112 writes across 22 files (framework.py, qca.py, training.py, __init__.py, FIXME.md) | 41 reads | ~172445 tok |
+| 23:42 | Session end: 112 writes across 22 files (framework.py, qca.py, training.py, __init__.py, FIXME.md) | 41 reads | ~172445 tok |
+| 23:47 | Edited FIXME.md | expanded (+27 lines) | ~673 |
+| 23:47 | Edited FIXME.md | 17→18 lines | ~216 |
+| 23:48 | Edited HACK.md | expanded (+13 lines) | ~487 |
+| 23:48 | Edited HACK.md | 8→8 lines | ~39 |
+| 23:48 | Edited FIXME.md | inline fix | ~14 |
+| 23:49 | BERT-vs-关键词架构分析完成：深度分析结论（BERT 不能完全替代关键词）+ 新增 FIXME-34/35/36、更新 HACK-17、新增 HACK-18、产出分析报告 | .wolf/bert-vs-keyword-analysis.md, FIXME.md, HACK.md, .wolf/anatomy.md | FIXME: 20/36 resolved, HACK: 4/18 resolved, 新增 6000 字分析报告 | ~4000 |
+| 23:51 | Session end: 117 writes across 22 files (framework.py, qca.py, training.py, __init__.py, FIXME.md) | 43 reads | ~153916 tok |
+
+## Session: 2026-05-24 23:55
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 00:46 | Edited TODO.md | expanded (+8 lines) | ~149 |
+| 00:46 | Edited TODO.md | inline fix | ~103 |
+| 00:46 | Edited TODO.md | 1→3 lines | ~120 |
+| 00:47 | Edited TODO.md | 5→5 lines | ~131 |
+| 00:47 | Edited TODO.md | 5→9 lines | ~108 |
+| 00:47 | Edited HACK.md | inline fix | ~52 |
+| 00:47 | Edited HACK.md | 2→2 lines | ~60 |
+| 2026-05-25 | BERT 决策定案 session: Explore Agent + 技术顾问 + 算法顾问 + 评审者 三轮讨论，定量对比（86x WASM CPU，5.9x 冷启动），最终决议 BERT 辅助工具不做主引擎 | bert-vs-keyword-analysis.md, TODO.md, HACK.md, cerebrum.md, memory.md | 文档全部更新，下一 session 按 P0-9 开始 | ~35000 |
+
+## HANDOFF: 2026-05-25 Session Wrap
+
+### 核心产出
+BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关键词匹配是 QCA 方法论核心不可替代。详见 `.wolf/bert-vs-keyword-analysis.md` 第 10 节。
+
+### 当前基线
+- 8/8 P0 已修复，P0-9~P0-12（需求变更阻塞项）待开始
+- 19/22 FIXME 已修复，14 FIXME 待处理（2 🔴 + 9 🟡 + 5 🟢）
+- 465 测试通过，ruff 干净，npm build 通过
+
+### 下一会话推进顺序
+1. P0-9: 消除 prototype 独立管道（FIXME-23）
+2. P0-10: csQCA 全链路实现（FIXME-24）
+3. P0-11/12: 模型重命名 + QCAVariant 拆分（FIXME-25/26）
+4. P1-24~31: 需求变更相关
+5. P1-34: 预置词典在线编辑器
+6. P1-32/33: BERT CLI 辅助工具（范围已缩小）
+| 00:48 | Session end: 7 writes across 2 files (TODO.md, HACK.md) | 16 reads | ~7130 tok |
+
+## Session: 2026-05-24 00:49
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 00:55 | Edited src/experiment_engine/models/qca.py | modified QCAVariant() | ~235 |
+| 00:56 | Edited src/experiment_engine/models/qca.py | inline fix | ~19 |
+| 00:56 | Edited src/experiment_engine/models/qca.py | modified ConditionSet() | ~242 |
+| 00:56 | Edited src/experiment_engine/models/qca.py | modified MembershipData() | ~105 |
+| 00:56 | Edited src/experiment_engine/models/qca.py | modified outcome_vector() | ~93 |
+| 00:56 | Edited src/experiment_engine/models/qca.py | inline fix | ~13 |
+| 00:56 | Edited src/types/qca.ts | expanded (+15 lines) | ~143 |
+| 00:56 | Edited src/experiment_engine/models/__init__.py | 26→29 lines | ~197 |
+| 00:56 | Edited src/types/qca.ts | inline fix | ~11 |
+| 00:56 | Edited src/types/qca.ts | 8→9 lines | ~66 |
+| 00:57 | Edited src/types/qca.ts | 10→13 lines | ~125 |
+| 00:57 | Edited src/experiment_engine/models/__init__.py | 42→45 lines | ~270 |
+| 00:57 | Edited src/experiment_engine/__init__.py | 25→27 lines | ~147 |
+| 00:57 | Edited src/types/qca.ts | inline fix | ~12 |
+| 00:57 | Edited src/types/qca.ts | inline fix | ~12 |
+| 00:57 | Edited src/types/qca.ts | 3→3 lines | ~94 |
+| 00:57 | Edited src/types/qca.ts | 3→3 lines | ~52 |
+| 00:57 | Edited src/experiment_engine/__init__.py | 33→35 lines | ~197 |
+| 00:57 | Edited src/experiment_engine/text_calibration/strategies.py | 11→12 lines | ~151 |
+| 00:57 | Edited src/types/index.ts | 35→40 lines | ~216 |
+| 00:57 | Edited src/pages/DataInput.tsx | 3→3 lines | ~15 |
+| 00:57 | Edited src/pages/DataInput.tsx | inline fix | ~14 |
+| 00:57 | Edited src/services/pyodide.ts | 1→2 lines | ~12 |
+| 00:57 | Edited src/experiment_engine/text_calibration/strategies.py | inline fix | ~21 |
+| 00:57 | Edited src/experiment_engine/text_calibration/strategies.py | inline fix | ~5 |
+| 00:57 | Edited src/services/pyodide.ts | 2→2 lines | ~22 |
+| 00:57 | Edited src/services/pyodide.ts | 3→3 lines | ~32 |
+| 00:57 | Edited src/services/pyodide.ts | 3→3 lines | ~33 |
+| 00:57 | Edited src/experiment_engine/text_calibration/strategies.py | modified calibrate() | ~182 |
+| 00:58 | Edited src/services/pyodide.ts | inline fix | ~10 |
+| 00:58 | Edited src/experiment_engine/text_calibration/strategies.py | 6→7 lines | ~110 |
+| 00:58 | Edited src/store/QCAPipelineContext.tsx | inline fix | ~6 |
+| 00:58 | Edited src/components/DistributionPlot.tsx | inline fix | ~6 |
+| 00:58 | Edited src/pyodide/engine.ts | inline fix | ~22 |
+| 00:58 | Edited src/experiment_engine/text_calibration/calibrator.py | 11→11 lines | ~63 |
+| 00:58 | Edited src/experiment_engine/text_calibration/calibrator.py | inline fix | ~5 |
+| 00:58 | Edited src/services/pyodide.ts | 2→1 lines | ~6 |
+| 00:58 | Session end: 37 writes across 11 files (qca.py, qca.ts, __init__.py, strategies.py, index.ts) | 30 reads | ~10118 tok |
+| 00:59 | Edited src/pages/DataInput.tsx | added 1 import(s) | ~60 |
+| 00:59 | Edited src/pages/DataInput.tsx | inline fix | ~16 |
+| 00:59 | Edited src/types/index.ts | 4→2 lines | ~10 |
+| 01:00 | TypeScript-side type refactoring for P0-12 + P0-11: renamed CalibrationType->CalibrationMethod (enum), added QCAVariant enum, added CRISP_SET, renamed FuzzySetDataJSON->MembershipDataJSON, added qca_variant to ConditionSet, updated all 6 files | src/types/qca.ts src/types/index.ts src/pages/DataInput.tsx src/services/pyodide.ts src/store/QCAPipelineContext.tsx src/components/DistributionPlot.tsx src/pyodide/engine.ts | tsc clean, vite build passes | ~1500 |
+| 01:01 | Edited src/experiment_engine/text_calibration/calibrator.py | inline fix | ~4 |
+| 01:01 | Edited tests/test_qca_core.py | inline fix | ~10 |

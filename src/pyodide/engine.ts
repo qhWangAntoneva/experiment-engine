@@ -306,7 +306,7 @@ print(f"experiment-engine v{experiment_engine.__version__} mounted successfully"
     // a dependency is missing or a forbidden import (matplotlib, click, etc.)
     // was not properly excluded from the bundled tar.
     await this._pyodide.runPythonAsync(`
-from experiment_engine.models import FuzzySetData, TruthTable, QCASolutions
+from experiment_engine.models import MembershipData, TruthTable, QCASolutions
 from experiment_engine.pipeline import Pipeline, Stage
 from experiment_engine.config import load_config
 from experiment_engine.text_calibration.domains import DOMAIN_PRESETS

@@ -26,21 +26,24 @@ from experiment_engine.models.framework import (
     U,
 )
 from experiment_engine.models.qca import (
+    CalibrationMethod,
     CalibrationParams,
-    CalibrationType,
+    CalibrationType,  # deprecated backward-compat alias
     ConceptPrototype,
     ConditionDefinition,
     ConditionSet,
     CounterfactualClassification,
     CounterfactualReport,
-    FuzzySetData,
+    FuzzySetData,  # deprecated backward-compat alias
     KeywordEntry,
+    MembershipData,
     MultiOutcomeReport,
     NecessityConditionResult,
     NecessityResults,
     QCAAnalysisResult,
     QCASolution,
     QCASolutions,
+    QCAVariant,
     RobustnessReport,
     RobustnessTestResult,
     ScoringSource,
@@ -54,6 +57,7 @@ from experiment_engine.models.qca import (
 from experiment_engine.models.training import TrainingDataset, TrainingSample
 
 __all__ = [
+    "CalibrationMethod",
     "CalibrationParams",
     "CalibrationType",
     "ConceptPrototype",
@@ -67,6 +71,7 @@ __all__ = [
     "InputConfig",
     "InputData",
     "KeywordEntry",
+    "MembershipData",
     "MultiOutcomeReport",
     "NecessityConditionResult",
     "NecessityResults",
@@ -77,6 +82,7 @@ __all__ = [
     "QCAAnalysisResult",
     "QCASolution",
     "QCASolutions",
+    "QCAVariant",
     "RenderConfig",
     "RobustnessReport",
     "RobustnessTestResult",

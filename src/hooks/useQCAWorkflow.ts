@@ -67,6 +67,20 @@ interface UseQCAWorkflowReturn {
     format: 'csv' | 'json' | 'txt',
   ) => Promise<TextCorpusEntry[]>;
 
+  /** Import a keyword dictionary from CSV/JSON */
+  importKeywords: (
+    fileName: string,
+    content: string,
+    format: 'csv' | 'json',
+    domain?: string,
+  ) => Promise<ConditionSet>;
+
+  /** Export the current condition set keyword dictionary to CSV/JSON */
+  exportKeywords: (
+    conditionSet: ConditionSet,
+    format: 'csv' | 'json',
+  ) => Promise<Blob>;
+
   /** Abort any running operation */
   abort: () => void;
 }
@@ -314,6 +328,31 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
     [ensureReady, bridge],
   );
 
+  const importKeywordsFn = useCallback(
+    async (
+      fileName: string,
+      content: string,
+      format: 'csv' | 'json',
+      domain: string = 'dissatisfaction',
+    ): Promise<ConditionSet> => {
+      await ensureReady();
+      return bridge.importKeywords(fileName, content, format, domain);
+    },
+    [ensureReady, bridge],
+  );
+
+  const exportKeywordsFn = useCallback(
+    async (
+      conditionSet: ConditionSet,
+      format: 'csv' | 'json',
+    ): Promise<Blob> => {
+      await ensureReady();
+      const exported = await bridge.exportKeywords(conditionSet, format);
+      return exported.data;
+    },
+    [ensureReady, bridge],
+  );
+
   const abort = useCallback(() => {
     // Web Workers cannot be cancelled mid-operation, but we can terminate and re-create
     bridge.terminate();
@@ -328,6 +367,8 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
     runAnalyzeOnly,
     runExport,
     loadCorpus: loadCorpusFn,
+    importKeywords: importKeywordsFn,
+    exportKeywords: exportKeywordsFn,
     abort,
   };
 }

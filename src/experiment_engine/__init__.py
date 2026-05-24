@@ -9,6 +9,7 @@ __license__ = "MIT"
 
 from experiment_engine.config import load_config, merge_defaults
 from experiment_engine.models import (
+    CalibrationMethod,
     CalibrationType,
     ConceptPrototype,
     ConditionDefinition,
@@ -18,6 +19,7 @@ from experiment_engine.models import (
     FuzzySetData,
     InputConfig,
     InputData,
+    MembershipData,
     OutputData,
     PipelineResult,
     PipelineStageConfig,
@@ -43,6 +45,7 @@ from experiment_engine.plugins import (
 
 __all__ = [
     "BasePlugin",
+    "CalibrationMethod",
     "CalibrationType",
     "ConceptPrototype",
     "ConditionDefinition",
@@ -52,6 +55,7 @@ __all__ = [
     "FuzzySetData",
     "InputConfig",
     "InputData",
+    "MembershipData",
     "OutputData",
     "Pipeline",
     "PipelineResult",

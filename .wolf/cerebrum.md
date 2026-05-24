@@ -2,7 +2,7 @@
 
 > OpenWolf 学习记忆。最后一次全面更新：2026-05-24
 > 用途：新 agent 接手时的项目全貌参考。
-> **当前状态**: 四阶段 P0 修复已完成（2026-05-24），8/8 P0 全部解决，19/22 FIXME 已修复（新增 FIXME-16），465 测试通过。剩余 3 个 🟡🟢 FIXME + 16 P1 + 20 P2 待下一 session 推进。
+> **当前状态**: 四阶段 P0 修复已完成（2026-05-24），8/8 P0 全部解决，19/22 FIXME 已修复（新增 FIXME-16），465 测试通过。P1-14~P1-17 全部完成（7b88f01, 10dbed0, b9b1687）。需求变更审查新增 4 P0 + 11 P1 + 6 P2 + 11 FIXME + 5 HACK。调和后：4 P0 + 24 P1 + 26 P2 待推进，14 FIXME 待修复。
 
 ---
 
@@ -265,7 +265,17 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 
 ---
 
-## 9. Do-Not-Repeat
+## 9. Key Learnings (from BERT-vs-关键词 analysis, 2026-05-24)
+
+- **BERT 不能完全替代关键词匹配——这不是技术限制，是方法论要求**：QCA 校准必须基于理论而非纯统计。关键词词典本身就是"理论操作化"的载体——每个关键词及其权重是一次有意的理论选择。BERT 余弦相似度是预训练语料分布的统计产物，不是研究者的理论。移除关键词意味着移除分析的理论基础。
+- **BERT 推理必须在 JS 侧执行，不能在 Pyodide 中**：transformers/torch/sentence-transformers 均无法在 Pyodide WASM 中运行（需要 C++ 扩展）。BERT 需要独立的 JS Web Worker（ONNX Runtime Web）+ 双 worker 通信架构。
+- **BERT 相似度需要校准，不是端到端隶属度**：余弦相似度 [0.3, 0.9] 不是 QCA 隶属度 [0, 1]。它仍然需要经过 keyword raw score 相同的 calibrate_direct/indirect/ragin 流程。BERT 替换的是"keyword matching → raw score"这一步，而非 calibration 步骤。
+- **bigram 分词的否定处理盲区**："不满意"拆为["不满", "满意"]后，"满意"可被 trust 领域独立匹配，导致互斥条件对（dissatisfaction vs trust）语义污染。这是 bigram 的固有限制。
+- **ScoringSource 枚举应预留 BERT 值**：当前 KEYWORD/PROTOTYPE/HYBRID 三者封闭，将来新增 BERT 是破坏性变更。应在 P1-32 阶段提前添加 `BERT = "bert"` 占位。
+- **BERT 首次加载将增至 ~150MB**（Pyodide 50MB + ONNX Runtime 5MB + BERT 量化模型 ~100MB），需 lazy loading 且仅在选择 BERT scoring 时加载。
+- **[2026-05-25] BERT 架构决策已定案**：BERT 作为辅助工具不做主引擎。关键词匹配是 QCA 方法论核心不可替代。BERT 仅用于 CLI 端差异标记/覆盖率诊断/候选词推荐（P1-32/33），从 MiniLM-L6（~25MB）轻量模型开始。浏览器端 BERT 等待 WebGPU >90% + Safari 稳定 + 模型 <30MB 后再评估。定量对比数据：冷启动 5.9x 慢、WASM CPU 推理 86x 慢、内存 2.6x、体积 8.3x。决策过程详见 `.wolf/bert-vs-keyword-analysis.md` 第 10 节。
+
+## 10. Do-Not-Repeat
 
 - [2026-05-24] pyproject.toml 的 `long_description_content_type` 字段不被 setuptools 支持，已删除
 - [2026-05-24] CLI 中 `click.Choice([d.value for d in [...strings...]])` 会报 AttributeError（字符串无 .value），应直接用字符串列表
@@ -277,7 +287,7 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 - [2026-05-24] **Windows Python GBK 陷阱也影响 buglog.json**：`python -c "import json; ..."` 默认用 GBK 读文件，会导致 UnicodeDecodeError。必须始终用 `open(path, encoding='utf-8')`。
 - [2026-05-24] **npm ci 失败会掩盖后续 TypeScript 错误**：CI 在 npm ci 步骤失败即退出，tsc -b 从未执行。修复 lock file 后才能看到真正的 TS 编译错误。应该在推送前跑 `npm run build` 本地验证。
 - [2026-05-24] **package-lock.json 与 package.json 不同步陷阱**：手动改 package.json 后没跑 `npm install`，且直接提交了旧的 lock file。lock file 中版本超出 semver 范围时 npm ci 会拒绝安装。修改依赖后必须跑 npm install 刷新 lock file。
-- [2026-05-24] **plotly.js-dist-min v2.x 无 TypeScript 类型声明**：v2.35.x 不内置 .d.ts（v3.x 才有）。需在 vite-env.d.ts 中加 `declare module 'plotly.js-dist-min';`。
+- [2026-05-24] **规划文档统计信息在多 agent 编辑后会立即偏差**：TODO/FIXME/HACK 文件中的统计表格在每次 agent 编辑后必须独立重新计算，而不能依赖增量更新。本次调和发现 FIXME 严重项偏差 3 项、HACK 代码项偏差 1 项、TODO P1/P2 计数偏差。调和规划文档时，始终从零开始统计每个优先级/严重程度/类别，而非信任现有统计数字。
 - [2026-05-24] **Pyodide 中严禁用 JS 模板字面量往 Python 代码注入数据**：`pyodide.runPython(\`x = ''''${json}\n''')` 的模式是代码注入漏洞。攻击者输入 `'''` 即可逃逸出 Python 字符串执行任意代码。安全方式：先用 `pyodide.FS.writeFile('/tmp/xxx.json', jsonStr)` 写入 VFS，再在 Python 中 `json.load(open('/tmp/xxx.json'))` 读取。
 - [2026-05-24] **Pyodide mountFromInline 必须写 __init__.py**：仅创建目录（os.makedirs）不能让 Python 识别为包。必须在每个包目录写入 `__init__.py` 文件。遗漏会导致 `ModuleNotFoundError`。
 - [2026-05-24] **PipelineStage 类型交叉验证**：每次添加新的 PipelineStage 值时，必须同时确认所有 dispatch 调用使用了该值（而非写死的字符串），否则 TypeScript 编译通过但运行时语义错误（如 'running-robustness' 被用于 counterfactuals）。
@@ -308,6 +318,7 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 ## 10. 决策日志
 
 - [2026-05-24] **三方角色审查完成**：派 3 个 subagent 分别扮演技术顾问（架构优化）、客户代表（需求提出）、评审者（代码评估），对项目进行深度审查。产出 TODO.md（51项）、FIXME.md（22项）、HACK.md（12项）。发现 5 个严重算法 Bug（parsimonious 算法错误、calibrate_ragin 实现错误、列索引偏移、match_corpus 重复调用、管道静默数据损坏）。由 reviewer subagent 验收通过。下一 session 按 P0 优先级开始修复。
+- [2026-05-24] **三方审查调和**：三个 agent 围绕核心需求变更（raw text 与 prototype text 统一管道、fsQCA vs csQCA 区分、prototype 非训练集）各自编辑了 TODO/FIXME/HACK。调和过程中发现：(1) 统计信息全部不准确——各 agent 独立编辑导致计数偏差，FIXME 严重项偏差 3 项、HACK 代码项偏差 1 项；(2) P2-20 被错误标记为已完成，但 FIXME-22（k=10 硬编码）仍为开启状态——复选框与实际状态矛盾；(3) P1-15/16/17 已实现（提交 10dbed0、b9b1687），但规划文档未更新。修复：重新计算全部统计信息，修正复选框，重排 P2 章节，更新 HACK-6 提交引用。最终：TODO 原始 51 项/已完成 18 项/新增 21 项/剩余 54 项；FIXME 原始 22 项/已修复 19 项/新增 11 项/剩余 14 项；HACK 17 项（4 项已解决、5 项新增）。提交 bfbd3e2。
 - [2026-05-24] **新增原型匹配校准模式**：用户可通过"condition, 原型文本, 隶属(0/1)"格式提供概念原型，用 bigram Jaccard 相似度计算文本与正/负例原型的匹配度，最终得分 = max(pos_sims) - max(neg_sims)。前端新增模式选择器（关键词/原型），原型模式用表格编辑器+结构化 CSV 输入（编号,文本,结果）。结果列直接作为 crisp-set membership。所有新字段有默认值，keyword 模式完全向后兼容。
 - [2026-05-24] 将 experiment-engine 从通用"算法实验框架"重构为领域特定的 QCA 文本分析系统。这是该框架的**全部功能**（非附加模块）。
 - [2026-05-24] 删除了 `algorithms/linear_regression.py` 和 `algorithms/kmeans.py`——与 QCA 无关
@@ -343,3 +354,4 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 - [2026-05-24] **Do-Not-Repeat: @staticmethod 中调用另一个 @staticmethod 需用 ClassName.method()**：在 static method 中不能用 self.method()（因为 static method 没有 self 参数）。需使用 ClassName.method()。如果在静态方法中误用 self. 会导致 NameError。
 - [2026-05-24] **P1-14/FIXME-16 models.py 拆分为 package**：将 9500 token 单体 models.py 拆分为 `models/framework.py` (pipeline-generic) + `models/qca.py` (QCA domain) + `models/training.py` (training samples) + `models/__init__.py` (重导出 34 个公共符号)。关键决策：__init__.py 使用显式 import 而非 `from .module import *`，以避免命名空间污染和 linter 误报。保持所有现有 `from experiment_engine.models import X` 导入 100% 向后兼容。465 测试通过、ruff 干净、npm build 通过。旧 models.py 已删除。
 - [2026-05-24] **P1-15 校准器策略模式重构（解决 HACK-6）**：创建 `strategies.py` 含 5 个类：`CalibrationStrategy` ABC (`calibrate(raw_scores, params) -> np.ndarray`)、`DirectCalibration` (分段线性)、`IndirectCalibration` (Log-Odds 逻辑斯蒂)、`RaginCalibration` (logit 公式)、`PassthroughCalibration` (原文照过)、`CalibrationStrategyRegistry` (预注册 4 种默认策略，支持 register/get)。重构 `calibrator.py`：`_apply_calibration()` 从 if/elif 改为 `_registry.get(cal_type).calibrate()` 策略查找；`calibrate_direct/indirect/ragin` 静态方法保留向后兼容（委托给策略类）。新增策略方法无需修改 TextCalibrationStage。465 测试通过、ruff 干净、HACK-6 已解决。
+- [2026-05-24] **BERT-vs-关键词架构决策分析完成**：结论——BERT 是补充不是替代，不应移除关键词功能。推荐阶段性路径：当前（方案 C：关键词为主），下阶段（方案 B：BERT 作为语义验证工具），长期（方案 B 完整实现：条件粒度 scoring 来源选择）。详细分析见 `.wolf/bert-vs-keyword-analysis.md`。关键发现：(1) BERT 必须在 JS 侧运行（非 Pyodide），需双 worker 架构；(2) BERT 余弦相似度不是隶属度，仍需 calibration；(3) 关键词词典 = 理论操作化，是不可替代的方法论要求；(4) bigram 分词存在否定构建的盲区（FIXME-34）；(5) ScoringSource 应预留 BERT 枚举值（FIXME-35）；(6) BERT 首次加载 150MB（HACK-18）。

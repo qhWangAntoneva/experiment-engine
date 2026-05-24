@@ -24,7 +24,7 @@ import {
 import type {
   QCAPipelineState,
   PipelineStage,
-  FuzzySetDataJSON,
+  MembershipDataJSON,
   QCAAnalysisResultJSON,
   RobustnessReport,
   CounterfactualReport,
@@ -40,7 +40,7 @@ export type PipelineAction =
   | { type: 'SET_PROGRESS'; progress: number; message?: string }
   | { type: 'SET_ERROR'; error: string }
   | { type: 'SET_CONDITION_SET'; conditionSet: ConditionSet }
-  | { type: 'SET_FUZZY_DATA'; fuzzyData: FuzzySetDataJSON }
+  | { type: 'SET_FUZZY_DATA'; fuzzyData: MembershipDataJSON }
   | { type: 'SET_ANALYSIS_RESULT'; result: QCAAnalysisResultJSON }
   | { type: 'SET_ROBUSTNESS_REPORT'; report: RobustnessReport }
   | { type: 'SET_COUNTERFACTUAL_REPORT'; report: CounterfactualReport }
@@ -117,9 +117,9 @@ interface QCAPipelineContextValue {
   // High-level workflow mutations
   reset: () => void;
   startCalibration: () => void;
-  finishCalibration: (fuzzyData: FuzzySetDataJSON) => void;
+  finishCalibration: (fuzzyData: MembershipDataJSON) => void;
   startPrototypeCalibration: () => void;
-  finishPrototypeCalibration: (fuzzyData: FuzzySetDataJSON) => void;
+  finishPrototypeCalibration: (fuzzyData: MembershipDataJSON) => void;
   startAnalysis: () => void;
   finishAnalysis: (result: QCAAnalysisResultJSON) => void;
   startRobustness: () => void;
@@ -161,7 +161,7 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_STAGE', stage: 'calibrating', message: 'Calibrating conditions...' });
   }, []);
 
-  const finishCalibration = useCallback((fuzzyData: FuzzySetDataJSON) => {
+  const finishCalibration = useCallback((fuzzyData: MembershipDataJSON) => {
     dispatch({ type: 'SET_FUZZY_DATA', fuzzyData });
     dispatch({ type: 'SET_STAGE', stage: 'calibrated', message: 'Calibration complete' });
   }, []);
@@ -171,7 +171,7 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_STAGE', stage: 'calibrating-prototype', message: 'Calibrating with prototype method...' });
   }, []);
 
-  const finishPrototypeCalibration = useCallback((fuzzyData: FuzzySetDataJSON) => {
+  const finishPrototypeCalibration = useCallback((fuzzyData: MembershipDataJSON) => {
     dispatch({ type: 'SET_FUZZY_DATA', fuzzyData });
     dispatch({ type: 'SET_STAGE', stage: 'calibrated-prototype', message: 'Prototype calibration complete' });
   }, []);

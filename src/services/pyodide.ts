@@ -15,7 +15,7 @@ import type {
   ConditionSet,
   QCAAnalysisParams,
   QCAAnalysisResultJSON,
-  FuzzySetDataJSON,
+  MembershipDataJSON,
   RobustnessReport,
   CounterfactualReport,
   ExportResult,
@@ -132,8 +132,8 @@ export class PyodideBridge {
   async calibrate(
     texts: TextCorpusEntry[],
     conditionSet: ConditionSet
-  ): Promise<FuzzySetDataJSON> {
-    return this.send<FuzzySetDataJSON>(
+  ): Promise<MembershipDataJSON> {
+    return this.send<MembershipDataJSON>(
       { type: 'calibrate', payload: { texts, conditionSet } },
       'calibrate-done',
       'calibrate'
@@ -146,8 +146,8 @@ export class PyodideBridge {
   async calibratePrototype(
     textCases: TextCase[],
     conditionSet: ConditionSet
-  ): Promise<FuzzySetDataJSON> {
-    return this.send<FuzzySetDataJSON>(
+  ): Promise<MembershipDataJSON> {
+    return this.send<MembershipDataJSON>(
       { type: 'calibrate_prototype', payload: { texts: textCases, conditionSet } },
       'calibrate-prototype-done',
       'calibrate-prototype'
@@ -177,7 +177,7 @@ export class PyodideBridge {
    * Run QCA analysis on calibrated fuzzy-set data.
    */
   async analyze(
-    fuzzyData: FuzzySetDataJSON,
+    fuzzyData: MembershipDataJSON,
     params: QCAAnalysisParams
   ): Promise<QCAAnalysisResultJSON> {
     return this.send<QCAAnalysisResultJSON>(
@@ -191,7 +191,7 @@ export class PyodideBridge {
    * Run robustness/sensitivity tests.
    */
   async runRobustness(
-    fuzzyData: FuzzySetDataJSON,
+    fuzzyData: MembershipDataJSON,
     analysisResult: QCAAnalysisResultJSON
   ): Promise<RobustnessReport> {
     return this.send<RobustnessReport>(
@@ -205,7 +205,7 @@ export class PyodideBridge {
    * Run counterfactual analysis.
    */
   async runCounterfactuals(
-    fuzzyData: FuzzySetDataJSON,
+    fuzzyData: MembershipDataJSON,
     analysisResult: QCAAnalysisResultJSON
   ): Promise<CounterfactualReport> {
     return this.send<CounterfactualReport>(
@@ -252,6 +252,55 @@ export class PyodideBridge {
       'validate-done',
       'validate'
     );
+  }
+
+  /**
+   * Import a keyword dictionary from a CSV or JSON file.
+   *
+   * The file content is written to the Pyodide VFS and processed by
+   * the keyword_io module. Returns a parsed ConditionSet.
+   */
+  async importKeywords(
+    fileName: string,
+    content: string,
+    format: 'csv' | 'json',
+    domain: string = 'dissatisfaction',
+  ): Promise<ConditionSet> {
+    const resp = await this.send<{ conditionSet: ConditionSet }>(
+      {
+        type: 'import_keywords',
+        payload: { fileName, content, format, domain },
+      },
+      'import-keywords-done',
+      'import-keywords',
+    );
+    return resp.conditionSet;
+  }
+
+  /**
+   * Export the current condition set keyword dictionary to CSV or JSON.
+   *
+   * Returns a Blob with the exported content.
+   */
+  async exportKeywords(
+    conditionSet: ConditionSet,
+    format: 'csv' | 'json',
+  ): Promise<ExportResult> {
+    const resp = await this.send<{ data: string; mimeType: string }>(
+      {
+        type: 'export_keywords',
+        payload: { conditionSet, format },
+      },
+      'export-keywords-done',
+      `export-keywords-${format}`,
+    );
+
+    const ext = format === 'csv' ? 'csv' : 'json';
+    return {
+      data: new Blob([resp.data], { type: resp.mimeType }),
+      mimeType: resp.mimeType,
+      filename: `keywords-dictionary.${ext}`,
+    };
   }
 
   /**

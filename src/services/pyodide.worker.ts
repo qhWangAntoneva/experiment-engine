@@ -149,6 +149,17 @@ self.onmessage = async (event: MessageEvent<PyodideWorkerRequest>) => {
       case 'validate_condition_set':
         await handleValidate(req.payload.conditionSet);
         break;
+      case 'import_keywords':
+        await handleImportKeywords(
+          req.payload.fileName,
+          req.payload.content,
+          req.payload.format,
+          req.payload.domain,
+        );
+        break;
+      case 'export_keywords':
+        await handleExportKeywords(req.payload.conditionSet, req.payload.format);
+        break;
       case 'get_package_status':
         respond({
           type: 'package-status',
@@ -459,6 +470,52 @@ async function handleValidate(conditionSet: any): Promise<void> {
   } catch (err: any) {
     const msg = err.message || String(err);
     respond({ type: 'validate-error', error: `Validation failed: ${msg}` });
+  }
+}
+
+// ─── Import Keywords from CSV/JSON ─────────────────────────────────────────
+
+async function handleImportKeywords(
+  fileName: string,
+  content: string,
+  format: 'csv' | 'json',
+  domain: string,
+): Promise<void> {
+  try {
+    const vfsFile = `/tmp/${fileName}`;
+    pyodide.FS.writeFile(vfsFile, content, { encoding: 'utf8' });
+
+    const conditionSet = await runHandler(
+      "from experiment_engine.pyodide_handlers import handle_import_keywords; handle_import_keywords('/tmp/import_config.json', '/tmp/import_output.json')",
+      [['/tmp/import_config.json', { vfs_file: vfsFile, format, domain, name: fileName.replace(/\.[^/.]+$/, '') }]],
+      '/tmp/import_output.json',
+    );
+    respond({ type: 'import-keywords-done', conditionSet });
+  } catch (err: any) {
+    const msg = err.message || String(err);
+    respond({ type: 'import-keywords-error', error: `Keyword import failed: ${msg}` });
+  }
+}
+
+// ─── Export Keywords to CSV/JSON ───────────────────────────────────────────
+
+async function handleExportKeywords(
+  conditionSet: any,
+  format: 'csv' | 'json',
+): Promise<void> {
+  try {
+    const { data, mime: mimeType } = await runHandler(
+      "from experiment_engine.pyodide_handlers import handle_export_keywords; handle_export_keywords('/tmp/export_cs.json', '/tmp/export_config.json', '/tmp/export_output.json')",
+      [
+        ['/tmp/export_cs.json', conditionSet],
+        ['/tmp/export_config.json', { format }],
+      ],
+      '/tmp/export_output.json',
+    );
+    respond({ type: 'export-keywords-done', data, mimeType });
+  } catch (err: any) {
+    const msg = err.message || String(err);
+    respond({ type: 'export-keywords-error', error: `Keyword export failed: ${msg}` });
   }
 }
 

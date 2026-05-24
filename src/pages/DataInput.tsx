@@ -24,9 +24,9 @@ import type {
   ConditionDefinition,
   ConceptPrototype,
   ScoringSource,
-  CalibrationType,
   TextDomain,
 } from '../types/qca';
+import { CalibrationMethod } from '../types/qca';
 import './DataInput.css';
 
 // ─── Default condition set YAML template ────────────────────────────────────
@@ -218,7 +218,7 @@ function generatePrototypeConditionSet(
       display_name: row.displayName.trim() || row.name.trim(),
       domain,
       keywords: [],
-      calibration_type: 'direct' as CalibrationType,
+      calibration_type: CalibrationMethod.DIRECT,
       calibration_params: {
         threshold_full_in: 0.80,
         threshold_full_out: 0.20,
@@ -240,7 +240,7 @@ function generatePrototypeConditionSet(
       name: 'outcome',
       display_name: 'Outcome',
       domain,
-      calibration_type: 'passthrough',
+      calibration_type: CalibrationMethod.PASSTHROUGH,
       calibration_params: null,
       keywords: [],
       description: 'Binary outcome from text input',
@@ -268,6 +268,7 @@ export default function DataInput() {
     runPrototypeCalibration,
     runPrototypeFullPipeline,
     loadCorpus,
+    importKeywords,
   } = useQCAWorkflow();
 
   // ─── Calibration mode ────────────────────────────────────────────────────
@@ -289,6 +290,9 @@ export default function DataInput() {
     newProtoRow('', ''),
     newProtoRow('', ''),
   ]);
+
+  const [importedConditionSet, setImportedConditionSet] = useState<ConditionSet | null>(null);
+  const dictFileInputRef = useRef<HTMLInputElement>(null);
 
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -346,6 +350,51 @@ export default function DataInput() {
   const handleYamlChange = useCallback((value: string) => {
     setYamlContent(value);
   }, []);
+
+  // ─── Dictionary Import handler ─────────────────────────────────────────
+
+  const detectDictFormat = useCallback((fileName: string): 'csv' | 'json' => {
+    const lower = fileName.toLowerCase();
+    if (lower.endsWith('.json')) return 'json';
+    return 'csv'; // default to CSV for .csv, .txt, etc.
+  }, []);
+
+  const handleDictFileUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const format = detectDictFormat(file.name);
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const content = e.target?.result as string;
+          const cs = await importKeywords(file.name, content, format, selectedDomain);
+          setImportedConditionSet(cs);
+          const kwCount = cs.conditions.reduce(
+            (sum, c) => sum + c.keywords.length, 0
+          );
+          if (cs.outcome) {
+            const outcomeKws = cs.outcome.keywords.length;
+            setValidationMessage(
+              `Imported ${cs.conditions.length} condition(s) + 1 outcome, ${kwCount + outcomeKws} keyword(s) from ${file.name}`
+            );
+          } else {
+            setValidationMessage(
+              `Imported ${cs.conditions.length} condition(s), ${kwCount} keyword(s) from ${file.name}`
+            );
+          }
+        } catch (err: any) {
+          setValidationMessage(`Dictionary import error: ${err.message}`);
+        }
+      };
+      reader.onerror = () => {
+        setValidationMessage('Error reading dictionary file');
+      };
+      reader.readAsText(file, 'UTF-8');
+    },
+    [importKeywords, selectedDomain, detectDictFormat]
+  );
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -522,7 +571,7 @@ export default function DataInput() {
       try {
         await runCalibrateOnly({
           texts,
-          conditionSet: yamlContent as any, // Worker will parse YAML
+          conditionSet: importedConditionSet || (yamlContent as any), // Use imported dict if available
         });
         setValidationMessage('Calibration complete. Navigate to Results to analyze.');
       } catch (err: any) {
@@ -580,7 +629,7 @@ export default function DataInput() {
       try {
         await runFullPipeline({
           texts,
-          conditionSet: yamlContent as any,
+          conditionSet: importedConditionSet || (yamlContent as any),
           runRobustness: true,
           runCounterfactuals: false,
         });
@@ -625,6 +674,50 @@ export default function DataInput() {
           Pyodide engine is not ready. Go to Dashboard and click "Load Engine" first.
         </div>
       )}
+
+      {/* === Section 0: Import Keyword Dictionary (shared across modes) === */}
+      <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <h3 className="section-title" style={{ marginBottom: 0, borderBottom: 'none', paddingBottom: 0 }}>
+            Import Keyword Dictionary
+          </h3>
+          <button
+            className="btn btn-secondary"
+            onClick={() => dictFileInputRef.current?.click()}
+            style={{ fontSize: '0.8125rem' }}
+          >
+            Choose File (CSV/JSON)
+          </button>
+        </div>
+        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
+          Import keywords from a CSV or JSON file. CSV columns: <code>condition,keyword,weight,notes</code>.
+          See the JSON format in documentation.
+        </p>
+        <input
+          ref={dictFileInputRef}
+          type="file"
+          accept=".csv,.json"
+          onChange={handleDictFileUpload}
+          style={{ display: 'none' }}
+        />
+        {importedConditionSet && (
+          <div style={{ marginTop: '12px', padding: '8px 12px', background: 'var(--color-success-bg)', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem' }}>
+            <strong>Imported:</strong>{' '}
+            {importedConditionSet.conditions.map((c) => (
+              <span key={c.name} style={{ marginRight: '12px' }}>
+                <span style={{ fontWeight: 600 }}>{c.name}</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}> ({c.keywords.length} kw)</span>
+              </span>
+            ))}
+            {importedConditionSet.outcome && (
+              <span>
+                | Outcome: <span style={{ fontWeight: 600 }}>{importedConditionSet.outcome.name}</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}> ({importedConditionSet.outcome.keywords.length} kw)</span>
+              </span>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* === Section 0: Calibration Mode Selector === */}
       <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>

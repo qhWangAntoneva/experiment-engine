@@ -13,7 +13,22 @@ export type TextDomain =
   | 'trust'
   | 'gov_responsiveness';
 
-export type CalibrationType = 'direct' | 'indirect' | 'fuzzy_direct' | 'passthrough';
+export enum CalibrationMethod {
+  DIRECT = "direct",
+  INDIRECT = "indirect",
+  RAGIN = "ragin",
+  PASSTHROUGH = "passthrough",
+  CRISP_SET = "crisp_set",
+}
+
+/** Backward-compatibility alias */
+export type CalibrationType = CalibrationMethod;
+
+export enum QCAVariant {
+  FSQCA = "fsqca",
+  CSQCA = "csqca",
+}
+
 export type ScoringSource = 'keyword' | 'prototype' | 'hybrid';
 
 export type PipelineStage =
@@ -61,7 +76,7 @@ export interface ConditionDefinition {
   display_name: string;
   domain: TextDomain;
   keywords: KeywordEntry[];
-  calibration_type: CalibrationType;
+  calibration_type: CalibrationMethod;
   calibration_params: CalibrationParams | null;
   description: string;
   scoring_source: ScoringSource;
@@ -77,6 +92,7 @@ export interface ConditionSet {
   outcome: ConditionDefinition | null;
   domain: TextDomain;
   scoring_source: ScoringSource;
+  qca_variant?: QCAVariant;
 }
 
 export interface TextCase {
@@ -85,9 +101,9 @@ export interface TextCase {
   outcome: 0 | 1;
 }
 
-// ─── Fuzzy-Set Data (serialized from numpy → list[list[number]]) ───────────
+// ─── Membership Data (serialized from numpy → list[list[number]]) ───────────
 
-export interface FuzzySetDataJSON {
+export interface MembershipDataJSON {
   membership: number[][];       // shape (n_cases, n_conditions + 1), last col = outcome
   case_ids: string[];
   condition_names: string[];
@@ -95,6 +111,9 @@ export interface FuzzySetDataJSON {
   texts: string[] | null;
   metadata: Record<string, unknown>;
 }
+
+/** Backward-compatibility alias */
+export type FuzzySetDataJSON = MembershipDataJSON;
 
 // ─── Truth Table ───────────────────────────────────────────────────────────
 
@@ -163,7 +182,7 @@ export interface SufficiencyResults {
 // ─── Comprehensive QCA Result ──────────────────────────────────────────────
 
 export interface QCAAnalysisResultJSON {
-  fuzzy_data: FuzzySetDataJSON | null;
+  fuzzy_data: MembershipDataJSON | null;
   truth_table: TruthTableJSON | null;
   solutions: QCASolutions;
   necessity: NecessityResults | null;
@@ -245,7 +264,7 @@ export interface QCAPipelineState {
 
   // Pipeline artifacts (populated as stages complete)
   conditionSet: ConditionSet | null;
-  fuzzyData: FuzzySetDataJSON | null;
+  fuzzyData: MembershipDataJSON | null;
   analysisResult: QCAAnalysisResultJSON | null;
   robustnessReport: RobustnessReport | null;
   counterfactualReport: CounterfactualReport | null;
@@ -274,11 +293,13 @@ export type PyodideWorkerRequest =
   | { type: 'calibrate'; payload: { texts: TextCorpusEntry[]; conditionSet: ConditionSet } }
   | { type: 'calibrate_prototype'; payload: { texts: TextCase[]; conditionSet: ConditionSet } }
   | { type: 'load_corpus'; payload: { fileName: string; content: string; format: 'csv' | 'json' | 'txt' } }
-  | { type: 'analyze'; payload: { fuzzyData: FuzzySetDataJSON; params: QCAAnalysisParams } }
-  | { type: 'run_robustness'; payload: { fuzzyData: FuzzySetDataJSON; analysisResult: QCAAnalysisResultJSON } }
-  | { type: 'run_counterfactuals'; payload: { fuzzyData: FuzzySetDataJSON; analysisResult: QCAAnalysisResultJSON } }
+  | { type: 'analyze'; payload: { fuzzyData: MembershipDataJSON; params: QCAAnalysisParams } }
+  | { type: 'run_robustness'; payload: { fuzzyData: MembershipDataJSON; analysisResult: QCAAnalysisResultJSON } }
+  | { type: 'run_counterfactuals'; payload: { fuzzyData: MembershipDataJSON; analysisResult: QCAAnalysisResultJSON } }
   | { type: 'export_result'; payload: { format: 'csv' | 'json' | 'latex'; result: QCAAnalysisResultJSON } }
   | { type: 'validate_condition_set'; payload: { conditionSet: ConditionSet } }
+  | { type: 'import_keywords'; payload: { fileName: string; content: string; format: 'csv' | 'json'; domain: string } }
+  | { type: 'export_keywords'; payload: { conditionSet: ConditionSet; format: 'csv' | 'json' } }
   | { type: 'get_package_status'; payload?: never }
   | { type: 'terminate'; payload?: never };
 
@@ -286,9 +307,9 @@ export type PyodideWorkerResponse =
   | { type: 'init-progress'; message: string; progress: number }
   | { type: 'init-done'; loadedPackages: string[] }
   | { type: 'init-error'; error: string }
-  | { type: 'calibrate-done'; fuzzyData: FuzzySetDataJSON }
+  | { type: 'calibrate-done'; fuzzyData: MembershipDataJSON }
   | { type: 'calibrate-error'; error: string }
-  | { type: 'calibrate-prototype-done'; fuzzyData: FuzzySetDataJSON }
+  | { type: 'calibrate-prototype-done'; fuzzyData: MembershipDataJSON }
   | { type: 'calibrate-prototype-error'; error: string }
   | { type: 'corpus-loaded'; entries: TextCorpusEntry[] }
   | { type: 'corpus-error'; error: string }
@@ -302,6 +323,10 @@ export type PyodideWorkerResponse =
   | { type: 'export-error'; error: string }
   | { type: 'validate-done'; valid: boolean; warnings: string[] }
   | { type: 'validate-error'; error: string }
+  | { type: 'import-keywords-done'; conditionSet: ConditionSet }
+  | { type: 'import-keywords-error'; error: string }
+  | { type: 'export-keywords-done'; data: string; mimeType: string }
+  | { type: 'export-keywords-error'; error: string }
   | { type: 'package-status'; packages: Record<string, string> }
   | { type: 'log'; message: string; level: 'debug' | 'info' | 'warn' | 'error' }
   | { type: 'terminated' };

@@ -155,14 +155,27 @@
 **何时重新审视**: 实现 P0-9（统一管道）时同步修复 prototype 字段的 UI 交互，让用户在条件编辑器中可调整原型权重。(@see TODO P2-21, FIXME-19)
 **来源**: 客户代表分析#2026-05-24
 
-### HACK-17: 代码库未为语义校准（BERT）预留扩展点 [NEW 客户代表]
+### HACK-17: 代码库未为语义校准（BERT）预留扩展点 [NEW 客户代表，已分析: 2026-05-24]
 
 **位置**: `calibrator.py` (_compute_raw_scores), `strategies.py`, `models/qca.py` (ScoringSource)
 **性质**: 设计缺口
 **描述**: 产品的长期路线包括 BERT 语义校准（TODO P1-32/33），但当前 `_compute_raw_scores()` 的 `ScoringSource` 枚举仅有 `KEYWORD`/`PROTOTYPE`/`HYBRID` 三种值，没有 `SEMANTIC` 或 `BERT` 预留。如果 BERT PoC 通过后需要新增语义 scoring，需修改 ScoringSource 枚举 + calibrator 全链路，属于破坏性变更。
 **风险**: 将来新增 BERT scoring 需要同时修改 `ScoringSource` 枚举、`_compute_raw_scores` 分支、`CalibrationStrategyRegistry` 注册表、前端 TS 类型、Worker handler——至少涉及 5 个文件，且可能破坏现有 HYBRID 逻辑（如果 HYBRID 被解释为 keyword+bert 而非 keyword+prototype）。
 **何时重新审视**: P1-32（BERT 产品定位设计）阶段需决定 ScoringSource 是否扩展或重构为更灵活的插件化 scoring 来源系统。建议 P0-9（统一管道）时预留 `bert` 作为 ScoringSource 的未来值。
-**来源**: 客户代表分析#2026-05-24
+**参考分析**: `.wolf/bert-vs-keyword-analysis.md` — 最终决议（2026-05-25）：BERT 作为辅助工具不做主引擎。浏览器端 BERT 等待 WebGPU >90% + Safari 稳定 + 模型 <30MB 后再评估。CLI 端 `qca bert-validate/suggest/coverage` 从 P1-32/33 开始实施。
+**来源**: 客户代表分析#2026-05-24, 技术顾问 BERT 分析#2026-05-24
+
+### HACK-18: BERT 推理无法在 Pyodide 中运行，必须在 JS 侧执行 [NEW 技术顾问分析]
+
+**位置**: 架构层面（跨 Pyodide / JS Worker 边界）
+**性质**: 架构约束
+**描述**: sentence-transformers、transformers、torch 均无法在 Pyodide 中运行（torch 需要 C++ 扩展编译，无 WASM 后端；transformers 依赖 torch）。BERT 语义相似度计算必须在浏览器 JS 侧通过 ONNX Runtime Web 或 Transformers.js 执行，然后将相似度分数传回 Pyodide Python 环境进行校准。这意味着：(1) 需要一个独立的 BERT Web Worker；(2) Pyodide worker 和 BERT worker 之间需要通过主线程 postMessage 进行数据交换；(3) BERT worker 需要单独的生命周期管理（初始化、模型加载、推理、错误处理）。
+
+当前 Pyodide 单 worker 架构将变为双 worker 架构（Pyodide Python worker + BERT JS worker）。
+**风险**: 双 worker 通信复杂度增加：BERT worker 崩溃不影响关键字匹配但会使 BERT scoring 失败；首次加载从 ~50MB 增至 ~150MB（Pyodide 50MB + ONNX Runtime 5MB + BERT 量化模型 ~100MB）；中国用户访问 Hugging Face CDN 可能需要镜像。
+**何时重新审视**: P1-33（BERT CLI 可行性 PoC）阶段验证纯 Python CLI 方案（非浏览器端！）。浏览器端双 Worker 架构等待 WebGPU 覆盖率 >90% + Safari 稳定支持 + ONNX 量化模型 <30MB 后再评估。当前不做浏览器端 BERT。
+**参考分析**: `.wolf/bert-vs-keyword-analysis.md`, Section 5 + Section 10（最终决议）
+**来源**: 技术顾问 BERT-vs-关键词分析#2026-05-24
 
 ---
 
@@ -170,7 +183,7 @@
 
 | 类别 | 数量 |
 |------|------|
-| 架构层面 | 5 (1 已解决) |
+| 架构层面 | 6 (1 已解决) |
 | 代码层面 | 10 (2 已解决) |
 | 测试层面 | 2 (1 已解决) |
-| **合计** | **17** (4 已解决, 5 新增需求变更+客户代表)
+| **合计** | **18** (4 已解决, 6 新增需求变更+客户代表+技术顾问)

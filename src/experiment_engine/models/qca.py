@@ -26,16 +26,31 @@ class TextDomain(str, Enum):
     GOV_RESPONSIVENESS = "gov_responsiveness"
 
 
+# ── QCA Variant ──────────────────────────────────────────────────────────
+
+
+class QCAVariant(str, Enum):
+    """QCA variant determining the type of set-membership values."""
+
+    FSQCA = "fsqca"  # fuzzy-set QCA (continuous [0, 1])
+    CSQCA = "csqca"  # crisp-set QCA (binary {0, 1})
+
+
 # ── Calibration ─────────────────────────────────────────────────────────
 
 
-class CalibrationType(str, Enum):
-    """Fuzzy-set calibration method types."""
+class CalibrationMethod(str, Enum):
+    """Membership calibration method types."""
 
     DIRECT = "direct"  # piecewise linear
     INDIRECT = "indirect"  # log-odds transformation
     FUZZY_DIRECT = "fuzzy_direct"  # Ragin's direct method
     PASSTHROUGH = "passthrough"  # use raw score as-is without transformation
+    CRISP_SET = "crisp_set"  # single-threshold binarization (0 or 1)
+
+
+# Backward-compatibility alias.
+CalibrationType = CalibrationMethod
 
 
 class ScoringSource(str, Enum):
@@ -90,6 +105,7 @@ class KeywordEntry(BaseModel):
     pattern: str
     weight: float = 1.0
     scope: str = Field("bigram", pattern=r"^(unigram|bigram|trigram|regex|exact)$")
+    notes: str = ""
 
 
 class ConceptPrototype(BaseModel):
@@ -125,7 +141,7 @@ class ConditionDefinition(BaseModel):
     display_name: str
     domain: TextDomain
     keywords: list[KeywordEntry] = Field(default_factory=list)
-    calibration_type: CalibrationType = CalibrationType.DIRECT
+    calibration_type: CalibrationMethod = CalibrationMethod.DIRECT
     calibration_params: CalibrationParams | None = None
     description: str = ""
     scoring_source: ScoringSource = ScoringSource.KEYWORD
@@ -144,6 +160,7 @@ class ConditionSet(BaseModel):
         outcome: The outcome condition definition.
         domain: The text domain.
         scoring_source: Default scoring source for all conditions.
+        qca_variant: Whether fuzzy-set (fsqca) or crisp-set (csqca).
     """
 
     name: str = "qca_model"
@@ -152,6 +169,7 @@ class ConditionSet(BaseModel):
     outcome: ConditionDefinition | None = None
     domain: TextDomain = TextDomain.DISSATISFACTION
     scoring_source: ScoringSource = ScoringSource.KEYWORD
+    qca_variant: QCAVariant = QCAVariant.FSQCA
 
     @property
     def condition_names(self) -> list[str]:
@@ -188,12 +206,13 @@ class TextCase(BaseModel):
 # ── Fuzzy-Set Data ──────────────────────────────────────────────────────
 
 
-class FuzzySetData(BaseModel):
-    """Fuzzy-set membership matrix — the core intermediate data structure.
+class MembershipData(BaseModel):
+    """Membership matrix — the core intermediate data structure.
 
     Holds the membership scores for each case across all conditions plus outcome.
     The membership ndarray has shape (n_cases, n_conditions + 1), where the
     last column is the outcome.
+    Supports both fuzzy-set (continuous [0,1]) and crisp-set (binary {0,1}).
 
     Attributes:
         membership: 2D numpy array of fuzzy membership scores.
@@ -241,6 +260,10 @@ class FuzzySetData(BaseModel):
     def outcome_vector(self) -> np.ndarray:
         """The outcome column (last column)."""
         return self.membership[:, self.n_conditions]
+
+
+# Deprecated backward-compatibility alias — use MembershipData instead.
+FuzzySetData = MembershipData
 
 
 # ── Truth Table ─────────────────────────────────────────────────────────
@@ -419,7 +442,7 @@ class QCAAnalysisResult(BaseModel):
         metadata: Arbitrary additional metadata.
     """
 
-    fuzzy_data: FuzzySetData | None = None
+    fuzzy_data: MembershipData | None = None
     truth_table: TruthTable | None = None
     solutions: QCASolutions = Field(default_factory=QCASolutions)
     necessity: NecessityResults | None = None
