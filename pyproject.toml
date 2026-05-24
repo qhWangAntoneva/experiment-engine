@@ -44,6 +44,7 @@ dev = [
     "black>=23.0",
     "ruff>=0.1",
     "mypy>=1.0",
+    "pandas>=2.0",
     "pre-commit>=3.0",
 ]
 docs = [
@@ -107,11 +108,11 @@ ignore = ["B008", "ARG001", "ARG002", "E501"]
 "src/experiment_engine/pipeline.py" = ["B027"]
 "src/experiment_engine/plugins.py" = ["RUF012", "SLF001"]
 "examples/run_experiment.py" = ["E402", "RUF001", "ARG005"]  # import ordering + CJK chars intentional in examples
-"tests/test_algorithms.py" = ["N806"]  # X is standard QCA math notation
-"tests/test_integration.py" = ["B017", "RET505"]  # broad Exception in integration tests is intentional
+"tests/test_integration.py" = ["B017", "RET505", "RUF001"]  # broad Exception + CJK chars in integration tests
 "tests/test_io.py" = ["SLF001", "RUF002"]  # private access in unit tests is expected
 "tests/test_viz.py" = ["SLF001"]  # private access in unit tests is expected
 "tests/test_pipeline.py" = ["B017", "SLF001"]  # broad Exception + private access in unit tests
+"tests/test_prototype_similarity.py" = ["RUF001", "SLF001", "B017"]  # CJK chars + private access + pytest.raises(Exception)
 
 [tool.ruff.format]
 quote-style = "double"

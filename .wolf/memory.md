@@ -260,3 +260,32 @@
 | 17:32 | Edited .gitignore | 3→6 lines | ~33 |
 | 17:41 | Session end: 45 writes across 14 files (velvety-humming-raccoon.md, models.py, __init__.py, prototype_similarity.py, calibrator.py) | 25 reads | ~114650 tok |
 | 17:49 | Session end: 45 writes across 14 files (velvety-humming-raccoon.md, models.py, __init__.py, prototype_similarity.py, calibrator.py) | 26 reads | ~115864 tok |
+| 17:53 | Commit 5753501: prototype calibration feature. 21 files, +5747/-395. Pre-commit lint issues (RUF001/SLF001/B017) logged as KI-001~003 in roadmap | pushed to master | success | ~800 tok |
+| 17:53 | Session end: 45 writes across 14 files (velvety-humming-raccoon.md, models.py, __init__.py, prototype_similarity.py, calibrator.py) | 27 reads | ~120908 tok |
+
+## Session: 2026-05-24 17:54
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 17:59 | Edited src/experiment_engine/io/readers.py | modified _get_pandas() | ~111 |
+| 17:59 | Edited src/experiment_engine/io/readers.py | 7→8 lines | ~57 |
+| 17:59 | Edited src/experiment_engine/io/readers.py | 1→2 lines | ~17 |
+| 17:59 | Edited src/experiment_engine/io/readers.py | 2→3 lines | ~40 |
+| 17:59 | Edited pyproject.toml | 1→2 lines | ~59 |
+| 18:00 | Edited roadmap/experiment-engine-roadmap.json | 4→4 lines | ~41 |
+| 18:01 | Edited roadmap/experiment-engine-roadmap.json | 7→7 lines | ~116 |
+| 18:01 | Edited roadmap/experiment-engine-roadmap.json | 3→4 lines | ~4 |
+| 18:03 | Edited pyproject.toml | 2→3 lines | ~16 |
+| 18:05 | Edited tests/test_integration.py | modified _make_valid_condition_set() | ~948 |
+| 18:06 | Edited tests/test_integration.py | _make_valid_yaml_config() → _make_valid_condition_set() | ~108 |
+| 18:06 | Edited tests/test_integration.py | _make_valid_yaml_config() → _make_valid_condition_set() | ~133 |
+| 18:06 | Edited tests/test_integration.py | modified test_list_conditions_empty() | ~217 |
+| 18:06 | Edited tests/test_integration.py | modified test_run_command_succeeds() | ~135 |
+| 18:07 | Edited tests/test_integration.py | modified test_run_with_verbose_flag() | ~222 |
+| 18:09 | Edited src/experiment_engine/cli.py | modified _save_analysis_result() | ~51 |
+| 18:10 | Edited src/experiment_engine/qca_engine/advanced/robustness.py | inline fix | ~36 |
+| 18:11 | Fixed 6 stale CLI integration tests: updated helpers for text-calibration workflow config, fixed 2 pre-existing CLI bugs (numpy serialization, robustness attr) | tests/test_integration.py, src/experiment_engine/cli.py, src/experiment_engine/qca_engine/advanced/robustness.py | 6 tests + 354 others = 360 passed | ~2500 |
+| 18:13 | Edited pyproject.toml | — | ~0 |
+| 18:14 | Edited pyproject.toml | inline fix | ~30 |
+
+| %H:%M | Debug session: 7 bugs fixed (KI-001/002/003 + 4 discovered). 360 tests pass, ruff clean, tsc clean. | tests/test_algorithms.py (deleted), src/experiment_engine/io/readers.py, pyproject.toml, cli.py, robustness.py, test_integration.py | 360 pass, 0 fail, 6 xfail | ~35000 tok || 18:17 | Session end: 19 writes across 6 files (readers.py, pyproject.toml, experiment-engine-roadmap.json, test_integration.py, cli.py) | 16 reads | ~51024 tok |

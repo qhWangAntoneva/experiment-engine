@@ -107,41 +107,113 @@ def registered_stages() -> None:
     registry.register("passthrough", InputDataPassthroughStage)
 
 
+def _make_valid_condition_set(temp_dir: Path, name: str = "integration_test") -> Path:
+    """Write a valid condition set YAML file and return its path."""
+    from experiment_engine.models import CalibrationType, TextDomain
+    from experiment_engine.text_calibration.condition import (
+        ConditionDefinitionBuilder,
+        ConditionSetBuilder,
+        save_condition_set,
+    )
+
+    cond1 = (
+        ConditionDefinitionBuilder(
+            "negative_affect", "负面情绪", TextDomain.DISSATISFACTION
+        )
+        .add_keyword("不满", 1.0, "bigram")
+        .add_keyword("差劲", 0.8, "bigram")
+        .calibration(
+            CalibrationType.DIRECT,
+            full_in=0.80,
+            full_out=0.20,
+            crossover=0.50,
+            direction="ascending",
+        )
+        .build()
+    )
+
+    cond2 = (
+        ConditionDefinitionBuilder(
+            "strong_demand", "强烈诉求", TextDomain.DISSATISFACTION
+        )
+        .add_keyword("要求", 1.0, "bigram")
+        .add_keyword("举报", 0.9, "bigram")
+        .calibration(
+            CalibrationType.DIRECT,
+            full_in=0.80,
+            full_out=0.20,
+            crossover=0.50,
+            direction="ascending",
+        )
+        .build()
+    )
+
+    outcome = (
+        ConditionDefinitionBuilder(
+            "citizen_dissatisfaction", "市民不满意", TextDomain.DISSATISFACTION
+        )
+        .add_keyword("差", 1.0, "unigram")
+        .add_keyword("不满意", 1.0, "bigram")
+        .calibration(
+            CalibrationType.DIRECT,
+            full_in=0.80,
+            full_out=0.20,
+            crossover=0.50,
+            direction="ascending",
+        )
+        .build()
+    )
+
+    cs = (
+        ConditionSetBuilder(name, TextDomain.DISSATISFACTION)
+        .add_condition(cond1)
+        .add_condition(cond2)
+        .set_outcome(outcome)
+        .description("Integration test condition set")
+        .build()
+    )
+
+    path = temp_dir / "condition_set.yaml"
+    save_condition_set(cs, str(path))
+    return path
+
+
+def _make_valid_corpus(temp_dir: Path) -> Path:
+    """Write a minimal text corpus CSV file and return its path."""
+    import csv
+
+    path = temp_dir / "corpus.csv"
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["text"])
+        writer.writerow(["这个服务太差了，很不满意"])
+        writer.writerow(["态度很恶劣，非常差劲"])
+        writer.writerow(["总体感觉还可以接受吧"])
+        writer.writerow(["强烈要求改善服务质量"])
+        writer.writerow(["已经举报相关部门不作为"])
+    return path
+
+
 def _make_valid_yaml_config(
     temp_dir: Path,
-    name: str = "integration_test",
+    name: str | None = None,
     stages: list[dict[str, Any]] | None = None,
 ) -> Path:
-    """Write a valid YAML config file and return its path."""
-    if stages is None:
-        stages = [
-            {
-                "name": "load_data",
-                "stage_type": "passthrough",
-                "enabled": True,
-                "params": {
-                    "format": "synthetic",
-                    "n_samples": 10,
-                    "n_features": 3,
-                },
-            },
-            {
-                "name": "process",
-                "stage_type": "passthrough",
-                "enabled": True,
-                "params": {},
-            },
-        ]
+    """Write a valid QCA workflow YAML config file and return its path."""
+    # Create supporting files that the workflow config references
+    cond_set_path = _make_valid_condition_set(temp_dir, name=name or "integration_test")
+    corpus_path = _make_valid_corpus(temp_dir)
+
     config_data = {
-        "name": name,
-        "description": "Integration test config",
-        "version": "1.0",
-        "stages": stages,
-        "global_params": {},
-        "output_dir": str(temp_dir / "results"),
-        "verbose": False,
+        "conditions": {
+            "definition_file": str(cond_set_path),
+        },
+        "input": {
+            "path": str(corpus_path),
+            "text_column": "text",
+        },
     }
-    path = temp_dir / "config.yaml"
+    path = temp_dir / "workflow.yaml"
     with open(path, "w") as f:
         yaml.dump(config_data, f, default_flow_style=False, sort_keys=False)
     return path
@@ -166,8 +238,8 @@ class TestCliValidate:
     """Tests for the ``validate`` CLI command."""
 
     def test_validate_ok(self, runner: CliRunner, temp_dir: Path) -> None:
-        """Call ``validate -c <valid_config>`` and verify success output."""
-        config_path = _make_valid_yaml_config(temp_dir)
+        """Call ``validate -c <valid_condition_set>`` and verify success output."""
+        config_path = _make_valid_condition_set(temp_dir)
         result = runner.invoke(cli, ["validate", "-c", str(config_path)])
         assert result.exit_code == 0
         assert "valid" in result.output.lower()
@@ -175,12 +247,12 @@ class TestCliValidate:
     def test_validate_prints_config_details(
         self, runner: CliRunner, temp_dir: Path
     ) -> None:
-        """Valid output includes the experiment name and stage count."""
-        config_path = _make_valid_yaml_config(temp_dir, name="my_demo")
+        """Valid output includes the condition set name and condition names."""
+        config_path = _make_valid_condition_set(temp_dir, name="my_demo")
         result = runner.invoke(cli, ["validate", "-c", str(config_path)])
         assert result.exit_code == 0
         assert "my_demo" in result.output
-        assert "Stages:" in result.output
+        assert "Condition names:" in result.output
 
     def test_validate_invalid_config(self, runner: CliRunner) -> None:
         """Call ``validate -c <nonexistent>`` and verify failure exit code."""
@@ -196,22 +268,22 @@ class TestCliValidate:
         assert "Invalid" in result.output or "invalid" in result.output.lower()
 
 
-class TestCliListPlugins:
-    """Tests for the ``list-plugins`` CLI command."""
+class TestCliListConditions:
+    """Tests for the ``list-conditions`` CLI command."""
 
-    def test_list_plugins_empty(self, runner: CliRunner) -> None:
-        """With no plugins registered, the command still succeeds."""
-        result = runner.invoke(cli, ["list-plugins"])
+    def test_list_conditions_empty(self, runner: CliRunner) -> None:
+        """With no domain filter, the command lists all domain presets."""
+        result = runner.invoke(cli, ["list-conditions"])
         assert result.exit_code == 0
 
-    def test_list_plugins_with_registrations(
+    def test_list_conditions_with_domain_filter(
         self, runner: CliRunner, registered_stages: None
     ) -> None:
-        """Registered stages appear in the plugin list output."""
-        result = runner.invoke(cli, ["list-plugins"])
+        """Domain filter shows the correct preset and its keywords."""
+        result = runner.invoke(cli, ["list-conditions", "-d", "dissatisfaction"])
         assert result.exit_code == 0
-        assert "identity" in result.output
-        assert "uppercase" in result.output
+        assert "DISSATISFACTION" in result.output
+        assert "keywords" in result.output.lower()
 
 
 class TestCliRun:
@@ -220,12 +292,12 @@ class TestCliRun:
     def test_run_command_succeeds(
         self, runner: CliRunner, temp_dir: Path, registered_stages: None
     ) -> None:
-        """Call ``run -c <valid_config> -o <out_dir>`` and verify completion."""
+        """Call ``run -c <valid_workflow_config> -o <out_dir>`` and verify completion."""
         config_path = _make_valid_yaml_config(temp_dir)
         out_dir = temp_dir / "output"
         result = runner.invoke(cli, ["run", "-c", str(config_path), "-o", str(out_dir)])
         assert result.exit_code == 0
-        assert "completed" in result.output.lower()
+        assert "Done" in result.output
 
     def test_run_with_verbose_flag(
         self, runner: CliRunner, temp_dir: Path, registered_stages: None
@@ -240,7 +312,7 @@ class TestCliRun:
     def test_run_without_output_dir(
         self, runner: CliRunner, temp_dir: Path, registered_stages: None
     ) -> None:
-        """Running without ``-o`` still succeeds (output_dir from config used)."""
+        """Running without ``-o`` still succeeds (default qca_output dir used)."""
         config_path = _make_valid_yaml_config(temp_dir)
         result = runner.invoke(cli, ["run", "-c", str(config_path)])
         assert result.exit_code == 0

@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T09:32:36.666Z
-> Files: 97 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T10:14:20.444Z
+> Files: 96 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -17,7 +17,7 @@
 - `index.html` — QCA Simulation Tool (~130 tok)
 - `package-lock.json` — npm lock file (~17146 tok)
 - `package.json` — Node.js package manifest (~160 tok)
-- `pyproject.toml` — QCA Text Analysis Tool: citizen feedback text to fuzzy-set QCA analysis (~1214 tok)
+- `pyproject.toml` — QCA Text Analysis Tool: citizen feedback text to fuzzy-set QCA analysis (~1235 tok)
 - `tsconfig.app.json` (~160 tok)
 - `tsconfig.json` — TypeScript configuration (~34 tok)
 - `tsconfig.node.json` (~139 tok)
@@ -37,7 +37,7 @@
 
 ## roadmap/
 
-- `experiment-engine-roadmap.json` (~5044 tok)
+- `experiment-engine-roadmap.json` (~6510 tok)
 
 ## src/
 
@@ -61,7 +61,7 @@
 
 - `__init__.py` — QCA Text Analysis Tool — citizen feedback text → fuzzy-set QCA analysis. (~452 tok)
 - `__main__.py` — CLI 入口点 (~50 tok)
-- `cli.py` — 9 命令 CLI (~6655 tok)
+- `cli.py` — QCA Text Analysis CLI — complete QCA workflow commands. (~6716 tok)
 - `config.py` — YAML/JSON 配置加载 + merge_defaults + CLI 覆盖 (~800 tok)
 - `models.py` — Pydantic data models for the experiment-engine pipeline framework. (~9501 tok)
 - `pipeline.py` — Stage (ABC: setup/process/teardown) + Pipeline (~1800 tok)
@@ -81,7 +81,7 @@
 - `__init__.py` — 导出所有 reader/exporter + _READER_MAP (~495 tok)
 - `db.py` — SQLiteDataSource, SQLiteDataWriter + PostgreSQL stubs (~800 tok)
 - `exporters.py` — CSVExporter, JSONExporter, HTMLExporter (~500 tok)
-- `readers.py` — Data readers for experiment-engine (~4776 tok)
+- `readers.py` — Data readers for experiment-engine. (~4891 tok)
 - `sources.py` — DataSource, FileDataSource, StdinDataSource, GeneratorDataSource (~600 tok)
 
 ## src/experiment_engine/qca_engine/
@@ -100,7 +100,7 @@
 - `__init__.py` — Advanced QCA: robustness, counterfactuals, multi-outcome (~125 tok)
 - `counterfactual.py` — Counterfactual analysis (~1864 tok)
 - `multi_outcome.py` — Multi-outcome comparison (~799 tok)
-- `robustness.py` — Robustness and sensitivity tests (~2091 tok)
+- `robustness.py` — Robustness and sensitivity tests for QCA results. (~2055 tok)
 
 ## src/experiment_engine/report/
 
@@ -170,7 +170,6 @@
 
 ## tests/
 
-- `test_algorithms.py` — Tests for built-in algorithm stages (~2489 tok)
-- `test_integration.py` — Integration tests (~10623 tok)
+- `test_integration.py` — Integration tests for experiment-engine. (~11274 tok)
 - `test_prototype_similarity.py` — Unit tests for prototype-based text similarity engine. (~4412 tok)
 - `test_viz.py` — Unit tests for visualization module (~11630 tok)

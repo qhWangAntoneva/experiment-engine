@@ -711,7 +711,7 @@ def _load_training_samples(path, cs) -> TrainingDataset:
 
 def _save_analysis_result(result, path: str) -> None:
     with open(path, "w", encoding="utf-8") as fh:
-        fh.write(result.model_dump_json(indent=2))
+        fh.write(result.model_dump_json(indent=2, exclude={"fuzzy_data"}))
 
 
 def _print_analysis_summary(result, verbose: bool) -> None:

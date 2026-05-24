@@ -744,7 +744,7 @@
       "id": "KI-002",
       "title": "Stale test_algorithms.py references deleted modules",
       "severity": "low",
-      "status": "open",
+      "status": "fixed",
       "session": "pre-existing (Phase 1 QCA refactoring)",
       "description": "test_algorithms.py imports deleted KMeansStage/LinearRegressionStage.",
       "fix_plan": "Rewrite or remove test_algorithms.py."
@@ -753,10 +753,10 @@
       "id": "KI-003",
       "title": "test_integration.py requires pandas",
       "severity": "low",
-      "status": "open",
+      "status": "fixed",
       "session": "pre-existing (Phase 6)",
       "description": "test_integration.py imports pandas not in dev extras.",
-      "fix_plan": "Add pandas to dev extras or guard import."
+      "fix_plan": "pandas import in readers.py has been made lazy via _get_pandas() helper — only fails if CSV/JSON readers are used without pandas installed."
     }
   ]
 }

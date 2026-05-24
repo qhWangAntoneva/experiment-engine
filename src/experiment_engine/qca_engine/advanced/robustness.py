@@ -46,7 +46,16 @@ class RobustnessTester:
         t3 = self.test_calibration_sensitivity(fuzzy_data, baseline)
         tests.append(t3)
 
-        overall = np.mean([t.overall_robustness for t in tests]) if tests else 0.0  # type: ignore[attr-defined]
+        overall = (
+            np.mean(
+                [
+                    np.mean(t.solution_stability) if t.solution_stability else 0.0
+                    for t in tests
+                ]
+            )
+            if tests
+            else 0.0
+        )
 
         return RobustnessReport(
             tests=tests,

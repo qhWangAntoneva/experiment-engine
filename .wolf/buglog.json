@@ -347,6 +347,205 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24T08:55:03.308Z"
+    },
+    {
+      "id": "bug-022",
+      "timestamp": "2026-05-24T10:01:04.565Z",
+      "error_message": "Significant refactor of ",
+      "file": "roadmap/experiment-engine-roadmap.json",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 7→7 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T10:01:04.565Z"
+    },
+    {
+      "id": "bug-023",
+      "timestamp": "2026-05-24T10:03:20.935Z",
+      "error_message": "Incorrect value in code",
+      "file": "pyproject.toml",
+      "root_cause": "Had \"pre-commit>=3.0\"",
+      "fix": "Changed to \"pandas>=2.0\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "toml"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T10:03:20.935Z"
+    },
+    {
+      "id": "bug-024",
+      "timestamp": "2026-05-24T10:05:57.386Z",
+      "error_message": "Significant refactor of ",
+      "file": "tests/test_integration.py",
+      "root_cause": "26 lines replaced/restructured",
+      "fix": "Rewrote 38→114 lines (26 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T10:05:57.386Z"
+    },
+    {
+      "id": "bug-025",
+      "timestamp": "2026-05-24T14:00:00.000Z",
+      "error_message": "PydanticSerializationError: Unable to serialize unknown type: <class 'numpy.ndarray'> in CLI run/analyze commands when saving results via _save_analysis_result()",
+      "file": "src/experiment_engine/cli.py",
+      "root_cause": "_save_analysis_result() called result.model_dump_json() which includes FuzzySetData with membership: np.ndarray field. Pydantic v2's arbitrary_types_allowed=True permits construction but not JSON serialization of numpy arrays.",
+      "fix": "Added exclude={'fuzzy_data'} to model_dump_json() call since fuzzy data is already saved separately as .npz file. The numpy array cannot be natively JSON-serialized.",
+      "tags": [
+        "cli",
+        "serialization",
+        "numpy",
+        "pydantic",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:00:00.000Z"
+    },
+    {
+      "id": "bug-026",
+      "timestamp": "2026-05-24T14:00:00.000Z",
+      "error_message": "AttributeError: 'RobustnessTestResult' object has no attribute 'overall_robustness' in RobustnessTester.run_all()",
+      "file": "src/experiment_engine/qca_engine/advanced/robustness.py",
+      "root_cause": "Line 49 accessed t.overall_robustness on RobustnessTestResult objects, but that model only has solution_stability (list[float]) and coverage_stability (list[float]). There is no overall_robustness field on the per-test result model.",
+      "fix": "Changed to compute np.mean(t.solution_stability) for each test if the list is non-empty (else 0.0), giving the correct per-test aggregate before averaging across all tests.",
+      "tags": [
+        "cli",
+        "robustness",
+        "attribute-error",
+        "qca",
+        "model"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:00:00.000Z"
+    },
+    {
+      "id": "bug-27",
+      "timestamp": "2026-05-24T10:16:11.550433Z",
+      "error_message": "test_algorithms.py imports deleted KMeansStage/LinearRegressionStage causing ModuleNotFoundError during pytest collection",
+      "file": "tests/test_algorithms.py",
+      "root_cause": "KMeansStage and LinearRegressionStage were deleted during the QCA text-analysis refactoring, but test_algorithms.py was never updated or removed.",
+      "fix": "Deleted tests/test_algorithms.py via git rm. Removed stale per-file-ignore entry from pyproject.toml.",
+      "tags": [
+        "stale-test",
+        "import-error",
+        "qca-refactoring"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T10:16:11.550433Z"
+    },
+    {
+      "id": "bug-28",
+      "timestamp": "2026-05-24T10:16:11.550433Z",
+      "error_message": "Unconditional import pandas in readers.py breaks test collection (test_io.py + test_integration.py) when pandas not installed",
+      "file": "src/experiment_engine/io/readers.py",
+      "root_cause": "readers.py had top-level \"import pandas as pd\" but pandas was not listed in pyproject.toml dependencies or dev-dependencies. The import chain (io/__init__.py → db.py → sources.py → readers.py → pandas) caused any import from io to fail.",
+      "fix": "Replaced top-level pandas import with _get_pandas() lazy-import helper that provides a clear error message. CSVReader, JSONReader, and TextCorpusReader (CSV branch) now call _get_pandas() only when actually needed.",
+      "tags": [
+        "import-error",
+        "pandas",
+        "dependencies",
+        "lazy-import"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T10:16:11.550433Z"
+    },
+    {
+      "id": "bug-29",
+      "timestamp": "2026-05-24T10:16:11.550433Z",
+      "error_message": "ruff lint violations in test_prototype_similarity.py: RUF001 (Chinese commas), SLF001 (private _jaccard/_apply_calibration), B017 (pytest.raises(Exception))",
+      "file": "pyproject.toml",
+      "root_cause": "No per-file-ignore was configured for test_prototype_similarity.py. RUF001 from CJK test strings, SLF001 from test accessing private methods, B017 from broad Exception catches in model tests.",
+      "fix": "Added per-file-ignore entry: \"tests/test_prototype_similarity.py\" = [\"RUF001\", \"SLF001\", \"B017\"]",
+      "tags": [
+        "ruff",
+        "lint",
+        "per-file-ignore"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T10:16:11.550433Z"
+    },
+    {
+      "id": "bug-30",
+      "timestamp": "2026-05-24T10:16:11.550433Z",
+      "error_message": "roadmap/experiment-engine-roadmap.json missing trailing newline (end-of-file-fixer pre-commit hook)",
+      "file": "roadmap/experiment-engine-roadmap.json",
+      "root_cause": "File ended without a trailing newline, violating the end-of-file-fixer pre-commit hook.",
+      "fix": "Added trailing newline at end of file.",
+      "tags": [
+        "pre-commit",
+        "end-of-file-fixer",
+        "newline"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T10:16:11.550433Z"
+    },
+    {
+      "id": "bug-31",
+      "timestamp": "2026-05-24T10:16:11.550433Z",
+      "error_message": "6 integration tests fail: test_validate prints wrong string, list-plugins command removed, run command expects new config format",
+      "file": "tests/test_integration.py",
+      "root_cause": "The CLI was refactored from pipeline-plugin system to text-calibration QCA system. Tests referenced removed commands (list-plugins) and expected old output formats (\"Stages:\" instead of \"Condition names:\", stages-based config instead of conditions-based).",
+      "fix": "Replaced _make_valid_yaml_config() with _make_valid_condition_set()/_make_valid_corpus() helpers. Replaced list-plugins tests with list-conditions tests. Updated validate assertion to \"Condition names:\". Updated run assertions to \"Done\".",
+      "tags": [
+        "stale-test",
+        "cli",
+        "integration-test",
+        "qca-refactoring"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T10:16:11.550433Z"
+    },
+    {
+      "id": "bug-32",
+      "timestamp": "2026-05-24T10:16:11.550433Z",
+      "error_message": "QCAAnalysisResult.model_dump_json() crashes because fuzzy_data contains np.ndarray which is not JSON-serializable",
+      "file": "src/experiment_engine/cli.py",
+      "root_cause": "_save_analysis_result() called result.model_dump_json(indent=2) without excluding fuzzy_data, which wraps numpy arrays.",
+      "fix": "Added exclude={\"fuzzy_data\"} to model_dump_json() call. Fuzzy data is already saved separately as .npz.",
+      "tags": [
+        "json-serialization",
+        "numpy",
+        "pydantic",
+        "cli"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T10:16:11.550433Z"
+    },
+    {
+      "id": "bug-33",
+      "timestamp": "2026-05-24T10:16:11.550433Z",
+      "error_message": "AttributeError: RobustnessTestResult has no attribute overall_robustness",
+      "file": "src/experiment_engine/qca_engine/advanced/robustness.py",
+      "root_cause": "RobustnessTester.run_all() referenced t.overall_robustness which does not exist on RobustnessTestResult. The model has solution_stability (list of per-solution stability scores) instead.",
+      "fix": "Replaced t.overall_robustness with np.mean(t.solution_stability) with a guard for empty solution_stability.",
+      "tags": [
+        "attribute-error",
+        "robustness",
+        "qca"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T10:16:11.550433Z"
     }
   ]
 }

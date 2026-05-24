@@ -14,9 +14,21 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import pandas as pd
 
 from experiment_engine.models import InputData
+
+
+def _get_pandas():
+    """Lazy-load pandas with a helpful error if not installed."""
+    try:
+        import pandas as pd
+
+        return pd
+    except ImportError:
+        raise ImportError(
+            "pandas is required for CSV/JSON data reading. "
+            "Install with: pip install pandas"
+        ) from None
 
 
 class DataReader(ABC):
@@ -108,6 +120,7 @@ class CSVReader(DataReader):
         Returns:
             InputData: Parsed data with columns and optional index.
         """
+        pd = _get_pandas()
         df = pd.read_csv(
             source,
             delimiter=delimiter,
@@ -196,6 +209,7 @@ class JSONReader(DataReader):
                         raw = raw[key]
                         break
 
+        pd = _get_pandas()
         df = pd.DataFrame(raw)
         columns = [str(c) for c in df.columns.tolist()]
         index: list[Any] | None = None
@@ -476,6 +490,7 @@ class TextCorpusReader(DataReader):
             metadata["n_texts"] = len(texts)
         else:
             # Default to CSV / tabular
+            pd = _get_pandas()
             df = pd.read_csv(source, delimiter=delimiter, **kwargs)
             if text_column not in df.columns:
                 raise ValueError(
