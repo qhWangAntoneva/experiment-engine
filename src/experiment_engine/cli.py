@@ -11,7 +11,7 @@ import numpy as np
 from rich.console import Console
 from rich.table import Table
 
-from experiment_engine.models import FuzzySetData, TrainingDataset
+from experiment_engine.models import FuzzySetData, QCAVariant, TrainingDataset
 
 console = Console()
 
@@ -58,9 +58,20 @@ def cli() -> None:
     default="fuzzy_data.npz",
     help="Output path for fuzzy-set data (.npz, .csv, or .json)",
 )
+@click.option(
+    "--variant",
+    type=click.Choice(["fsqca", "csqca"]),
+    default="fsqca",
+    help="QCA variant: fsqca (fuzzy-set) or csqca (crisp-set)",
+)
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
 def calibrate(
-    condition_set: str, input: str, text_column: str, output: str, verbose: bool
+    condition_set: str,
+    input: str,
+    text_column: str,
+    output: str,
+    variant: str,
+    verbose: bool,
 ) -> None:
     """Calibrate raw texts to fuzzy-set membership scores."""
     from experiment_engine.io.readers import TextCorpusReader
@@ -70,6 +81,8 @@ def calibrate(
     )
 
     cs = load_condition_set(condition_set)
+    if variant == "csqca":
+        cs.qca_variant = QCAVariant.CSQCA
     reader = TextCorpusReader()
     input_data = reader.read(input, text_column=text_column)
     console.print(f"[green]✓[/] Loaded {input_data.n_samples} texts")
@@ -188,6 +201,12 @@ def _print_fit_metrics(metrics: dict) -> None:
     help="Frequency threshold for truth table inclusion",
 )
 @click.option(
+    "--variant",
+    type=click.Choice(["fsqca", "csqca"]),
+    default="fsqca",
+    help="QCA variant: fsqca (fuzzy-set) or csqca (crisp-set)",
+)
+@click.option(
     "--output",
     "-o",
     type=click.Path(),
@@ -200,6 +219,7 @@ def analyze(
     fuzzy_data: str,
     consistency: float,
     frequency: float,
+    variant: str,
     output: str,
     verbose: bool,
 ) -> None:
@@ -208,6 +228,8 @@ def analyze(
     from experiment_engine.text_calibration import load_condition_set
 
     cs = load_condition_set(condition_set)
+    if variant == "csqca":
+        cs.qca_variant = QCAVariant.CSQCA
     fuzzy = _load_fuzzy_data(fuzzy_data, cs)
 
     stage = QCAnalyzerStage(
@@ -441,8 +463,14 @@ def report(results: str, fmt: str, output: str | None, verbose: bool) -> None:
     default="qca_output",
     help="Directory for all output artifacts",
 )
+@click.option(
+    "--variant",
+    type=click.Choice(["fsqca", "csqca"]),
+    default="fsqca",
+    help="QCA variant: fsqca (fuzzy-set) or csqca (crisp-set)",
+)
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
-def run(config: str, output_dir: str, verbose: bool) -> None:
+def run(config: str, output_dir: str, variant: str, verbose: bool) -> None:
     """Run the complete QCA workflow (calibrate → analyze → robustness → report)."""
     import yaml as _yaml
 
@@ -461,6 +489,8 @@ def run(config: str, output_dir: str, verbose: bool) -> None:
     )
 
     cs = load_condition_set(cfg["conditions"]["definition_file"])
+    if variant == "csqca":
+        cs.qca_variant = QCAVariant.CSQCA
     reader = TextCorpusReader()
     input_cfg = cfg["input"]
     input_data = reader.read(

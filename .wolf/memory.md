@@ -660,3 +660,43 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 01:00 | TypeScript-side type refactoring for P0-12 + P0-11: renamed CalibrationType->CalibrationMethod (enum), added QCAVariant enum, added CRISP_SET, renamed FuzzySetDataJSON->MembershipDataJSON, added qca_variant to ConditionSet, updated all 6 files | src/types/qca.ts src/types/index.ts src/pages/DataInput.tsx src/services/pyodide.ts src/store/QCAPipelineContext.tsx src/components/DistributionPlot.tsx src/pyodide/engine.ts | tsc clean, vite build passes | ~1500 |
 | 01:01 | Edited src/experiment_engine/text_calibration/calibrator.py | inline fix | ~4 |
 | 01:01 | Edited tests/test_qca_core.py | inline fix | ~10 |
+| 01:05 | Session end: 42 writes across 12 files (qca.py, qca.ts, __init__.py, strategies.py, index.ts) | 30 reads | ~14648 tok |
+| 01:09 | Edited src/types/qca.ts | "ragin" → "fuzzy_direct" | ~10 |
+| 01:10 | Edited src/pages/Settings.tsx | inline fix | ~19 |
+| 01:10 | Edited src/experiment_engine/text_calibration/calibrator.py | inline fix | ~7 |
+| 01:10 | Edited tests/test_qca_core.py | inline fix | ~7 |
+| 01:13 | Session end: 46 writes across 13 files (qca.py, qca.ts, __init__.py, strategies.py, index.ts) | 30 reads | ~10261 tok |
+| 01:14 | Edited src/experiment_engine/text_calibration/strategies.py | modified calibrate() | ~196 |
+| 01:14 | Edited src/experiment_engine/text_calibration/__init__.py | 8→9 lines | ~69 |
+| 01:14 | Edited src/experiment_engine/text_calibration/__init__.py | 3→4 lines | ~34 |
+| 01:14 | Edited src/experiment_engine/text_calibration/calibrator.py | 11→12 lines | ~68 |
+| 01:14 | Edited src/experiment_engine/text_calibration/calibrator.py | 9→14 lines | ~181 |
+| 01:14 | Edited src/experiment_engine/text_calibration/calibrator.py | 9→14 lines | ~180 |
+| 01:15 | Edited src/experiment_engine/qca_engine/truth_table.py | modified _compute_config_membership() | ~176 |
+| 01:15 | Edited src/pages/Settings.tsx | 5→5 lines | ~86 |
+| 01:15 | Edited src/experiment_engine/cli.py | inline fix | ~23 |
+| 01:15 | Edited src/pages/Settings.tsx | expanded (+9 lines) | ~170 |
+| 01:15 | Edited src/pages/Settings.tsx | CSS: method | ~195 |
+| 01:15 | Edited src/experiment_engine/cli.py | modified calibrate() | ~450 |
+| 01:15 | Edited src/pages/Settings.tsx | CSS: options, options | ~116 |
+| 01:15 | Edited src/experiment_engine/cli.py | modified analyze() | ~428 |
+| 01:15 | Edited src/pages/DataInput.tsx | inline fix | ~18 |
+| 01:15 | Edited src/pages/DataInput.tsx | added error handling | ~148 |
+| 01:15 | Edited src/experiment_engine/cli.py | modified run() | ~368 |
+| 01:16 | Edited src/pages/DataInput.tsx | modified generatePrototypeConditionSet() | ~501 |
+| 01:16 | Edited src/pages/DataInput.tsx | 3→7 lines | ~72 |
+| 01:16 | Edited src/pages/DataInput.tsx | 2→6 lines | ~58 |
+| 01:17 | Edited tests/test_qca_core.py | modified test_apply_calibration_invalid_enum_raises() | ~2909 |
+| 01:17 | Edited src/pages/DataInput.tsx | added nullish coalescing | ~86 |
+| 01:17 | Edited tests/test_qca_core.py | 11→12 lines | ~67 |
+| 01:17 | Edited src/pages/DataInput.tsx | added nullish coalescing | ~105 |
+| 01:17 | Edited src/hooks/useQCAWorkflow.ts | added error handling | ~216 |
+| 01:17 | Edited tests/test_qca_core.py | 3→3 lines | ~32 |
+| 01:18 | Edited src/hooks/useQCAWorkflow.ts | modified if() | ~253 |
+| 01:18 | Edited src/hooks/useQCAWorkflow.ts | modified if() | ~228 |
+| 01:18 | Edited src/hooks/useQCAWorkflow.ts | modified if() | ~232 |
+| 01:18 | Edited src/hooks/useQCAWorkflow.ts | modified if() | ~202 |
+| 01:18 | Edited tests/test_qca_core.py | inline fix | ~20 |
+| 17:19 | Added csQCA variant support to frontend: qca_variant toggle in Settings with dynamic calibration method filtering, qca_variant propagation in DataInput ConditionSet creation, and ensureQCAVariant fallback in useQCAWorkflow hook | src/pages/Settings.tsx, src/pages/DataInput.tsx, src/hooks/useQCAWorkflow.ts | tsc -b and vite build both pass with zero errors | ~250 |
+| 01:20 | Session end: 77 writes across 16 files (qca.py, qca.ts, __init__.py, strategies.py, index.ts) | 32 reads | ~35717 tok |
+| 01:20 | Implemented csQCA (crisp-set QCA) end-to-end on Python backend | strategies.py, calibrator.py, truth_table.py, cli.py, __init__.py, test_qca_core.py | 490 tests pass, ruff clean | ~600 |

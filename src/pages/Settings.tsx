@@ -9,7 +9,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { DEFAULT_QCA_PARAMS, type QCAAnalysisParams, type ConditionSet } from '../types/qca';
+import { DEFAULT_QCA_PARAMS, type QCAAnalysisParams, type ConditionSet, QCAVariant } from '../types/qca';
 import { usePyodide } from '../hooks/usePyodide';
 import { useQCAWorkflow } from '../hooks/useQCAWorkflow';
 import { useQCAPipeline } from '../store/QCAPipelineContext';
@@ -79,6 +79,15 @@ const settings: SettingField[] = [
     default: 'direct',
     options: ['direct', 'indirect', 'fuzzy_direct', 'crisp_set'],
     description: 'Direct = piecewise linear, Indirect = log-odds, Fuzzy Direct = Ragins method',
+    group: 'calibration',
+  },
+  {
+    key: 'qca_variant',
+    label: 'QCA Variant',
+    type: 'select',
+    default: 'fsqca',
+    options: ['fsqca', 'csqca'],
+    description: 'fsQCA = fuzzy-set (continuous membership 0-1), csQCA = crisp-set (binary 0/1)',
     group: 'calibration',
   },
 
@@ -203,7 +212,19 @@ export default function Settings() {
   }, [pipelineState.conditionSet, exportFormat, exportKeywords]);
 
   const updateValue = useCallback((key: string, value: string | number | boolean) => {
-    setValues((prev) => ({ ...prev, [key]: value }));
+    setValues((prev) => {
+      const next = { ...prev, [key]: value };
+      // When QCA variant changes, auto-switch calibration method:
+      // csQCA → crisp_set, fsQCA → direct (only if currently set to the other variant's default)
+      if (key === 'qca_variant') {
+        if (value === 'csqca' && prev.calibration_type !== 'crisp_set') {
+          next.calibration_type = 'crisp_set';
+        } else if (value === 'fsqca' && prev.calibration_type === 'crisp_set') {
+          next.calibration_type = 'direct';
+        }
+      }
+      return next;
+    });
     setSaved(false);
   }, []);
 
@@ -232,7 +253,16 @@ export default function Settings() {
     [values]
   );
 
-  const calibrationFields = settings.filter((s) => s.group === 'calibration');
+  const calibrationFields = settings.filter((s) => s.group === 'calibration').map((s) => {
+    // Dynamically filter calibration method options based on QCA variant
+    if (s.key === 'calibration_type') {
+      if (values.qca_variant === 'csqca') {
+        return { ...s, options: ['crisp_set'] };
+      }
+      return { ...s, options: ['direct', 'indirect', 'fuzzy_direct'] };
+    }
+    return s;
+  });
   const analysisFields = settings.filter((s) => s.group === 'analysis');
   const exportFields = settings.filter((s) => s.group === 'export');
 

@@ -23,6 +23,7 @@ from experiment_engine.models import (
     InputData,
     MembershipData,
     OutputData,
+    QCAVariant,
     ScoringSource,
     TrainingSample,
 )
@@ -152,6 +153,11 @@ class TextCalibrationStage(Stage):
                     texts, cond, j, kw_matrix, col_to_kw
                 )
                 cal_type = self._method_override or cond.calibration_type
+
+                # csQCA: force crisp-set calibration regardless of per-condition settings
+                if self.condition_set.qca_variant == QCAVariant.CSQCA:
+                    cal_type = CalibrationMethod.CRISP_SET
+
                 params = cond.calibration_params or CalibrationParams(
                     threshold_full_in=0.80,
                     threshold_full_out=0.20,
@@ -344,6 +350,11 @@ class TextCalibrationStage(Stage):
         for j, cond in enumerate(all_conditions):
             raw_scores = self._compute_raw_scores(texts, cond, j, kw_matrix, col_to_kw)
             cal_type = self._method_override or cond.calibration_type
+
+            # csQCA: force crisp-set calibration regardless of per-condition settings
+            if self.condition_set.qca_variant == QCAVariant.CSQCA:
+                cal_type = CalibrationMethod.CRISP_SET
+
             params = cond.calibration_params or CalibrationParams(
                 threshold_full_in=0.80,
                 threshold_full_out=0.20,

@@ -17,6 +17,7 @@ from experiment_engine.models import (
     CalibrationParams,
     CalibrationType,
     ConditionDefinition,
+    ConditionSet,
     FuzzySetData,
     KeywordEntry,
     QCASolution,
@@ -1016,8 +1017,266 @@ class TestCalibrateFunctions:
             CalibrationType("bogus")  # type: ignore[arg-type]
 
 
+class TestCrispCalibration:
+    """Tests for CrispCalibration strategy (crisp-set binarization)."""
+
+    def test_crisp_basic_threshold(self):
+        """Scores >= crossover map to 1.0, below to 0.0."""
+        from experiment_engine.text_calibration.strategies import CrispCalibration
+
+        strategy = CrispCalibration()
+        params = CalibrationParams(
+            threshold_full_in=0.80,
+            threshold_full_out=0.20,
+            crossover_point=0.50,
+        )
+        raw = np.array([0.0, 0.49, 0.50, 0.75, 1.0], dtype=np.float64)
+        result = strategy.calibrate(raw, params)
+        expected = np.array([0.0, 0.0, 1.0, 1.0, 1.0], dtype=np.float64)
+        np.testing.assert_array_equal(result, expected)
+
+    def test_crisp_descending_direction(self):
+        """Descending direction flips crisp membership."""
+        from experiment_engine.text_calibration.strategies import CrispCalibration
+
+        strategy = CrispCalibration()
+        params = CalibrationParams(
+            threshold_full_in=0.80,
+            threshold_full_out=0.20,
+            crossover_point=0.50,
+            direction="descending",
+        )
+        raw = np.array([0.0, 0.49, 0.50, 0.75, 1.0], dtype=np.float64)
+        result = strategy.calibrate(raw, params)
+        # Descending: high raw -> low membership
+        expected = np.array([1.0, 1.0, 0.0, 0.0, 0.0], dtype=np.float64)
+        np.testing.assert_array_equal(result, expected)
+
+    def test_crisp_all_below_threshold(self):
+        """All scores below threshold -> all zeros."""
+        from experiment_engine.text_calibration.strategies import CrispCalibration
+
+        strategy = CrispCalibration()
+        params = CalibrationParams(
+            threshold_full_in=0.80,
+            threshold_full_out=0.20,
+            crossover_point=0.50,
+        )
+        raw = np.array([0.0, 0.1, 0.3, 0.49], dtype=np.float64)
+        result = strategy.calibrate(raw, params)
+        np.testing.assert_array_equal(result, np.zeros(4))
+
+    def test_crisp_all_above_threshold(self):
+        """All scores above threshold -> all ones."""
+        from experiment_engine.text_calibration.strategies import CrispCalibration
+
+        strategy = CrispCalibration()
+        params = CalibrationParams(
+            threshold_full_in=0.80,
+            threshold_full_out=0.20,
+            crossover_point=0.50,
+        )
+        raw = np.array([0.51, 0.7, 0.99, 1.0], dtype=np.float64)
+        result = strategy.calibrate(raw, params)
+        np.testing.assert_array_equal(result, np.ones(4))
+
+    def test_crisp_via_registry_and_apply_calibration(self):
+        """Crisp calibration works through _apply_calibration and the registry."""
+        from experiment_engine.models import CalibrationMethod
+        from experiment_engine.text_calibration.calibrator import (
+            TextCalibrationStage,
+        )
+
+        params = CalibrationParams(
+            threshold_full_in=0.80,
+            threshold_full_out=0.20,
+            crossover_point=0.50,
+        )
+        raw = np.array([0.1, 0.5, 0.9], dtype=np.float64)
+        result = TextCalibrationStage._apply_calibration(
+            raw, CalibrationMethod.CRISP_SET, params
+        )
+        expected = np.array([0.0, 1.0, 1.0], dtype=np.float64)
+        np.testing.assert_array_equal(result, expected)
+
+
 # ═════════════════════════════════════════════════════════════════════════
-#  7. Keyword Matching (keyword_dict.py)
+#  7. Crisp-Set QCA (csQCA) Integration
+# ═════════════════════════════════════════════════════════════════════════
+
+
+class TestCSQCAIntegration:
+    """Integration tests for the csQCA pipeline: calibrate + truth table."""
+
+    def test_csqca_calibrator_forces_crisp_set(self):
+        """When qca_variant=CSQCA, _process_core forces CRISP_SET calibration."""
+        from experiment_engine.models import (
+            CalibrationMethod,
+            QCAVariant,
+            ScoringSource,
+        )
+        from experiment_engine.text_calibration.calibrator import (
+            TextCalibrationStage,
+        )
+
+        # Create conditions and outcome with keywords, using DIRECT calibration
+        conditions = [
+            ConditionDefinition(
+                name="A",
+                display_name="Condition A",
+                domain=TextDomain.DISSATISFACTION,
+                keywords=[KeywordEntry(pattern="政策", weight=1.0, scope="exact")],
+                calibration_type=CalibrationMethod.DIRECT,  # would be fuzzy normally
+                scoring_source=ScoringSource.KEYWORD,
+            ),
+            ConditionDefinition(
+                name="B",
+                display_name="Condition B",
+                domain=TextDomain.DISSATISFACTION,
+                keywords=[KeywordEntry(pattern="法律", weight=1.0, scope="exact")],
+                calibration_type=CalibrationMethod.DIRECT,
+                scoring_source=ScoringSource.KEYWORD,
+            ),
+        ]
+        outcome = ConditionDefinition(
+            name="Y",
+            display_name="Outcome",
+            domain=TextDomain.DISSATISFACTION,
+            keywords=[KeywordEntry(pattern="投诉", weight=1.0, scope="exact")],
+            calibration_type=CalibrationMethod.DIRECT,
+            scoring_source=ScoringSource.KEYWORD,
+        )
+
+        cs = ConditionSet(
+            name="test_csqca",
+            conditions=conditions,
+            outcome=outcome,
+            qca_variant=QCAVariant.CSQCA,
+        )
+
+        from experiment_engine.models.framework import InputData
+
+        texts = ["政策法规很重要", "法律投诉处理", "完全不相关"]
+        input_data = InputData(
+            data=np.array(texts),
+            index=[str(i) for i in range(len(texts))],
+        )
+
+        stage = TextCalibrationStage(cs)
+        stage.setup()
+        result = stage.process(input_data)
+
+        from experiment_engine.models import MembershipData
+
+        fuzzy: MembershipData = result.processed  # type: ignore[assignment]
+
+        # With csQCA, all membership values should be exactly 0 or 1
+        membership = fuzzy.membership
+        unique_vals = {float(v) for row in membership for v in row}
+        assert unique_vals.issubset({0.0, 1.0}), (
+            f"Expected only 0/1 values, got {unique_vals}"
+        )
+
+    def test_csqca_truth_table_with_crisp_data(self):
+        """Truth table built from crisp-set data produces correct config frequencies."""
+        from experiment_engine.models import FuzzySetData
+
+        # Synthetic crisp-set membership: 4 cases, 2 conditions + 1 outcome
+        # Cases: A=1,B=1→Y=1; A=1,B=0→Y=0; A=0,B=1→Y=1; A=0,B=0→Y=0
+        membership = np.array(
+            [
+                [1.0, 1.0, 1.0],  # A=1, B=1, Y=1
+                [1.0, 0.0, 0.0],  # A=1, B=0, Y=0
+                [0.0, 1.0, 1.0],  # A=0, B=1, Y=1
+                [0.0, 0.0, 0.0],  # A=0, B=0, Y=0
+            ],
+            dtype=np.float64,
+        )
+
+        fuzzy = FuzzySetData(
+            membership=membership,
+            condition_names=["A", "B"],
+            outcome_name="Y",
+        )
+
+        builder = TruthTableBuilder()
+        tt = builder.build(fuzzy, frequency_threshold=0.5, consistency_threshold=0.75)
+
+        # 4 configs should all be included (each has frequency >= 0.5)
+        assert len(tt.included_rows) == 4
+
+        # Config [1,1] should have Y=1, frequency=1.0
+        row_11 = next(r for r in tt.rows if r.config == [1, 1])
+        assert row_11.outcome_value == 1
+        assert row_11.frequency == 1.0
+
+        # Config [1,0] should have Y=0 (consistency=0 since Y=0)
+        row_10 = next(r for r in tt.rows if r.config == [1, 0])
+        assert row_10.outcome_value == 0
+
+        # Config [0,1] should have Y=1
+        row_01 = next(r for r in tt.rows if r.config == [0, 1])
+        assert row_01.outcome_value == 1
+
+        # Config [0,0] should have Y=0
+        row_00 = next(r for r in tt.rows if r.config == [0, 0])
+        assert row_00.outcome_value == 0
+
+    def test_csqca_analyzer_with_crisp_data(self):
+        """Full QCAnalyzerStage works with crisp-set data."""
+        from experiment_engine.models import FuzzySetData, QCAVariant
+
+        # Synthetic crisp-set data: 8 cases, 3 conditions + 1 outcome
+        # Outcome=1 for rows with A=1 OR (B=1 AND C=1)
+        membership = np.array(
+            [
+                [1.0, 0.0, 0.0, 1.0],  # A*~B*~C -> Y=1 (A sufficient)
+                [1.0, 1.0, 0.0, 1.0],  # A*B*~C -> Y=1
+                [0.0, 1.0, 1.0, 1.0],  # ~A*B*C -> Y=1 (B*C sufficient)
+                [0.0, 0.0, 1.0, 0.0],  # ~A*~B*C -> Y=0
+                [1.0, 1.0, 1.0, 1.0],  # A*B*C -> Y=1
+                [0.0, 1.0, 0.0, 0.0],  # ~A*B*~C -> Y=0
+                [0.0, 0.0, 0.0, 0.0],  # ~A*~B*~C -> Y=0
+                [1.0, 0.0, 1.0, 1.0],  # A*~B*C -> Y=1
+            ],
+            dtype=np.float64,
+        )
+
+        fuzzy = FuzzySetData(
+            membership=membership,
+            condition_names=["A", "B", "C"],
+            outcome_name="Y",
+        )
+
+        cs = ConditionSet(
+            name="csqca_test",
+            qca_variant=QCAVariant.CSQCA,
+        )
+
+        from experiment_engine.qca_engine import QCAnalyzerStage
+
+        analyzer = QCAnalyzerStage(
+            condition_set=cs,
+            consistency_threshold=0.75,
+            frequency_threshold=0.5,
+        )
+        analyzer.setup()
+        result = analyzer.analyze(fuzzy)
+
+        # Truth table should be built
+        assert result.truth_table is not None
+        assert len(result.truth_table.rows) == 8  # 2^3 configs
+
+        # Should get at least one positive row
+        assert len(result.truth_table.positive_rows) >= 1
+
+        # Solutions should be generated
+        assert result.solutions.complex is not None
+        assert len(result.solutions.complex.formula) > 0
+
+
+# ═════════════════════════════════════════════════════════════════════════
+#  8. Keyword Matching (keyword_dict.py)
 # ═════════════════════════════════════════════════════════════════════════
 
 

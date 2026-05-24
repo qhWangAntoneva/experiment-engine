@@ -244,13 +244,23 @@ class PassthroughCalibration(CalibrationStrategy):
 
 
 class CrispCalibration(CalibrationStrategy):
-    """Crisp-set calibration: single threshold binarizes raw scores to 0 or 1."""
+    """Crisp-set calibration: single threshold binarizes raw scores to 0 or 1.
+
+    Raw scores >= crossover_point -> 1.0 (full membership)
+    Raw scores <  crossover_point -> 0.0 (full non-membership)
+
+    If direction is "descending", the result is flipped (1 - result) so that
+    lower raw scores map to membership 1.0.
+    """
 
     def calibrate(
         self, raw_scores: np.ndarray, params: CalibrationParams
     ) -> np.ndarray:
         threshold = params.crossover_point
-        return np.where(raw_scores >= threshold, 1.0, 0.0)
+        result = np.where(raw_scores >= threshold, 1.0, 0.0)
+        if params.direction == "descending":
+            result = 1.0 - result
+        return result
 
 
 class CalibrationStrategyRegistry:

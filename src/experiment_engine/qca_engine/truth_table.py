@@ -101,6 +101,10 @@ class TruthTableBuilder:
         For each condition present (1), use the membership directly.
         For each condition absent (0), use 1 - membership.
         Final membership = min across all conditions (fuzzy AND).
+
+        Works for both fuzzy-set (continuous [0,1]) and crisp-set (binary {0,1}):
+        with crisp-set data, min(0,1)=0 and min(1,1)=1 correctly compute the
+        Boolean AND of the configuration match.
         """
         n_cases = cond_matrix.shape[0]
         members = np.ones(n_cases, dtype=np.float64)

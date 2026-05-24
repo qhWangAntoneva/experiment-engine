@@ -26,7 +26,7 @@ import type {
   ScoringSource,
   TextDomain,
 } from '../types/qca';
-import { CalibrationMethod } from '../types/qca';
+import { CalibrationMethod, QCAVariant } from '../types/qca';
 import './DataInput.css';
 
 // ─── Default condition set YAML template ────────────────────────────────────
@@ -131,6 +131,21 @@ function detectCorpusFormat(fileName: string): 'csv' | 'json' | 'txt' {
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 /**
+ * Read the configured QCA variant from localStorage settings.
+ * Returns QCAVariant.CSQCA if 'csqca' is set, otherwise QCAVariant.FSQCA.
+ */
+function getQCAVariantFromSettings(): QCAVariant {
+  try {
+    const raw = localStorage.getItem('qca-settings');
+    if (raw) {
+      const settings = JSON.parse(raw);
+      if (settings.qca_variant === 'csqca') return QCAVariant.CSQCA;
+    }
+  } catch {}
+  return QCAVariant.FSQCA;
+}
+
+/**
  * Check that a File object is within the acceptable size limit.
  * Returns an error message string on failure, or null if OK.
  */
@@ -209,8 +224,13 @@ function parsePrototypeCSV(content: string): TextCase[] {
 /** Generate a ConditionSet from prototype editor rows */
 function generatePrototypeConditionSet(
   rows: PrototypeConditionRow[],
-  domain: TextDomain
+  domain: TextDomain,
+  qcaVariant: QCAVariant = QCAVariant.FSQCA,
 ): ConditionSet {
+  const calType = qcaVariant === QCAVariant.CSQCA
+    ? CalibrationMethod.CRISP_SET
+    : CalibrationMethod.DIRECT;
+
   const conditions: ConditionDefinition[] = rows
     .filter((row) => row.name.trim() !== '')
     .map((row) => ({
@@ -218,13 +238,15 @@ function generatePrototypeConditionSet(
       display_name: row.displayName.trim() || row.name.trim(),
       domain,
       keywords: [],
-      calibration_type: CalibrationMethod.DIRECT,
-      calibration_params: {
-        threshold_full_in: 0.80,
-        threshold_full_out: 0.20,
-        crossover_point: 0.50,
-        direction: 'ascending' as const,
-      },
+      calibration_type: calType,
+      calibration_params: qcaVariant === QCAVariant.CSQCA
+        ? null
+        : {
+            threshold_full_in: 0.80,
+            threshold_full_out: 0.20,
+            crossover_point: 0.50,
+            direction: 'ascending' as const,
+          },
       description: '',
       scoring_source: 'prototype' as ScoringSource,
       prototypes: parsePrototypeTexts(row.prototypesText),
@@ -234,13 +256,15 @@ function generatePrototypeConditionSet(
 
   return {
     name: 'prototype-qca',
-    description: 'QCA model with prototype-based calibration',
+    description: `QCA model with prototype-based calibration (${qcaVariant})`,
     conditions,
     outcome: {
       name: 'outcome',
       display_name: 'Outcome',
       domain,
-      calibration_type: CalibrationMethod.PASSTHROUGH,
+      calibration_type: qcaVariant === QCAVariant.CSQCA
+        ? CalibrationMethod.CRISP_SET
+        : CalibrationMethod.PASSTHROUGH,
       calibration_params: null,
       keywords: [],
       description: 'Binary outcome from text input',
@@ -251,6 +275,7 @@ function generatePrototypeConditionSet(
     },
     domain,
     scoring_source: 'prototype',
+    qca_variant: qcaVariant,
   };
 }
 
@@ -551,7 +576,11 @@ export default function DataInput() {
       setValidationMessage(null);
 
       try {
-        const conditionSet = generatePrototypeConditionSet(protoConditions, selectedDomain);
+        const conditionSet = generatePrototypeConditionSet(
+          protoConditions,
+          selectedDomain,
+          getQCAVariantFromSettings(),
+        );
         await runPrototypeCalibration({ texts: textCases, conditionSet });
         setValidationMessage('Prototype calibration complete. Navigate to Results to analyze.');
       } catch (err: any) {
@@ -571,7 +600,9 @@ export default function DataInput() {
       try {
         await runCalibrateOnly({
           texts,
-          conditionSet: importedConditionSet || (yamlContent as any), // Use imported dict if available
+          conditionSet: importedConditionSet
+            ? { ...importedConditionSet, qca_variant: importedConditionSet.qca_variant ?? getQCAVariantFromSettings() }
+            : (yamlContent as any), // YAML string parsed on Python side
         });
         setValidationMessage('Calibration complete. Navigate to Results to analyze.');
       } catch (err: any) {
@@ -603,7 +634,11 @@ export default function DataInput() {
       setValidationMessage(null);
 
       try {
-        const conditionSet = generatePrototypeConditionSet(protoConditions, selectedDomain);
+        const conditionSet = generatePrototypeConditionSet(
+          protoConditions,
+          selectedDomain,
+          getQCAVariantFromSettings(),
+        );
         await runPrototypeFullPipeline({
           texts: textCases,
           conditionSet,
@@ -629,7 +664,9 @@ export default function DataInput() {
       try {
         await runFullPipeline({
           texts,
-          conditionSet: importedConditionSet || (yamlContent as any),
+          conditionSet: importedConditionSet
+            ? { ...importedConditionSet, qca_variant: importedConditionSet.qca_variant ?? getQCAVariantFromSettings() }
+            : (yamlContent as any), // YAML string parsed on Python side
           runRobustness: true,
           runCounterfactuals: false,
         });

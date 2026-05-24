@@ -21,6 +21,7 @@ from experiment_engine.text_calibration.prototype_similarity import (
 from experiment_engine.text_calibration.strategies import (
     CalibrationStrategy,
     CalibrationStrategyRegistry,
+    CrispCalibration,
     DirectCalibration,
     IndirectCalibration,
     PassthroughCalibration,
@@ -35,6 +36,7 @@ __all__ = [
     "ChineseKeywordDictionary",
     "ConditionDefinitionBuilder",
     "ConditionSetBuilder",
+    "CrispCalibration",
     "DirectCalibration",
     "IndirectCalibration",
     "KeywordMatcher",

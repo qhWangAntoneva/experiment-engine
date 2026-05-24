@@ -1,16 +1,13 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T17:01:59.142Z
-> Files: 16 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T17:18:46.414Z
+> Files: 9 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
 
 ## ./
 
-- `FIXME.md` — FIXME — QCA Analysis Tool (~4063 tok)
-- `HACK.md` — HACK — QCA Analysis Tool (~2331 tok)
-- `TODO.md` — TODO — QCA Analysis Tool (~3310 tok)
 
 ## .claude/
 
@@ -38,11 +35,10 @@
 
 ## src/components/
 
-- `DistributionPlot.tsx` — Distribution histogram for fuzzy-set membership scores. (~900 tok)
 
 ## src/experiment_engine/
 
-- `__init__.py` — QCA Text Analysis Tool — citizen feedback text → fuzzy-set QCA analysis. (~478 tok)
+- `cli.py` — QCA Text Analysis CLI — complete QCA workflow commands. --variant option for fsqca/csqca. (~7294 tok)
 
 ## src/experiment_engine/algorithms/
 
@@ -55,11 +51,10 @@
 
 ## src/experiment_engine/models/
 
-- `__init__.py` — QCA Text Analysis Tool — data models. (~713 tok)
-- `qca.py` — QCA domain models — text analysis, calibration, truth tables, solutions, etc. (~5332 tok)
 
 ## src/experiment_engine/qca_engine/
 
+- `truth_table.py` — QCA Truth Table construction from fuzzy-set data. Crisp-set compatible. (~1473 tok)
 
 ## src/experiment_engine/qca_engine/advanced/
 
@@ -69,41 +64,39 @@
 
 ## src/experiment_engine/text_calibration/
 
-- `calibrator.py` — Text calibration stage: keyword scores → fuzzy-set membership (0-1). (~4434 tok)
-- `strategies.py` — Calibration strategy pattern — pluggable membership calibration algorithms. (~3298 tok)
+- `__init__.py` — Text calibration layer: raw text → fuzzy-set membership scores. Exports CrispCalibration. (~447 tok)
+- `calibrator.py` — Text calibration stage: keyword scores → fuzzy-set membership (0-1). csQCA-aware forces CRISP_SET. (~4721 tok)
+- `strategies.py` — Calibration strategy pattern. CrispCalibration handles descending direction. (~3552 tok)
 
 ## src/experiment_engine/viz/
 
 
 ## src/hooks/
 
+- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. (~3456 tok)
 
 ## src/layouts/
 
 
 ## src/pages/
 
-- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~12882 tok)
+- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~13245 tok)
+- `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~4949 tok)
 
 ## src/pyodide/
 
-- `engine.ts` — jsdelivr CDN URL for Pyodide full build (stdlib + numpy + common pkgs). (~3693 tok)
 
 ## src/services/
 
-- `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~3838 tok)
 
 ## src/store/
 
-- `QCAPipelineContext.tsx` — React Context for tracking the QCA pipeline lifecycle. (~2440 tok)
 
 ## src/types/
 
-- `index.ts` — Legacy types — kept for backward compatibility with existing UI components. (~416 tok)
-- `qca.ts` — QCA-specific TypeScript interfaces mirroring experiment_engine/models.py. (~3190 tok)
 
 ## tests/
 
-- `test_qca_core.py` — Unit tests for QCA core modules. (~14767 tok)
+- `test_qca_core.py` — Unit tests for QCA core modules + CrispCalibration + csQCA integration. (~19224 tok)
 
 ## tmp/

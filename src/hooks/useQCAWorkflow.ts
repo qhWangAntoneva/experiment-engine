@@ -19,7 +19,25 @@ import type {
   ConditionSet,
   QCAAnalysisParams,
 } from '../types/qca';
-import { DEFAULT_QCA_PARAMS } from '../types/qca';
+import { DEFAULT_QCA_PARAMS, QCAVariant } from '../types/qca';
+
+/** Read the configured QCA variant from localStorage settings. */
+function getQCAVariantFromSettings(): QCAVariant {
+  try {
+    const raw = localStorage.getItem('qca-settings');
+    if (raw) {
+      const settings = JSON.parse(raw);
+      if (settings.qca_variant === 'csqca') return QCAVariant.CSQCA;
+    }
+  } catch {}
+  return QCAVariant.FSQCA;
+}
+
+/** Ensure conditionSet has qca_variant set, falling back to localStorage. */
+function ensureQCAVariant(cs: ConditionSet): ConditionSet {
+  if (cs.qca_variant) return cs;
+  return { ...cs, qca_variant: getQCAVariantFromSettings() };
+}
 
 interface UseQCAWorkflowReturn {
   /** Run the full pipeline end-to-end */
@@ -115,16 +133,18 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
       try {
         await ensureReady();
 
+        const conditionSet = ensureQCAVariant(opts.conditionSet);
+
         // Validate condition set in Python
-        const validation = await bridge.validateConditionSet(opts.conditionSet);
+        const validation = await bridge.validateConditionSet(conditionSet);
         if (!validation.valid && validation.warnings.length > 0) {
           console.warn('Condition set warnings:', validation.warnings);
         }
 
-        setConditionSet(opts.conditionSet);
+        setConditionSet(conditionSet);
         startCalibration();
 
-        const fuzzyData = await bridge.calibrate(opts.texts, opts.conditionSet);
+        const fuzzyData = await bridge.calibrate(opts.texts, conditionSet);
         finishCalibration(fuzzyData);
       } catch (err: any) {
         fail(err.message || 'Calibration failed');
@@ -143,10 +163,12 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
           throw new Error('No text cases provided for prototype calibration.');
         }
 
-        setConditionSet(opts.conditionSet);
+        const conditionSet = ensureQCAVariant(opts.conditionSet);
+
+        setConditionSet(conditionSet);
         startPrototypeCalibration();
 
-        const fuzzyData = await bridge.calibratePrototype(opts.texts, opts.conditionSet);
+        const fuzzyData = await bridge.calibratePrototype(opts.texts, conditionSet);
         finishPrototypeCalibration(fuzzyData);
       } catch (err: any) {
         fail(err.message || 'Prototype calibration failed');
@@ -171,11 +193,13 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
           throw new Error('No text cases provided.');
         }
 
-        setConditionSet(opts.conditionSet);
+        const conditionSet = ensureQCAVariant(opts.conditionSet);
+
+        setConditionSet(conditionSet);
 
         // 1. Prototype calibration
         startPrototypeCalibration();
-        const fuzzyData = await bridge.calibratePrototype(opts.texts, opts.conditionSet);
+        const fuzzyData = await bridge.calibratePrototype(opts.texts, conditionSet);
         finishPrototypeCalibration(fuzzyData);
 
         // 2. Analyze
@@ -253,17 +277,19 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
       try {
         await ensureReady();
 
+        const conditionSet = ensureQCAVariant(opts.conditionSet);
+
         // 1. Validate
-        const validation = await bridge.validateConditionSet(opts.conditionSet);
+        const validation = await bridge.validateConditionSet(conditionSet);
         if (!validation.valid && validation.warnings.length > 0) {
           console.warn('Condition set warnings:', validation.warnings);
         }
 
-        setConditionSet(opts.conditionSet);
+        setConditionSet(conditionSet);
 
         // 2. Calibrate
         startCalibration();
-        const fuzzyData = await bridge.calibrate(opts.texts, opts.conditionSet);
+        const fuzzyData = await bridge.calibrate(opts.texts, conditionSet);
         finishCalibration(fuzzyData);
 
         // 3. Analyze
