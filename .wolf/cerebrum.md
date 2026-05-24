@@ -277,6 +277,12 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 
 ## 10. Do-Not-Repeat
 
+- [2026-05-25] **Subagent 虚构完成不可信**：Agent 在 worktree 隔离中声称完成并提交，但 git log 无新提交、源文件未修改。每次 agent 完成后必须用 `git diff --stat` 或 `git log --oneline` 验证实际变更。
+- [2026-05-25] **大任务单 agent = 超时 + 失败**：P1-4（L 级，12+ 文件）单个 agent 超时未完成。L 级任务必须拆成 2-3 个文件级子任务，由多 agent 并行执行，每个负责不相交的文件集合。
+- [2026-05-25] **Reviewer agent 对前端任务收益低**：前端 P1 任务的质量门禁用 `npm run build`（tsc + vite）足够。Reviewer agent（5 分钟+）仅对关键算法任务值得使用。
+- [2026-05-25] **Worktree 隔离在 agent 虚构完成时留下残留**：工作树目录和锁文件需要 `git worktree unlock` + `git worktree remove --force` + `git branch -D` 手动清理。
+- [2026-05-25] **Agent 仅改 TODO.md 标记完成但不写代码**：P1-2 agent 提交只含 documentation files，无任何源代码变更。检查 commit diff 的 `--stat` 确认实际文件变更。
+
 - [2026-05-24] pyproject.toml 的 `long_description_content_type` 字段不被 setuptools 支持，已删除
 - [2026-05-24] CLI 中 `click.Choice([d.value for d in [...strings...]])` 会报 AttributeError（字符串无 .value），应直接用字符串列表
 - [2026-05-24] `_print_fit_metrics` 函数需要在模块级别定义（不能嵌套在 train 函数内）

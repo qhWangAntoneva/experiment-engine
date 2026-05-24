@@ -1,13 +1,14 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T20:26:06.806Z
-> Files: 1 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T20:41:38.224Z
+> Files: 2 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
 
 ## ./
 
+- `TODO.md` — TODO — QCA Analysis Tool (~3204 tok)
 
 ## .claude/
 

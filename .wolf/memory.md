@@ -912,3 +912,11 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 04:26 | Completed P1-4 Chinese translation: fixed hardcoded English in DataInput.tsx (more cases, Error: prefix, Plain Text, validation styling) + added common.error and formatPlainText keys | src/pages/DataInput.tsx, src/i18n/translations.ts | build passes, committed | ~200 |
 | 04:28 | Translated Settings.tsx to Chinese via i18n (useT hook). Added exportDictError key. Build passes. | src/pages/Settings.tsx, src/i18n/translations.ts | commit ad48b15 | ~400 |
 | 04:32 | P1-4 verification: all 5 files already translated in prior commits (81cc862, 8e386c6, ad48b15). Verified Sidebar/App/Dashboard/PipelineStatus 100% translated. Results.tsx already fully using t(). npm build passes. No diff from HEAD. | src/pages/Results.tsx, src/i18n/translations.ts | verified complete | ~500 |
+| 04:34 | Session end: 165 writes across 24 files (qca.ts, QCAPipelineContext.tsx, useQCAWorkflow.ts, PipelineStatus.tsx, Results.tsx) | 31 reads | ~144475 tok |
+| 04:41 | Edited TODO.md | inline fix | ~33 |
+| 04:41 | Edited TODO.md | inline fix | ~31 |
+| 04:41 | Edited TODO.md | inline fix | ~29 |
+| 04:41 | Edited TODO.md | inline fix | ~30 |
+| 04:41 | Edited TODO.md | inline fix | ~45 |
+| 04:41 | Edited TODO.md | 3→3 lines | ~34 |
+| 04:41 | Edited TODO.md | 3→5 lines | ~33 |
