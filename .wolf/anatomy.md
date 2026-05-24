@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T14:12:22.708Z
-> Files: 106 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T14:25:18.206Z
+> Files: 107 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -15,7 +15,7 @@
 - `.pre-commit-config.yaml` (~116 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
 - `FIXME.md` — FIXME — QCA Analysis Tool (~1814 tok)
-- `HACK.md` — HACK — QCA Analysis Tool (~1155 tok)
+- `HACK.md` — HACK — QCA Analysis Tool (~1166 tok)
 - `index.html` — QCA Simulation Tool (~130 tok)
 - `package-lock.json` — npm lock file (~17146 tok)
 - `package.json` — Node.js package manifest (~160 tok)
@@ -120,12 +120,13 @@
 
 ## src/experiment_engine/text_calibration/
 
-- `__init__.py` — Text calibration layer: raw text → fuzzy-set membership scores. (~295 tok)
-- `calibrator.py` — Text calibration stage: keyword scores → fuzzy-set membership (0-1). FIXME-2,3,4,20 fixed: logistic calibrate_ragin, col_idx mapping, cached match_corpus, dedup via _process_core. (~7749 tok)
+- `__init__.py` — Text calibration layer: raw text → fuzzy-set membership scores. (~406 tok)
+- `calibrator.py` — Text calibration stage: keyword scores → fuzzy-set membership (0-1). HACK-6 resolved: strategy pattern replaces hardcoded if/elif dispatch. (~3400 tok)
 - `condition.py` — Condition set I/O helpers — YAML serialization for QCA condition definitions. (~2463 tok)
 - `domains.py` — Pre-built keyword dictionaries for 5 text domains (~2655 tok)
 - `keyword_dict.py` — Chinese keyword matching engine using character n-gram (~1774 tok)
 - `prototype_similarity.py` — Prototype-based text similarity engine for QCA fuzzy-set calibration. (~1137 tok)
+- `strategies.py` — Calibration strategy pattern — pluggable fuzzy-set calibration algorithms. (~2674 tok)
 - `training.py` — Training engine for fitting calibration parameters (~2252 tok)
 
 ## src/experiment_engine/viz/

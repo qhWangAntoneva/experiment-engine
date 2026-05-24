@@ -1,0 +1,268 @@
+"""Calibration strategy pattern — pluggable fuzzy-set calibration algorithms.
+
+Each strategy implements a specific calibration method (direct piecewise-linear,
+indirect log-odds, Ragin logistic, passthrough). The CalibrationStrategyRegistry
+maps CalibrationType enum values to strategy instances, enabling new calibration
+methods to be added without modifying the TextCalibrationStage.
+
+References:
+    - HACK-6: Resolved — replaces hardcoded if/elif dispatch with strategy pattern.
+    - TODO P1-15
+"""
+
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from typing import ClassVar
+
+import numpy as np
+
+from experiment_engine.models import CalibrationParams, CalibrationType
+
+
+class CalibrationStrategy(ABC):
+    """Abstract base class for fuzzy-set calibration strategies.
+
+    Each concrete strategy maps raw keyword/prototype scores (float ndarray)
+    to fuzzy-set membership values in [0, 1] using a specific mathematical
+    transformation controlled by CalibrationParams.
+    """
+
+    @abstractmethod
+    def calibrate(
+        self, raw_scores: np.ndarray, params: CalibrationParams
+    ) -> np.ndarray:
+        """Transform raw scores into fuzzy-set membership values.
+
+        Args:
+            raw_scores: 1D numpy array of raw scores (keyword match counts,
+                prototype similarities, etc.).
+            params: Threshold and direction parameters controlling the
+                calibration mapping.
+
+        Returns:
+            1D numpy array of fuzzy membership values in [0, 1].
+        """
+        ...
+
+
+class DirectCalibration(CalibrationStrategy):
+    """Piecewise linear fuzzy membership calibration.
+
+    Membership = 0 if normalized_score <= full_out,
+                1 if normalized_score >= full_in,
+                linear interpolation between crossover and thresholds otherwise.
+
+    Raw scores are first min-max normalized to [0, 1].
+    """
+
+    def calibrate(
+        self, raw_scores: np.ndarray, params: CalibrationParams
+    ) -> np.ndarray:
+        out = np.zeros_like(raw_scores, dtype=np.float64)
+        lo = params.threshold_full_out
+        hi = params.threshold_full_in
+        cross = params.crossover_point
+
+        # Normalize raw scores to [0, 1] via min-max scaling
+        score_min = float(np.min(raw_scores))
+        score_max = float(np.max(raw_scores))
+        if score_max > score_min:
+            normalized = (raw_scores - score_min) / (score_max - score_min)
+        else:
+            normalized = np.full_like(raw_scores, 0.5)
+
+        for i in range(len(normalized)):
+            s = normalized[i]
+            if s <= lo:
+                out[i] = 0.0
+            elif s >= hi:
+                out[i] = 1.0
+            elif s <= cross:
+                # Linear: 0 -> 0.5 between full_out and crossover
+                out[i] = 0.5 * (s - lo) / (cross - lo)
+            else:
+                # Linear: 0.5 -> 1.0 between crossover and full_in
+                out[i] = 0.5 + 0.5 * (s - cross) / (hi - cross)
+
+        if params.direction == "descending":
+            out = 1.0 - out
+
+        return out
+
+
+class IndirectCalibration(CalibrationStrategy):
+    """Log-odds based indirect calibration.
+
+    Rescales raw scores to [0, 1] via min-max normalization, then applies
+    a logistic transformation centered at the crossover point to produce
+    fuzzy membership values in [0, 1].
+    """
+
+    def calibrate(
+        self, raw_scores: np.ndarray, params: CalibrationParams
+    ) -> np.ndarray:
+        score_min = float(np.min(raw_scores))
+        score_max = float(np.max(raw_scores))
+        if score_max > score_min:
+            normalized = (raw_scores - score_min) / (score_max - score_min)
+        else:
+            normalized = np.full_like(raw_scores, 0.5)
+
+        # Logistic: map [0,1] through log-odds centered at crossover
+        cross = params.crossover_point
+        k = 10.0  # steepness factor
+
+        result = np.zeros_like(normalized, dtype=np.float64)
+        for i in range(len(normalized)):
+            s = normalized[i]
+            if s <= 0.0:
+                result[i] = 0.0
+            elif s >= 1.0:
+                result[i] = 1.0
+            else:
+                # Log-odds transform centered at crossover
+                log_odds = np.log(s / (1.0 - s)) if s > 0 and s < 1 else 0.0
+                cross_log_odds = (
+                    np.log(cross / (1.0 - cross)) if cross > 0 and cross < 1 else 0.0
+                )
+                scaled = 1.0 / (1.0 + np.exp(-k * (log_odds - cross_log_odds)))
+                result[i] = float(scaled)
+
+        if params.direction == "descending":
+            result = 1.0 - result
+
+        return result
+
+
+class RaginCalibration(CalibrationStrategy):
+    """Ragin's fuzzy direct method: log-odds of raw scores relative to anchors.
+
+    Uses logistic transformation based on three qualitative anchors:
+    - threshold_full_out -> fuzzy membership 0.05 (floor)
+    - crossover_point    -> fuzzy membership 0.50
+    - threshold_full_in  -> fuzzy membership 0.95 (ceiling)
+
+    The membership is computed by scaling the deviation from crossover
+    into log-odds space and applying the logistic function::
+
+        log_odds_95 = ln(0.95 / 0.05)
+        deviation   = (raw - crossover) * scale_factor
+        membership  = exp(deviation) / (1 + exp(deviation))
+
+    The scale factor differs above and below the crossover to ensure
+    that raw==full_in maps to membership==0.95 and raw==full_out maps
+    to membership==0.05.
+    """
+
+    def calibrate(
+        self, raw_scores: np.ndarray, params: CalibrationParams
+    ) -> np.ndarray:
+        lo = params.threshold_full_out
+        hi = params.threshold_full_in
+        cross = params.crossover_point
+
+        # Log-odds of the ceiling membership
+        log_odds_95 = np.log(0.95 / 0.05)
+
+        # Scale factors for the two sides of the crossover.
+        # Guard against degenerate anchors (hi==cross or cross==lo).
+        scale_up = log_odds_95 / (hi - cross) if hi > cross else 0.0
+        scale_down = log_odds_95 / (cross - lo) if cross > lo else 0.0
+
+        # Deviation from crossover in log-odds space
+        deviation = np.where(
+            raw_scores >= cross,
+            (raw_scores - cross) * scale_up,
+            (raw_scores - cross) * scale_down,
+        )
+
+        # Clip deviation to prevent exp() overflow with extreme raw scores
+        deviation = np.clip(deviation, -700.0, 700.0)
+
+        # Logistic transformation
+        result = np.exp(deviation) / (1.0 + np.exp(deviation))
+
+        # Apply fuzzy-set floor and ceiling
+        result = np.clip(result, 0.05, 0.95)
+
+        if params.direction == "descending":
+            result = 1.0 - result
+
+        return result
+
+
+class PassthroughCalibration(CalibrationStrategy):
+    """Return raw scores as-is without any transformation."""
+
+    def calibrate(
+        self, raw_scores: np.ndarray, params: CalibrationParams
+    ) -> np.ndarray:
+        return raw_scores.astype(np.float64)
+
+
+class CalibrationStrategyRegistry:
+    """Registry mapping CalibrationType enum values to strategy instances.
+
+    New calibration methods can be added without modifying the registry's
+    source code via ``register()``.
+
+    Usage::
+
+        # Look up a pre-registered strategy
+        strategy = CalibrationStrategyRegistry.get(CalibrationType.DIRECT)
+        result = strategy.calibrate(raw_scores, params)
+
+        # Register a custom strategy
+        registry = CalibrationStrategyRegistry()
+        registry.register(CalibrationType.DIRECT, MyCustomDirect())
+    """
+
+    _default_strategies: ClassVar[dict[CalibrationType, CalibrationStrategy]] = {
+        CalibrationType.DIRECT: DirectCalibration(),
+        CalibrationType.INDIRECT: IndirectCalibration(),
+        CalibrationType.FUZZY_DIRECT: RaginCalibration(),
+        CalibrationType.PASSTHROUGH: PassthroughCalibration(),
+    }
+
+    def __init__(self) -> None:
+        self._strategies: dict[CalibrationType, CalibrationStrategy] = dict(
+            self._default_strategies
+        )
+
+    def register(self, name: CalibrationType, strategy: CalibrationStrategy) -> None:
+        """Register a strategy for a calibration type.
+
+        Args:
+            name: The CalibrationType enum value to associate.
+            strategy: The strategy instance to use for this type.
+        """
+        if not isinstance(strategy, CalibrationStrategy):
+            raise TypeError(
+                f"strategy must be a CalibrationStrategy, got {type(strategy)}"
+            )
+        self._strategies[name] = strategy
+
+    def get(self, name: CalibrationType) -> CalibrationStrategy:
+        """Retrieve the strategy for a given calibration type.
+
+        Args:
+            name: The CalibrationType enum value.
+
+        Returns:
+            The registered CalibrationStrategy instance.
+
+        Raises:
+            KeyError: If no strategy is registered for this type.
+        """
+        if name not in self._strategies:
+            raise KeyError(
+                f"No calibration strategy registered for {name}. "
+                f"Available: {list(self._strategies.keys())}"
+            )
+        return self._strategies[name]
+
+    @property
+    def registered_types(self) -> list[CalibrationType]:
+        """Return all currently registered calibration types."""
+        return list(self._strategies.keys())

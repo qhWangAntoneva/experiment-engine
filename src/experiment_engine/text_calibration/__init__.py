@@ -18,15 +18,29 @@ from experiment_engine.text_calibration.keyword_dict import (
 from experiment_engine.text_calibration.prototype_similarity import (
     PrototypeSimilarityEngine,
 )
+from experiment_engine.text_calibration.strategies import (
+    CalibrationStrategy,
+    CalibrationStrategyRegistry,
+    DirectCalibration,
+    IndirectCalibration,
+    PassthroughCalibration,
+    RaginCalibration,
+)
 from experiment_engine.text_calibration.training import TrainingEngine
 
 __all__ = [
     "DOMAIN_PRESETS",
+    "CalibrationStrategy",
+    "CalibrationStrategyRegistry",
     "ChineseKeywordDictionary",
     "ConditionDefinitionBuilder",
     "ConditionSetBuilder",
+    "DirectCalibration",
+    "IndirectCalibration",
     "KeywordMatcher",
+    "PassthroughCalibration",
     "PrototypeSimilarityEngine",
+    "RaginCalibration",
     "TextCalibrationStage",
     "TrainingEngine",
     "build_default_conditions",

@@ -1087,6 +1087,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24T14:11:10.637Z"
+    },
+    {
+      "id": "bug-064",
+      "timestamp": "2026-05-24T14:21:33.563Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/text_calibration/calibrator.py",
+      "root_cause": "106 lines replaced/restructured",
+      "fix": "Rewrote 154→42 lines (106 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:21:33.563Z"
     }
   ]
 }

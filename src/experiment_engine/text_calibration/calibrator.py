@@ -3,6 +3,10 @@
 The TextCalibrationStage is a Pipeline Stage that takes raw keyword scores
 and produces fuzzy-set membership values using one of three calibration
 methods (direct, indirect, or Ragin's fuzzy direct method).
+
+Calibration method dispatch uses the strategy pattern (HACK-6 resolved).
+New methods can be added by registering a CalibrationStrategy without
+modifying TextCalibrationStage.
 """
 
 from __future__ import annotations
@@ -28,6 +32,12 @@ from experiment_engine.text_calibration.keyword_dict import (
 )
 from experiment_engine.text_calibration.prototype_similarity import (
     PrototypeSimilarityEngine,
+)
+from experiment_engine.text_calibration.strategies import (
+    CalibrationStrategyRegistry,
+    DirectCalibration,
+    IndirectCalibration,
+    RaginCalibration,
 )
 
 
@@ -373,155 +383,43 @@ class TextCalibrationStage(Stage):
 
     # ── Calibration functions ───────────────────────────────────────────
 
+    # Class-level strategy registry. Pre-populated with the four default
+    # strategies. External code can register custom strategies via
+    # TextCalibrationStage._registry.register(CalibrationType.DIRECT, my_impl).
+    _registry = CalibrationStrategyRegistry()
+
     @staticmethod
     def _apply_calibration(
         raw_scores: np.ndarray,
         cal_type: CalibrationType,
         params: CalibrationParams,
     ) -> np.ndarray:
-        if cal_type == CalibrationType.PASSTHROUGH:
-            return raw_scores.astype(np.float64)
-        if cal_type == CalibrationType.DIRECT:
-            return TextCalibrationStage.calibrate_direct(raw_scores, params)
-        if cal_type == CalibrationType.INDIRECT:
-            return TextCalibrationStage.calibrate_indirect(raw_scores, params)
-        if cal_type == CalibrationType.FUZZY_DIRECT:
-            return TextCalibrationStage.calibrate_ragin(raw_scores, params)
-        raise ValueError(f"Unknown calibration type: {cal_type}")
+        """Dispatch to the appropriate calibration strategy via registry.
+
+        Uses the strategy pattern (HACK-6 resolved) instead of hardcoded
+        if/elif branches. New calibration methods can be added by registering
+        a CalibrationStrategy instance without modifying this class.
+        """
+        strategy = TextCalibrationStage._registry.get(cal_type)
+        return strategy.calibrate(raw_scores, params)
 
     @staticmethod
     def calibrate_direct(
         raw_scores: np.ndarray, params: CalibrationParams
     ) -> np.ndarray:
-        """Piecewise linear fuzzy membership.
-
-        Membership = 0 if score <= full_out, 1 if score >= full_in,
-        linear interpolation between crossover and thresholds.
-        """
-        out = np.zeros_like(raw_scores, dtype=np.float64)
-        lo = params.threshold_full_out
-        hi = params.threshold_full_in
-        cross = params.crossover_point
-
-        # Normalize raw scores to [0, 1] using quantile-based scaling first
-        score_min = float(np.min(raw_scores))
-        score_max = float(np.max(raw_scores))
-        if score_max > score_min:
-            normalized = (raw_scores - score_min) / (score_max - score_min)
-        else:
-            normalized = np.full_like(raw_scores, 0.5)
-
-        for i in range(len(normalized)):
-            s = normalized[i]
-            if s <= lo:
-                out[i] = 0.0
-            elif s >= hi:
-                out[i] = 1.0
-            elif s <= cross:
-                # Linear: 0 → 0.5 between full_out and crossover
-                out[i] = 0.5 * (s - lo) / (cross - lo)
-            else:
-                # Linear: 0.5 → 1.0 between crossover and full_in
-                out[i] = 0.5 + 0.5 * (s - cross) / (hi - cross)
-
-        if params.direction == "descending":
-            out = 1.0 - out
-
-        return out
+        """Piecewise linear fuzzy membership (delegates to DirectCalibration strategy)."""
+        return DirectCalibration().calibrate(raw_scores, params)
 
     @staticmethod
     def calibrate_indirect(
         raw_scores: np.ndarray, params: CalibrationParams
     ) -> np.ndarray:
-        """Log-odds based indirect calibration.
-
-        Rescales raw scores to [0, 1] first, then applies a logistic
-        transformation to produce fuzzy membership values.
-        """
-        score_min = float(np.min(raw_scores))
-        score_max = float(np.max(raw_scores))
-        if score_max > score_min:
-            normalized = (raw_scores - score_min) / (score_max - score_min)
-        else:
-            normalized = np.full_like(raw_scores, 0.5)
-
-        # Apply logistic: map [0,1] through log-odds centered at crossover
-        cross = params.crossover_point
-        # Scale factor controls steepness; wider → smoother transition
-        k = 10.0  # steepness factor
-
-        result = np.zeros_like(normalized, dtype=np.float64)
-        for i in range(len(normalized)):
-            s = normalized[i]
-            if s <= 0.0:
-                result[i] = 0.0
-            elif s >= 1.0:
-                result[i] = 1.0
-            else:
-                # Log-odds transform centered at crossover
-                log_odds = np.log(s / (1.0 - s)) if s > 0 and s < 1 else 0.0
-                cross_log_odds = (
-                    np.log(cross / (1.0 - cross)) if cross > 0 and cross < 1 else 0.0
-                )
-                scaled = 1.0 / (1.0 + np.exp(-k * (log_odds - cross_log_odds)))
-                result[i] = float(scaled)
-
-        if params.direction == "descending":
-            result = 1.0 - result
-
-        return result
+        """Log-odds based indirect calibration (delegates to IndirectCalibration strategy)."""
+        return IndirectCalibration().calibrate(raw_scores, params)
 
     @staticmethod
     def calibrate_ragin(
         raw_scores: np.ndarray, params: CalibrationParams
     ) -> np.ndarray:
-        """Ragin's fuzzy direct method: log-odds of raw scores relative to anchors.
-
-        Uses logistic transformation based on the three qualitative anchors:
-        - threshold_full_out  -> fuzzy membership 0.05 (floor)
-        - crossover_point     -> fuzzy membership 0.50
-        - threshold_full_in   -> fuzzy membership 0.95 (ceiling)
-
-        The membership is computed by scaling the deviation from crossover
-        into log-odds space and applying the logistic function::
-
-            log_odds_95 = ln(0.95 / 0.05)
-            deviation   = (raw - crossover) * scale_factor
-            membership  = exp(deviation) / (1 + exp(deviation))
-
-        The scale factor differs above and below the crossover to ensure
-        that raw==full_in maps to membership==0.95 and raw==full_out maps
-        to membership==0.05.
-        """
-        lo = params.threshold_full_out
-        hi = params.threshold_full_in
-        cross = params.crossover_point
-
-        # Log-odds of the ceiling membership
-        log_odds_95 = np.log(0.95 / 0.05)
-
-        # Scale factors for the two sides of the crossover.
-        # Guard against degenerate anchors (hi==cross or cross==lo).
-        scale_up = log_odds_95 / (hi - cross) if hi > cross else 0.0
-        scale_down = log_odds_95 / (cross - lo) if cross > lo else 0.0
-
-        # Deviation from crossover in log-odds space
-        deviation = np.where(
-            raw_scores >= cross,
-            (raw_scores - cross) * scale_up,
-            (raw_scores - cross) * scale_down,
-        )
-
-        # Clip deviation to prevent exp() overflow with extreme raw scores
-        deviation = np.clip(deviation, -700.0, 700.0)
-
-        # Logistic transformation
-        result = np.exp(deviation) / (1.0 + np.exp(deviation))
-
-        # Apply fuzzy-set floor and ceiling
-        result = np.clip(result, 0.05, 0.95)
-
-        if params.direction == "descending":
-            result = 1.0 - result
-
-        return result
+        """Ragin's fuzzy direct method (delegates to RaginCalibration strategy)."""
+        return RaginCalibration().calibrate(raw_scores, params)

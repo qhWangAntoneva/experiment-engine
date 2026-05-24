@@ -55,13 +55,12 @@
 
 ## 代码层面
 
-### HACK-6: calibrator.py 硬编码的 if/elif 校准方法选择
+### ~~HACK-6: calibrator.py 硬编码的 if/elif 校准方法选择~~ [已解决 2026-05-24]
 
-**位置**: `src/experiment_engine/text_calibration/calibrator.py:291-304`
+**位置**: `src/experiment_engine/text_calibration/calibrator.py`, `src/experiment_engine/text_calibration/strategies.py` (新增)
 **性质**: 技术债务
-**描述**: `_apply_calibration()` 和 `_compute_raw_scores()` 使用硬编码 if/elif 分支选择校准方法和评分来源。每新增一种校准方法需直接修改 `TextCalibrationStage` 类。
-**风险**: 违反开闭原则，长期维护成本递增。
-**何时重新审视**: 新增第 4 种校准方法前必须重构为策略模式。 @see TODO P1-15
+**描述**: `_apply_calibration()` 现已使用 `CalibrationStrategyRegistry` 策略模式查找，新增校准方法只需注册 `CalibrationStrategy` 实例，无需修改 `TextCalibrationStage`。详见 `strategies.py`。
+**提交**: 待提交
 **来源**: 技术顾问#5
 
 ### HACK-7: DataInput.tsx 前端硬编码了默认条件集 YAML 模板
@@ -127,6 +126,6 @@
 | 类别 | 数量 |
 |------|------|
 | 架构层面 | 5 (1 已解决) |
-| 代码层面 | 4 (1 已解决) |
-| 测试层面 | 0 (2 已解决) |
-| **合计** | **9** (3 已解决)
+| 代码层面 | 5 (2 已解决) |
+| 测试层面 | 2 (1 已解决) |
+| **合计** | **12** (4 已解决)

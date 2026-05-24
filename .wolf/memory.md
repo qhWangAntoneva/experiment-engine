@@ -454,3 +454,15 @@
 | 22:11 | Edited TODO.md | 3→3 lines | ~19 |
 | 22:12 | Edited TODO.md | 3→3 lines | ~27 |
 | 22:12 | Edited TODO.md | 4 → 3 | ~8 |
+| 22:19 | Session end: 13 writes across 6 files (framework.py, qca.py, training.py, __init__.py, FIXME.md) | 9 reads | ~33971 tok |
+| 22:20 | Created src/experiment_engine/text_calibration/strategies.py | — | ~2664 |
+| 22:21 | Edited src/experiment_engine/text_calibration/calibrator.py | expanded (+11 lines) | ~345 |
+| 22:21 | Edited src/experiment_engine/text_calibration/calibrator.py | modified _apply_calibration() | ~508 |
+| 22:21 | Edited src/experiment_engine/text_calibration/__init__.py | expanded (+14 lines) | ~405 |
+| 22:22 | Edited src/experiment_engine/text_calibration/calibrator.py | 7→6 lines | ~47 |
+| 22:22 | Edited src/experiment_engine/text_calibration/strategies.py | added 1 import(s) | ~55 |
+| 22:22 | Edited src/experiment_engine/text_calibration/strategies.py | inline fix | ~24 |
+| 22:24 | P1-15: 校准器策略模式重构 — 创建 strategies.py (ABC + 4种策略 + Registry), 重构 _apply_calibration 用注册表, calibrate_* 静态方法代理到策略类, HACK-6 已解决 | strategies.py, calibrator.py, __init__.py | DONE — 465 passed, 6 xfailed, ruff clean | ~2700 tok |
+| 22:24 | Edited HACK.md | 8→7 lines | ~104 |
+| 22:24 | Edited HACK.md | 4→4 lines | ~24 |
+| 22:25 | Edited HACK.md | 4→4 lines | ~24 |
