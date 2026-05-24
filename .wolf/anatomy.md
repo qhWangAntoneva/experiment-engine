@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T10:14:20.444Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T10:25:38.200Z
 > Files: 96 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
@@ -25,7 +25,7 @@
 
 ## .claude/
 
-- `settings.json` (~441 tok)
+- `settings.json` (~509 tok)
 
 ## .claude/rules/
 

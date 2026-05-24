@@ -256,6 +256,7 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 - [2026-05-24] **Pyodide 中严禁用 JS 模板字面量往 Python 代码注入数据**：`pyodide.runPython(\`x = ''''${json}\n''')` 的模式是代码注入漏洞。攻击者输入 `'''` 即可逃逸出 Python 字符串执行任意代码。安全方式：先用 `pyodide.FS.writeFile('/tmp/xxx.json', jsonStr)` 写入 VFS，再在 Python 中 `json.load(open('/tmp/xxx.json'))` 读取。
 - [2026-05-24] **Pyodide mountFromInline 必须写 __init__.py**：仅创建目录（os.makedirs）不能让 Python 识别为包。必须在每个包目录写入 `__init__.py` 文件。遗漏会导致 `ModuleNotFoundError`。
 - [2026-05-24] **PipelineStage 类型交叉验证**：每次添加新的 PipelineStage 值时，必须同时确认所有 dispatch 调用使用了该值（而非写死的字符串），否则 TypeScript 编译通过但运行时语义错误（如 'running-robustness' 被用于 counterfactuals）。
+- [2026-05-24] **pre-commit stash-conflict 无限循环**：git commit 时如果存在未暂存的修改（unstaged changes），pre-commit hooks（ruff-format、end-of-file-fixer）自动格式化后，unstash 会因冲突而回滚修复，导致 commit 反复失败。解决方案：(1) 已添加 PreToolUse hook（`.wolf/hooks/pre-commit.js`），在每次 git commit 前自动执行 `ruff format . && ruff check --fix . && git add -u`；(2) 如手动提交，先确保 `git add -u` 后再 commit。
 
 ---
 

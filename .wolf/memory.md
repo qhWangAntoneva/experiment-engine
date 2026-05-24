@@ -289,3 +289,5 @@
 | 18:14 | Edited pyproject.toml | inline fix | ~30 |
 
 | %H:%M | Debug session: 7 bugs fixed (KI-001/002/003 + 4 discovered). 360 tests pass, ruff clean, tsc clean. | tests/test_algorithms.py (deleted), src/experiment_engine/io/readers.py, pyproject.toml, cli.py, robustness.py, test_integration.py | 360 pass, 0 fail, 6 xfail | ~35000 tok || 18:17 | Session end: 19 writes across 6 files (readers.py, pyproject.toml, experiment-engine-roadmap.json, test_integration.py, cli.py) | 16 reads | ~51024 tok |
+| 18:21 | Session end: 19 writes across 6 files (readers.py, pyproject.toml, experiment-engine-roadmap.json, test_integration.py, cli.py) | 16 reads | ~51024 tok |
+| 18:25 | Edited .claude/settings.json | expanded (+10 lines) | ~138 |
