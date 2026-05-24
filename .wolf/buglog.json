@@ -2175,6 +2175,134 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24T19:38:05.414Z"
+    },
+    {
+      "id": "bug-132",
+      "timestamp": "2026-05-24T19:48:41.878Z",
+      "error_message": "CSS fix: label",
+      "file": "src/components/Sidebar.tsx",
+      "root_cause": "label: 'Settings', path: '/settings', icon: '⚙' → t('sidebar.settings'), path: '/settings', icon: '⚙'",
+      "fix": "Changed label: 'Settings', path: '/settings', icon: '⚙' → t('sidebar.settings'), path: '/settings', icon: '⚙'",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T19:48:41.878Z"
+    },
+    {
+      "id": "bug-133",
+      "timestamp": "2026-05-24T19:48:55.822Z",
+      "error_message": "CSS fix: stage",
+      "file": "src/components/PipelineStatus.tsx",
+      "root_cause": "stage: PipelineStage): string { → result",
+      "fix": "Changed stage: PipelineStage): string { → result",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T19:48:55.822Z"
+    },
+    {
+      "id": "bug-134",
+      "timestamp": "2026-05-24T19:49:07.355Z",
+      "error_message": "CSS fix: label",
+      "file": "src/pages/Dashboard.tsx",
+      "root_cause": "label: 'Conditions Defined', → t('dashboard.conditionsDefined'),",
+      "fix": "Changed label: 'Conditions Defined', → t('dashboard.conditionsDefined'),",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T19:49:07.355Z"
+    },
+    {
+      "id": "bug-135",
+      "timestamp": "2026-05-24T19:50:20.846Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Had \"page-subtitle\"",
+      "fix": "Changed to 'dataInput.title'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 5,
+      "last_seen": "2026-05-24T19:57:29.974Z"
+    },
+    {
+      "id": "bug-136",
+      "timestamp": "2026-05-24T19:54:28.129Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→3 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T19:54:28.129Z"
+    },
+    {
+      "id": "bug-137",
+      "timestamp": "2026-05-24T20:05:32.923Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Had 'No keyword dictionary loaded. Import a CSV/JSON f",
+      "fix": "Changed to 'dataInput.noDictLoaded'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T20:05:32.923Z"
+    },
+    {
+      "id": "bug-138",
+      "timestamp": "2026-05-24T20:09:07.190Z",
+      "error_message": "CSS fix: key",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "key: 'robustness' as const, label: 'Robustness', available: hasRobustness && viewMode !== 'prototype' → 'robustness' as const, label: t('results.tabRobustness'), available: hasRobustness && viewMode !== 'prototype'",
+      "fix": "Changed key: 'robustness' as const, label: 'Robustness', available: hasRobustness && viewMode !== 'prototype' → 'robustness' as const, label: t('results.tabRobustness'), available: hasRobustness && viewMode !== 'prototype'",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T20:09:07.190Z"
+    },
+    {
+      "id": "bug-139",
+      "timestamp": "2026-05-24T20:10:39.052Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "Had \"page-subtitle\"",
+      "fix": "Changed to 'results.title'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T20:10:39.052Z"
     }
   ]
 }

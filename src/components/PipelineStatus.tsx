@@ -5,30 +5,18 @@
 
 import React from 'react';
 import { useQCAPipeline } from '../store/QCAPipelineContext';
+import { useT } from '../i18n/I18nContext';
 import type { PipelineStage } from '../types/qca';
 
-function stageLabel(stage: PipelineStage): string {
-  switch (stage) {
-    case 'idle': return 'Ready';
-    case 'loading-pyodide': return 'Loading Engine...';
-    case 'pyodide-ready': return 'Engine Ready';
-    case 'loading-texts': return 'Loading Texts...';
-    case 'calibrating': return 'Calibrating...';
-    case 'calibrated': return 'Calibrated';
-    case 'analyzing': return 'Analyzing...';
-    case 'analyzed': return 'Analyzed';
-    case 'prototype-analyzing': return 'Analyzing Prototype...';
-    case 'prototype-analyzed': return 'Prototype Analyzed';
-    case 'running-robustness': return 'Robustness...';
-    case 'robustness-done': return 'Robustness Done';
-    case 'exporting': return 'Exporting...';
-    case 'done': return 'Complete';
-    case 'error': return 'Error';
-    default: return stage;
-  }
+function stageLabel(stage: PipelineStage, t: (path: string) => string): string {
+  const key = `pipelineStatus.stageLabels.${stage}`;
+  const result = t(key);
+  // If translation returns the key itself, fall back to raw stage name
+  return result === key ? stage : result;
 }
 
 export default function PipelineStatus() {
+  const t = useT();
   const { state, reset } = useQCAPipeline();
 
   const elapsed = state.startTime ? (state.elapsedMs / 1000).toFixed(1) : null;
@@ -62,7 +50,7 @@ export default function PipelineStatus() {
             }}
           />
           <span style={{ fontWeight: 600 }}>
-            {stageLabel(state.stage)}
+            {stageLabel(state.stage, t)}
           </span>
           {elapsed && (
             <span className="mono" style={{ color: 'var(--color-text-secondary)', fontSize: '0.75rem' }}>
@@ -73,7 +61,7 @@ export default function PipelineStatus() {
 
         {state.stage !== 'idle' && state.stage !== 'loading-pyodide' && (
           <button className="btn btn-secondary" onClick={reset} style={{ fontSize: '0.75rem', padding: '4px 8px' }}>
-            Reset
+            {t('common.reset')}
           </button>
         )}
       </div>

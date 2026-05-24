@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { QCAPipelineProvider } from './store/QCAPipelineContext'
+import { I18nProvider } from './i18n/I18nContext'
 import MainLayout from './layouts/MainLayout'
 import Dashboard from './pages/Dashboard'
 import DataInput from './pages/DataInput'
@@ -8,16 +9,18 @@ import Settings from './pages/Settings'
 
 export default function App() {
   return (
-    <QCAPipelineProvider>
-      <Routes>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/input" element={<DataInput />} />
-          <Route path="/results" element={<Results />} />
-          <Route path="/settings" element={<Settings />} />
-        </Route>
-      </Routes>
-    </QCAPipelineProvider>
+    <I18nProvider>
+      <QCAPipelineProvider>
+        <Routes>
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/input" element={<DataInput />} />
+            <Route path="/results" element={<Results />} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
+        </Routes>
+      </QCAPipelineProvider>
+    </I18nProvider>
   )
 }

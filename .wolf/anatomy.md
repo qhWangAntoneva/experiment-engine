@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T19:38:05.395Z
-> Files: 4 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T20:10:46.266Z
+> Files: 11 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -33,9 +33,12 @@
 
 ## src/
 
+- `App.tsx` — App (~272 tok)
 
 ## src/components/
 
+- `PipelineStatus.tsx` — Pipeline Status Indicator — shows current stage, progress bar, elapsed time, (~1027 tok)
+- `Sidebar.tsx` — Sidebar (~456 tok)
 
 ## src/experiment_engine/
 
@@ -71,12 +74,19 @@
 ## src/hooks/
 
 
+## src/i18n/
+
+- `I18nContext.tsx` — Lightweight i18n via React Context. (~1424 tok)
+- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~8874 tok)
+
 ## src/layouts/
 
 
 ## src/pages/
 
-- `Results.tsx` — Results — displays all QCA analysis output + NL auto-interpretation card in Chinese. (~15326 tok)
+- `Dashboard.tsx` — Dashboard — QCA pipeline overview with pipeline status widget, (~2859 tok)
+- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~12900 tok)
+- `Results.tsx` — Results — displays all QCA analysis output in organized sections: (~10245 tok)
 
 ## src/pyodide/
 

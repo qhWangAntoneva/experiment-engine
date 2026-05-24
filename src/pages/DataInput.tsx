@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQCAPipeline } from '../store/QCAPipelineContext';
 import { useQCAWorkflow } from '../hooks/useQCAWorkflow';
 import { usePyodide } from '../hooks/usePyodide';
+import { useT } from '../i18n/I18nContext';
 import PipelineStatus from '../components/PipelineStatus';
 import DistributionPlot from '../components/DistributionPlot';
 import type {
@@ -107,7 +108,8 @@ const DOMAIN_PRESETS: TextDomain[] = [
   'gov_responsiveness',
 ];
 
-const DOMAIN_LABELS: Record<TextDomain, string> = {
+/** @deprecated Use t('dataInput.domainLabels.xxx') from I18nContext instead. */
+const _DOMAIN_LABELS_LEGACY: Record<TextDomain, string> = {
   dissatisfaction: 'Dissatisfaction',
   policy_demand: 'Policy Demand',
   co_production: 'Co-Production',
@@ -295,6 +297,7 @@ function generatePrototypeConditionSet(
 export default function DataInput() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const t = useT();
 
   const { state } = useQCAPipeline();
   const { initState } = usePyodide();
@@ -342,7 +345,7 @@ export default function DataInput() {
 
       const sizeError = checkFileSize(file);
       if (sizeError) {
-        setValidationMessage(`Error: ${sizeError}`);
+        setValidationMessage(`Error: ${t('dataInput.fileTooLarge', (file.size / (1024 * 1024)).toFixed(1))}`);
         return;
       }
 
@@ -360,13 +363,13 @@ export default function DataInput() {
           }
           const entries = await loadCorpus(file.name, content, format);
           setTexts(entries);
-          setValidationMessage(`Loaded ${entries.length} cases from ${file.name}`);
+          setValidationMessage(t('dataInput.loadedCases', entries.length, file.name));
         } catch (err: any) {
           setValidationMessage(`Error: ${err.message}`);
         }
       };
       reader.onerror = () => {
-        setValidationMessage('Error reading file');
+        setValidationMessage(t('dataInput.errorReadingFile'));
       };
       if (format === 'xlsx') {
         reader.readAsArrayBuffer(file);
@@ -387,11 +390,11 @@ export default function DataInput() {
         : 'pasted.txt';
       const entries = await loadCorpus(fileName, pasteContent, pasteFormat);
       setTexts(entries);
-      setValidationMessage(`Parsed ${entries.length} cases from pasted text`);
+      setValidationMessage(t('dataInput.parsedCases', entries.length));
     } catch (err: any) {
-      setValidationMessage(`Parse error: ${err.message}`);
+      setValidationMessage(`${t('dataInput.parseError')}${err.message}`);
     }
-  }, [pasteContent, pasteFormat, loadCorpus]);
+  }, [pasteContent, pasteFormat, loadCorpus, t]);
 
   const handleYamlChange = useCallback((value: string) => {
     setYamlContent(value);
@@ -423,19 +426,19 @@ export default function DataInput() {
           if (cs.outcome) {
             const outcomeKws = cs.outcome.keywords.length;
             setValidationMessage(
-              `Imported ${cs.conditions.length} condition(s) + 1 outcome, ${kwCount + outcomeKws} keyword(s) from ${file.name}`
+              t('dataInput.importedDict', cs.conditions.length, true, kwCount + outcomeKws, file.name)
             );
           } else {
             setValidationMessage(
-              `Imported ${cs.conditions.length} condition(s), ${kwCount} keyword(s) from ${file.name}`
+              t('dataInput.importedDictNoOutcome', cs.conditions.length, kwCount, file.name)
             );
           }
         } catch (err: any) {
-          setValidationMessage(`Dictionary import error: ${err.message}`);
+          setValidationMessage(`${t('dataInput.dictImportError')}${err.message}`);
         }
       };
       reader.onerror = () => {
-        setValidationMessage('Error reading dictionary file');
+        setValidationMessage(t('dataInput.errorReadingFile'));
       };
       reader.readAsText(file, 'UTF-8');
     },
@@ -444,7 +447,7 @@ export default function DataInput() {
 
   const handleExportKeywords = useCallback(async () => {
     if (!importedConditionSet) {
-      setValidationMessage('No keyword dictionary loaded. Import a CSV/JSON file first.');
+      setValidationMessage(t('dataInput.noDictLoaded'));
       return;
     }
     setIsExporting(true);
@@ -463,14 +466,14 @@ export default function DataInput() {
         (sum, c) => sum + c.keywords.length, 0
       );
       setValidationMessage(
-        `Exported ${importedConditionSet.conditions.length} condition(s), ${kwCount} keyword(s) as CSV.`
+        t('dataInput.exportedDict', importedConditionSet.conditions.length, kwCount)
       );
     } catch (err: any) {
-      setValidationMessage(`Export failed: ${err.message}`);
+      setValidationMessage(`${t('dataInput.exportDictError')}${err.message}`);
     } finally {
       setIsExporting(false);
     }
-  }, [importedConditionSet, exportKeywords]);
+  }, [importedConditionSet, exportKeywords, t]);
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -479,7 +482,8 @@ export default function DataInput() {
 
     const sizeError = checkFileSize(file);
     if (sizeError) {
-      setValidationMessage(`Error: ${sizeError}`);
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      setValidationMessage(`Error: ${t('dataInput.fileTooLarge', sizeMB)}`);
       return;
     }
 
@@ -496,7 +500,7 @@ export default function DataInput() {
         }
         const entries = await loadCorpus(file.name, content, format);
         setTexts(entries);
-        setValidationMessage(`Loaded ${entries.length} cases from ${file.name}`);
+        setValidationMessage(t('dataInput.loadedCases', entries.length, file.name));
       } catch (err: any) {
         setValidationMessage(`Error: ${err.message}`);
       }
@@ -506,7 +510,7 @@ export default function DataInput() {
     } else {
       reader.readAsText(file, 'UTF-8');
     }
-  }, [loadCorpus]);
+  }, [loadCorpus, t]);
 
   // ─── Prototype mode handlers ─────────────────────────────────────────────
 
@@ -517,12 +521,12 @@ export default function DataInput() {
       const outcome0 = cases.filter((c) => c.outcome === 0).length;
       const outcome1 = cases.filter((c) => c.outcome === 1).length;
       setValidationMessage(
-        `Parsed ${cases.length} text cases (outcome=0: ${outcome0}, outcome=1: ${outcome1})`
+        t('dataInput.parsedProtoCases', cases.length, outcome0, outcome1)
       );
     } catch (err: any) {
-      setValidationMessage(`Prototype CSV parse error: ${err.message}`);
+      setValidationMessage(`${t('dataInput.protoCsvParseError')}${err.message}`);
     }
-  }, [protoPasteContent]);
+  }, [protoPasteContent, t]);
 
   const handleProtoFileUpload = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -538,18 +542,18 @@ export default function DataInput() {
           const outcome0 = cases.filter((c) => c.outcome === 0).length;
           const outcome1 = cases.filter((c) => c.outcome === 1).length;
           setValidationMessage(
-            `Loaded ${cases.length} text cases from ${file.name} (outcome=0: ${outcome0}, outcome=1: ${outcome1})`
+            t('dataInput.loadedProtoCases', cases.length, outcome0, outcome1, file.name)
           );
         } catch (err: any) {
           setValidationMessage(`Error: ${err.message}`);
         }
       };
       reader.onerror = () => {
-        setValidationMessage('Error reading file');
+        setValidationMessage(t('dataInput.errorReadingFile'));
       };
       reader.readAsText(file, 'UTF-8');
     },
-    []
+    [t]
   );
 
   const handleProtoDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -566,14 +570,14 @@ export default function DataInput() {
         const outcome0 = cases.filter((c) => c.outcome === 0).length;
         const outcome1 = cases.filter((c) => c.outcome === 1).length;
         setValidationMessage(
-          `Loaded ${cases.length} text cases from ${file.name} (outcome=0: ${outcome0}, outcome=1: ${outcome1})`
+          t('dataInput.loadedProtoCases', cases.length, outcome0, outcome1, file.name)
         );
       } catch (err: any) {
         setValidationMessage(`Error: ${err.message}`);
       }
     };
     reader.readAsText(file, 'UTF-8');
-  }, []);
+  }, [t]);
 
   const updateProtoCondition = useCallback(
     (index: number, field: keyof PrototypeConditionRow, value: string) => {
@@ -607,7 +611,7 @@ export default function DataInput() {
 
   const handleCalibrate = useCallback(async () => {
     if (texts.length === 0) {
-      setValidationMessage('No text data loaded. Upload or paste text first.');
+      setValidationMessage(t('dataInput.noTextData'));
       return;
     }
 
@@ -622,21 +626,24 @@ export default function DataInput() {
           : (yamlContent as any), // YAML string parsed on Python side
         prototypeTexts: textCases.length > 0 ? textCases : undefined,
       });
-      const extra = textCases.length > 0 ? ` (with ${textCases.length} prototype cases)` : '';
-      setValidationMessage(`Calibration complete${extra}. Navigate to Results to analyze.`);
+      if (textCases.length > 0) {
+        setValidationMessage(t('dataInput.calibrationCompleteProto', textCases.length));
+      } else {
+        setValidationMessage(t('dataInput.calibrationComplete'));
+      }
     } catch (err: any) {
-      setValidationMessage(`Calibration failed: ${err.message}`);
+      setValidationMessage(`${t('dataInput.calibrationFailed')}${err.message}`);
     } finally {
       setIsRunning(false);
     }
   }, [
     textCases, texts, yamlContent,
-    runCalibrateOnly,
+    runCalibrateOnly, t,
   ]);
 
   const handleRunPipeline = useCallback(async () => {
     if (texts.length === 0) {
-      setValidationMessage('No text data loaded.');
+      setValidationMessage(t('dataInput.noTextData'));
       return;
     }
 
@@ -653,24 +660,24 @@ export default function DataInput() {
         runCounterfactuals: false,
         prototypeTexts: textCases.length > 0 ? textCases : undefined,
       });
-      setValidationMessage('Analysis complete!');
+      setValidationMessage(t('dataInput.analysisComplete'));
       setTimeout(() => navigate('/results'), 500);
     } catch (err: any) {
-      setValidationMessage(`Pipeline failed: ${err.message}`);
+      setValidationMessage(`${t('dataInput.pipelineFailed')}${err.message}`);
     } finally {
       setIsRunning(false);
     }
   }, [
     textCases, texts, yamlContent,
     runFullPipeline,
-    navigate,
+    navigate, t,
   ]);
 
   return (
     <div className="data-input">
       <div className="page-header">
-        <h2 className="page-title">Data Input</h2>
-        <p className="page-subtitle">Upload text corpus and define QCA conditions</p>
+        <h2 className="page-title">{t('dataInput.title')}</h2>
+        <p className="page-subtitle">{t('dataInput.subtitle')}</p>
       </div>
 
       <PipelineStatus />
@@ -688,7 +695,7 @@ export default function DataInput() {
             fontSize: '0.8125rem',
           }}
         >
-          Pyodide engine is not ready. Go to Dashboard and click "Load Engine" first.
+          {t('dataInput.engineNotReady')}
         </div>
       )}
 
@@ -696,7 +703,7 @@ export default function DataInput() {
       <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           <h3 className="section-title" style={{ marginBottom: 0, borderBottom: 'none', paddingBottom: 0 }}>
-            Import / Export Keyword Dictionary
+            {t('dataInput.importExportTitle')}
           </h3>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button
@@ -704,7 +711,7 @@ export default function DataInput() {
               onClick={() => dictFileInputRef.current?.click()}
               style={{ fontSize: '0.8125rem' }}
             >
-              Import CSV/JSON
+              {t('dataInput.importCsvJson')}
             </button>
             <button
               className="btn btn-secondary"
@@ -712,14 +719,12 @@ export default function DataInput() {
               disabled={isExporting || !importedConditionSet}
               style={{ fontSize: '0.8125rem' }}
             >
-              {isExporting ? 'Exporting...' : 'Export CSV'}
+              {isExporting ? t('dataInput.exporting') : t('dataInput.exportCsv')}
             </button>
           </div>
         </div>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
-          Import keywords from a CSV or JSON file, or export the current dictionary as CSV.
-          CSV columns: <code>condition,keyword,weight,notes</code>.
-          See the JSON format in documentation.
+          {t('dataInput.importHelp')}
         </p>
         <input
           ref={dictFileInputRef}
@@ -730,17 +735,17 @@ export default function DataInput() {
         />
         {importedConditionSet && (
           <div style={{ marginTop: '12px', padding: '8px 12px', background: 'var(--color-success-bg)', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem' }}>
-            <strong>Imported:</strong>{' '}
+            <strong>{t('dataInput.imported')}</strong>{' '}
             {importedConditionSet.conditions.map((c) => (
               <span key={c.name} style={{ marginRight: '12px' }}>
                 <span style={{ fontWeight: 600 }}>{c.name}</span>
-                <span style={{ color: 'var(--color-text-secondary)' }}> ({c.keywords.length} kw)</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}> ({c.keywords.length} {t('dataInput.kw')})</span>
               </span>
             ))}
             {importedConditionSet.outcome && (
               <span>
-                | Outcome: <span style={{ fontWeight: 600 }}>{importedConditionSet.outcome.name}</span>
-                <span style={{ color: 'var(--color-text-secondary)' }}> ({importedConditionSet.outcome.keywords.length} kw)</span>
+                | {t('dataInput.outcomeLabel')}: <span style={{ fontWeight: 600 }}>{importedConditionSet.outcome.name}</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}> ({importedConditionSet.outcome.keywords.length} {t('dataInput.kw')})</span>
               </span>
             )}
           </div>
@@ -749,12 +754,12 @@ export default function DataInput() {
 
       {/* === Section 0: Calibration Mode Selector === */}
       <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
-        <h3 className="section-title">Calibration Mode</h3>
+        <h3 className="section-title">{t('dataInput.calibrationMode')}</h3>
       </div>
 
       {/* ── Text Corpus Input ── */}
         <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
-          <h3 className="section-title">Text Corpus Input</h3>
+          <h3 className="section-title">{t('dataInput.textCorpus')}</h3>
 
           {/* Mode toggle */}
           <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
@@ -763,21 +768,21 @@ export default function DataInput() {
               onClick={() => setTextInputMode('paste')}
               style={{ fontSize: '0.8125rem' }}
             >
-              Paste Text
+              {t('dataInput.pasteText')}
             </button>
             <button
               className={`btn ${textInputMode === 'upload' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setTextInputMode('upload')}
               style={{ fontSize: '0.8125rem' }}
             >
-              Upload File
+              {t('dataInput.uploadFile')}
             </button>
           </div>
 
           {textInputMode === 'paste' ? (
             <div>
               <div style={{ display: 'flex', gap: '12px', marginBottom: '8px', alignItems: 'center' }}>
-                <label className="label" style={{ marginBottom: 0 }}>Format:</label>
+                <label className="label" style={{ marginBottom: 0 }}>{t('dataInput.format')}</label>
                 <select
                   className="input"
                   value={pasteFormat}
@@ -789,7 +794,7 @@ export default function DataInput() {
                   <option value="txt">Plain Text</option>
                 </select>
                 <button className="btn btn-secondary" onClick={handleParsePaste} style={{ fontSize: '0.8125rem', marginLeft: 'auto' }}>
-                  Parse Text
+                  {t('dataInput.parseText')}
                 </button>
               </div>
               <textarea
@@ -799,10 +804,10 @@ export default function DataInput() {
                 onChange={(e) => setPasteContent(e.target.value)}
                 placeholder={
                   pasteFormat === 'csv'
-                    ? 'id,text\ncase_1,投诉内容...\ncase_2,建议内容...'
+                    ? t('dataInput.pastePlaceholderCsv')
                     : pasteFormat === 'json'
-                      ? '[{"text_id": "1", "text": "投诉内容..."}]'
-                      : '每条文本用空行分隔...'
+                      ? t('dataInput.pastePlaceholderJson')
+                      : t('dataInput.pastePlaceholderTxt')
                 }
                 style={{ resize: 'vertical', fontSize: '0.8125rem' }}
               />
@@ -829,10 +834,10 @@ export default function DataInput() {
                 style={{ display: 'none' }}
               />
               <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                Drop a CSV, JSON, TXT, or Excel file here
+                {t('dataInput.dropHere')}
               </p>
               <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
-                or click to browse
+                {t('dataInput.orClickBrowse')}
               </p>
             </div>
           )}
@@ -842,15 +847,15 @@ export default function DataInput() {
             <div style={{ marginTop: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                 <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
-                  {texts.length} cases loaded
+                  {texts.length} {t('dataInput.casesLoaded')}
                 </span>
               </div>
               <div className="table-container" style={{ maxHeight: 200, overflowY: 'auto' }}>
                 <table style={{ fontSize: '0.75rem' }}>
                   <thead>
                     <tr>
-                      <th>ID</th>
-                      <th>Text (truncated)</th>
+                      <th>{t('dataInput.id')}</th>
+                      <th>{t('dataInput.textTruncated')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -865,7 +870,7 @@ export default function DataInput() {
                     {texts.length > 20 && (
                       <tr>
                         <td colSpan={2} style={{ textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-                          ... and {texts.length - 20} more cases
+                          {t('dataInput.andMoreCases', texts.length - 20)}
                         </td>
                       </tr>
                     )}
@@ -878,11 +883,10 @@ export default function DataInput() {
 
       {/* ── Prototype Text Input (Optional) ── */}
         <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
-          <h3 className="section-title">Prototype Text Input (CSV with Outcomes)</h3>
+          <h3 className="section-title">{t('dataInput.prototypeTitle')}</h3>
 
           <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
-            Format: 3-column CSV with headers <code>编号,文本内容,结果</code> (or <code>id,text,outcome</code>).
-            Outcome must be 0 or 1. Each row = one text case.
+            {t('dataInput.prototypeFormatHelp')}
           </p>
 
           <div style={{ display: 'flex', gap: '12px', marginBottom: '8px', alignItems: 'center' }}>
@@ -891,21 +895,21 @@ export default function DataInput() {
               onClick={() => setTextInputMode('paste')}
               style={{ fontSize: '0.8125rem' }}
             >
-              Paste CSV
+              {t('dataInput.parseCsv')}
             </button>
             <button
               className={`btn ${textInputMode === 'upload' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setTextInputMode('upload')}
               style={{ fontSize: '0.8125rem' }}
             >
-              Upload File
+              {t('dataInput.uploadFile')}
             </button>
             <button
               className="btn btn-secondary"
               onClick={handleParseProtoCSV}
               style={{ fontSize: '0.8125rem', marginLeft: 'auto' }}
             >
-              Parse CSV
+              {t('dataInput.parseProtoCsv')}
             </button>
           </div>
 
@@ -915,7 +919,7 @@ export default function DataInput() {
               rows={8}
               value={protoPasteContent}
               onChange={(e) => setProtoPasteContent(e.target.value)}
-              placeholder="编号,文本内容,结果&#10;case_1,服务态度非常差，等了很久没人理,0&#10;case_2,问题已解决，效率很高很满意,1&#10;case_3,噪音扰民严重，无法正常休息,0"
+              placeholder={t('dataInput.prototypePlaceholder')}
               style={{ resize: 'vertical', fontSize: '0.8125rem' }}
             />
           ) : (
@@ -940,10 +944,10 @@ export default function DataInput() {
                 style={{ display: 'none' }}
               />
               <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                Drop a CSV file here (3 columns: id, text, outcome)
+                {t('dataInput.dropProtoFile')}
               </p>
               <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
-                or click to browse
+                {t('dataInput.orClickBrowse')}
               </p>
             </div>
           )}
@@ -953,19 +957,19 @@ export default function DataInput() {
             <div style={{ marginTop: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                 <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
-                  {textCases.length} cases loaded
+                  {textCases.length} {t('dataInput.casesLoaded')}
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
-                  Outcome 0: {textCases.filter((c) => c.outcome === 0).length} | Outcome 1: {textCases.filter((c) => c.outcome === 1).length}
+                  {t('dataInput.outcome0')}: {textCases.filter((c) => c.outcome === 0).length} | {t('dataInput.outcome1')}: {textCases.filter((c) => c.outcome === 1).length}
                 </span>
               </div>
               <div className="table-container" style={{ maxHeight: 200, overflowY: 'auto' }}>
                 <table style={{ fontSize: '0.75rem' }}>
                   <thead>
                     <tr>
-                      <th>ID</th>
-                      <th>Text (truncated)</th>
-                      <th>Outcome</th>
+                      <th>{t('dataInput.id')}</th>
+                      <th>{t('dataInput.textTruncated')}</th>
+                      <th>{t('dataInput.outcomeLabel')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1004,11 +1008,11 @@ export default function DataInput() {
       {/* ── Keyword mode: Condition Set YAML Editor ── */}
       {true && (
         <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
-          <h3 className="section-title">Condition Set (YAML)</h3>
+          <h3 className="section-title">{t('dataInput.conditionSetYaml')}</h3>
 
           {/* Domain picker */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-            <label className="label" style={{ marginBottom: 0 }}>Domain Preset:</label>
+            <label className="label" style={{ marginBottom: 0 }}>{t('dataInput.domainPreset')}</label>
             <select
               className="input"
               style={{ width: 180 }}
@@ -1016,7 +1020,7 @@ export default function DataInput() {
               onChange={(e) => setSelectedDomain(e.target.value as TextDomain)}
             >
               {DOMAIN_PRESETS.map((d) => (
-                <option key={d} value={d}>{DOMAIN_LABELS[d]}</option>
+                <option key={d} value={d}>{t('dataInput.domainLabels.' + d)}</option>
               ))}
             </select>
           </div>
@@ -1037,21 +1041,20 @@ export default function DataInput() {
         <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <h3 className="section-title" style={{ marginBottom: 0, borderBottom: 'none', paddingBottom: 0 }}>
-              Prototype Editor (Conditions)
+              {t('dataInput.prototypeEditor')}
             </h3>
             <button className="btn btn-secondary" onClick={addProtoCondition} style={{ fontSize: '0.8125rem' }}>
-              + Add Condition
+              {t('dataInput.addCondition')}
             </button>
           </div>
 
           <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '12px' }}>
-            Define each condition's prototypes. Use <code>[1] text</code> for member prototypes and <code>[0] text</code>{' '}
-            for non-member prototypes. Lines without a prefix default to member (1).
+            {t('dataInput.prototypeHelp')}
           </p>
 
           {/* Domain picker (shared for all prototype conditions) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <label className="label" style={{ marginBottom: 0 }}>Domain Preset:</label>
+            <label className="label" style={{ marginBottom: 0 }}>{t('dataInput.domainPreset')}</label>
             <select
               className="input"
               style={{ width: 180 }}
@@ -1059,7 +1062,7 @@ export default function DataInput() {
               onChange={(e) => setSelectedDomain(e.target.value as TextDomain)}
             >
               {DOMAIN_PRESETS.map((d) => (
-                <option key={d} value={d}>{DOMAIN_LABELS[d]}</option>
+                <option key={d} value={d}>{t('dataInput.domainLabels.' + d)}</option>
               ))}
             </select>
           </div>
@@ -1078,14 +1081,14 @@ export default function DataInput() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                 <span style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
-                  Condition {index + 1}
+                  {t('dataInput.conditionN', index + 1)}
                 </span>
                 <button
                   className="btn btn-secondary"
                   onClick={() => removeProtoCondition(index)}
                   style={{ fontSize: '0.75rem', padding: '2px 8px' }}
                   disabled={protoConditions.length <= 1}
-                  title="Remove condition"
+                  title={t('dataInput.removeCondition')}
                 >
                   x
                 </button>
@@ -1093,37 +1096,37 @@ export default function DataInput() {
 
               <div style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
                 <div style={{ flex: 1 }}>
-                  <label className="label" style={{ fontSize: '0.75rem' }}>Name</label>
+                  <label className="label" style={{ fontSize: '0.75rem' }}>{t('dataInput.name')}</label>
                   <input
                     className="input input-mono"
                     style={{ width: '100%' }}
                     value={row.name}
                     onChange={(e) => updateProtoCondition(index, 'name', e.target.value)}
-                    placeholder="e.g. negative_affect"
+                    placeholder={t('dataInput.namePlaceholder')}
                   />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label className="label" style={{ fontSize: '0.75rem' }}>Display Name</label>
+                  <label className="label" style={{ fontSize: '0.75rem' }}>{t('dataInput.displayName')}</label>
                   <input
                     className="input"
                     style={{ width: '100%' }}
                     value={row.displayName}
                     onChange={(e) => updateProtoCondition(index, 'displayName', e.target.value)}
-                    placeholder="e.g. 负面情感"
+                    placeholder={t('dataInput.displayNamePlaceholder')}
                   />
                 </div>
               </div>
 
               <div>
                 <label className="label" style={{ fontSize: '0.75rem' }}>
-                  Prototype Texts (one per line, prefix with [1] or [0])
+                  {t('dataInput.prototypeTextsLabel')}
                 </label>
                 <textarea
                   className="input input-mono"
                   rows={4}
                   value={row.prototypesText}
                   onChange={(e) => updateProtoCondition(index, 'prototypesText', e.target.value)}
-                  placeholder={`[1] 非常不满，投诉多次无果\n[1] 严重扰民，无法忍受\n[0] 有点小问题但可以接受`}
+                  placeholder={t('dataInput.prototypeTextsPlaceholder')}
                   style={{ resize: 'vertical', fontSize: '0.75rem', lineHeight: 1.5 }}
                   spellCheck={false}
                 />
@@ -1134,12 +1137,13 @@ export default function DataInput() {
           {/* Generated condition set preview */}
           {protoConditions.some((r) => r.name.trim() !== '') && (
             <div style={{ marginTop: '12px', padding: '8px 12px', background: 'var(--color-bg-input)', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
-              <strong>Generated Condition Set:</strong>{' '}
-              {protoConditions.filter((r) => r.name.trim() !== '').length} condition(s){' '}
-              with {protoConditions
+              <strong>{t('dataInput.generatedConditionSet')}</strong>{' '}
+              {t('dataInput.conditionCount', protoConditions.filter((r) => r.name.trim() !== '').length)}{' '}
+              {t('dataInput.totalText')}{' '}
+              {t('dataInput.prototypeCount', protoConditions
                 .filter((r) => r.name.trim() !== '')
-                .reduce((sum, r) => sum + parsePrototypeTexts(r.prototypesText).length, 0)}{' '}
-              prototype(s) total. Outcome: <code>passthrough</code> (from CSV output column).
+                .reduce((sum, r) => sum + parsePrototypeTexts(r.prototypesText).length, 0))}{' '}
+              {t('dataInput.outcomePassthrough')}
             </div>
           )}
         </div>
@@ -1179,7 +1183,7 @@ export default function DataInput() {
           onClick={handleCalibrate}
           disabled={isRunning || texts.length === 0}
         >
-          {isRunning ? 'Calibrating...' : 'Calibrate (Text to Fuzzy-Set)'}
+          {isRunning ? t('dataInput.calibrating') : t('dataInput.calibrateBtn')}
         </button>
         <button
           type="button"
@@ -1187,14 +1191,14 @@ export default function DataInput() {
           onClick={handleRunPipeline}
           disabled={isRunning || texts.length === 0}
         >
-          {isRunning ? 'Running...' : 'Run Full Pipeline'}
+          {isRunning ? t('dataInput.running') : t('dataInput.runPipelineBtn')}
         </button>
         <button
           type="button"
           className="btn btn-secondary"
           onClick={handleReset}
         >
-          Reset
+          {t('dataInput.resetBtn')}
         </button>
       </div>
     </div>

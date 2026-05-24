@@ -804,3 +804,58 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 03:37 | Edited src/pages/Results.tsx | 5→8 lines | ~103 |
 | 03:38 | Edited src/pages/Results.tsx | added optional chaining | ~2437 |
 | 03:42 | P1-3: QCA natural language interpretation — Python backend + 35 tests + TS frontend auto-interpretation card | nl_interpretation.py, test_nl_interpretation.py, Results.tsx, Results.css, pyproject.toml | 525 tests pass, ruff clean, npm build passes | ~1500 |
+| 03:47 | Created src/i18n/translations.ts | — | ~8874 |
+| 03:48 | Created src/i18n/I18nContext.tsx | — | ~1424 |
+| 03:48 | Edited src/App.tsx | modified App() | ~271 |
+| 03:48 | Edited src/components/Sidebar.tsx | modified Sidebar() | ~456 |
+| 03:48 | Edited src/components/PipelineStatus.tsx | CSS: t, path | ~600 |
+| 03:49 | Edited src/pages/Dashboard.tsx | added 1 import(s) | ~444 |
+| 03:49 | Edited src/pages/Dashboard.tsx | 4→4 lines | ~51 |
+| 03:49 | Edited src/pages/Dashboard.tsx | modified t() | ~1533 |
+| 03:49 | Edited src/pages/Dashboard.tsx | 9→9 lines | ~119 |
+| 03:50 | Edited src/pages/DataInput.tsx | added 1 import(s) | ~128 |
+| 03:50 | Edited src/pages/DataInput.tsx | modified DataInput() | ~53 |
+| 03:50 | Edited src/pages/DataInput.tsx | CSS: _DOMAIN_LABELS_LEGACY | ~89 |
+| 03:50 | Edited src/pages/DataInput.tsx | 2→2 lines | ~37 |
+| 03:50 | Edited src/pages/DataInput.tsx | "Load Engine" → "dataInput.engineNotReady" | ~12 |
+| 03:50 | Edited src/pages/DataInput.tsx | modified t() | ~288 |
+| 03:50 | Edited src/pages/DataInput.tsx | 13→13 lines | ~225 |
+| 03:50 | Edited src/pages/DataInput.tsx | 25→25 lines | ~321 |
+| 03:51 | Edited src/pages/DataInput.tsx | 14→14 lines | ~208 |
+| 03:51 | Edited src/pages/DataInput.tsx | modified t() | ~88 |
+| 03:51 | Edited src/pages/DataInput.tsx | 6→6 lines | ~93 |
+| 03:51 | Edited src/pages/DataInput.tsx | 3→3 lines | ~46 |
+| 03:51 | Edited src/pages/DataInput.tsx | 2→2 lines | ~32 |
+| 03:51 | Edited src/pages/DataInput.tsx | inline fix | ~22 |
+| 03:52 | Edited src/pages/DataInput.tsx | 31→30 lines | ~381 |
+| 03:52 | Edited src/pages/DataInput.tsx | "编号,文本内容,结果&#10;case_1,服务态" → "dataInput.prototypePlaceh" | ~18 |
+| 03:52 | Edited src/pages/DataInput.tsx | 6→6 lines | ~94 |
+| 03:52 | Edited src/pages/DataInput.tsx | 6→6 lines | ~130 |
+| 03:52 | Edited src/pages/DataInput.tsx | inline fix | ~18 |
+| 03:53 | Edited src/pages/DataInput.tsx | inline fix | ~30 |
+| 03:53 | Edited src/pages/DataInput.tsx | 3→3 lines | ~42 |
+| 03:53 | Edited src/pages/DataInput.tsx | inline fix | ~23 |
+| 03:54 | Edited src/pages/DataInput.tsx | 5→5 lines | ~70 |
+| 03:54 | Edited src/pages/DataInput.tsx | 4→3 lines | ~47 |
+| 03:54 | Edited src/pages/DataInput.tsx | 12→12 lines | ~154 |
+| 03:54 | Edited src/pages/DataInput.tsx | 37→37 lines | ~509 |
+| 03:55 | Edited src/pages/DataInput.tsx | 6→7 lines | ~141 |
+| 03:55 | Edited src/pages/DataInput.tsx | modified t() | ~158 |
+| 03:55 | Edited src/pages/DataInput.tsx | "Error: ${sizeError}" → "Error: ${t(" | ~32 |
+| 03:57 | Edited src/pages/DataInput.tsx | modified if() | ~268 |
+| 03:57 | Edited src/pages/DataInput.tsx | modified catch() | ~73 |
+| 03:57 | Edited src/pages/DataInput.tsx | 3→3 lines | ~38 |
+| 03:57 | Edited src/pages/DataInput.tsx | modified catch() | ~78 |
+| 03:58 | Edited src/pages/DataInput.tsx | added 1 condition(s) | ~578 |
+| 03:58 | Edited src/pages/DataInput.tsx | modified catch() | ~84 |
+| 03:58 | Edited src/pages/DataInput.tsx | modified catch() | ~65 |
+| 03:59 | Edited src/pages/DataInput.tsx | modified if() | ~184 |
+| 04:05 | Edited src/pages/DataInput.tsx | "No keyword dictionary loa" → "dataInput.noDictLoaded" | ~16 |
+| 04:07 | Edited src/pages/DataInput.tsx | modified catch() | ~93 |
+| 04:07 | Edited src/pages/DataInput.tsx | 7→7 lines | ~47 |
+| 04:08 | Edited src/pages/Results.tsx | added 1 import(s) | ~202 |
+| 04:08 | Edited src/pages/Results.tsx | modified Results() | ~39 |
+| 04:09 | Edited src/pages/Results.tsx | 6→6 lines | ~135 |
+| 04:10 | Edited src/pages/Results.tsx | modified if() | ~170 |
+| 04:10 | Edited src/pages/Results.tsx | 2→2 lines | ~36 |
+| 04:10 | Edited src/pages/Results.tsx | 18→18 lines | ~186 |

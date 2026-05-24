@@ -19,6 +19,7 @@ import FuzzySetHeatmap from '../components/FuzzySetHeatmap';
 import NecessityXYPlot from '../components/NecessityXYPlot';
 import { useQCAPipeline } from '../store/QCAPipelineContext';
 import { useQCAWorkflow } from '../hooks/useQCAWorkflow';
+import { useT } from '../i18n/I18nContext';
 import type {
   QCAAnalysisResultJSON,
   ConditionSet,
@@ -32,6 +33,7 @@ import './Results.css';
 type ViewMode = 'raw' | 'prototype' | 'compare';
 
 export default function Results() {
+  const t = useT();
   const { state } = useQCAPipeline();
   const { runExport } = useQCAWorkflow();
   const [activeTab, setActiveTab] = useState<'truth-table' | 'solutions' | 'necessity' | 'robustness'>('solutions');
@@ -50,10 +52,10 @@ export default function Results() {
   }, [viewMode, state.analysisResult, state.prototypeAnalysisResult]);
 
   const tabs = [
-    { key: 'solutions' as const, label: 'Solutions', available: !!activeResult?.solutions },
-    { key: 'truth-table' as const, label: 'Truth Table', available: !!activeResult?.truth_table },
-    { key: 'necessity' as const, label: 'Necessity', available: !!activeResult?.necessity },
-    { key: 'robustness' as const, label: 'Robustness', available: hasRobustness && viewMode !== 'prototype' },
+    { key: 'solutions' as const, label: t('results.tabSolutions'), available: !!activeResult?.solutions },
+    { key: 'truth-table' as const, label: t('results.tabTruthTable'), available: !!activeResult?.truth_table },
+    { key: 'necessity' as const, label: t('results.tabNecessity'), available: !!activeResult?.necessity },
+    { key: 'robustness' as const, label: t('results.tabRobustness'), available: hasRobustness && viewMode !== 'prototype' },
   ];
 
   const handleExport = useCallback(
@@ -83,14 +85,14 @@ export default function Results() {
     return (
       <div className="results">
         <div className="page-header">
-          <h2 className="page-title">Results</h2>
-          <p className="page-subtitle">QCA analysis output and visualizations</p>
+          <h2 className="page-title">{t('results.title')}</h2>
+          <p className="page-subtitle">{t('results.subtitle')}</p>
         </div>
         <PipelineStatus />
         <div className="results-empty">
-          <p style={{ fontSize: '0.875rem', marginBottom: '8px' }}>No analysis results yet.</p>
+          <p style={{ fontSize: '0.875rem', marginBottom: '8px' }}>{t('results.noResults')}</p>
           <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
-            Go to Data Input to upload texts and run the QCA pipeline.
+            {t('results.noResultsHint')}
           </p>
         </div>
       </div>
@@ -106,8 +108,8 @@ export default function Results() {
   return (
     <div className="results">
       <div className="page-header">
-        <h2 className="page-title">Results</h2>
-        <p className="page-subtitle">QCA analysis output and visualizations</p>
+        <h2 className="page-title">{t('results.title')}</h2>
+        <p className="page-subtitle">{t('results.subtitle')}</p>
       </div>
 
       <PipelineStatus />
@@ -119,19 +121,19 @@ export default function Results() {
             className={`view-mode-btn ${viewMode === 'raw' ? 'active' : ''}`}
             onClick={() => setViewMode('raw')}
           >
-            Raw Text
+            {t('results.rawText')}
           </button>
           <button
             className={`view-mode-btn ${viewMode === 'prototype' ? 'active' : ''}`}
             onClick={() => setViewMode('prototype')}
           >
-            Prototype
+            {t('results.prototype')}
           </button>
           <button
             className={`view-mode-btn ${viewMode === 'compare' ? 'active' : ''}`}
             onClick={() => setViewMode('compare')}
           >
-            Compare
+            {t('results.compare')}
           </button>
         </div>
       )}
