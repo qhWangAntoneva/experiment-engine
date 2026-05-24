@@ -154,7 +154,7 @@ export class PyodideBridge {
   async loadCorpus(
     fileName: string,
     content: string,
-    format: 'csv' | 'json' | 'txt',
+    format: 'csv' | 'json' | 'txt' | 'xlsx',
   ): Promise<TextCorpusEntry[]> {
     const resp = await this.send<{ entries: TextCorpusEntry[] }>(
       { type: 'load_corpus', payload: { fileName, content, format } },

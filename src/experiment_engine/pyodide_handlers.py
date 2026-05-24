@@ -329,8 +329,16 @@ def handle_load_corpus(corpus_config_path, output_path):
         config = json.load(f)
 
     vfs_file = f"/tmp/{config['fileName']}"
-    with open(vfs_file, "w", encoding="utf-8") as f:
-        f.write(config["content"])
+    _fmt = config.get("format", "csv")
+    if _fmt == "xlsx":
+        # Binary content is base64-encoded by the worker
+        import base64 as _b64
+
+        with open(vfs_file, "wb") as f:
+            f.write(_b64.b64decode(config["content"]))
+    else:
+        with open(vfs_file, "w", encoding="utf-8") as f:
+            f.write(config["content"])
 
     reader = TextCorpusReader()
     result = reader.read(vfs_file)

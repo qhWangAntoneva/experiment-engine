@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T18:58:57.341Z
-> Files: 18 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T19:07:08.717Z
+> Files: 21 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -40,8 +40,8 @@
 
 ## src/experiment_engine/
 
-- `cli.py` — QCA Text Analysis CLI — complete QCA workflow commands. --variant option for fsqca/csqca. (~7294 tok)
-- `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~5593 tok)
+- `cli.py` — QCA Text Analysis CLI — complete QCA workflow commands. (~8173 tok)
+- `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~5658 tok)
 
 ## src/experiment_engine/algorithms/
 
@@ -51,6 +51,7 @@
 
 ## src/experiment_engine/io/
 
+- `readers.py` — Data readers for experiment-engine. (~6107 tok)
 
 ## src/experiment_engine/models/
 
@@ -68,8 +69,9 @@
 
 ## src/experiment_engine/text_calibration/
 
-- `__init__.py` — Text calibration layer: raw text → fuzzy-set membership scores. Exports CrispCalibration. (~447 tok)
+- `__init__.py` — Text calibration layer: raw text → fuzzy-set membership scores. (~497 tok)
 - `calibrator.py` — Text calibration stage: keyword scores → fuzzy-set membership (0-1). (~4683 tok)
+- `keyword_io.py` — Keyword dictionary import/export — CSV and JSON formats. (~4573 tok)
 - `strategies.py` — Calibration strategy pattern. CrispCalibration handles descending direction. (~3552 tok)
 
 ## src/experiment_engine/viz/
@@ -77,14 +79,14 @@
 
 ## src/hooks/
 
-- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. (~2961 tok)
+- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. (~2966 tok)
 
 ## src/layouts/
 
 
 ## src/pages/
 
-- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~12003 tok)
+- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~12791 tok)
 - `Results.css` — Styles for Results page + prototype contrast comparison view (~1362 tok)
 - `Results.tsx` — Results — displays all QCA analysis output in organized sections: (~7881 tok)
 - `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~4949 tok)
@@ -94,6 +96,8 @@
 
 ## src/services/
 
+- `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~3845 tok)
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~5274 tok)
 
 ## src/store/
 
@@ -101,7 +105,7 @@
 
 ## src/types/
 
-- `qca.ts` — QCA-specific TypeScript interfaces. Includes prototype analysis stage + result fields. (~3525 tok)
+- `qca.ts` — QCA-specific TypeScript interfaces mirroring experiment_engine/models.py. (~3252 tok)
 
 ## tests/
 

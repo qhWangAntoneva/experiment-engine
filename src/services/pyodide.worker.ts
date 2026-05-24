@@ -335,12 +335,12 @@ async function handleCalibrate(
   }
 }
 
-// ─── Load Corpus: parse CSV/JSON/TXT in Python via TextCorpusReader ────────
+// ─── Load Corpus: parse CSV/JSON/TXT/XLSX in Python via TextCorpusReader ─────
 
 async function handleLoadCorpus(
   fileName: string,
   content: string,
-  format: 'csv' | 'json' | 'txt',
+  format: 'csv' | 'json' | 'txt' | 'xlsx',
 ): Promise<void> {
   try {
     const entries = await runHandler(

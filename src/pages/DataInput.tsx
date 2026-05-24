@@ -2,7 +2,7 @@
  * Data Input — text corpus upload + condition set YAML editor.
  *
  * Supports:
- *   - File upload (CSV/JSON/TXT) with drag-and-drop
+ *   - File upload (CSV/JSON/TXT/XLSX) with drag-and-drop
  *   - Text paste with field auto-detection
  *   - Condition set YAML editor with validation
  *   - Domain preset picker
@@ -117,14 +117,25 @@ const DOMAIN_LABELS: Record<TextDomain, string> = {
 
 // ─── Frontend-only helpers: file detection (lightweight pre-checks) ────────
 // All actual text parsing is delegated to Python's TextCorpusReader
-// via the Pyodide worker to avoid duplicating CSV/JSON/TXT logic.
+// via the Pyodide worker to avoid duplicating CSV/JSON/TXT/XLSX logic.
 
 /** Detect corpus format from file extension (frontend pre-check only). */
-function detectCorpusFormat(fileName: string): 'csv' | 'json' | 'txt' {
+function detectCorpusFormat(fileName: string): 'csv' | 'json' | 'txt' | 'xlsx' {
   const lower = fileName.toLowerCase();
   if (lower.endsWith('.csv')) return 'csv';
   if (lower.endsWith('.json')) return 'json';
+  if (lower.endsWith('.xlsx') || lower.endsWith('.xls')) return 'xlsx';
   return 'txt';
+}
+
+/** Convert an ArrayBuffer to a base64 string for transfer to the worker. */
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
 }
 
 /** Maximum upload file size: 10 MB. */
@@ -292,6 +303,7 @@ export default function DataInput() {
     runCalibrateOnly,
     loadCorpus,
     importKeywords,
+    exportKeywords,
   } = useQCAWorkflow();
 
   // ─── Form state ────────────────────────────────────────────────────
@@ -315,6 +327,9 @@ export default function DataInput() {
   const [importedConditionSet, setImportedConditionSet] = useState<ConditionSet | null>(null);
   const dictFileInputRef = useRef<HTMLInputElement>(null);
 
+  // ─── Export state ─────────────────────────────────────────────────────
+  const [isExporting, setIsExporting] = useState(false);
+
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
 
@@ -336,7 +351,13 @@ export default function DataInput() {
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
-          const content = e.target?.result as string;
+          let content: string;
+          if (format === 'xlsx') {
+            // Binary file — read as ArrayBuffer and base64-encode
+            content = arrayBufferToBase64(e.target?.result as ArrayBuffer);
+          } else {
+            content = e.target?.result as string;
+          }
           const entries = await loadCorpus(file.name, content, format);
           setTexts(entries);
           setValidationMessage(`Loaded ${entries.length} cases from ${file.name}`);
@@ -347,7 +368,11 @@ export default function DataInput() {
       reader.onerror = () => {
         setValidationMessage('Error reading file');
       };
-      reader.readAsText(file, 'UTF-8');
+      if (format === 'xlsx') {
+        reader.readAsArrayBuffer(file);
+      } else {
+        reader.readAsText(file, 'UTF-8');
+      }
     },
     [loadCorpus]
   );
@@ -417,6 +442,36 @@ export default function DataInput() {
     [importKeywords, selectedDomain, detectDictFormat]
   );
 
+  const handleExportKeywords = useCallback(async () => {
+    if (!importedConditionSet) {
+      setValidationMessage('No keyword dictionary loaded. Import a CSV/JSON file first.');
+      return;
+    }
+    setIsExporting(true);
+    setValidationMessage(null);
+    try {
+      const blob = await exportKeywords(importedConditionSet, 'csv');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'keywords-dictionary.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      const kwCount = importedConditionSet.conditions.reduce(
+        (sum, c) => sum + c.keywords.length, 0
+      );
+      setValidationMessage(
+        `Exported ${importedConditionSet.conditions.length} condition(s), ${kwCount} keyword(s) as CSV.`
+      );
+    } catch (err: any) {
+      setValidationMessage(`Export failed: ${err.message}`);
+    } finally {
+      setIsExporting(false);
+    }
+  }, [importedConditionSet, exportKeywords]);
+
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
@@ -433,7 +488,12 @@ export default function DataInput() {
     const reader = new FileReader();
     reader.onload = async (ev) => {
       try {
-        const content = ev.target?.result as string;
+        let content: string;
+        if (format === 'xlsx') {
+          content = arrayBufferToBase64(ev.target?.result as ArrayBuffer);
+        } else {
+          content = ev.target?.result as string;
+        }
         const entries = await loadCorpus(file.name, content, format);
         setTexts(entries);
         setValidationMessage(`Loaded ${entries.length} cases from ${file.name}`);
@@ -441,7 +501,11 @@ export default function DataInput() {
         setValidationMessage(`Error: ${err.message}`);
       }
     };
-    reader.readAsText(file, 'UTF-8');
+    if (format === 'xlsx') {
+      reader.readAsArrayBuffer(file);
+    } else {
+      reader.readAsText(file, 'UTF-8');
+    }
   }, [loadCorpus]);
 
   // ─── Prototype mode handlers ─────────────────────────────────────────────
@@ -628,22 +692,33 @@ export default function DataInput() {
         </div>
       )}
 
-      {/* === Section 0: Import Keyword Dictionary (shared across modes) === */}
+      {/* === Section 0: Import/Export Keyword Dictionary (shared across modes) === */}
       <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           <h3 className="section-title" style={{ marginBottom: 0, borderBottom: 'none', paddingBottom: 0 }}>
-            Import Keyword Dictionary
+            Import / Export Keyword Dictionary
           </h3>
-          <button
-            className="btn btn-secondary"
-            onClick={() => dictFileInputRef.current?.click()}
-            style={{ fontSize: '0.8125rem' }}
-          >
-            Choose File (CSV/JSON)
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              className="btn btn-secondary"
+              onClick={() => dictFileInputRef.current?.click()}
+              style={{ fontSize: '0.8125rem' }}
+            >
+              Import CSV/JSON
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={handleExportKeywords}
+              disabled={isExporting || !importedConditionSet}
+              style={{ fontSize: '0.8125rem' }}
+            >
+              {isExporting ? 'Exporting...' : 'Export CSV'}
+            </button>
+          </div>
         </div>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>
-          Import keywords from a CSV or JSON file. CSV columns: <code>condition,keyword,weight,notes</code>.
+          Import keywords from a CSV or JSON file, or export the current dictionary as CSV.
+          CSV columns: <code>condition,keyword,weight,notes</code>.
           See the JSON format in documentation.
         </p>
         <input
@@ -749,12 +824,12 @@ export default function DataInput() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".csv,.json,.txt"
+                accept=".csv,.json,.txt,.xlsx,.xls"
                 onChange={handleFileUpload}
                 style={{ display: 'none' }}
               />
               <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>
-                Drop a CSV, JSON, or TXT file here
+                Drop a CSV, JSON, TXT, or Excel file here
               </p>
               <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
                 or click to browse

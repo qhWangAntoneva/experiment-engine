@@ -768,3 +768,25 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 02:57 | Edited src/pages/Results.tsx | modified CompareView() | ~34 |
 | 02:57 | Edited src/pages/Results.tsx | 7→4 lines | ~31 |
 | 02:58 | Edited tests/test_keyword_io.py | modified zip() | ~68 |
+| 03:03 | Edited src/experiment_engine/text_calibration/__init__.py | expanded (+10 lines) | ~245 |
+| 03:03 | Edited src/experiment_engine/io/readers.py | added 3 import(s) | ~151 |
+| 03:04 | Edited src/experiment_engine/io/readers.py | modified can_read() | ~64 |
+| 03:04 | Edited src/experiment_engine/cli.py | modified import_keywords() | ~1284 |
+| 03:04 | Edited src/pages/DataInput.tsx | 6→7 lines | ~38 |
+| 03:04 | Edited src/pages/DataInput.tsx | 4→7 lines | ~106 |
+| 03:04 | Edited src/experiment_engine/io/readers.py | modified name() | ~1655 |
+| 03:04 | Edited src/pages/DataInput.tsx | added error handling | ~342 |
+| 03:04 | Edited src/experiment_engine/io/readers.py | 2→5 lines | ~55 |
+| 03:04 | Edited src/pages/DataInput.tsx | CSS: gap | ~462 |
+| 03:04 | Edited src/experiment_engine/pyodide_handlers.py | expanded (+7 lines) | ~113 |
+| 03:04 | Edited src/types/qca.ts | inline fix | ~34 |
+| 03:05 | Edited src/services/pyodide.worker.ts | modified handleLoadCorpus() | ~62 |
+| 03:05 | Edited src/services/pyodide.ts | modified loadCorpus() | ~41 |
+| 03:05 | Edited src/hooks/useQCAWorkflow.ts | 6→6 lines | ~61 |
+| 03:05 | Edited src/hooks/useQCAWorkflow.ts | modified useCallback() | ~52 |
+| 03:06 | Edited src/pages/DataInput.tsx | CSS: buffer | ~262 |
+| 03:06 | Edited src/pages/DataInput.tsx | CSS: content | ~369 |
+| 03:06 | Edited src/pages/DataInput.tsx | CSS: content | ~307 |
+| 03:06 | Edited src/pages/DataInput.tsx | 7→7 lines | ~98 |
+| 03:07 | Edited src/pages/DataInput.tsx | inline fix | ~17 |
+| 03:07 | P1-1: keyword dict import/export. Added exports to __init__.py, CLI commands import-keywords/export-keywords, export button in DataInput.tsx | __init__.py, cli.py, DataInput.tsx | 17 tests pass, ruff clean, build OK | ~500 |

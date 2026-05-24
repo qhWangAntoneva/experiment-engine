@@ -75,7 +75,7 @@ interface UseQCAWorkflowReturn {
   loadCorpus: (
     fileName: string,
     content: string,
-    format: 'csv' | 'json' | 'txt',
+    format: 'csv' | 'json' | 'txt' | 'xlsx',
   ) => Promise<TextCorpusEntry[]>;
 
   /** Import a keyword dictionary from CSV/JSON */
@@ -279,7 +279,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
     async (
       fileName: string,
       content: string,
-      format: 'csv' | 'json' | 'txt',
+      format: 'csv' | 'json' | 'txt' | 'xlsx',
     ): Promise<TextCorpusEntry[]> => {
       await ensureReady();
       return bridge.loadCorpus(fileName, content, format);

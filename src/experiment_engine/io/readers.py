@@ -8,10 +8,12 @@ standardized InputData objects.
 from __future__ import annotations
 
 import json
+import zipfile
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Sequence
 from pathlib import Path
 from typing import Any
+from xml.etree import ElementTree
 
 import numpy as np
 
@@ -408,10 +410,14 @@ class SyntheticReader(DataReader):
 
 
 class TextCorpusReader(DataReader):
-    """Reads Chinese citizen feedback texts from CSV, JSON, or plain text files.
+    """Reads Chinese citizen feedback texts from CSV, JSON, TXT, or XLSX files.
 
     Designed for the QCA text analysis pipeline. Extracts text content from
     structured formats and returns a 1-D object array of strings.
+
+    XLSX reading uses only Python stdlib (zipfile + xml.etree.ElementTree),
+    requiring no external dependencies. The first sheet is read and all cell
+    text values are collected row-by-row.
 
     Examples:
         >>> reader = TextCorpusReader()
@@ -424,12 +430,92 @@ class TextCorpusReader(DataReader):
         True
     """
 
+    # XML namespaces used in .xlsx files
+    _XLSX_NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+
     @property
     def name(self) -> str:
         return "text_corpus"
 
     def _guess_extension(self) -> str | None:
-        return None  # handles csv, json, txt — no single extension
+        return None  # handles csv, json, txt, xlsx — no single extension
+
+    @staticmethod
+    def _parse_xlsx(path: Path) -> list[str]:
+        """Parse a .xlsx file and return a flat list of all cell text values.
+
+        Reads the first sheet (``xl/worksheets/sheet1.xml``) and resolves
+        shared-string references via ``xl/sharedStrings.xml``. Inline strings
+        (``is`` elements) are also supported. Cells are returned in
+        row-major order; each cell that contains text produces one entry.
+
+        Args:
+            path: Path to a .xlsx file.
+
+        Returns:
+            List of cell text values (non-empty strings only).
+        """
+        texts: list[str] = []
+        ns = TextCorpusReader._XLSX_NS
+
+        with zipfile.ZipFile(str(path), "r") as zf:
+            # 1. Read shared strings table (may be absent for numeric-only sheets)
+            shared_strings: list[str] = []
+            try:
+                ss_xml = zf.read("xl/sharedStrings.xml")
+                ss_root = ElementTree.fromstring(ss_xml)
+                for si in ss_root.findall(f"{{{ns}}}si"):
+                    # Some <si> have <t> child, some have <r><t>...</r> children (rich text)
+                    t_elem = si.find(f"{{{ns}}}t")
+                    if t_elem is not None and t_elem.text:
+                        shared_strings.append(t_elem.text)
+                    else:
+                        # Rich text: collect all <r><t> fragments
+                        parts: list[str] = []
+                        for r_elem in si.findall(f"{{{ns}}}r"):
+                            rt = r_elem.find(f"{{{ns}}}t")
+                            if rt is not None and rt.text:
+                                parts.append(rt.text)
+                        shared_strings.append("".join(parts))
+            except KeyError:
+                pass  # No shared strings in this file
+
+            # 2. Read first worksheet
+            sheet_xml = zf.read("xl/worksheets/sheet1.xml")
+            sheet_root = ElementTree.fromstring(sheet_xml)
+            rows = sheet_root.findall(f"{{{ns}}}sheetData/{{{ns}}}row")
+
+            for row in rows:
+                cells = row.findall(f"{{{ns}}}c")
+                for cell in cells:
+                    cell_type = cell.get("t", "")
+                    if cell_type == "s":
+                        # Shared string reference
+                        v_elem = cell.find(f"{{{ns}}}v")
+                        if v_elem is not None and v_elem.text:
+                            idx = int(v_elem.text)
+                            if 0 <= idx < len(shared_strings):
+                                text = shared_strings[idx].strip()
+                                if text:
+                                    texts.append(text)
+                    elif cell_type == "inlineStr":
+                        # Inline string
+                        is_elem = cell.find(f"{{{ns}}}is")
+                        if is_elem is not None:
+                            t_elem = is_elem.find(f"{{{ns}}}t")
+                            if t_elem is not None and t_elem.text:
+                                text = t_elem.text.strip()
+                                if text:
+                                    texts.append(text)
+                    else:
+                        # Numeric/boolean/error or no type — treat value as text
+                        v_elem = cell.find(f"{{{ns}}}v")
+                        if v_elem is not None and v_elem.text:
+                            text = v_elem.text.strip()
+                            if text:
+                                texts.append(text)
+
+        return texts
 
     def read(
         self,
@@ -445,6 +531,7 @@ class TextCorpusReader(DataReader):
         - CSV: loads with pandas, extracts ``text_column``.
         - JSON: loads as records, extracts ``text_column``.
         - Plain text (.txt): reads line-by-line, one text per line.
+        - Excel (.xlsx): reads first sheet, all cell text values row-by-row.
 
         Args:
             source: File path.
@@ -488,6 +575,9 @@ class TextCorpusReader(DataReader):
                     elif isinstance(item, str):
                         texts.append(item)
             metadata["n_texts"] = len(texts)
+        elif suffix == ".xlsx":
+            texts = TextCorpusReader._parse_xlsx(path)
+            metadata["n_texts"] = len(texts)
         else:
             # Default to CSV / tabular
             pd = _get_pandas()
@@ -518,5 +608,5 @@ class TextCorpusReader(DataReader):
     def can_read(self, source: Any) -> bool:
         if isinstance(source, str | Path):
             suf = Path(source).suffix.lower()
-            return suf in (".csv", ".json", ".txt", ".tsv")
+            return suf in (".csv", ".json", ".txt", ".tsv", ".xlsx")
         return False
