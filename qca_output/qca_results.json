@@ -1,0 +1,241 @@
+{
+  "truth_table": {
+    "rows": [
+      {
+        "config": [
+          0,
+          0
+        ],
+        "config_label": "~NEGATIVE_AFFECT*~STRONG_DEMAND",
+        "frequency": 1.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          1
+        ],
+        "config_label": "~NEGATIVE_AFFECT*STRONG_DEMAND",
+        "frequency": 2.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0
+        ],
+        "config_label": "NEGATIVE_AFFECT*~STRONG_DEMAND",
+        "frequency": 2.0,
+        "raw_consistency": 0.75,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1
+        ],
+        "config_label": "NEGATIVE_AFFECT*STRONG_DEMAND",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      }
+    ],
+    "condition_names": [
+      "negative_affect",
+      "strong_demand"
+    ],
+    "outcome_name": "citizen_dissatisfaction",
+    "consistency_threshold": 0.75,
+    "frequency_threshold": 1.0,
+    "n_cases": 5
+  },
+  "solutions": {
+    "complex": {
+      "solution_type": "complex",
+      "terms": [
+        {
+          "term": [
+            "negative_affect",
+            "~strong_demand"
+          ],
+          "label": "negative_affect*~strong_demand",
+          "consistency": 0.0,
+          "raw_coverage": 0.0,
+          "unique_coverage": 0.0
+        }
+      ],
+      "formula": "negative_affect*~strong_demand",
+      "solution_consistency": 0.0,
+      "solution_coverage": 0.0
+    },
+    "parsimonious": null,
+    "intermediate": null
+  },
+  "necessity": {
+    "outcome_name": "citizen_dissatisfaction",
+    "threshold": 0.9,
+    "conditions": [
+      {
+        "condition_name": "negative_affect",
+        "consistency": 1.0,
+        "coverage": 0.75,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "strong_demand",
+        "consistency": 0.0,
+        "coverage": 0.0,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "~negative_affect",
+        "consistency": 0.0,
+        "coverage": 0.0,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "~strong_demand",
+        "consistency": 1.0,
+        "coverage": 0.5,
+        "is_necessary": true
+      }
+    ]
+  },
+  "sufficiency": {
+    "outcome_name": "citizen_dissatisfaction",
+    "solutions": {
+      "complex": {
+        "solution_type": "complex",
+        "terms": [
+          {
+            "term": [
+              "negative_affect",
+              "~strong_demand"
+            ],
+            "label": "negative_affect*~strong_demand",
+            "consistency": 0.75,
+            "raw_coverage": 1.0,
+            "unique_coverage": 1.0
+          }
+        ],
+        "formula": "negative_affect*~strong_demand",
+        "solution_consistency": 0.75,
+        "solution_coverage": 1.0
+      },
+      "parsimonious": null,
+      "intermediate": null
+    }
+  },
+  "condition_set": {
+    "name": "integration_test",
+    "description": "Integration test condition set",
+    "conditions": [
+      {
+        "name": "negative_affect",
+        "display_name": "负面情绪",
+        "domain": "dissatisfaction",
+        "keywords": [
+          {
+            "pattern": "不满",
+            "weight": 1.0,
+            "scope": "bigram",
+            "notes": ""
+          },
+          {
+            "pattern": "差劲",
+            "weight": 0.8,
+            "scope": "bigram",
+            "notes": ""
+          }
+        ],
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending"
+        },
+        "description": "",
+        "scoring_source": "keyword",
+        "prototypes": [],
+        "hybrid_keyword_weight": 0.5,
+        "hybrid_prototype_weight": 0.5
+      },
+      {
+        "name": "strong_demand",
+        "display_name": "强烈诉求",
+        "domain": "dissatisfaction",
+        "keywords": [
+          {
+            "pattern": "要求",
+            "weight": 1.0,
+            "scope": "bigram",
+            "notes": ""
+          },
+          {
+            "pattern": "举报",
+            "weight": 0.9,
+            "scope": "bigram",
+            "notes": ""
+          }
+        ],
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending"
+        },
+        "description": "",
+        "scoring_source": "keyword",
+        "prototypes": [],
+        "hybrid_keyword_weight": 0.5,
+        "hybrid_prototype_weight": 0.5
+      }
+    ],
+    "outcome": {
+      "name": "citizen_dissatisfaction",
+      "display_name": "市民不满意",
+      "domain": "dissatisfaction",
+      "keywords": [
+        {
+          "pattern": "差",
+          "weight": 1.0,
+          "scope": "unigram",
+          "notes": ""
+        },
+        {
+          "pattern": "不满意",
+          "weight": 1.0,
+          "scope": "bigram",
+          "notes": ""
+        }
+      ],
+      "calibration_type": "direct",
+      "calibration_params": {
+        "threshold_full_in": 0.8,
+        "threshold_full_out": 0.2,
+        "crossover_point": 0.5,
+        "direction": "ascending"
+      },
+      "description": "",
+      "scoring_source": "keyword",
+      "prototypes": [],
+      "hybrid_keyword_weight": 0.5,
+      "hybrid_prototype_weight": 0.5
+    },
+    "domain": "dissatisfaction",
+    "scoring_source": "keyword",
+    "qca_variant": "fsqca"
+  },
+  "metadata": {
+    "consistency_threshold": 0.75,
+    "frequency_threshold": 1.0
+  }
+}

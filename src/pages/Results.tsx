@@ -180,9 +180,6 @@ export default function Results() {
         <CompareView
           raw={analysisResult}
           prototype={prototypeAnalysisResult}
-          fuzzyData={fuzzyData}
-          protoFuzzyData={state.prototypeFuzzyData}
-          robustnessReport={robustnessReport}
         />
       ) : (
         <>
@@ -442,15 +439,9 @@ function ComparisonSummary({
 function CompareView({
   raw,
   prototype,
-  fuzzyData,
-  protoFuzzyData,
-  robustnessReport,
 }: {
   raw: QCAAnalysisResultJSON;
   prototype: QCAAnalysisResultJSON;
-  fuzzyData: any;
-  protoFuzzyData: any;
-  robustnessReport: any;
 }) {
   const [compareTab, setCompareTab] = useState<'solutions' | 'truth-table' | 'necessity'>('solutions');
 

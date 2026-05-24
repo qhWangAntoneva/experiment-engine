@@ -764,3 +764,7 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 02:52 | Edited TODO.md | inline fix | ~11 |
 | 02:52 | Edited TODO.md | inline fix | ~13 |
 | 02:53 | Edited TODO.md | inline fix | ~8 |
+| 02:57 | Edited src/hooks/useQCAWorkflow.ts | 2→2 lines | ~44 |
+| 02:57 | Edited src/pages/Results.tsx | modified CompareView() | ~34 |
+| 02:57 | Edited src/pages/Results.tsx | 7→4 lines | ~31 |
+| 02:58 | Edited tests/test_keyword_io.py | modified zip() | ~68 |

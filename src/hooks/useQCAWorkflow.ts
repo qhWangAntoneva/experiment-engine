@@ -155,8 +155,8 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
 
         const fuzzyData = opts.usePrototype ? state.prototypeFuzzyData : state.fuzzyData;
         if (!fuzzyData) {
-          const label = opts.usePrototype ? 'prototype' : '';
-          throw new Error(`No ${label} fuzzy-set data available. Run calibration first.`);
+          const label = opts.usePrototype ? 'prototype ' : '';
+          throw new Error(`No ${label}fuzzy-set data available. Run calibration first.`);
         }
 
         const params: QCAAnalysisParams = {

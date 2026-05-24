@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T18:53:00.644Z
-> Files: 17 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T18:58:57.341Z
+> Files: 18 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -77,7 +77,7 @@
 
 ## src/hooks/
 
-- `useQCAWorkflow.ts` — Hook: Pyodide bridge to pipeline context. Includes prototype analysis workflow. (~3702 tok)
+- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. (~2961 tok)
 
 ## src/layouts/
 
@@ -86,7 +86,7 @@
 
 - `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~12003 tok)
 - `Results.css` — Styles for Results page + prototype contrast comparison view (~1362 tok)
-- `Results.tsx` — Results — QCA analysis output + raw/prototype contrast view with side-by-side comparison (~11309 tok)
+- `Results.tsx` — Results — displays all QCA analysis output in organized sections: (~7881 tok)
 - `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~4949 tok)
 
 ## src/pyodide/
@@ -105,6 +105,7 @@
 
 ## tests/
 
+- `test_keyword_io.py` — Unit tests for keyword dictionary import/export (keyword_io.py). (~4511 tok)
 - `test_qca_core.py` — Unit tests for QCA core modules + CrispCalibration + csQCA integration. (~19224 tok)
 
 ## tmp/
