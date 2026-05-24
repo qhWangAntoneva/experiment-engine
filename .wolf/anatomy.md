@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24 (Phase 4 complete)
-> Files: 104 tracked | Anatomy hits: 0 | Misses: 0 | Tests: 465 pass
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T14:12:22.708Z
+> Files: 106 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -14,13 +14,13 @@
 - `.gitignore` — Git ignore rules (~134 tok)
 - `.pre-commit-config.yaml` (~116 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
-- `FIXME.md` — FIXME — QCA Analysis Tool (~1787 tok)
+- `FIXME.md` — FIXME — QCA Analysis Tool (~1814 tok)
 - `HACK.md` — HACK — QCA Analysis Tool (~1155 tok)
 - `index.html` — QCA Simulation Tool (~130 tok)
 - `package-lock.json` — npm lock file (~17146 tok)
 - `package.json` — Node.js package manifest (~160 tok)
 - `pyproject.toml` — QCA Text Analysis Tool: citizen feedback text to fuzzy-set QCA analysis (~1266 tok)
-- `TODO.md` — TODO — QCA Analysis Tool (~1569 tok)
+- `TODO.md` — TODO — QCA Analysis Tool (~1567 tok)
 - `tsconfig.app.json` (~160 tok)
 - `tsconfig.json` — TypeScript configuration (~34 tok)
 - `tsconfig.node.json` (~139 tok)
@@ -66,7 +66,6 @@
 - `__main__.py` — CLI 入口点 (~50 tok)
 - `cli.py` — QCA Text Analysis CLI — complete QCA workflow commands. (~6716 tok)
 - `config.py` — YAML/JSON 配置加载 + merge_defaults + CLI 覆盖 (~800 tok)
-- `models.py` — Pydantic data models for the experiment-engine pipeline framework. (~9703 tok)
 - `pipeline.py` — Pipeline and Stage abstract base classes. (~5114 tok)
 - `plugins.py` — BasePlugin + PluginRegistry + @register_stage (~1200 tok)
 - `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~3518 tok)
@@ -87,6 +86,13 @@
 - `exporters.py` — CSVExporter, JSONExporter, HTMLExporter (~500 tok)
 - `readers.py` — Data readers for experiment-engine. (~4891 tok)
 - `sources.py` — DataSource, FileDataSource, StdinDataSource, GeneratorDataSource (~600 tok)
+
+## src/experiment_engine/models/
+
+- `__init__.py` — Re-exports all symbols from framework/qca/training for backward compatibility (~657 tok)
+- `framework.py` — Pipeline-generic models: StageStatus, PipelineResult, InputData, Timer, etc. (~4128 tok)
+- `qca.py` — QCA domain models: FuzzySetData, TruthTable, QCASolutions, RobustnessReport, etc. (~4964 tok)
+- `training.py` — Training models: TrainingSample, TrainingDataset (~530 tok)
 
 ## src/experiment_engine/qca_engine/
 

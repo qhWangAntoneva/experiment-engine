@@ -2,15 +2,15 @@
 
 > OpenWolf 学习记忆。最后一次全面更新：2026-05-24
 > 用途：新 agent 接手时的项目全貌参考。
-> **当前状态**: 四阶段 P0 修复已完成（2026-05-24），8/8 P0 全部解决，18/22 FIXME 已修复，465 测试通过。剩余 4 个 🟡🟢 FIXME + 17 P1 + 20 P2 待下一 session 推进。
+> **当前状态**: 四阶段 P0 修复已完成（2026-05-24），8/8 P0 全部解决，19/22 FIXME 已修复（新增 FIXME-16），465 测试通过。剩余 3 个 🟡🟢 FIXME + 16 P1 + 20 P2 待下一 session 推进。
 
 ---
 
 ## 0. 快速上手（新 session 必读）
 
 **在开始任何工作前，先读这三个文件获取当前状态**：
-- `TODO.md` — 37 项待办（0 P0 + 17 P1 + 20 P2），P0 全部完成
-- `FIXME.md` — 4 项剩余缺陷（2 🟡警告 + 2 🟢建议），18/22 已修复
+- `TODO.md` — 36 项待办（0 P0 + 16 P1 + 20 P2），P0 全部完成
+- `FIXME.md` — 3 项剩余缺陷（1 🟡警告 + 2 🟢建议），19/22 已修复
 - `HACK.md` — 9 项技术债务（3 已解决）
 
 **当前项目基线**：
@@ -20,10 +20,9 @@
 - Git：master 分支，4 次提交已推送 (c4c6aa2, 9842e11, 9b58081, d08786c)
 
 **推荐的开工顺序**（P1 优先）：
-1. P1-14 → models.py 拆分为 models/framework.py + models/qca.py（解决 FIXME-16）
-2. P1-15 → 校准器策略模式重构（解决 HACK-6）
-3. P1-16 + P1-17 → 前端解析归一 + numpy 向量化
-4. P1-1 ~ P1-13 → 功能需求按客户优先级
+1. P1-15 → 校准器策略模式重构（解决 HACK-6）
+2. P1-16 + P1-17 → 前端解析归一 + numpy 向量化
+3. P1-1 ~ P1-13 → 功能需求按客户优先级
 
 ---
 
@@ -114,16 +113,19 @@
 
 | 文件 | 职责 | 关键模型（30+个 Pydantic v2 模型） |
 |------|------|----------------------------------|
-| `models.py` | 所有数据模型 | **泛型**：`InputData[T]`, `OutputData[T]`, `PipelineResult`, `ExperimentConfig` |
-| | | **QCA**：`TextDomain`, `ConditionDefinition`, `ConditionSet`, `CalibrationParams`, `KeywordEntry` |
-| | | **训练**：`TrainingSample`, `TrainingDataset` |
+| `models/framework.py` | 框架层模型 | **泛型**：`InputData[T]`, `OutputData[T]`, `PipelineResult`, `ExperimentConfig` |
+| | | **枚举**：`StageStatus`, `PipelineStatus` |
+| | | **配置**：`PipelineStageConfig`, `InputConfig`, `ExportConfig`, `RenderConfig` |
+| | | **结果**：`StageResult`, `PipelineResult`, `Timer` |
+| `models/qca.py` | QCA 领域模型 | **校准**：`TextDomain`, `CalibrationType`, `ScoringSource`, `CalibrationParams`, `KeywordEntry`, `ConceptPrototype` |
+| | | **条件**：`ConditionDefinition`, `ConditionSet`, `TextCase` |
 | | | **核心数据**：`FuzzySetData` (ndarray + metadata) |
 | | | **分析**：`TruthTable`, `TruthTableRow`, `QCASolutions`, `SolutionTerm`, `QCAAnalysisResult` |
-| | | **必要性**：`NecessityResults`, `NecessityConditionResult` |
-| | | **充分性**：`SufficiencyResults` |
+| | | **必要性**：`NecessityResults`, `NecessityConditionResult`；**充分性**：`SufficiencyResults` |
 | | | **稳健性**：`RobustnessReport`, `RobustnessTestResult` |
-| | | **反事实**：`CounterfactualReport`, `CounterfactualClassification` |
-| | | **多结果**：`MultiOutcomeReport` |
+| | | **反事实**：`CounterfactualReport`, `CounterfactualClassification`；**多结果**：`MultiOutcomeReport` |
+| `models/training.py` | 训练模型 | `TrainingSample`, `TrainingDataset` |
+| `models/__init__.py` | 重导出所有 34 个公共符号 | 保持 `from experiment_engine.models import X` 向后兼容 |
 
 ### 4.3 第1层：text_calibration/
 
@@ -339,3 +341,4 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
   - **FIXME-21 (hash→ID identity)**：用 itertools.count() 顺序 ID 替换 hash()；implicant_map/next_map 数据结构从 (pattern, coverage) 改为 (id, pattern, coverage)；combined_this_round 和 used_in_combination 跟踪 int ID
   - 所有 361 测试通过，ruff 干净，额外函数测试验证 QM guard + LaTeX escaping 正确性
 - [2026-05-24] **Do-Not-Repeat: @staticmethod 中调用另一个 @staticmethod 需用 ClassName.method()**：在 static method 中不能用 self.method()（因为 static method 没有 self 参数）。需使用 ClassName.method()。如果在静态方法中误用 self. 会导致 NameError。
+- [2026-05-24] **P1-14/FIXME-16 models.py 拆分为 package**：将 9500 token 单体 models.py 拆分为 `models/framework.py` (pipeline-generic) + `models/qca.py` (QCA domain) + `models/training.py` (training samples) + `models/__init__.py` (重导出 34 个公共符号)。关键决策：__init__.py 使用显式 import 而非 `from .module import *`，以避免命名空间污染和 linter 误报。保持所有现有 `from experiment_engine.models import X` 导入 100% 向后兼容。465 测试通过、ruff 干净、npm build 通过。旧 models.py 已删除。

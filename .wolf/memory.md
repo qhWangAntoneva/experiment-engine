@@ -434,3 +434,23 @@
 | 21:19 | Edited HACK.md | 8→7 lines | ~107 |
 | 21:19 | Edited HACK.md | 8→7 lines | ~84 |
 | 21:19 | Edited HACK.md | 6→6 lines | ~31 |
+| 21:23 | Session end: 83 writes across 19 files (counterfactual.py, minimization.py, calibrator.py, models.py, sufficiency.py) | 28 reads | ~133364 tok |
+
+## Session: 2026-05-24 21:25
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 22:03 | Created src/experiment_engine/models/framework.py | — | ~4128 |
+| 22:04 | Created src/experiment_engine/models/qca.py | — | ~4964 |
+| 22:04 | Created src/experiment_engine/models/training.py | — | ~530 |
+| 22:04 | Created src/experiment_engine/models/__init__.py | — | ~657 |
+| 22:06 | Edited src/experiment_engine/models/qca.py | 7→7 lines | ~52 |
+| 22:06 | Edited src/experiment_engine/models/qca.py | 7→7 lines | ~48 |
+| 22:04 | P1-14: Split models.py into models/framework.py + models/qca.py + models/training.py + __init__.py (re-exports for backward compat) | src/experiment_engine/models/* | 465 tests pass, ruff clean, npm build pass | ~10280 tok saved from monolithic file |
+| 22:09 | Edited FIXME.md | 7→7 lines | ~126 |
+| 22:09 | Edited FIXME.md | 3→3 lines | ~31 |
+| 22:09 | Edited FIXME.md | 4→3 lines | ~28 |
+| 22:11 | Edited TODO.md | inline fix | ~48 |
+| 22:11 | Edited TODO.md | 3→3 lines | ~19 |
+| 22:12 | Edited TODO.md | 3→3 lines | ~27 |
+| 22:12 | Edited TODO.md | 4 → 3 | ~8 |

@@ -38,7 +38,7 @@
 
 ### 架构重构
 
-- [ ] **P1-14: models.py 拆分为 models/framework.py + models/qca.py + models/training.py** — 框架层模型和 QCA 领域模型耦合在 9500 token 单文件中。(工作量: M, 来源: 技术顾问#4) @see FIXME-16
+- [x] **P1-14: models.py 拆分为 models/framework.py + models/qca.py + models/training.py** — 框架层模型和 QCA 领域模型耦合在 9500 token 单文件中。(工作量: M, 来源: 技术顾问#4) @see FIXME-16 [DONE 2026-05-24]
 - [ ] **P1-15: 校准器策略模式重构** — 硬编码 if/elif 分支 → CalibrationStrategy ABC + 注册表，支持新校准方法无需改源码。(工作量: M, 来源: 技术顾问#5)
 - [ ] **P1-16: 前端解析逻辑归一到 Pyodide Worker** — DataInput.tsx 的 parseTextContent() 与 TextCorpusReader 功能重复，前端应仅做轻量预检。(工作量: M, 来源: 技术顾问#7)
 - [ ] **P1-17: 校准器 for-loop → numpy 向量化** — calibrate_direct/indirect/ragin 用 np.where/np.select 替换 Python 循环，WASM 下快 20-50 倍。(工作量: S-M, 来源: 技术顾问#8)
@@ -89,14 +89,14 @@
 | 优先级 | 原始 | 已修复 | 剩余 |
 |--------|------|--------|------|
 | P0 | 8 | 8 | 0 |
-| P1 | 23 | 6 (P1-18~P1-23) | 17 |
+| P1 | 23 | 7 (P1-14 + P1-18~P1-23) | 16 |
 | P2 | 20 | 0 | 20 |
-| **合计** | **51** | **14** | **37** |
+| **合计** | **51** | **15** | **36** |
 
 预计剩余工作量：约 40-50 天（1.5-2 个全职工月）。
 
 下一 session 建议按 P1 → P2 顺序推进，优先处理：
-1. P1-14 (models.py 拆分，解决 FIXME-16)
-2. P1-15 (校准器策略模式重构，解决 HACK-6)
-3. P1-16 + P1-17 (前端解析归一 + numpy 向量化)
-4. P1-1 ~ P1-13 (功能需求，按客户优先级)
+1. P1-15 (校准器策略模式重构，解决 HACK-6)
+2. P1-16 + P1-17 (前端解析归一 + numpy 向量化)
+
+3. P1-1 ~ P1-13 (功能需求，按客户优先级)

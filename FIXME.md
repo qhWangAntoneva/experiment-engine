@@ -103,12 +103,12 @@
 **修复**: 提取 7 个 handler 函数到 `pyodide_handlers.py` (333 行)。Worker 添加通用 `runHandler()` 模板。Worker 从 659 行缩减到 464 行 (-30%)。同步修复 2 个隐蔽 bug（_fuzzy_data 累积变量错误 + QCAReporter→QCALaTeXReporter 类名错误）。
 **提交**: d08786c
 
-### FIXME-16: models.py — 上帝对象
+### FIXME-16: models.py — 上帝对象 ✅ [已修复 2026-05-24]
 
-**文件**: `src/experiment_engine/models.py`
+**文件**: `src/experiment_engine/models/`
 **严重程度**: 🟡 警告
 **问题**: 9500 token 单文件包含框架层模型（StageStatus/PipelineResult 等）和 QCA 领域模型（ConditionSet/FuzzySetData/TruthTable 等），违反单一职责原则。
-**修复**: 拆分为 models/framework.py、models/qca.py、models/training.py。（下一 session 处理，见 TODO P1-14）
+**修复**: 拆分为 `models/framework.py` (15.5 KB, pipeline-generic) + `models/qca.py` (18.5 KB, QCA domain) + `models/training.py` (1.9 KB, training samples) + `models/__init__.py` (重导出 34 个公共符号，保持向后兼容)。全部 465 测试通过，ruff 干净，npm build 通过。
 **来源**: 技术顾问#4
 
 ---
@@ -162,12 +162,11 @@
 | 严重程度 | 原始 | 已修复 | 剩余 |
 |----------|------|--------|------|
 | 🔴 严重 | 6 | 6 | 0 |
-| 🟡 警告 | 10 | 8 | 2 (FIXME-14, FIXME-16) |
+| 🟡 警告 | 10 | 9 | 1 (FIXME-14) |
 | 🟢 建议 | 6 | 4 | 2 (FIXME-19, FIXME-22) |
-| **合计** | **22** | **18** | **4** |
+| **合计** | **22** | **19** | **3** |
 
 下一次 session 建议优先处理：
 1. FIXME-14 → bigram 跨标点误匹配（唯一剩余的算法相关 FIXME）
-2. FIXME-16 → models.py 拆分（最大技术债务）
-3. FIXME-19 → prototype weight 启用
-4. FIXME-22 → k=10 可配置化
+2. FIXME-19 → prototype weight 启用
+3. FIXME-22 → k=10 可配置化

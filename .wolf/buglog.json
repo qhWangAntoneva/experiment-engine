@@ -1055,6 +1055,38 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24T13:19:49.099Z"
+    },
+    {
+      "id": "bug-062",
+      "timestamp": "2026-05-24T14:09:08.006Z",
+      "error_message": "Significant refactor of ",
+      "file": "FIXME.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 7→7 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:09:08.006Z"
+    },
+    {
+      "id": "bug-063",
+      "timestamp": "2026-05-24T14:11:10.637Z",
+      "error_message": "Significant refactor of ",
+      "file": "TODO.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 3→3 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:11:10.637Z"
     }
   ]
 }
