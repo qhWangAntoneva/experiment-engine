@@ -60,7 +60,7 @@
 **位置**: `src/experiment_engine/text_calibration/calibrator.py`, `src/experiment_engine/text_calibration/strategies.py` (新增)
 **性质**: 技术债务
 **描述**: `_apply_calibration()` 现已使用 `CalibrationStrategyRegistry` 策略模式查找，新增校准方法只需注册 `CalibrationStrategy` 实例，无需修改 `TextCalibrationStage`。详见 `strategies.py`。
-**提交**: 待提交
+**提交**: 10dbed0
 **来源**: 技术顾问#5
 
 ### HACK-7: DataInput.tsx 前端硬编码了默认条件集 YAML 模板
@@ -98,6 +98,15 @@
 **何时重新审视**: 实现 TODO P1-16 时解决。
 **来源**: 技术顾问#7
 
+### HACK-13: 预置词典硬编码在 domains.py [NEW 需求变更]
+
+**位置**: `src/experiment_engine/text_calibration/domains.py`
+**性质**: 设计妥协
+**描述**: 5 个领域的 200+ 关键词词典全部硬编码为 `domains.py` 中的 Python dict 常量。用户修改词典需要前端导入功能或手工编辑代码。需求变更后，每个条件需要同时定义关键词和 prototype 文本，固定代码中的词典结构阻碍条件级别的灵活配置。
+**风险**: 研究者的领域知识无法方便地加入词典，自定义词典覆盖预置词典的行为不透明。
+**何时重新审视**: 实现 TODO P1-34 + TODO P1-1 时解决——前端条件编辑器 + localStorage 持久化 + "恢复默认词典"。
+**来源**: 客户代表分析, 评审者#2026-05-24
+
 ---
 
 ## 测试层面
@@ -119,6 +128,42 @@
 **何时重新审视**: 实现 TODO P2-18 时解决。
 **来源**: 技术顾问#12
 
+### HACK-14: `ScoringSource.PROTOTYPE` 将原型文本建模为独立模式而非通用 scoring 方法 [NEW 需求变更]
+
+**位置**: `models/qca.py` (ScoringSource), `calibrator.py` (_compute_raw_scores), `pyodide_handlers.py` (handle_calibrate_prototype), `DataInput.tsx` (calibrationMode), `QCAPipelineContext.tsx` (prototype stages)
+**性质**: 设计错误（基于错误需求理解）
+**描述**: 当前代码将 prototype text 处理为独立于 keyword 的校准模式，由 `ScoringSource.PROTOTYPE` 枚举值驱动全链路分支（前后端各一条独立管道）。需求澄清后，prototype 相似度应是所有条件通用的**可选 scoring 来源之一**（和 keyword 相似度并列），而非管道级模式切换。整个 `ScoringSource.PROTOTYPE` → `handle_calibrate_prototype` → `calibrate-prototype-done` 链路是过渡期遗物。
+**风险**: 每新增一种 scoring 方法就需要新增一条独立管道（违反开闭原则）；raw + prototype 的对比分析无法在同一管道中完成。
+**何时重新审视**: 立即——这是 P0-9 阻塞项。重构为统一管道 + 条件粒度 scoring 来源 + 双批次输出对比。
+**来源**: 需求变更审查, 评审者#2026-05-24
+
+### HACK-15: 校准类型全链路硬编码为 fuzzy-set，缺少 csQCA 门控 [NEW 需求变更]
+
+**位置**: `strategies.py` (仅注册 4 个 fuzzy 策略), `truth_table.py` (fuzzy AND/consistency 硬编码), `calibrator.py` (仅 fuzzy 校准), `cli.py` (无 variant 参数)
+**性质**: 功能缺口 / 技术债务
+**描述**: 整个 QCA 分析链路（calibrate → truth table → minimize → analyze）硬编码为 fuzzy-set 逻辑。没有 `QCAVariant` 参数来控制是走 fuzzy 还是 crisp 分支。csQCA 启用需要在以下位置添加门控：strategies.py（新增 CrispCalibration）、truth_table.py（配置隶属度用 crisp AND=min(val,1-val)、consistency 用 strict subset proportion）、analyzer.py（参数名和 docstring 更新）。
+**风险**: 用户在 csQCA 场景下只能通过人工强制设定 threshold_full_in/out 近似 crisp，方法不正确且结果误导。
+**何时重新审视**: 立即——这是 P0-10 阻塞项。
+**来源**: 需求变更审查, 评审者#2026-05-24
+
+### HACK-16: prototype 字段在前端使用不一致 [NEW 客户代表]
+
+**位置**: `src/pages/DataInput.tsx` (generatePrototypeConditionSet, parsePrototypeTexts), `src/types/qca.ts` (ConceptPrototype)
+**性质**: 技术债务 / UI 不一致
+**描述**: `ConceptPrototype` 类型定义了 `weight` 字段（Default 1.0），但：(1) `prototype_similarity.py:compute_similarities()` 不读取该字段（FIXME-19）；(2) 前端 `parsePrototypeTexts()` 硬编码 `weight: 1.0`（行 170、177），用户无法在 UI 中设置权重；(3) `generatePrototypeConditionSet()` 的 `hybrid_keyword_weight` 和 `hybrid_prototype_weight` 始终为 0，混合同样硬编码固定值。整体上 prototype 相关字段在前端的"定义"和"使用"之间脱节——type 定义暗示灵活权重，实际代码全部硬编码。
+**风险**: 用户看到 type definition 中有 `weight` 字段却无法在 UI 中设置，造成"功能不完整"的印象。需求变更后，prototype 相似度作为 scoring 方法之一更需要权重可调（区分重要原型和次要原型）。
+**何时重新审视**: 实现 P0-9（统一管道）时同步修复 prototype 字段的 UI 交互，让用户在条件编辑器中可调整原型权重。(@see TODO P2-21, FIXME-19)
+**来源**: 客户代表分析#2026-05-24
+
+### HACK-17: 代码库未为语义校准（BERT）预留扩展点 [NEW 客户代表]
+
+**位置**: `calibrator.py` (_compute_raw_scores), `strategies.py`, `models/qca.py` (ScoringSource)
+**性质**: 设计缺口
+**描述**: 产品的长期路线包括 BERT 语义校准（TODO P1-32/33），但当前 `_compute_raw_scores()` 的 `ScoringSource` 枚举仅有 `KEYWORD`/`PROTOTYPE`/`HYBRID` 三种值，没有 `SEMANTIC` 或 `BERT` 预留。如果 BERT PoC 通过后需要新增语义 scoring，需修改 ScoringSource 枚举 + calibrator 全链路，属于破坏性变更。
+**风险**: 将来新增 BERT scoring 需要同时修改 `ScoringSource` 枚举、`_compute_raw_scores` 分支、`CalibrationStrategyRegistry` 注册表、前端 TS 类型、Worker handler——至少涉及 5 个文件，且可能破坏现有 HYBRID 逻辑（如果 HYBRID 被解释为 keyword+bert 而非 keyword+prototype）。
+**何时重新审视**: P1-32（BERT 产品定位设计）阶段需决定 ScoringSource 是否扩展或重构为更灵活的插件化 scoring 来源系统。建议 P0-9（统一管道）时预留 `bert` 作为 ScoringSource 的未来值。
+**来源**: 客户代表分析#2026-05-24
+
 ---
 
 ## 统计
@@ -126,6 +171,6 @@
 | 类别 | 数量 |
 |------|------|
 | 架构层面 | 5 (1 已解决) |
-| 代码层面 | 5 (2 已解决) |
+| 代码层面 | 10 (2 已解决) |
 | 测试层面 | 2 (1 已解决) |
-| **合计** | **12** (4 已解决)
+| **合计** | **17** (4 已解决, 5 新增需求变更+客户代表)
