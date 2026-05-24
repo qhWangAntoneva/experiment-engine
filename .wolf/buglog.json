@@ -2143,6 +2143,38 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24T19:06:04.444Z"
+    },
+    {
+      "id": "bug-130",
+      "timestamp": "2026-05-24T19:33:24.275Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/qca_engine/nl_interpretation.py",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 17→33 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T19:33:24.275Z"
+    },
+    {
+      "id": "bug-131",
+      "timestamp": "2026-05-24T19:38:05.414Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T19:38:05.414Z"
     }
   ]
 }

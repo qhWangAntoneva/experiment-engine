@@ -790,3 +790,17 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 03:06 | Edited src/pages/DataInput.tsx | 7→7 lines | ~98 |
 | 03:07 | Edited src/pages/DataInput.tsx | inline fix | ~17 |
 | 03:07 | P1-1: keyword dict import/export. Added exports to __init__.py, CLI commands import-keywords/export-keywords, export button in DataInput.tsx | __init__.py, cli.py, DataInput.tsx | 17 tests pass, ruff clean, build OK | ~500 |
+| 03:31 | Created src/experiment_engine/qca_engine/nl_interpretation.py | — | ~4254 |
+| 03:31 | Edited src/experiment_engine/qca_engine/nl_interpretation.py | modified _interpret_coverage_text() | ~177 |
+| 03:32 | Created tests/test_nl_interpretation.py | — | ~4603 |
+| 03:33 | Edited pyproject.toml | 1→3 lines | ~74 |
+| 03:33 | Edited src/experiment_engine/qca_engine/nl_interpretation.py | added 1 import(s) | ~30 |
+| 03:33 | Edited src/experiment_engine/qca_engine/nl_interpretation.py | expanded (+16 lines) | ~223 |
+| 03:33 | Edited src/experiment_engine/qca_engine/nl_interpretation.py | 11→11 lines | ~86 |
+| 03:33 | Edited src/experiment_engine/qca_engine/nl_interpretation.py | modified _num_to_cn() | ~94 |
+| 03:35 | Created src/experiment_engine/qca_engine/nl_interpretation.py | — | ~4473 |
+| 03:36 | Edited src/experiment_engine/qca_engine/nl_interpretation.py | 3→3 lines | ~11 |
+| 03:37 | Edited src/pages/Results.tsx | expanded (+7 lines) | ~44 |
+| 03:37 | Edited src/pages/Results.tsx | 5→8 lines | ~103 |
+| 03:38 | Edited src/pages/Results.tsx | added optional chaining | ~2437 |
+| 03:42 | P1-3: QCA natural language interpretation — Python backend + 35 tests + TS frontend auto-interpretation card | nl_interpretation.py, test_nl_interpretation.py, Results.tsx, Results.css, pyproject.toml | 525 tests pass, ruff clean, npm build passes | ~1500 |

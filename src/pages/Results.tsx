@@ -19,7 +19,14 @@ import FuzzySetHeatmap from '../components/FuzzySetHeatmap';
 import NecessityXYPlot from '../components/NecessityXYPlot';
 import { useQCAPipeline } from '../store/QCAPipelineContext';
 import { useQCAWorkflow } from '../hooks/useQCAWorkflow';
-import type { QCAAnalysisResultJSON } from '../types/qca';
+import type {
+  QCAAnalysisResultJSON,
+  ConditionSet,
+  ConditionDefinition,
+  SolutionTerm,
+  QCASolution,
+  NecessityResults,
+} from '../types/qca';
 import './Results.css';
 
 type ViewMode = 'raw' | 'prototype' | 'compare';
@@ -238,9 +245,12 @@ export default function Results() {
             )}
 
             {activeTab === 'solutions' && activeResult?.solutions && (
-              <div className="card" style={{ padding: '16px' }}>
-                <SolutionViewer solutions={activeResult.solutions} showAll={true} />
-              </div>
+              <>
+                <div className="card" style={{ padding: '16px' }}>
+                  <SolutionViewer solutions={activeResult.solutions} showAll={true} />
+                </div>
+                <AutoInterpretation result={activeResult} />
+              </>
             )}
 
             {activeTab === 'necessity' && activeResult?.necessity && (
@@ -694,6 +704,273 @@ function MetricChip({ label, value }: { label: string; value: string | number })
       <span className="mono" style={{ fontSize: '1.25rem', fontWeight: 700 }}>
         {value}
       </span>
+    </div>
+  );
+}
+
+// ─── Auto-Interpretation (Chinese NL) ─────────────────────────────────────
+
+/** Domain-name to default Chinese display label. */
+const DOMAIN_LABELS: Record<string, string> = {
+  dissatisfaction: '不满程度',
+  policy_demand: '政策需求',
+  co_production: '合产参与',
+  trust: '信任程度',
+  gov_responsiveness: '政府响应',
+};
+
+/** Chinese numerals 0-10. */
+const CN_NUMERALS = ['零', '一', '两', '三', '四', '五', '六', '七', '八', '九', '十'];
+
+const SOLUTION_TYPE_CN: Record<string, string> = {
+  complex: '复杂解',
+  parsimonious: '精简解',
+  intermediate: '中间解',
+};
+
+const SOLUTION_TYPE_DESC: Record<string, string> = {
+  complex: '仅基于实际观察到的配置推导',
+  parsimonious: '包含全部逻辑余项作为“不确定”行',
+  intermediate: '仅包含理论上可能的反事实',
+};
+
+function guessLabel(cond: ConditionDefinition): string {
+  return DOMAIN_LABELS[cond.domain] ?? cond.name.replace(/_/g, ' ');
+}
+
+function resolveDisplay(name: string, conditionSet: ConditionSet | null): string {
+  if (conditionSet) {
+    for (const c of conditionSet.conditions) {
+      if (c.name === name) return c.display_name || guessLabel(c);
+    }
+    if (conditionSet.outcome?.name === name)
+      return conditionSet.outcome.display_name || guessLabel(conditionSet.outcome);
+  }
+  return name.replace(/_/g, ' ');
+}
+
+function numToCN(n: number): string {
+  if (n >= 0 && n < CN_NUMERALS.length) return CN_NUMERALS[n];
+  return String(n);
+}
+
+function interpretCondition(cn: string, cs: ConditionSet | null): string {
+  const negated = cn.startsWith('~');
+  const clean = negated ? cn.slice(1) : cn;
+  const display = resolveDisplay(clean, cs);
+  return negated ? `低${display}` : `高${display}`;
+}
+
+function interpretTerm(term: SolutionTerm, cs: ConditionSet | null): string {
+  if (term.term && term.term.length > 0) {
+    return term.term.map((c) => interpretCondition(c, cs)).join(' AND ');
+  }
+  if (term.label) {
+    return term.label
+      .split('*')
+      .map((c) => interpretCondition(c.trim(), cs))
+      .join(' AND ');
+  }
+  return '未知条件组合';
+}
+
+function interpretConsistency(solution: QCASolution): string {
+  const c = solution.solution_consistency;
+  let quality: string;
+  if (c >= 0.95) quality = '非常高';
+  else if (c >= 0.9) quality = '很高';
+  else if (c >= 0.8) quality = '较高';
+  else if (c >= 0.75) quality = '可接受';
+  else quality = '偏低';
+  return (
+    `解的一致性为${c.toFixed(3)}（${quality}），` +
+    `表明这些条件组合是结果的充分条件——` +
+    `即当这些条件组合出现时，结果几乎总是出现。`
+  );
+}
+
+function interpretCoverage(solution: QCASolution): string {
+  const c = solution.solution_coverage;
+  const pct = c * 100;
+  let quality: string;
+  let detail: string;
+  if (c >= 0.8) {
+    quality = '很高';
+    detail = `绝大部分（约${pct.toFixed(0)}%）`;
+  } else if (c >= 0.6) {
+    quality = '较高';
+    detail = `超过一半（约${pct.toFixed(0)}%）`;
+  } else if (c >= 0.4) {
+    quality = '中等';
+    detail = `约${pct.toFixed(0)}%`;
+  } else {
+    quality = '较低';
+    detail = `仅约${pct.toFixed(0)}%`;
+  }
+  return (
+    `解的覆盖度为${c.toFixed(3)}（${quality}），` +
+    `表明这些路径解释了${detail}的结果案例。`
+  );
+}
+
+function generateInterpretation(result: QCAAnalysisResultJSON): string {
+  const cs = result.condition_set;
+  const solutions = result.solutions;
+  const primary = solutions.intermediate || solutions.complex || solutions.parsimonious;
+  if (!primary || !primary.terms || primary.terms.length === 0) {
+    return '未找到有效的解。';
+  }
+
+  const outcome =
+    cs?.outcome?.display_name ||
+    cs?.outcome?.name ||
+    '结果';
+
+  const lines: string[] = [];
+  const nTerms = primary.terms.length;
+
+  if (nTerms === 1) {
+    lines.push(`导致“${outcome}”有一条主要路径：`);
+  } else {
+    lines.push(`导致“${outcome}”有${numToCN(nTerms)}条路径：`);
+  }
+
+  const pathLabels = ['一', '二', '三', '四', '五', '六'];
+  for (let i = 0; i < primary.terms.length; i++) {
+    const term = primary.terms[i];
+    const idx = i < pathLabels.length ? pathLabels[i] : String(i + 1);
+    const cnLabel = interpretTerm(term, cs);
+    lines.push(`路径${idx}：${cnLabel}`);
+  }
+
+  const solTypeCN = SOLUTION_TYPE_CN[primary.solution_type] ?? primary.solution_type;
+  lines.push('');
+  lines.push(`（以上为${solTypeCN}）`);
+  lines.push('');
+  lines.push(interpretConsistency(primary));
+  lines.push(interpretCoverage(primary));
+
+  // Alternative solution types
+  lines.push('');
+  for (const st of ['complex', 'parsimonious', 'intermediate'] as const) {
+    const sol = solutions[st] as QCASolution | null;
+    const cnName = SOLUTION_TYPE_CN[st];
+    const desc = SOLUTION_TYPE_DESC[st] ?? '';
+    if (sol && sol.terms && sol.terms.length > 0) {
+      if (st === primary.solution_type) {
+        lines.push(`• ${cnName}（已展示于上方）：${desc}`);
+      } else {
+        lines.push(`• ${cnName}：${numToCN(sol.terms.length)}条路径，${desc}`);
+        lines.push(`  公式：${sol.formula}`);
+      }
+    } else {
+      lines.push(`• ${cnName}：未生成（不足够的一致配置）`);
+      lines.push(`  ${desc}`);
+    }
+  }
+
+  return lines.join('\n');
+}
+
+function generateNecessityInterpretation(
+  necessity: NecessityResults,
+  conditionSet: ConditionSet | null
+): string {
+  const outcome = necessity.outcome_name || '结果';
+  if (!necessity.conditions || necessity.conditions.length === 0) {
+    return `对于“${outcome}”，未找到必要条件分析结果。`;
+  }
+
+  const threshold = necessity.threshold;
+  const necessary = necessity.conditions.filter((c) => c.is_necessary);
+  const notNecessary = necessity.conditions.filter((c) => !c.is_necessary);
+
+  const lines: string[] = [];
+  lines.push(`必要条件分析（阈值 = ${threshold}）：`);
+
+  if (necessary.length > 0) {
+    lines.push(`其有${numToCN(necessary.length)}个条件是“${outcome}”的必要条件：`);
+    for (const c of necessary) {
+      const disp = resolveDisplay(c.condition_name, conditionSet);
+      lines.push(`  • ${disp}：一致性${c.consistency.toFixed(3)}，覆盖度${c.coverage.toFixed(3)}`);
+    }
+    lines.push(
+      `这意味着当“${outcome}”出现时，这些条件几乎总是存在（一致性≥${threshold}）。`
+    );
+  } else {
+    lines.push(`没有条件达到必要性阈值（一致性 ≥ ${threshold}）。`);
+    lines.push(`这表明没有单一条件是“${outcome}”的必要前提。`);
+  }
+
+  if (notNecessary.length > 0) {
+    lines.push('');
+    lines.push(`其他${numToCN(notNecessary.length)}个条件未达到必要性阈值：`);
+    for (const c of notNecessary) {
+      const disp = resolveDisplay(c.condition_name, conditionSet);
+      lines.push(`  • ${disp}：一致性${c.consistency.toFixed(3)}`);
+    }
+  }
+
+  return lines.join('\n');
+}
+
+function AutoInterpretation({ result }: { result: QCAAnalysisResultJSON }) {
+  const [expanded, setExpanded] = useState(false);
+
+  const interpretationText = useMemo(() => {
+    if (!result) return '';
+    return generateInterpretation(result);
+  }, [result]);
+
+  const necessityText = useMemo(() => {
+    if (!result?.necessity) return '';
+    return generateNecessityInterpretation(result.necessity, result.condition_set);
+  }, [result]);
+
+  if (!interpretationText && !necessityText) return null;
+
+  return (
+    <div className="card" style={{ padding: '16px', marginTop: '12px', borderColor: 'var(--color-accent)' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          cursor: 'pointer',
+        }}
+        onClick={() => setExpanded(!expanded)}
+      >
+        <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-accent)' }}>
+          自动解读
+        </h4>
+        <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
+          {expanded ? '收起' : '展开'}
+        </span>
+      </div>
+
+      {expanded && (
+        <div
+          style={{
+            marginTop: '12px',
+            padding: '16px',
+            background: 'var(--color-bg-primary)',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.875rem',
+            lineHeight: '1.8',
+            color: 'var(--color-text-primary)',
+            whiteSpace: 'pre-wrap',
+          }}
+        >
+          {interpretationText}
+
+          {necessityText && (
+            <>
+              <div style={{ margin: '16px 0', borderTop: '1px solid var(--color-border)' }} />
+              {necessityText}
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
