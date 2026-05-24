@@ -1,14 +1,13 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T20:23:36.754Z
-> Files: 12 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T20:26:06.806Z
+> Files: 1 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
 
 ## ./
 
-- `pyproject.toml` — QCA Text Analysis Tool: citizen feedback text to fuzzy-set QCA analysis (~1323 tok)
 
 ## .claude/
 
@@ -33,12 +32,9 @@
 
 ## src/
 
-- `App.tsx` — App (~272 tok)
 
 ## src/components/
 
-- `PipelineStatus.tsx` — Pipeline Status Indicator — shows current stage, progress bar, elapsed time, (~1027 tok)
-- `Sidebar.tsx` — Sidebar (~456 tok)
 
 ## src/experiment_engine/
 
@@ -57,7 +53,6 @@
 
 ## src/experiment_engine/qca_engine/
 
-- `nl_interpretation.py` — Natural language interpretation of QCA analysis results in Chinese. (~4473 tok)
 
 ## src/experiment_engine/qca_engine/advanced/
 
@@ -76,18 +71,13 @@
 
 ## src/i18n/
 
-- `I18nContext.tsx` — Lightweight i18n via React Context. (~1424 tok)
-- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~8945 tok)
 
 ## src/layouts/
 
 
 ## src/pages/
 
-- `Dashboard.tsx` — Dashboard — QCA pipeline overview with pipeline status widget, (~2859 tok)
-- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~12994 tok)
-- `Results.tsx` — Results — displays all QCA analysis output in organized sections: (~10469 tok)
-- `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~5058 tok)
+- `Results.tsx` — Results — displays all QCA analysis output in organized sections: (~10757 tok)
 
 ## src/pyodide/
 
@@ -103,6 +93,5 @@
 
 ## tests/
 
-- `test_nl_interpretation.py` — Unit tests for NLInterpreter — Chinese natural language QCA result interpretation. (~4603 tok)
 
 ## tmp/

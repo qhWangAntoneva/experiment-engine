@@ -799,13 +799,13 @@ function interpretCondition(cn: string, cs: ConditionSet | null): string {
 
 function interpretTerm(term: SolutionTerm, cs: ConditionSet | null): string {
   if (term.term && term.term.length > 0) {
-    return term.term.map((c) => interpretCondition(c, cs)).join(' AND ');
+    return term.term.map((c) => interpretCondition(c, cs)).join(' 且 ');
   }
   if (term.label) {
     return term.label
       .split('*')
       .map((c) => interpretCondition(c.trim(), cs))
-      .join(' AND ');
+      .join(' 且 ');
   }
   return '未知条件组合';
 }

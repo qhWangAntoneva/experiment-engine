@@ -907,3 +907,6 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 04:23 | Edited src/i18n/translations.ts | 2→3 lines | ~25 |
 | 04:23 | Edited src/pages/Results.tsx | modified AutoInterpretation() | ~530 |
 | 04:23 | Edited src/pages/Settings.tsx | modified SettingRow() | ~704 |
+| 04:26 | Edited src/pages/Results.tsx | " AND " → " 且 " | ~21 |
+| 04:26 | Edited src/pages/Results.tsx | " AND " → " 且 " | ~6 |
+| 04:26 | Completed P1-4 Chinese translation: fixed hardcoded English in DataInput.tsx (more cases, Error: prefix, Plain Text, validation styling) + added common.error and formatPlainText keys | src/pages/DataInput.tsx, src/i18n/translations.ts | build passes, committed | ~200 |

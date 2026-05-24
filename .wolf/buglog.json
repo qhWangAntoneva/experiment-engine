@@ -2383,6 +2383,22 @@
       "related_bugs": [],
       "occurrences": 2,
       "last_seen": "2026-05-24T20:22:54.358Z"
+    },
+    {
+      "id": "bug-145",
+      "timestamp": "2026-05-24T20:26:01.448Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "Had ' AND '",
+      "fix": "Changed to ' 且 '",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-24T20:26:06.825Z"
     }
   ]
 }
