@@ -220,7 +220,7 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setConditionSet = useCallback((cs: ConditionSet) => {
-    dispatch({ type: 'SET_CONDITION_SET', cs });
+    dispatch({ type: 'SET_CONDITION_SET', conditionSet: cs });
   }, []);
 
   const value: QCAPipelineContextValue = {

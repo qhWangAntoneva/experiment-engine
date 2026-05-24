@@ -9,3 +9,8 @@
 //   import.meta.env.DEV        — boolean
 //   import.meta.env.PROD       — boolean
 // =============================================================================
+//
+// plotly.js-dist-min v2.x does not ship TypeScript declarations; v3.x does, but
+// we pin v2 for compatibility with the CDN-hosted Plotly.js version used by the
+// Pyodide engine's JSON export path.
+declare module 'plotly.js-dist-min';

@@ -91,10 +91,7 @@ export default function PipelineStatus() {
             style={{
               height: '100%',
               width: `${state.progress}%`,
-              background:
-                state.stage === 'error'
-                  ? 'var(--color-error)'
-                  : 'var(--color-accent)',
+              background: 'var(--color-accent)',
               borderRadius: 2,
               transition: 'width 300ms ease',
             }}
