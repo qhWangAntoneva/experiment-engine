@@ -5,6 +5,10 @@ The primary Pipeline/Stage implementations live in
 provides a secondary namespace for modular additions.
 """
 
+from experiment_engine.core.parallel import (
+    ParallelPipeline,
+    ParallelStageGroup,
+)
 from experiment_engine.pipeline import (
     Pipeline,
     PipelineElement,
@@ -12,4 +16,10 @@ from experiment_engine.pipeline import (
     Stage,
 )
 
-__all__ = ["Pipeline", "PipelineResult", "Stage"]
+__all__ = [
+    "ParallelPipeline",
+    "ParallelStageGroup",
+    "Pipeline",
+    "PipelineResult",
+    "Stage",
+]

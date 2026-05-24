@@ -14,7 +14,6 @@ from typing import Any
 import pytest
 import yaml
 from click.testing import CliRunner
-
 from experiment_engine.cli import cli
 from experiment_engine.config import load_config, load_config_from_dict
 from experiment_engine.io import CSVExporter, get_reader
@@ -61,7 +60,7 @@ class MultiplyStage(Stage):
 
     def process(self, data: Any) -> Any:
         factor = self.config.get("factor", 2)
-        if isinstance(data, (int, float)):
+        if isinstance(data, int | float):
             return data * factor
         return data
 
@@ -675,7 +674,7 @@ class TestErrorPaths:
         """load_config raises ValueError for invalid YAML content."""
         bad_path = temp_dir / "bad.yaml"
         bad_path.write_text("{invalid: yaml: [unbalanced]")
-        with pytest.raises(ValueError, match="Invalid YAML|invalid"):
+        with pytest.raises(ValueError, match=r"Invalid YAML|invalid"):
             load_config(str(bad_path))
 
     def test_invalid_json(self, temp_dir: Path) -> None:
@@ -755,3 +754,257 @@ class TestErrorPaths:
 
         with pytest.raises(Exception):
             load_config(str(path))
+
+
+# ═══════════════════════════════════════════════
+#  5. Parallel execution tests
+# ═══════════════════════════════════════════════
+
+
+class TestParallelExecution:
+    """Tests for :class:`ParallelStageGroup` and :class:`ParallelPipeline`."""
+
+    # ── Helpers ─────────────────────────────
+
+    class _DoubleStage(Stage):
+        def process(self, data: Any) -> Any:
+            return data * 2
+
+    class _TripleStage(Stage):
+        def process(self, data: Any) -> Any:
+            return data * 3
+
+    class _FailStage(Stage):
+        def process(self, data: Any) -> Any:
+            raise RuntimeError("stage exploded")
+
+    class _TransformStage(Stage):
+        def __init__(
+            self,
+            name: str | None = None,
+            transform: str = "upper",
+        ) -> None:
+            super().__init__(name=name)
+            self.transform = transform
+
+        def process(self, data: Any) -> Any:
+            if isinstance(data, str):
+                if self.transform == "upper":
+                    return data.upper()
+                if self.transform == "lower":
+                    return data.lower()
+            return data
+
+    # ── Tests ───────────────────────────────
+
+    def test_parallel_group_processes_all_stages(self) -> None:
+        """All sub-stages in a ParallelStageGroup execute and produce output."""
+        from experiment_engine.core.parallel import ParallelStageGroup
+
+        group = ParallelStageGroup(name="math", max_workers=2)
+        group.add_stage(self._DoubleStage(name="double"))
+        group.add_stage(self._TripleStage(name="triple"))
+
+        result = group.process(5)
+
+        assert isinstance(result, dict)
+        assert len(result) == 2
+        assert result["double"] == 10
+        assert result["triple"] == 15
+
+    def test_parallel_group_processes_all_stages_with_string(self) -> None:
+        """ParallelStageGroup works with non-numeric data."""
+        from experiment_engine.core.parallel import ParallelStageGroup
+
+        group = ParallelStageGroup(name="string_group", max_workers=2)
+        group.add_stage(self._TransformStage(name="up", transform="upper"))
+        group.add_stage(self._TransformStage(name="low", transform="lower"))
+
+        result = group.process("Hello World")
+
+        assert result["up"] == "HELLO WORLD"
+        assert result["low"] == "hello world"
+
+    def test_parallel_group_processes_all_stages_single_sub_stage(
+        self,
+    ) -> None:
+        """A group with a single sub-stage still works correctly."""
+        from experiment_engine.core.parallel import ParallelStageGroup
+
+        group = ParallelStageGroup(name="single", max_workers=1)
+        group.add_stage(self._DoubleStage(name="double"))
+
+        result = group.process(7)
+
+        assert result == {"double": 14}
+
+    def test_parallel_group_handles_failure_gracefully(self) -> None:
+        """A failing sub-stage does not affect other sub-stages."""
+        from experiment_engine.core.parallel import ParallelStageGroup
+
+        group = ParallelStageGroup(name="mixed", max_workers=2)
+        group.add_stage(self._DoubleStage(name="good"))
+        group.add_stage(self._FailStage(name="bad"))
+
+        result = group.process(10)
+
+        # The successful stage still produced output
+        assert result["good"] == 20
+        # The failed stage stored the exception
+        assert isinstance(result["bad"], Exception)
+        assert "stage exploded" in str(result["bad"])
+
+    def test_parallel_group_handles_failure_gracefully_all_fail(
+        self,
+    ) -> None:
+        """When all sub-stages fail, all values are exceptions."""
+        from experiment_engine.core.parallel import ParallelStageGroup
+
+        group = ParallelStageGroup(name="all_fail", max_workers=2)
+        group.add_stage(self._FailStage(name="a"))
+        group.add_stage(self._FailStage(name="b"))
+
+        result = group.process(42)
+
+        assert len(result) == 2
+        assert all(isinstance(v, Exception) for v in result.values())
+
+    def test_parallel_group_handles_failure_gracefully_mixed(
+        self,
+    ) -> None:
+        """Mix of success and failure — successful outputs are correct."""
+        from experiment_engine.core.parallel import ParallelStageGroup
+
+        group = ParallelStageGroup(name="mixed2", max_workers=3)
+        group.add_stage(self._DoubleStage(name="d1"))
+        group.add_stage(self._FailStage(name="f1"))
+        group.add_stage(self._TripleStage(name="t1"))
+        group.add_stage(self._FailStage(name="f2"))
+
+        result = group.process(5)
+
+        assert result["d1"] == 10
+        assert isinstance(result["f1"], Exception)
+        assert result["t1"] == 15
+        assert isinstance(result["f2"], Exception)
+
+    def test_parallel_pipeline_integration(self) -> None:
+        """ParallelPipeline runs mixed serial and parallel stages."""
+        from experiment_engine.core.parallel import (
+            ParallelPipeline,
+            ParallelStageGroup,
+        )
+
+        pipe = ParallelPipeline(name="integrated")
+        pipe.add_stage(self._TransformStage(name="prepare", transform="upper"))
+
+        group = ParallelStageGroup(name="analysis", max_workers=2)
+        group.add_stage(self._DoubleStage(name="double"))
+        group.add_stage(self._TripleStage(name="triple"))
+        pipe.add_stage(group)
+
+        pipe.add_stage(self._TransformStage(name="finish", transform="upper"))
+
+        result = pipe.run("test")
+
+        assert result.status == PipelineStatus.COMPLETED
+        assert result.output is not None
+        # Stages: prepare, double, triple, finish = 4 entries
+        assert len(result.stages) == 4
+        for sr in result.stages:
+            assert sr.status == StageStatus.COMPLETED
+        # All stages have sensible durations
+        for sr in result.stages:
+            assert sr.duration_ms >= 0
+
+    def test_parallel_pipeline_integration_with_failure_in_group(
+        self,
+    ) -> None:
+        """ParallelPipeline handles sub-stage failure within a group."""
+        from experiment_engine.core.parallel import (
+            ParallelPipeline,
+            ParallelStageGroup,
+        )
+
+        pipe = ParallelPipeline(name="partial_fail")
+
+        group = ParallelStageGroup(name="analysis", max_workers=2)
+        group.add_stage(self._DoubleStage(name="good"))
+        group.add_stage(self._FailStage(name="bad"))
+        pipe.add_stage(group)
+
+        pipe.add_stage(self._TransformStage(name="after"))
+
+        result = pipe.run(5)
+
+        # Overall status is PARTIAL because a sub-stage failed
+        assert result.status == PipelineStatus.PARTIAL
+        # 3 stage results: good, bad, after
+        assert len(result.stages) == 3
+        assert result.stages[0].status == StageStatus.COMPLETED
+        assert result.stages[1].status == StageStatus.FAILED
+        assert "stage exploded" in (result.stages[1].error or "")
+        # Pipeline continues even after group failure
+        assert result.stages[2].status == StageStatus.COMPLETED
+
+    def test_parallel_pipeline_with_multiple_groups(self) -> None:
+        """ParallelPipeline handles multiple ParallelStageGroups."""
+        from experiment_engine.core.parallel import (
+            ParallelPipeline,
+            ParallelStageGroup,
+        )
+
+        pipe = ParallelPipeline(name="multi_group")
+
+        # DictTransformer extracts a specific key from the dict output
+        # of a previous group and passes it through as the new value.
+        class DictTransformer(Stage):
+            def __init__(self, name: str | None = None, key: str = "d1") -> None:
+                super().__init__(name=name)
+                self.key = key
+
+            def process(self, data: Any) -> Any:
+                if isinstance(data, dict) and self.key in data:
+                    return data[self.key]
+                return data
+
+        g1 = ParallelStageGroup(name="g1", max_workers=2)
+        g1.add_stage(self._DoubleStage(name="d1"))
+        g1.add_stage(self._TripleStage(name="t1"))
+        pipe.add_stage(g1)
+
+        pipe.add_stage(DictTransformer(name="extract", key="d1"))
+
+        g2 = ParallelStageGroup(name="g2", max_workers=2)
+        g2.add_stage(self._DoubleStage(name="d2"))
+        g2.add_stage(self._TripleStage(name="t2"))
+        pipe.add_stage(g2)
+
+        result = pipe.run(2)
+
+        assert result.status == PipelineStatus.COMPLETED
+        assert len(result.stages) == 5  # g1(2) + extract(1) + g2(2)
+        for sr in result.stages:
+            assert sr.status == StageStatus.COMPLETED
+        # 2 * 2 = 4, 4 * 2 = 8 (d2)
+        # 4 * 3 = 12 (t2)
+        assert result.output is not None
+        assert isinstance(result.output, dict)
+        assert result.output["d2"] == 8
+        assert result.output["t2"] == 12
+
+    def test_parallel_pipeline_with_empty_group(self) -> None:
+        """A ParallelPipeline with an empty ParallelStageGroup works."""
+        from experiment_engine.core.parallel import (
+            ParallelPipeline,
+            ParallelStageGroup,
+        )
+
+        pipe = ParallelPipeline(name="empty_group")
+        empty = ParallelStageGroup(name="empty")
+        pipe.add_stage(empty)
+        pipe.add_stage(self._TransformStage(name="after"))
+
+        result = pipe.run("hello")
+        assert result.status == PipelineStatus.COMPLETED
+        assert result.output is not None

@@ -1,4 +1,53 @@
 {
   "version": 1,
-  "bugs": []
+  "bugs": [
+    {
+      "id": "bug-001",
+      "timestamp": "2026-05-24T02:40:58.493Z",
+      "error_message": "Incorrect value in code",
+      "file": "pyproject.toml",
+      "root_cause": "Had \"A modular algorithm experimentation framework: in",
+      "fix": "Changed to \"QCA Text Analysis Tool: citizen feedback text to ",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "toml"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-05-24T02:41:06.470Z"
+    },
+    {
+      "id": "bug-002",
+      "timestamp": "2026-05-24T02:48:08.608Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/report/qca_reporter.py",
+      "root_cause": "12 lines replaced/restructured",
+      "fix": "Rewrote 15→15 lines (12 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T02:48:08.608Z"
+    },
+    {
+      "id": "bug-003",
+      "timestamp": "2026-05-24T03:27:52.890Z",
+      "error_message": "Incorrect value in code",
+      "file": "tests/test_algorithms.py",
+      "root_cause": "Had \"Expected np.ndarray\"",
+      "fix": "Changed to \"Expected np\\.ndarray\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T03:27:52.890Z"
+    }
+  ]
 }

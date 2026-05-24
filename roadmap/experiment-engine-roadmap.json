@@ -208,14 +208,14 @@
     "phase_4_docs_polish": {
       "title": "文档与发布 (Documentation & Polish)",
       "priority": "MEDIUM",
-      "summary": "项目架构文档已有，但缺少贡献指南、CHANGELOG、API文档和发布流程",
+      "summary": "CONTRIBUTING.md、CHANGELOG.md、MkDocs文档站（含16个API页面）、发布配置均已完成。剩D3徽章依赖Q3 (GitHub CI/CD)",
       "tasks": [
         {
           "id": "D1",
           "description": "编写 CONTRIBUTING.md：代码规范、PR流程、测试要求",
           "effort_hours": 1.0,
           "dependencies": ["Q2"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["CONTRIBUTING.md"]
         },
         {
@@ -223,7 +223,7 @@
           "description": "创建 CHANGELOG.md：基于Keep a Changelog规范，记录已完工作",
           "effort_hours": 0.5,
           "dependencies": [],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["CHANGELOG.md"]
         },
         {
@@ -239,7 +239,7 @@
           "description": "MkDocs文档站：mkdocs.yml配置 + docs/完善API引用",
           "effort_hours": 2.0,
           "dependencies": [],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["mkdocs.yml", "docs/index.md", "docs/api/"]
         },
         {
@@ -247,7 +247,7 @@
           "description": "pyproject.toml添加发布配置：long_description、classifiers完善、project.urls真实化",
           "effort_hours": 0.3,
           "dependencies": ["D2"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["pyproject.toml"]
         }
       ]
@@ -255,14 +255,14 @@
     "phase_5_advanced": {
       "title": "高级功能 (Advanced Features)",
       "priority": "LOW",
-      "summary": "核心框架稳定后的锦上添花功能",
+      "summary": "核心框架稳定后的锦上添花功能。A1 (内置算法)、A3 (数据库连接器)、A6 (并行stage执行) 已完成",
       "tasks": [
         {
           "id": "A1",
           "description": "内置算法：实现线性回归、k-means作为内置AlgorithmBase子类，通过@register_stage注册",
           "effort_hours": 3.0,
           "dependencies": ["F4", "I1", "FX2"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["src/experiment_engine/algorithms/"]
         },
         {
@@ -270,7 +270,7 @@
           "description": "增强Streamlit Dashboard：实时pipeline运行可视化、结果对比视图",
           "effort_hours": 2.0,
           "dependencies": ["I2"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["src/experiment_engine/viz/streamlit_dashboard.py"]
         },
         {
@@ -278,7 +278,7 @@
           "description": "数据库连接器：SQLite/PostgreSQL的DataReader/DataWriter实现",
           "effort_hours": 2.0,
           "dependencies": ["I1"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["src/experiment_engine/io/db.py"]
         },
         {
@@ -286,7 +286,7 @@
           "description": "实验报告导出：自动生成LaTeX/PDF报告，包含config快照、metrics和图表引用",
           "effort_hours": 2.5,
           "dependencies": ["I2"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["src/experiment_engine/report/"]
         },
         {
@@ -302,7 +302,7 @@
           "description": "并行stage执行：可选在线程池中并行执行独立stage",
           "effort_hours": 1.5,
           "dependencies": ["F3"],
-          "status": "PENDING",
+          "status": "DONE",
           "files": ["src/experiment_engine/core/parallel.py"]
         }
       ]
@@ -314,11 +314,11 @@
     "version_1_1_advanced": ["ALL_TASKS_UP_TO_PHASE_5"]
   },
   "summary": {
-    "total_tasks": 29,
-    "total_estimated_effort_hours": 44.3,
-    "remaining_effort_hours": 7.8,
-    "completed_tasks": 26,
-    "completed_phases": ["phase_1_foundation", "phase_1_fix", "phase_2_integration"],
-    "active_phase": "phase_3_quality"
+    "total_tasks": 32,
+    "total_estimated_effort_hours": 47.3,
+    "remaining_effort_hours": 5.8,
+    "completed_tasks": 30,
+    "completed_phases": ["phase_1_foundation", "phase_1_fix", "phase_2_integration", "phase_4_docs_polish"],
+    "active_phase": "phase_5_advanced"
   }
 }

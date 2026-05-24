@@ -1,0 +1,53 @@
+site_name: experiment-engine
+site_description: A modular algorithm experimentation framework — Input → Computation → Visualization → Report
+repo_url: https://github.com/qhWangAntoneva/experiment-engine
+site_author: experiment-engine contributors
+copyright: MIT License
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+  features:
+    - navigation.tabs
+    - navigation.top
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Architecture: ARCHITECTURE.md
+  - API Reference:
+    - experiment_engine: api/experiment_engine.md
+    - models: api/models.md
+    - pipeline: api/pipeline.md
+    - config: api/config.md
+    - plugins: api/plugins.md
+    - io:
+      - Overview: api/io.md
+      - readers: api/io.readers.md
+      - sources: api/io.sources.md
+      - exporters: api/io.exporters.md
+    - viz:
+      - Overview: api/viz.md
+      - base: api/viz.base.md
+      - matplotlib_renderer: api/viz.matplotlib_renderer.md
+      - plotly_renderer: api/viz.plotly_renderer.md
+      - console: api/viz.console.md
+      - streamlit_dashboard: api/viz.streamlit_dashboard.md
+    - core: api/core.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: true
+            show_category_heading: true
+            docstring_style: google

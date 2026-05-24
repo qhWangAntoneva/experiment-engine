@@ -60,7 +60,7 @@ class DataReader(ABC):
             bool: Whether this reader can handle the source.
         """
         ext = self._guess_extension()
-        if ext and isinstance(source, (str, Path)):
+        if ext and isinstance(source, str | Path):
             return str(source).lower().endswith(ext)
         return False
 
@@ -121,7 +121,7 @@ class CSVReader(DataReader):
             index = df.index.tolist()
 
         metadata = {
-            "source": str(source) if isinstance(source, (str, Path)) else "<iterator>",
+            "source": str(source) if isinstance(source, str | Path) else "<iterator>",
             "n_rows": len(df),
             "n_cols": len(df.columns),
             "dtypes": {c: str(dt) for c, dt in df.dtypes.items()},
@@ -176,7 +176,7 @@ class JSONReader(DataReader):
             InputData: Parsed data.
         """
         raw: Any
-        if isinstance(source, (str, Path)):
+        if isinstance(source, str | Path):
             path = Path(source)
             if path.exists():
                 raw = json.loads(path.read_text(encoding="utf-8"))
@@ -203,7 +203,7 @@ class JSONReader(DataReader):
             index = df.index.tolist()
 
         metadata = {
-            "source": str(source) if isinstance(source, (str, Path)) else "<string>",
+            "source": str(source) if isinstance(source, str | Path) else "<string>",
             "n_rows": len(df),
             "n_cols": len(df.columns),
         }
@@ -265,7 +265,7 @@ class ArrayReader(DataReader):
 
     def can_read(self, source: Any) -> bool:
         """Return True if *source* is a numpy array or array-like."""
-        return isinstance(source, (np.ndarray, list, tuple))
+        return isinstance(source, np.ndarray | list | tuple)
 
 
 class SyntheticReader(DataReader):
@@ -391,3 +391,117 @@ class SyntheticReader(DataReader):
         }
 
         return InputData(data=data, columns=columns, index=index, metadata=metadata)
+
+
+class TextCorpusReader(DataReader):
+    """Reads Chinese citizen feedback texts from CSV, JSON, or plain text files.
+
+    Designed for the QCA text analysis pipeline. Extracts text content from
+    structured formats and returns a 1-D object array of strings.
+
+    Examples:
+        >>> reader = TextCorpusReader()
+        >>> data = reader.read("complaints.csv", text_column="feedback_text")
+        >>> data.n_samples
+        500
+
+        >>> data = reader.read("texts.json", text_column="body")
+        >>> isinstance(data.data, np.ndarray)
+        True
+    """
+
+    @property
+    def name(self) -> str:
+        return "text_corpus"
+
+    def _guess_extension(self) -> str | None:
+        return None  # handles csv, json, txt — no single extension
+
+    def read(
+        self,
+        source: str | Path,
+        text_column: str = "text",
+        id_column: str | None = None,
+        delimiter: str = ",",
+        **kwargs: Any,
+    ) -> InputData:
+        """Read text corpus from a file.
+
+        Accepts:
+        - CSV: loads with pandas, extracts ``text_column``.
+        - JSON: loads as records, extracts ``text_column``.
+        - Plain text (.txt): reads line-by-line, one text per line.
+
+        Args:
+            source: File path.
+            text_column: Column name containing text content.
+            id_column: Optional column for case IDs.
+            delimiter: CSV delimiter (default: comma).
+            **kwargs: Additional arguments passed to pandas reader.
+
+        Returns:
+            InputData: With ``data`` as a 1-D numpy object array of strings,
+            ``index`` as case IDs (if available).
+        """
+        path = Path(source)
+        suffix = path.suffix.lower()
+        texts: list[str] = []
+        ids: list[str] | None = None
+        metadata: dict[str, Any] = {"source": str(source)}
+
+        if suffix == ".txt":
+            raw = path.read_text(encoding="utf-8")
+            texts = [line.strip() for line in raw.splitlines() if line.strip()]
+            metadata["n_texts"] = len(texts)
+        elif suffix == ".json":
+            import json as _json
+
+            raw_data = _json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(raw_data, dict):
+                # Try common data keys
+                for key in ("data", "texts", "records", "results"):
+                    if key in raw_data:
+                        raw_data = raw_data[key]
+                        break
+            if isinstance(raw_data, list):
+                for item in raw_data:
+                    if isinstance(item, dict):
+                        texts.append(str(item.get(text_column, "")))
+                        if id_column and id_column in item:
+                            if ids is None:
+                                ids = []
+                            ids.append(str(item[id_column]))
+                    elif isinstance(item, str):
+                        texts.append(item)
+            metadata["n_texts"] = len(texts)
+        else:
+            # Default to CSV / tabular
+            df = pd.read_csv(source, delimiter=delimiter, **kwargs)
+            if text_column not in df.columns:
+                raise ValueError(
+                    f"Text column '{text_column}' not found. "
+                    f"Available columns: {list(df.columns)}"
+                )
+            texts = [str(t) for t in df[text_column].tolist()]
+            if id_column and id_column in df.columns:
+                ids = [str(i) for i in df[id_column].tolist()]
+            metadata["n_texts"] = len(texts)
+            metadata["n_cols"] = len(df.columns)
+
+        metadata["n_chars_total"] = sum(len(t) for t in texts)
+        metadata["n_chars_avg"] = metadata["n_chars_total"] / len(texts) if texts else 0
+
+        data = np.array(texts, dtype=object)
+
+        return InputData(
+            data=data,
+            columns=[text_column],
+            index=ids,
+            metadata=metadata,
+        )
+
+    def can_read(self, source: Any) -> bool:
+        if isinstance(source, str | Path):
+            suf = Path(source).suffix.lower()
+            return suf in (".csv", ".json", ".txt", ".tsv")
+        return False

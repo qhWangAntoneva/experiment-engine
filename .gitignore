@@ -31,6 +31,9 @@ node_modules
 # Config overrides
 configs/*.local.yaml
 
+# MkDocs build output
+site/
+
 # Ruff cache
 .ruff_cache/
 

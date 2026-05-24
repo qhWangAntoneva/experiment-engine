@@ -4,6 +4,12 @@ Provides data readers, data sources, and exporters for standardized
 experiment data handling.
 """
 
+from experiment_engine.io.db import (
+    PostgreSQLDataSource,
+    PostgreSQLDataWriter,
+    SQLiteDataSource,
+    SQLiteDataWriter,
+)
 from experiment_engine.io.exporters import CSVExporter, HTMLExporter, JSONExporter
 from experiment_engine.io.readers import (
     ArrayReader,
@@ -11,6 +17,7 @@ from experiment_engine.io.readers import (
     DataReader,
     JSONReader,
     SyntheticReader,
+    TextCorpusReader,
 )
 from experiment_engine.io.sources import (
     DataSource,
@@ -24,6 +31,7 @@ _READER_MAP = {
     "json": JSONReader,
     "array": ArrayReader,
     "synthetic": SyntheticReader,
+    "text_corpus": TextCorpusReader,
 }
 
 
@@ -58,6 +66,10 @@ __all__ = [
     "HTMLExporter",
     "JSONExporter",
     "JSONReader",
+    "PostgreSQLDataSource",
+    "PostgreSQLDataWriter",
+    "SQLiteDataSource",
+    "SQLiteDataWriter",
     "StdinDataSource",
     "SyntheticReader",
     "get_reader",

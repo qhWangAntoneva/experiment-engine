@@ -8,6 +8,7 @@ and the io/__init__.py module exports.
 from __future__ import annotations
 
 import json
+import sqlite3
 import sys
 import tempfile
 from io import StringIO
@@ -15,7 +16,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-
 from experiment_engine.io import (
     ArrayReader,
     CSVExporter,
@@ -27,6 +27,10 @@ from experiment_engine.io import (
     HTMLExporter,
     JSONExporter,
     JSONReader,
+    PostgreSQLDataSource,
+    PostgreSQLDataWriter,
+    SQLiteDataSource,
+    SQLiteDataWriter,
     StdinDataSource,
     SyntheticReader,
     get_reader,
@@ -152,9 +156,9 @@ class TestIoInit:
             "get_reader",
         }
         for name in names:
-            assert hasattr(sys.modules["experiment_engine.io"], name), (
-                f"{name} missing from io module"
-            )
+            assert hasattr(
+                sys.modules["experiment_engine.io"], name
+            ), f"{name} missing from io module"
 
     def test_get_reader_returns_correct_types(self):
         assert isinstance(get_reader("csv"), CSVReader)
@@ -1190,3 +1194,242 @@ class TestHTMLExporter:
         result = exporter.export(data, config)
         html = Path(result).read_text()
         assert "3.1416" in html  # rounded to 4 decimal places
+
+
+# ═══════════════════════════════════════════════
+#  db.py  —  SQLiteDataSource
+# ═══════════════════════════════════════════════
+
+
+class TestSQLiteDataSource:
+    """Tests for SQLiteDataSource."""
+
+    def test_sqlite_source_load(self, tmp_path: Path):
+        """Load data from a simple SELECT query."""
+        db = tmp_path / "test.db"
+        conn = sqlite3.connect(str(db))
+        conn.execute("CREATE TABLE data (x REAL, y REAL, z REAL)")
+        conn.execute("INSERT INTO data VALUES (1.0, 2.0, 3.0)")
+        conn.execute("INSERT INTO data VALUES (4.0, 5.0, 6.0)")
+        conn.commit()
+        conn.close()
+
+        ds = SQLiteDataSource(str(db), "SELECT * FROM data ORDER BY x")
+        result = ds.load()
+        assert result.n_samples == 2
+        assert result.n_features == 3
+        assert result.columns == ["x", "y", "z"]
+        np.testing.assert_array_almost_equal(
+            result.data, [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
+        )
+        assert "query" in result.metadata
+
+    def test_sqlite_source_with_params(self, tmp_path: Path):
+        """Parameterised query filtering rows."""
+        db = tmp_path / "params.db"
+        conn = sqlite3.connect(str(db))
+        conn.execute("CREATE TABLE scores (run_id INTEGER, score REAL)")
+        conn.execute("INSERT INTO scores VALUES (1, 95.0)")
+        conn.execute("INSERT INTO scores VALUES (2, 87.0)")
+        conn.execute("INSERT INTO scores VALUES (3, 92.0)")
+        conn.commit()
+        conn.close()
+
+        ds = SQLiteDataSource(str(db), "SELECT * FROM scores WHERE score >= ?", (90.0,))
+        result = ds.load()
+        assert result.n_samples == 2
+        assert result.columns == ["run_id", "score"]
+        np.testing.assert_array_almost_equal(result.data, [[1.0, 95.0], [3.0, 92.0]])
+
+    def test_sqlite_source_file_not_found(self):
+        """Missing database file raises FileNotFoundError."""
+        ds = SQLiteDataSource("/nonexistent/db.sqlite", "SELECT 1")
+        with pytest.raises(FileNotFoundError, match="SQLite database not found"):
+            ds.load()
+
+    def test_sqlite_source_empty_result(self, tmp_path: Path):
+        """Query returning zero rows yields empty InputData."""
+        db = tmp_path / "empty.db"
+        conn = sqlite3.connect(str(db))
+        conn.execute("CREATE TABLE t (a REAL)")
+        conn.commit()
+        conn.close()
+
+        ds = SQLiteDataSource(str(db), "SELECT * FROM t")
+        result = ds.load()
+        assert result.n_samples == 0
+        assert result.n_features == 1
+        assert result.columns == ["a"]
+
+    def test_sqlite_source_location(self, tmp_path: Path):
+        """Location attribute reflects db_path."""
+        db = tmp_path / "loc.db"
+        conn = sqlite3.connect(str(db))
+        conn.execute("CREATE TABLE t (v REAL)")
+        conn.commit()
+        conn.close()
+
+        ds = SQLiteDataSource(str(db), "SELECT * FROM t")
+        assert ds.location == str(db)
+
+
+# ═══════════════════════════════════════════════
+#  db.py  —  SQLiteDataWriter
+# ═══════════════════════════════════════════════
+
+
+class TestSQLiteDataWriter:
+    """Tests for SQLiteDataWriter."""
+
+    def test_sqlite_writer_create(self, tmp_path: Path):
+        """Create a new table from InputData."""
+        writer = SQLiteDataWriter("results")
+        data = InputData(
+            data=np.array([[1.0, 2.0], [3.0, 4.0]]),
+            columns=["a", "b"],
+        )
+        out = tmp_path / "out.db"
+        config = ExportConfig(format="sqlite", output_path=str(out))
+        result_path = writer.export(data, config)
+        assert Path(result_path).exists()
+
+        # Verify contents
+        conn = sqlite3.connect(str(out))
+        rows = conn.execute("SELECT * FROM results ORDER BY a").fetchall()
+        conn.close()
+        assert rows == [(1.0, 2.0), (3.0, 4.0)]
+
+    def test_sqlite_writer_append(self, tmp_path: Path):
+        """Append rows to an existing table."""
+        db = tmp_path / "append.db"
+        conn = sqlite3.connect(str(db))
+        conn.execute("CREATE TABLE t (x REAL, y REAL)")
+        conn.execute("INSERT INTO t VALUES (1.0, 2.0)")
+        conn.commit()
+        conn.close()
+
+        writer = SQLiteDataWriter("t", if_exists="append")
+        data = InputData(
+            data=np.array([[3.0, 4.0]]),
+            columns=["x", "y"],
+        )
+        config = ExportConfig(format="sqlite", output_path=str(db))
+        writer.export(data, config)
+
+        conn = sqlite3.connect(str(db))
+        rows = conn.execute("SELECT * FROM t ORDER BY x").fetchall()
+        conn.close()
+        assert rows == [(1.0, 2.0), (3.0, 4.0)]
+
+    def test_sqlite_writer_replace(self, tmp_path: Path):
+        """Replace an existing table (default if_exists)."""
+        db = tmp_path / "replace.db"
+        conn = sqlite3.connect(str(db))
+        conn.execute("CREATE TABLE t (x REAL)")
+        conn.execute("INSERT INTO t VALUES (999.0)")
+        conn.commit()
+        conn.close()
+
+        writer = SQLiteDataWriter("t", if_exists="replace")
+        data = InputData(
+            data=np.array([[1.0], [2.0]]),
+            columns=["x"],
+        )
+        config = ExportConfig(format="sqlite", output_path=str(db))
+        writer.export(data, config)
+
+        conn = sqlite3.connect(str(db))
+        rows = conn.execute("SELECT * FROM t ORDER BY x").fetchall()
+        conn.close()
+        assert rows == [(1.0,), (2.0,)]
+
+    def test_sqlite_writer_fail(self, tmp_path: Path):
+        """if_exists='fail' raises when table exists."""
+        db = tmp_path / "fail.db"
+        conn = sqlite3.connect(str(db))
+        conn.execute("CREATE TABLE t (x REAL)")
+        conn.commit()
+        conn.close()
+
+        writer = SQLiteDataWriter("t", if_exists="fail")
+        data = InputData(data=np.array([[1.0]]), columns=["x"])
+        config = ExportConfig(format="sqlite", output_path=str(db))
+        with pytest.raises(ValueError, match="already exists"):
+            writer.export(data, config)
+
+    def test_sqlite_writer_invalid_if_exists(self):
+        """Invalid if_exists value raises ValueError at construction."""
+        with pytest.raises(ValueError, match="if_exists must be"):
+            SQLiteDataWriter("t", if_exists="invalid")
+
+    def test_sqlite_writer_auto_columns(self, tmp_path: Path):
+        """When columns list is empty, auto-generated names are used."""
+        writer = SQLiteDataWriter("auto")
+        data = InputData(
+            data=np.array([[10.0, 20.0]]),
+            columns=[],
+        )
+        out = tmp_path / "auto.db"
+        config = ExportConfig(format="sqlite", output_path=str(out))
+        writer.export(data, config)
+
+        conn = sqlite3.connect(str(out))
+        cols = [desc[1] for desc in conn.execute("PRAGMA table_info(auto)").fetchall()]
+        conn.close()
+        # default col names: col_0, col_1
+        assert cols[:2] == ["col_0", "col_1"]
+
+    def test_sqlite_writer_roundtrip(self, tmp_path: Path):
+        """Write then read back – verify data round-trips correctly."""
+        writer = SQLiteDataWriter("roundtrip")
+        original = InputData(
+            data=np.array([[1.5, 2.5], [3.5, 4.5], [5.5, 6.5]]),
+            columns=["a", "b"],
+        )
+        out = tmp_path / "roundtrip.db"
+        config = ExportConfig(format="sqlite", output_path=str(out))
+        writer.export(original, config)
+
+        # Read it back via SQLiteDataSource
+        ds = SQLiteDataSource(str(out), "SELECT * FROM roundtrip ORDER BY a")
+        result = ds.load()
+        assert result.n_samples == 3
+        assert result.n_features == 2
+        assert result.columns == ["a", "b"]
+        np.testing.assert_array_almost_equal(result.data, original.data)
+
+    def test_sqlite_writer_creates_parent_dir(self, tmp_path: Path):
+        """Parent directories are created automatically."""
+        writer = SQLiteDataWriter("nested")
+        data = InputData(data=np.array([[1.0]]), columns=["x"])
+        nested = tmp_path / "sub" / "deep" / "nested.db"
+        config = ExportConfig(format="sqlite", output_path=str(nested))
+        result = writer.export(data, config)
+        assert Path(result).exists()
+
+    def test_sqlite_writer_name(self):
+        writer = SQLiteDataWriter("t")
+        assert writer.name == "sqlite"
+
+
+# ═══════════════════════════════════════════════
+#  db.py  —  PostgreSQL stubs
+# ═══════════════════════════════════════════════
+
+
+class TestPostgreSQLStubs:
+    """Sanity checks for the PostgreSQL stub classes."""
+
+    def test_postgresql_source_raises_not_implemented(self):
+        ds = PostgreSQLDataSource("dsn", "SELECT 1")
+        with pytest.raises(NotImplementedError, match="psycopg2"):
+            ds.load()
+
+    def test_postgresql_writer_raises_not_implemented(self):
+        writer = PostgreSQLDataWriter("dsn", "t")
+        config = ExportConfig(format="sqlite", output_path="/dev/null")
+        with pytest.raises(NotImplementedError, match="psycopg2"):
+            writer.export(
+                InputData(data=np.array([[1.0]]), columns=["x"]),
+                config,
+            )

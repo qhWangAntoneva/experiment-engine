@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "experiment-engine"
-version = "0.1.0"
-description = "A modular algorithm experimentation framework: input → computation → visualization"
+version = "0.2.0"
+description = "QCA Text Analysis Tool: citizen feedback text to fuzzy-set QCA analysis"
 readme = "README.md"
 authors = [
     { name = "experiment-engine contributors" },
@@ -13,13 +13,19 @@ authors = [
 license = { text = "MIT" }
 classifiers = [
     "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
 ]
+keywords = ["qca", "qualitative-comparative-analysis", "fuzzy-set", "text-analysis", "citizen-feedback"]
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.24",
@@ -51,16 +57,8 @@ Source = "https://github.com/qhWangAntoneva/experiment-engine"
 Documentation = "https://github.com/qhWangAntoneva/experiment-engine#readme"
 "Bug Tracker" = "https://github.com/qhWangAntoneva/experiment-engine/issues"
 
-[project.entry-points."experiment_engine.algorithms"]
-
-[project.entry-points."experiment_engine.loaders"]
-
-[project.entry-points."experiment_engine.visualizers"]
-
-[project.entry-points."experiment_engine.reporters"]
-
 [project.scripts]
-experiment-engine = "experiment_engine.cli:main"
+qca = "experiment_engine.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -86,12 +84,33 @@ select = [
     "RET",   # flake8-return
     "SLF",   # flake8-self (private member access)
 ]
-ignore = ["B008", "ARG001", "ARG002"]
+ignore = ["B008", "ARG001", "ARG002", "E501", "PD901"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "tests/*.py" = ["T201"]  # Allow print in tests
 "examples/*.py" = ["T201"]  # Allow print in examples
+"src/experiment_engine/text_calibration/keyword_dict.py" = ["RUF001"]  # CJK chars intentional
+"src/experiment_engine/cli.py" = ["N817"]  # FSD alias
+"src/experiment_engine/qca_engine/advanced/multi_outcome.py" = ["B007"]
+"src/experiment_engine/qca_engine/advanced/robustness.py" = ["ARG004"]
+"src/experiment_engine/qca_engine/analyzer.py" = ["RUF012"]
+"src/experiment_engine/qca_engine/minimization.py" = ["SIM102"]
+"src/experiment_engine/viz/qca_plots.py" = ["RUF005"]
+"src/experiment_engine/report/qca_reporter.py" = ["ARG004"]
+"src/experiment_engine/io/db.py" = ["RUF002", "RUF003"]
+"src/experiment_engine/viz/console.py" = ["SLF001"]
+"src/experiment_engine/core/parallel.py" = ["SLF001"]
+"src/experiment_engine/report/latex_reporter.py" = ["B007"]
+"src/experiment_engine/viz/streamlit_dashboard.py" = ["RUF001"]
+"src/experiment_engine/io/sources.py" = ["ARG003"]
+"src/experiment_engine/pipeline.py" = ["B027"]
+"src/experiment_engine/plugins.py" = ["RUF012", "SLF001"]
+"tests/test_algorithms.py" = ["N806"]  # X is standard QCA math notation
+"tests/test_integration.py" = ["B017", "RET505"]  # broad Exception in integration tests is intentional
+"tests/test_io.py" = ["SLF001", "RUF002"]  # private access in unit tests is expected
+"tests/test_viz.py" = ["SLF001"]  # private access in unit tests is expected
+"tests/test_pipeline.py" = ["B017", "SLF001"]  # broad Exception + private access in unit tests
 
 [tool.ruff.format]
 quote-style = "double"

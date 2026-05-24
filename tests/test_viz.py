@@ -14,8 +14,14 @@ from typing import Any
 
 import numpy as np
 import pytest
-
-from experiment_engine.models import InputData, RenderConfig
+from experiment_engine.models import (
+    InputData,
+    PipelineResult,
+    PipelineStatus,
+    RenderConfig,
+    StageResult,
+    StageStatus,
+)
 from experiment_engine.viz import (
     ConsoleRenderer,
     MatplotlibRenderer,
@@ -60,6 +66,46 @@ def _make_config(
         dpi=80,
         colormap="viridis",
         output_path=output_path,
+    )
+
+
+def _make_pipeline_result(
+    experiment_name: str = "test-pipeline",
+    status: PipelineStatus = PipelineStatus.COMPLETED,
+    n_stages: int = 3,
+    with_errors: bool = False,
+    with_output: bool = True,
+) -> PipelineResult:
+    """Build a PipelineResult fixture for tests."""
+    stages = []
+    for i in range(n_stages):
+        stage_status = StageStatus.COMPLETED
+        error = None
+        if with_errors and i == n_stages - 1:
+            stage_status = StageStatus.FAILED
+            error = f"Stage {i}: Something went wrong"
+        stages.append(
+            StageResult(
+                stage_name=f"stage_{i}",
+                stage_type=f"type_{i}",
+                status=stage_status,
+                duration_ms=100.0 * (i + 1),
+                started_at=f"2024-01-01T00:00:{i:02d}Z",
+                completed_at=f"2024-01-01T00:00:{i + 1:02d}Z",
+                error=error,
+            )
+        )
+
+    output = {"result": "success", "accuracy": 0.95} if with_output else None
+
+    return PipelineResult(
+        experiment_name=experiment_name,
+        status=status,
+        total_duration_ms=sum(s.duration_ms for s in stages),
+        stages=stages,
+        started_at="2024-01-01T00:00:00Z",
+        completed_at="2024-01-01T00:00:05Z",
+        output=output,
     )
 
 
@@ -360,7 +406,7 @@ class TestMatplotlibRenderer:
     def test_render_plot_types(self, plot_type: str) -> None:
         """Each supported plot type produces a valid PNG file."""
         r = MatplotlibRenderer()
-        n_features = 2 if plot_type == "surface" else 2
+        n_features = 2
         data = _make_data(n_samples=20, n_features=n_features)
         with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
             output_path = f.name
@@ -400,7 +446,7 @@ class TestMatplotlibRenderer:
         r = MatplotlibRenderer()
         data = _make_data()
         config = _make_config(plot_type="invalid_type")
-        with pytest.raises(ValueError, match="Unsupported plot type.*invalid_type"):
+        with pytest.raises(ValueError, match=r"Unsupported plot type.*invalid_type"):
             r.render(data, config)
 
     def test_render_with_title_xlabel_ylabel(self) -> None:
@@ -635,7 +681,7 @@ class TestPlotlyRenderer:
         r = PlotlyRenderer()
         data = _make_data()
         config = _make_config(plot_type="invalid_type")
-        with pytest.raises(ValueError, match="Unsupported plot type.*invalid_type"):
+        with pytest.raises(ValueError, match=r"Unsupported plot type.*invalid_type"):
             r.render(data, config)
 
     def test_render_with_labels_and_title(self) -> None:
@@ -825,28 +871,40 @@ class TestStreamlitDashboard:
         d = StreamlitDashboard()
         assert d.supported_formats() == []
 
-    # _generate_script currently broken due to unescaped template braces
+    # _generate_script previously broken due to unescaped template braces
     # (the template has {n_samples} / {n_features} meant for f-strings in
-    #  the generated code, but Python's ``.format()`` interprets them as
-    #  placeholders).  Tests are written to document the current failure.
+    #  the generated code, but Python's ``.format()`` interpreted them as
+    #  placeholders).  Now fixed — tests verify correct script generation.
 
-    def test_generate_script_raises_key_error(self) -> None:
+    def test_generate_script_returns_string(self) -> None:
+        """_generate_script produces a non-empty script string."""
         d = StreamlitDashboard()
         data = _make_data(n_samples=5, n_features=2, with_columns=True)
-        with pytest.raises(KeyError):
-            d._generate_script(data)
+        script = d._generate_script(data)
+        assert isinstance(script, str)
+        assert len(script) > 500
+        assert "DATA_ARRAY" in script
+        assert "COLUMNS" in script
+        assert "feat_0" in script
+        assert "feat_1" in script
 
-    def test_generate_script_with_index_raises_key_error(self) -> None:
+    def test_generate_script_with_index(self) -> None:
+        """Index data is embedded correctly."""
         d = StreamlitDashboard()
         data = _make_data(n_samples=3, n_features=1, with_index=True, with_columns=True)
-        with pytest.raises(KeyError):
-            d._generate_script(data)
+        script = d._generate_script(data)
+        assert "INDEX" in script
+        # The generated should reference index (for the if INDEX check)
+        assert "if INDEX" in script
 
-    def test_generate_script_without_columns_raises_key_error(self) -> None:
+    def test_generate_script_without_columns(self) -> None:
+        """When columns are None, COLUMNS is set to None."""
         d = StreamlitDashboard()
         data = _make_data(n_samples=3, n_features=2, with_columns=False)
-        with pytest.raises(KeyError):
-            d._generate_script(data)
+        script = d._generate_script(data)
+        # None without index means pd.DataFrame(DATA_ARRAY)
+        assert "INDEX" in script
+        assert "None" in script
 
     def test_write_script_creates_file(self) -> None:
         """``_write_script`` works independently; it only needs a string."""
@@ -860,6 +918,83 @@ class TestStreamlitDashboard:
         finally:
             if path.exists():
                 path.unlink()
+
+    # ── Pipeline result tests ───────────────────────────────────────
+
+    def test_generate_pipeline_script_returns_string(self) -> None:
+        """_generate_pipeline_script produces a non-empty script string."""
+        d = StreamlitDashboard()
+        result = _make_pipeline_result()
+        script = d._generate_pipeline_script(result)
+        assert isinstance(script, str)
+        assert len(script) > 200
+
+    def test_generate_pipeline_script_contains_experiment_name(
+        self,
+    ) -> None:
+        """The generated script references the experiment name."""
+        d = StreamlitDashboard()
+        result = _make_pipeline_result(experiment_name="my-test-run")
+        script = d._generate_pipeline_script(result)
+        assert "my-test-run" in script
+
+    def test_generate_pipeline_script_contains_stages(self) -> None:
+        """The generated script includes stage data."""
+        d = StreamlitDashboard()
+        result = _make_pipeline_result(n_stages=4)
+        script = d._generate_pipeline_script(result)
+        # Should reference stage keys and counts
+        assert "stage_name" in script
+        assert "duration_ms" in script
+        assert "stage_0" in script
+        assert "stage_3" in script
+
+    def test_generate_pipeline_script_contains_status_badge(
+        self,
+    ) -> None:
+        """The generated script includes status emoji lookup."""
+        d = StreamlitDashboard()
+        result = _make_pipeline_result()
+        script = d._generate_pipeline_script(result)
+        assert "completed" in script
+        assert "Pipeline Results" in script
+
+    def test_generate_pipeline_script_with_errors(self) -> None:
+        """Failed stages produce scripts that contain error messages."""
+        d = StreamlitDashboard()
+        result = _make_pipeline_result(n_stages=3, with_errors=True)
+        script = d._generate_pipeline_script(result)
+        assert "Stage 2: Something went wrong" in script
+        assert "failed" in script.lower() or "FAILED" in script
+
+    def test_generate_pipeline_script_with_output(self) -> None:
+        """Output data is embedded in the script."""
+        d = StreamlitDashboard()
+        result = _make_pipeline_result(with_output=True)
+        script = d._generate_pipeline_script(result)
+        assert "success" in script
+        assert "accuracy" in script
+
+    def test_generate_pipeline_script_without_output(self) -> None:
+        """When output is None, the script shows 'None'."""
+        d = StreamlitDashboard()
+        result = _make_pipeline_result(with_output=False)
+        script = d._generate_pipeline_script(result)
+        assert "None" in script
+
+    def test_generate_pipeline_script_contains_pipeline_sections(
+        self,
+    ) -> None:
+        """The generated script contains key pipeline dashboard sections."""
+        d = StreamlitDashboard()
+        result = _make_pipeline_result()
+        script = d._generate_pipeline_script(result)
+        # All key section markers
+        assert "Stage Execution Summary" in script
+        assert "Stage Errors" in script or "Errors" in script
+        assert "Final Pipeline Output" in script or "Final Output" in script
+        assert "Pipeline Status" in script
+        assert "Total Duration" in script
 
 
 # ═══════════════════════════════════════════════════════════════════
