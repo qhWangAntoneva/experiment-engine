@@ -16,7 +16,7 @@ export type TextDomain =
 export enum CalibrationMethod {
   DIRECT = "direct",
   INDIRECT = "indirect",
-  RAGIN = "ragin",
+  FUZZY_DIRECT = "fuzzy_direct",
   PASSTHROUGH = "passthrough",
   CRISP_SET = "crisp_set",
 }

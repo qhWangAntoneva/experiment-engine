@@ -858,7 +858,7 @@ class TestSufficiencyAnalyzer:
 
 
 class TestCalibrateFunctions:
-    """Tests for calibrate_direct, calibrate_indirect, and calibrate_ragin."""
+    """Tests for calibrate_direct, calibrate_indirect, and calibrate_fuzzy_direct."""
 
     def test_calibrate_direct_full_in(self):
         """Score at full_in threshold maps to 1.0."""
@@ -946,7 +946,7 @@ class TestCalibrateFunctions:
         result = TextCalibrationStage.calibrate_indirect(raw, params)
         assert result[0] > result[1]  # lower raw -> higher membership
 
-    def test_calibrate_ragin_logistic_formula(self):
+    def test_calibrate_fuzzy_direct_logistic_formula(self):
         """Ragin calibration uses logistic transformation (not piecewise linear)."""
         params = CalibrationParams(
             threshold_full_in=0.80,
@@ -954,7 +954,7 @@ class TestCalibrateFunctions:
             crossover_point=0.50,
         )
         raw = np.array([0.25, 0.50, 0.75], dtype=np.float64)
-        result = TextCalibrationStage.calibrate_ragin(raw, params)
+        result = TextCalibrationStage.calibrate_fuzzy_direct(raw, params)
         # monotonic
         assert result[0] < result[1] < result[2]
         # crossover should be near 0.5
@@ -963,7 +963,7 @@ class TestCalibrateFunctions:
         assert float(np.min(result)) >= 0.05
         assert float(np.max(result)) <= 0.95
 
-    def test_calibrate_ragin_full_in_ceiling(self):
+    def test_calibrate_fuzzy_direct_full_in_ceiling(self):
         """Raw score at full_in threshold should map close to 0.95."""
         params = CalibrationParams(
             threshold_full_in=0.80,
@@ -971,10 +971,10 @@ class TestCalibrateFunctions:
             crossover_point=0.50,
         )
         raw = np.array([0.8], dtype=np.float64)
-        result = TextCalibrationStage.calibrate_ragin(raw, params)
+        result = TextCalibrationStage.calibrate_fuzzy_direct(raw, params)
         assert pytest.approx(float(result[0]), abs=0.02) == 0.95
 
-    def test_calibrate_ragin_full_out_floor(self):
+    def test_calibrate_fuzzy_direct_full_out_floor(self):
         """Raw score at full_out threshold should map close to 0.05."""
         params = CalibrationParams(
             threshold_full_in=0.80,
@@ -982,10 +982,10 @@ class TestCalibrateFunctions:
             crossover_point=0.50,
         )
         raw = np.array([0.2], dtype=np.float64)
-        result = TextCalibrationStage.calibrate_ragin(raw, params)
+        result = TextCalibrationStage.calibrate_fuzzy_direct(raw, params)
         assert pytest.approx(float(result[0]), abs=0.02) == 0.05
 
-    def test_calibrate_ragin_descending(self):
+    def test_calibrate_fuzzy_direct_descending(self):
         """Ragin descending direction flips membership."""
         params = CalibrationParams(
             threshold_full_in=0.80,
@@ -994,7 +994,7 @@ class TestCalibrateFunctions:
             direction="descending",
         )
         raw = np.array([0.2, 0.8], dtype=np.float64)
-        result = TextCalibrationStage.calibrate_ragin(raw, params)
+        result = TextCalibrationStage.calibrate_fuzzy_direct(raw, params)
         assert result[0] > result[1]  # low score -> higher membership
 
     def test_apply_calibration_passthrough(self):

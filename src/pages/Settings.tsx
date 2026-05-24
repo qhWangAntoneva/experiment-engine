@@ -77,7 +77,7 @@ const settings: SettingField[] = [
     label: 'Calibration Method',
     type: 'select',
     default: 'direct',
-    options: ['direct', 'indirect', 'fuzzy_direct'],
+    options: ['direct', 'indirect', 'fuzzy_direct', 'crisp_set'],
     description: 'Direct = piecewise linear, Indirect = log-odds, Fuzzy Direct = Ragins method',
     group: 'calibration',
   },

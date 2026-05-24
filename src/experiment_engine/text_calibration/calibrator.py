@@ -418,7 +418,7 @@ class TextCalibrationStage(Stage):
         return IndirectCalibration().calibrate(raw_scores, params)
 
     @staticmethod
-    def calibrate_ragin(
+    def calibrate_fuzzy_direct(
         raw_scores: np.ndarray, params: CalibrationParams
     ) -> np.ndarray:
         """Ragin's fuzzy direct method (delegates to RaginCalibration strategy)."""
