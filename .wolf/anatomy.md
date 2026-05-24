@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T03:29:32.726Z
-> Files: 75 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T03:40:20.701Z
+> Files: 76 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -10,11 +10,12 @@
 ## ./
 
 - `.gitignore` — Git ignore rules (~7 tok)
+- `.pre-commit-config.yaml` (~116 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
 - `index.html` — QCA Simulation Tool (~130 tok)
 - `package-lock.json` — npm lock file (~17146 tok)
 - `package.json` — Node.js package manifest (~142 tok)
-- `pyproject.toml` — QCA Text Analysis Tool: citizen feedback text to fuzzy-set QCA analysis (~1185 tok)
+- `pyproject.toml` — QCA Text Analysis Tool: citizen feedback text to fuzzy-set QCA analysis (~1214 tok)
 - `tsconfig.app.json` (~160 tok)
 - `tsconfig.json` — TypeScript configuration (~34 tok)
 - `tsconfig.node.json` (~139 tok)

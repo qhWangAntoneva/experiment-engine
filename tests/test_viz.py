@@ -14,6 +14,7 @@ from typing import Any
 
 import numpy as np
 import pytest
+
 from experiment_engine.models import (
     InputData,
     PipelineResult,

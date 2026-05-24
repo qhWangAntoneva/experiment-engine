@@ -16,6 +16,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
 from experiment_engine.io import (
     ArrayReader,
     CSVExporter,
@@ -156,9 +157,9 @@ class TestIoInit:
             "get_reader",
         }
         for name in names:
-            assert hasattr(
-                sys.modules["experiment_engine.io"], name
-            ), f"{name} missing from io module"
+            assert hasattr(sys.modules["experiment_engine.io"], name), (
+                f"{name} missing from io module"
+            )
 
     def test_get_reader_returns_correct_types(self):
         assert isinstance(get_reader("csv"), CSVReader)

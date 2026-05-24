@@ -84,7 +84,7 @@ select = [
     "RET",   # flake8-return
     "SLF",   # flake8-self (private member access)
 ]
-ignore = ["B008", "ARG001", "ARG002", "E501", "PD901"]
+ignore = ["B008", "ARG001", "ARG002", "E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
@@ -106,6 +106,7 @@ ignore = ["B008", "ARG001", "ARG002", "E501", "PD901"]
 "src/experiment_engine/io/sources.py" = ["ARG003"]
 "src/experiment_engine/pipeline.py" = ["B027"]
 "src/experiment_engine/plugins.py" = ["RUF012", "SLF001"]
+"examples/run_experiment.py" = ["E402", "RUF001", "ARG005"]  # import ordering + CJK chars intentional in examples
 "tests/test_algorithms.py" = ["N806"]  # X is standard QCA math notation
 "tests/test_integration.py" = ["B017", "RET505"]  # broad Exception in integration tests is intentional
 "tests/test_io.py" = ["SLF001", "RUF002"]  # private access in unit tests is expected

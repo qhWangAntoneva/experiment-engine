@@ -79,3 +79,9 @@
 | 11:29 | Edited pyproject.toml | inline fix | ~15 |
 | 11:29 | Edited src/experiment_engine/io/readers.py | inline fix | ~9 |
 | 11:29 | Edited src/experiment_engine/io/readers.py | inline fix | ~13 |
+| 11:30 | Session end: 17 writes across 5 files (pyproject.toml, test_algorithms.py, test_integration.py, test_viz.py, readers.py) | 4 reads | ~17950 tok |
+| 11:35 | Session end: 17 writes across 5 files (pyproject.toml, test_algorithms.py, test_integration.py, test_viz.py, readers.py) | 4 reads | ~17950 tok |
+| 11:38 | Edited .pre-commit-config.yaml | inline fix | ~5 |
+| 11:38 | Edited .pre-commit-config.yaml | 4.0 → 15.12 | ~5 |
+| 11:40 | Edited pyproject.toml | inline fix | ~12 |
+| 11:40 | Edited pyproject.toml | 1→2 lines | ~46 |

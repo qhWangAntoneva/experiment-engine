@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 from experiment_engine.algorithms.kmeans import KMeansStage
 from experiment_engine.algorithms.linear_regression import LinearRegressionStage
+
 from experiment_engine.models import InputData
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -166,9 +167,9 @@ class TestKMeans:
         true_centres = sorted([0.0, 10.0, 20.0])
         recovered = sorted(c.item() for c in result.processed.flatten())
         for true_c, rec_c in zip(true_centres, recovered, strict=False):
-            assert (
-                abs(true_c - rec_c) < 1.0
-            ), f"Centroid mismatch: true {true_c:.2f} vs recovered {rec_c:.2f}"
+            assert abs(true_c - rec_c) < 1.0, (
+                f"Centroid mismatch: true {true_c:.2f} vs recovered {rec_c:.2f}"
+            )
 
     def test_kmeans_single_sample_per_cluster(self) -> None:
         """k == n_samples is a degenerate case — each point is its own centroid."""
