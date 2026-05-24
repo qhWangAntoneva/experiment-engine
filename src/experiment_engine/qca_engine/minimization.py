@@ -10,6 +10,8 @@ Pure Python implementation of the QM algorithm:
 
 from __future__ import annotations
 
+import itertools
+
 import numpy as np
 
 
@@ -47,6 +49,19 @@ class QuineMcCluskey:
         if not minterms:
             return []
 
+        # Guard: QM is O(2^k) per variable, browser WASM single-thread
+        # hangs for k > 12 due to exponential explosion.
+        n_vars = len(minterms[0])
+        if n_vars > 12:
+            raise ValueError(
+                f"Quine-McCluskey does not support more than 12 conditions "
+                f"(got {n_vars}). Consider reducing conditions or using "
+                f"alternative algorithms."
+            )
+
+        # Sequential ID counter replacing hash-based identity tracking.
+        _next_id = itertools.count()
+
         # Combine regular and don't-care minterms for prime implicant generation.
         # Regular minterms have indices 0..n_reg-1 (must be covered).
         # Don't-care minterms have indices n_reg..n_total-1 (optional).
@@ -55,20 +70,25 @@ class QuineMcCluskey:
         n_reg = len(minterms)
 
         # Step 1-2: Find all prime implicants
-        implicant_map: dict[int, list[tuple[tuple[int | None, ...], list[int]]]] = {}
+        # (id, pattern, coverage) — sequential IDs replace hash-based identity
+        implicant_map: dict[
+            int, list[tuple[int, tuple[int | None, ...], list[int]]]
+        ] = {}
         # Group by number of 1-bits (all minterms participate in combining)
         for idx, mt in enumerate(all_minterms):
             ones = sum(mt)
             key = ones
             if key not in implicant_map:
                 implicant_map[key] = []
-            implicant_map[key].append((tuple(mt), [idx]))
+            implicant_map[key].append((next(_next_id), tuple(mt), [idx]))
 
         prime_implicants: list[tuple[tuple[int | None, ...], list[int]]] = []
         used_in_combination: set[int] = set()
 
         while True:
-            next_map: dict[int, list[tuple[tuple[int | None, ...], list[int]]]] = {}
+            next_map: dict[
+                int, list[tuple[int, tuple[int | None, ...], list[int]]]
+            ] = {}
             combined_this_round: set[int] = set()
 
             # Sort keys
@@ -79,26 +99,28 @@ class QuineMcCluskey:
                 if k2 - k1 != 1:
                     continue  # only combine groups with 1-bit difference in count
 
-                for imp1, cov1 in implicant_map.get(k1, []):
-                    for imp2, cov2 in implicant_map.get(k2, []):
+                for imp_id1, imp1, cov1 in implicant_map.get(k1, []):
+                    for imp_id2, imp2, cov2 in implicant_map.get(k2, []):
                         result = self._try_combine(imp1, imp2)
                         if result is not None:
                             new_key = sum(1 for b in result if b == 1)
                             if new_key not in next_map:
                                 next_map[new_key] = []
                             merged_cov = list(set(cov1 + cov2))
-                            next_map[new_key].append((result, merged_cov))
-                            # Mark originals as used
-                            h1 = hash((imp1, tuple(cov1)))
-                            h2 = hash((imp2, tuple(cov2)))
-                            combined_this_round.add(h1)
-                            combined_this_round.add(h2)
+                            next_map[new_key].append(
+                                (next(_next_id), result, merged_cov)
+                            )
+                            # Mark originals as used via sequential IDs
+                            combined_this_round.add(imp_id1)
+                            combined_this_round.add(imp_id2)
 
             # Uncombined implicants become prime implicants
             for k in sorted_keys:
-                for imp, cov in implicant_map.get(k, []):
-                    h = hash((imp, tuple(cov)))
-                    if h not in combined_this_round and h not in used_in_combination:
+                for imp_id, imp, cov in implicant_map.get(k, []):
+                    if (
+                        imp_id not in combined_this_round
+                        and imp_id not in used_in_combination
+                    ):
                         if (imp, cov) not in prime_implicants:
                             prime_implicants.append((imp, cov))
 
@@ -111,7 +133,7 @@ class QuineMcCluskey:
 
         # Also add any remaining from last round
         for k in implicant_map:
-            for imp, cov in implicant_map[k]:
+            for _imp_id, imp, cov in implicant_map[k]:
                 if (imp, cov) not in prime_implicants:
                     prime_implicants.append((imp, cov))
 

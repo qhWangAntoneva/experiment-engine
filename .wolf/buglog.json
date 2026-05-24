@@ -791,6 +791,170 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24T12:17:18.023Z"
+    },
+    {
+      "id": "bug-047",
+      "timestamp": "2026-05-24T12:35:22.820Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/experiment_engine/report/qca_reporter.py",
+      "root_cause": "Had \"Outcome: {result.fuzzy_data.outcome_name if resul",
+      "fix": "Changed to \"Outcome: {self._escape_latex(result.fuzzy_data.ou",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 5,
+      "last_seen": "2026-05-24T12:36:08.583Z"
+    },
+    {
+      "id": "bug-048",
+      "timestamp": "2026-05-24T12:37:20.362Z",
+      "error_message": "Wrong return value",
+      "file": "src/experiment_engine/report/qca_reporter.py",
+      "root_cause": "Was returning: result",
+      "fix": "Now returns: (",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T12:37:20.362Z"
+    },
+    {
+      "id": "bug-049",
+      "timestamp": "2026-05-24T12:45:00",
+      "error_message": "coverage_stability always 0 in test_consistency_sensitivity because hasattr(tt, \"solution_coverage\") always False (TruthTable model has no such field)",
+      "file": "src/experiment_engine/qca_engine/advanced/robustness.py",
+      "root_cause": "Code checked hasattr(tt, \"solution_coverage\") which is always False. TruthTable model has no solution_coverage field.",
+      "fix": "Added _compute_solution_coverage() helper that computes real fuzzy-set solution coverage via term membership AND + union + ConsistencyCalculator. Used in both test_consistency_sensitivity and test_frequency_sensitivity.",
+      "tags": [
+        "FIXME-6",
+        "robustness",
+        "coverage",
+        "bug"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24"
+    },
+    {
+      "id": "bug-050",
+      "timestamp": "2026-05-24T12:45:00",
+      "error_message": "test_calibration_sensitivity perturbs ALL membership columns including outcome, conflating calibration sensitivity with outcome sensitivity",
+      "file": "src/experiment_engine/qca_engine/advanced/robustness.py",
+      "root_cause": "Method applied additive perturbation to membership.copy() (all columns including last/outcome), which conflates calibration sensitivity with outcome sensitivity.",
+      "fix": "Renamed to test_membership_perturbation; now perturbs only condition columns (perturbed[:, :-1]) excluding outcome. Added backward-compatible test_calibration_sensitivity alias. Updated run_all to call the new name.",
+      "tags": [
+        "FIXME-7",
+        "robustness",
+        "calibration",
+        "perturbation"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24"
+    },
+    {
+      "id": "bug-051",
+      "timestamp": "2026-05-24T12:45:00",
+      "error_message": "Docstring mentions bootstrap resampling but run_all() and RobustnessTester have no resampling-based methods",
+      "file": "src/experiment_engine/qca_engine/advanced/robustness.py",
+      "root_cause": "Bootstrap resampling was documented but never implemented.",
+      "fix": "Added test_bootstrap(n_iterations=100, sample_fraction=1.0) with case resampling with replacement, truth table + minimization per sample, Jaccard similarity tracking, and term appearance proportion reporting. Added to run_all().",
+      "tags": [
+        "FIXME-8",
+        "robustness",
+        "bootstrap",
+        "missing-feature"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24"
+    },
+    {
+      "id": "bug-052",
+      "timestamp": "2026-05-24T12:45:00",
+      "error_message": "Default frequency thresholds [1.0, 2.0, 3.0, 5.0] may exclude all rows for small-N (<20) fuzzy-set QCA",
+      "file": "src/experiment_engine/qca_engine/advanced/robustness.py",
+      "root_cause": "test_frequency_sensitivity always used absolute thresholds [1.0, 2.0, 3.0, 5.0] regardless of n_cases, which can exclude all rows when n_cases < 20.",
+      "fix": "Made thresholds adaptive: for N < 20 use proportion-based [0.05*N, 0.10*N, 0.15*N, 0.25*N]; for N >= 20 use absolute [1.0, 2.0, 3.0, 5.0].",
+      "tags": [
+        "FIXME-12",
+        "robustness",
+        "frequency",
+        "small-N"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24"
+    },
+    {
+      "id": "bug-053",
+      "timestamp": "2026-05-24T12:42:09.022Z",
+      "error_message": "Incorrect value in code",
+      "file": "tmp/test_escaping.py",
+      "root_cause": "Had \" not in e(\"",
+      "fix": "Changed to \"50%\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T12:42:09.022Z"
+    },
+    {
+      "id": "bug-054",
+      "timestamp": "2026-05-24T20:00:00.000Z",
+      "error_message": "Quine-McCluskey has no upper bound on condition count k, causing browser WASM hang for k>12 due to O(2^k) explosion",
+      "file": "src/experiment_engine/qca_engine/minimization.py",
+      "root_cause": "No guard existed on n_vars in minimize(). For k>12, the exponential enumeration of 2^k truth table rows blocks the single-threaded WASM environment indefinitely.",
+      "fix": "Added k<=12 guard at top of minimize(): compute n_vars = len(minterms[0]), raise ValueError if n_vars > 12 with message guiding user to reduce conditions or use alternative algorithms.",
+      "tags": ["P0-1", "qm", "guard", "browser-hang", "wasm", "py"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T20:00:00.000Z"
+    },
+    {
+      "id": "bug-055",
+      "timestamp": "2026-05-24T20:00:00.000Z",
+      "error_message": "LaTeX special characters (~ _ % $ # &) in user-provided text cause LaTeX compilation failures in generated reports",
+      "file": "src/experiment_engine/report/qca_reporter.py",
+      "root_cause": "No escaping was applied to any user-provided text before LaTeX insertion. ~ becomes non-breaking space, _ triggers subscript, %/$/#/&/{/} have special LaTeX meanings. Formula with ~ and * placed directly in math mode also causes errors.",
+      "fix": "Added _escape_latex() static method (escapes % $ # & { } _ with backslashes, replaces ~ with \\textasciitilde{}). Added _escape_latex_formula() static method (converts ~*+ to \\neg \\land \\lor for math mode). Applied escaping to: outcome_name, config_label, condition_name, term labels, test names, parameter_varied, report summary, and solution formulas.",
+      "tags": ["FIXME-10", "latex", "escaping", "report", "py"],
+      "related_bugs": ["bug-047", "bug-048"],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T20:00:00.000Z"
+    },
+    {
+      "id": "bug-056",
+      "timestamp": "2026-05-24T20:00:00.000Z",
+      "error_message": "_robustness_section crashes with IndexError when t.solution_stability list is empty",
+      "file": "src/experiment_engine/report/qca_reporter.py",
+      "root_cause": "t.solution_stability[0] and t.solution_stability[-1] accessed without checking if the list is empty.",
+      "fix": "Added guard: if t.solution_stability: ... else: stability_range = 'N/A'.",
+      "tags": ["FIXME-11", "indexerror", "robustness", "report", "guard", "py"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T20:00:00.000Z"
+    },
+    {
+      "id": "bug-057",
+      "timestamp": "2026-05-24T20:00:00.000Z",
+      "error_message": "hash-based implicant identity in QM has theoretical collision risk and PYTHONHASHSEED cross-process instability",
+      "file": "src/experiment_engine/qca_engine/minimization.py",
+      "root_cause": "hash((imp1, tuple(cov1))) used to track which implicants were combined. hash() has theoretical collision risk and depends on PYTHONHASHSEED which varies across process invocations.",
+      "fix": "Replaced hash-based identity with itertools.count() sequential ID counter. Each implicant gets a unique integer ID at creation: (id, pattern, coverage). combined_this_round and used_in_combination track integer IDs instead of hash values. Updated all loops to 3-tuple unpacking.",
+      "tags": ["FIXME-21", "hash", "identity", "qm", "collision", "py"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T20:00:00.000Z"
     }
   ]
 }

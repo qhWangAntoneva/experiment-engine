@@ -29,6 +29,43 @@ class QCALaTeXReporter:
     - Counterfactual analysis
     """
 
+    # ── LaTeX escaping helpers ───────────────────────────────────────────────
+
+    @staticmethod
+    def _escape_latex(text: str) -> str:
+        """Escape special LaTeX characters in user-provided text.
+
+        Characters %, $, #, &, {, }, _ are backslash-escaped.
+        ~ is replaced with \\textasciitilde{} (literal tilde in text mode).
+        * is left as-is (safe in LaTeX text mode).
+        """
+        escape_map = {
+            "%": r"\%",
+            "$": r"\$",
+            "#": r"\#",
+            "&": r"\&",
+            "{": r"\{",
+            "}": r"\}",
+            "_": r"\_",
+            "~": r"\textasciitilde{}",
+        }
+        result = text
+        for char, replacement in escape_map.items():
+            result = result.replace(char, replacement)
+        return result
+
+    @staticmethod
+    def _escape_latex_formula(formula: str) -> str:
+        """Convert QCA formula notation to LaTeX math operators.
+
+        ~ → \\neg (negation), * → \\land (conjunction), + → \\lor (disjunction).
+        """
+        return (
+            formula.replace("~", r"\neg ")
+            .replace("*", r" \land ")
+            .replace("+", r" \lor ")
+        )
+
     def generate(
         self,
         result: QCAAnalysisResult,
@@ -114,7 +151,7 @@ class QCALaTeXReporter:
             + "Analysis Summary \\\\\n"
             + f"Cases: {n} \\\\\n"
             + f"Conditions: {k} \\\\\n"
-            + f"Outcome: {result.fuzzy_data.outcome_name if result.fuzzy_data else 'N/A'}\n"
+            + f"Outcome: {QCALaTeXReporter._escape_latex(result.fuzzy_data.outcome_name) if result.fuzzy_data else 'N/A'}\n"
             + r"\end{center}"
             + "\n"
             + r"\newpage"
@@ -130,7 +167,7 @@ class QCALaTeXReporter:
         for r in tt.included_rows:
             outcome_str = "1" if r.outcome_value else "0"
             rows_latex.append(
-                f"    {r.config_label} & {r.frequency:.1f} & {r.raw_consistency:.3f} & {outcome_str} \\\\"
+                f"    {QCALaTeXReporter._escape_latex(r.config_label)} & {r.frequency:.1f} & {r.raw_consistency:.3f} & {outcome_str} \\\\"
             )
 
         return rf"""
@@ -153,7 +190,9 @@ Thresholds: consistency $\geq$ {tt.consistency_threshold}, frequency $\geq$ {tt.
             sol = getattr(result.solutions, sol_type, None)
             if sol and sol.terms:
                 parts.append(rf"\subsection{{{sol_type.title()} Solution}}")
-                parts.append(rf"Formula: $\displaystyle {sol.formula}$")
+                parts.append(
+                    rf"Formula: $\displaystyle {QCALaTeXReporter._escape_latex_formula(sol.formula)}$"
+                )
                 parts.append(rf"Solution Consistency: {sol.solution_consistency:.3f}")
                 parts.append(rf"Solution Coverage: {sol.solution_coverage:.3f}")
                 parts.append("")
@@ -168,7 +207,7 @@ Thresholds: consistency $\geq$ {tt.consistency_threshold}, frequency $\geq$ {tt.
         for c in result.necessity.conditions:
             nec = r"\checkmark" if c.is_necessary else ""
             rows.append(
-                f"    {c.condition_name} & {c.consistency:.3f} & {c.coverage:.3f} & {nec} \\\\"
+                f"    {QCALaTeXReporter._escape_latex(c.condition_name)} & {c.consistency:.3f} & {c.coverage:.3f} & {nec} \\\\"
             )
 
         return rf"""
@@ -196,7 +235,7 @@ Threshold: Consistency $\geq$ {result.necessity.threshold}
                 rows: list[str] = []
                 for t in sol.terms:
                     rows.append(
-                        f"    {t.label} & {t.consistency:.3f} & {t.raw_coverage:.3f} & {t.unique_coverage:.3f} \\\\"
+                        f"    {QCALaTeXReporter._escape_latex(t.label)} & {t.consistency:.3f} & {t.raw_coverage:.3f} & {t.unique_coverage:.3f} \\\\"
                     )
                 parts.append(rf"\subsection{{{sol_type.title()} Solution}}")
                 parts.append(r"""\begin{tabular}{lrrr}
@@ -213,8 +252,16 @@ Term & Consistency & Raw Coverage & Unique Coverage \\
         rows: list[str] = []
         for t in report.tests:
             status = "Pass" if t.passed else "Fail"
+            if t.solution_stability:
+                first = t.solution_stability[0]
+                last = t.solution_stability[-1]
+                stability_range = f"{first:.3f}-{last:.3f}"
+            else:
+                stability_range = "N/A"
             rows.append(
-                f"    {t.test_name} & {t.parameter_varied} & {t.solution_stability[0]:.3f}-{t.solution_stability[-1]:.3f} & {status} \\\\"
+                f"    {QCALaTeXReporter._escape_latex(t.test_name)} & "
+                f"{QCALaTeXReporter._escape_latex(t.parameter_varied)} & "
+                f"{stability_range} & {status} \\\\"
             )
 
         return rf"""
@@ -229,7 +276,7 @@ Test & Parameter & Stability Range & Result \\
 
 Overall Robustness: {report.overall_robustness:.2f}
 
-{report.summary}
+{QCALaTeXReporter._escape_latex(report.summary)}
 """
 
     @staticmethod

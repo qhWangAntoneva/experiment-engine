@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T12:20:11.050Z
-> Files: 100 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-24T12:42:08.975Z
+> Files: 101 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -92,7 +92,7 @@
 - `__init__.py` — QCA engine: truth table, Boolean minimization, analysis (~218 tok)
 - `analyzer.py` — Main QCA analysis pipeline stage (~1639 tok)
 - `consistency.py` — Core consistency and coverage calculations (~1366 tok)
-- `minimization.py` — Quine-McCluskey Boolean minimization for QCA. (~2622 tok)
+- `minimization.py` — Quine-McCluskey Boolean minimization for QCA. (~2827 tok)
 - `necessity.py` — Necessary condition analysis (~1107 tok)
 - `solution.py` — Solution formula formatting and term label generation (~1338 tok)
 - `sufficiency.py` — Sufficiency analysis for QCA solutions. (~1526 tok)
@@ -103,13 +103,13 @@
 - `__init__.py` — Advanced QCA: robustness, counterfactuals, multi-outcome (~125 tok)
 - `counterfactual.py` — Counterfactual analysis for QCA. (~2064 tok)
 - `multi_outcome.py` — Multi-outcome comparison (~799 tok)
-- `robustness.py` — Robustness and sensitivity tests for QCA results. (~2055 tok)
+- `robustness.py` — Robustness and sensitivity tests for QCA results. FIXME-6,7,8,12 fixed: real coverage, membership perturb (outcome excluded), bootstrap resampling, adaptive freq thresholds. (~4635 tok)
 
 ## src/experiment_engine/report/
 
 - `__init__.py` — 导出 LaTeXReporter (~50 tok)
 - `latex_reporter.py` — 基础 LaTeX 报告 (~1200 tok)
-- `qca_reporter.py` — QCA 专用 LaTeX 报告 (~2142 tok)
+- `qca_reporter.py` — QCA-specific LaTeX report generation. (~2653 tok)
 
 ## src/experiment_engine/text_calibration/
 
@@ -177,3 +177,7 @@
 - `test_pipeline.py` — Unit tests for the experiment-engine pipeline framework. (~9264 tok)
 - `test_prototype_similarity.py` — Unit tests for prototype-based text similarity engine. (~4412 tok)
 - `test_viz.py` — Unit tests for visualization module (~11630 tok)
+
+## tmp/
+
+- `test_escaping.py` — Functional test for LaTeX escaping in qca_reporter.py. (~599 tok)

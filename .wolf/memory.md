@@ -373,3 +373,32 @@
 | 20:20 | Edited tests/test_integration.py | 13→13 lines | ~138 |
 | 20:21 | FIXME-5/P0-8: added fail_fast to Pipeline/ParallelPipeline, data_quality to StageResult, failed_stages to PipelineResult | pipeline.py, models.py, core/parallel.py, tests | 361/361 tests pass, smoke tests pass | ~1200 tok |
 | 20:24 | Session end: 33 writes across 10 files (counterfactual.py, minimization.py, calibrator.py, models.py, sufficiency.py) | 14 reads | ~63349 tok |
+| 20:30 | Session end: 33 writes across 10 files (counterfactual.py, minimization.py, calibrator.py, models.py, sufficiency.py) | 14 reads | ~63561 tok |
+| 20:34 | Created src/experiment_engine/qca_engine/advanced/robustness.py | — | ~4428 |
+| 20:34 | Edited src/experiment_engine/qca_engine/minimization.py | added 1 import(s) | ~21 |
+| 20:34 | Edited src/experiment_engine/qca_engine/minimization.py | expanded (+13 lines) | ~190 |
+| 20:34 | Edited src/experiment_engine/qca_engine/minimization.py | modified enumerate() | ~94 |
+| 20:34 | Edited src/experiment_engine/qca_engine/minimization.py | modified get() | ~242 |
+| 20:34 | Edited src/experiment_engine/qca_engine/minimization.py | added 1 condition(s) | ~130 |
+| 20:34 | Edited src/experiment_engine/qca_engine/minimization.py | 5→5 lines | ~71 |
+| 20:34 | Edited src/experiment_engine/qca_engine/advanced/robustness.py | 2→1 lines | ~20 |
+| 20:34 | Edited src/experiment_engine/qca_engine/minimization.py | 3→4 lines | ~84 |
+| 20:34 | Edited src/experiment_engine/qca_engine/advanced/robustness.py | 15→14 lines | ~153 |
+| 20:35 | Edited src/experiment_engine/qca_engine/minimization.py | inline fix | ~26 |
+| 20:35 | Edited src/experiment_engine/qca_engine/advanced/robustness.py | modified _compute_term_membership() | ~250 |
+| 20:35 | Edited src/experiment_engine/report/qca_reporter.py | modified _escape_latex() | ~348 |
+| 20:35 | Edited src/experiment_engine/report/qca_reporter.py | "Outcome: {result.fuzzy_da" → "Outcome: {self._escape_la" | ~32 |
+| 20:35 | Edited src/experiment_engine/report/qca_reporter.py | "Outcome: {self._escape_la" → "Outcome: {QCALaTeXReporte" | ~36 |
+| 20:35 | Edited src/experiment_engine/report/qca_reporter.py | 3→3 lines | ~53 |
+| 20:35 | Edited src/experiment_engine/report/qca_reporter.py | 3→5 lines | ~90 |
+| 20:35 | Edited src/experiment_engine/report/qca_reporter.py | 3→3 lines | ~48 |
+| 20:36 | Edited src/experiment_engine/report/qca_reporter.py | 3→3 lines | ~58 |
+| 20:36 | Edited src/experiment_engine/report/qca_reporter.py | modified _robustness_section() | ~195 |
+| 20:36 | Edited src/experiment_engine/report/qca_reporter.py | inline fix | ~14 |
+| 20:37 | Edited src/experiment_engine/report/qca_reporter.py | 4→5 lines | ~42 |
+| 12:46 | Fixed FIXME-6,7,8,12 in robustness.py: real coverage_stability via _compute_solution_coverage, renamed test_calibration_sensitivity→test_membership_perturbation (outcome excluded), added test_bootstrap with case resampling, adaptive frequency thresholds for small N | src/experiment_engine/qca_engine/advanced/robustness.py | all 361 tests pass, ruff clean, integration test verified | ~2770 |
+| 20:40 | Session end: 55 writes across 12 files (counterfactual.py, minimization.py, calibrator.py, models.py, sufficiency.py) | 20 reads | ~80821 tok |
+| 20:41 | Created tmp/test_escaping.py | — | ~622 |
+| 20:42 | Edited tmp/test_escaping.py | 3→2 lines | ~36 |
+| 20:44 | Fixed P0-1 QM k<=12 guard, FIXME-10 LaTeX escaping, FIXME-11 empty solution_stability guard, FIXME-21 hash→ID identity | minimization.py, qca_reporter.py | All 361 tests pass, ruff clean, functional tests pass | ~1800t |
+| 20:47 | Session end: 57 writes across 13 files (counterfactual.py, minimization.py, calibrator.py, models.py, sufficiency.py) | 20 reads | ~81479 tok |
