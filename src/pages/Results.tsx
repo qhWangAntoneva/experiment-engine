@@ -38,7 +38,8 @@ export default function Results() {
   const { runExport } = useQCAWorkflow();
   const [activeTab, setActiveTab] = useState<'truth-table' | 'solutions' | 'necessity' | 'robustness'>('solutions');
   const [exporting, setExporting] = useState(false);
-  const [exportMsg, setExportMsg] = useState<string | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [exportSuccess, setExportSuccess] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('raw');
 
   const hasResults = !!state.analysisResult;
@@ -61,7 +62,8 @@ export default function Results() {
   const handleExport = useCallback(
     async (format: 'csv' | 'json' | 'latex') => {
       setExporting(true);
-      setExportMsg(null);
+      setExportError(null);
+      setExportSuccess(null);
       try {
         const blob = await runExport(format);
         const url = URL.createObjectURL(blob);
@@ -70,14 +72,14 @@ export default function Results() {
         a.download = `qca-analysis.${format === 'latex' ? 'tex' : format}`;
         a.click();
         URL.revokeObjectURL(url);
-        setExportMsg(`Exported as ${format.toUpperCase()}`);
+        setExportSuccess(t('results.exportedAs', format.toUpperCase()));
       } catch (err: any) {
-        setExportMsg(`Export failed: ${err.message}`);
+        setExportError(t('results.exportFailed') + err.message);
       } finally {
         setExporting(false);
       }
     },
-    [runExport]
+    [runExport, t]
   );
 
   // ── Empty state ──────────────────────────────────────────────────────────
@@ -140,7 +142,7 @@ export default function Results() {
 
       {/* ── Comparison Summary (compare mode only) ── */}
       {viewMode === 'compare' && analysisResult && prototypeAnalysisResult && (
-        <ComparisonSummary raw={analysisResult} prototype={prototypeAnalysisResult} />
+        <ComparisonSummary raw={analysisResult} prototype={prototypeAnalysisResult} t={t} />
       )}
 
       {/* Toolbar */}
@@ -152,7 +154,7 @@ export default function Results() {
             onClick={() => handleExport('csv')}
             disabled={exporting}
           >
-            Export CSV
+            {t('results.exportCsv')}
           </button>
           <button
             className="btn btn-secondary"
@@ -160,7 +162,7 @@ export default function Results() {
             onClick={() => handleExport('json')}
             disabled={exporting}
           >
-            Export JSON
+            {t('results.exportJson')}
           </button>
           <button
             className="btn btn-secondary"
@@ -168,17 +170,28 @@ export default function Results() {
             onClick={() => handleExport('latex')}
             disabled={exporting}
           >
-            Export LaTeX
+            {t('results.exportLatex')}
           </button>
-          {exportMsg && (
+          {exportSuccess && (
             <span
               style={{
                 fontSize: '0.75rem',
-                color: exportMsg.includes('fail') ? 'var(--color-error)' : 'var(--color-success)',
+                color: 'var(--color-success)',
                 alignSelf: 'center',
               }}
             >
-              {exportMsg}
+              {exportSuccess}
+            </span>
+          )}
+          {exportError && (
+            <span
+              style={{
+                fontSize: '0.75rem',
+                color: 'var(--color-error)',
+                alignSelf: 'center',
+              }}
+            >
+              {exportError}
             </span>
           )}
         </div>
@@ -189,25 +202,26 @@ export default function Results() {
         <CompareView
           raw={analysisResult}
           prototype={prototypeAnalysisResult}
+          t={t}
         />
       ) : (
         <>
           {/* Summary Stats */}
           {activeResult && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px', marginBottom: '20px' }}>
-              <MetricChip label="Cases" value={summaryFuzzyData?.membership?.length ?? 0} />
-              <MetricChip label="Conditions" value={summaryFuzzyData?.condition_names?.length ?? 0} />
+              <MetricChip label={t('results.cases')} value={summaryFuzzyData?.membership?.length ?? 0} />
+              <MetricChip label={t('results.conditions')} value={summaryFuzzyData?.condition_names?.length ?? 0} />
               <MetricChip
-                label="Consistency"
+                label={t('results.consistency')}
                 value={activeResult.solutions?.complex?.solution_consistency?.toFixed(3) ?? '-'}
               />
               <MetricChip
-                label="Coverage"
+                label={t('results.coverage')}
                 value={activeResult.solutions?.complex?.solution_coverage?.toFixed(3) ?? '-'}
               />
               <MetricChip
-                label="Robustness"
-                value={robustnessReport ? robustnessReport.overall_robustness.toFixed(2) : 'N/A'}
+                label={t('results.robustness')}
+                value={robustnessReport ? robustnessReport.overall_robustness.toFixed(2) : t('results.nA')}
               />
             </div>
           )}
@@ -262,16 +276,16 @@ export default function Results() {
                 </div>
                 <div className="card" style={{ padding: '16px' }}>
                   <h4 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '12px' }}>
-                    Necessity Analysis (threshold = {activeResult.necessity.threshold})
+                    {t('results.necessityTitle', activeResult.necessity.threshold)}
                   </h4>
                   <div className="table-container">
                     <table style={{ fontSize: '0.8125rem' }}>
                       <thead>
                         <tr>
-                          <th>Condition</th>
-                          <th>Consistency</th>
-                          <th>Coverage</th>
-                          <th>Necessary?</th>
+                          <th>{t('results.colCondition')}</th>
+                          <th>{t('results.colConsistency')}</th>
+                          <th>{t('results.colCoverage')}</th>
+                          <th>{t('results.colNecessary')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -287,9 +301,9 @@ export default function Results() {
                             <td className="mono">{c.coverage.toFixed(3)}</td>
                             <td>
                               {c.is_necessary ? (
-                                <span className="badge badge-success">Yes</span>
+                                <span className="badge badge-success">{t('common.yes')}</span>
                               ) : (
-                                <span className="badge badge-error">No</span>
+                                <span className="badge badge-error">{t('common.no')}</span>
                               )}
                             </td>
                           </tr>
@@ -305,10 +319,10 @@ export default function Results() {
               <div className="card" style={{ padding: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                   <h4 style={{ fontSize: '0.875rem', fontWeight: 600 }}>
-                    Robustness Report
+                    {t('results.robustnessReport')}
                   </h4>
                   <span className={`badge ${robustnessReport.overall_robustness >= 0.8 ? 'badge-success' : 'badge-warning'}`}>
-                    Overall: {robustnessReport.overall_robustness.toFixed(2)}
+                    {t('results.overall')}{robustnessReport.overall_robustness.toFixed(2)}
                   </span>
                 </div>
 
@@ -332,19 +346,19 @@ export default function Results() {
                       <div>
                         <strong style={{ fontSize: '0.8125rem' }}>{test.test_name}</strong>
                         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
-                          Varying: {test.parameter_varied}
+                          {t('results.varying')}{test.parameter_varied}
                         </p>
                       </div>
                       <span className={`badge ${test.passed ? 'badge-success' : 'badge-warning'}`}>
-                        {test.passed ? 'PASSED' : 'UNSTABLE'}
+                        {test.passed ? t('common.passed') : t('common.unstable')}
                       </span>
                     </div>
                     <div style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '0.75rem' }}>
                       <span className="mono" style={{ color: 'var(--color-text-secondary)' }}>
-                        Stability: {test.solution_stability.map((s) => s.toFixed(2)).join(', ')}
+                        {t('results.stability')}{test.solution_stability.map((s) => s.toFixed(2)).join(', ')}
                       </span>
                       <span className="mono" style={{ color: 'var(--color-text-secondary)' }}>
-                        Params: {test.parameter_values.map((v) => v.toFixed(2)).join(', ')}
+                        {t('results.params')}{test.parameter_values.map((v) => v.toFixed(2)).join(', ')}
                       </span>
                     </div>
                   </div>
@@ -363,9 +377,11 @@ export default function Results() {
 function ComparisonSummary({
   raw,
   prototype,
+  t,
 }: {
   raw: QCAAnalysisResultJSON;
   prototype: QCAAnalysisResultJSON;
+  t: (path: string) => string;
 }) {
   const rawConsistency = raw.solutions?.complex?.solution_consistency ?? 0;
   const protoConsistency = prototype.solutions?.complex?.solution_consistency ?? 0;
@@ -390,54 +406,59 @@ function ComparisonSummary({
   return (
     <div className="comparison-summary">
       <h3 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '12px' }}>
-        Raw Text vs Prototype Comparison
+        {t('results.comparisonTitle')}
       </h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
         <ComparisonMetricChip
-          label="Consistency"
+          label={t('results.consistencyCmp')}
           rawValue={rawConsistency.toFixed(3)}
           protoValue={protoConsistency.toFixed(3)}
           delta={consistencyDelta}
+          t={t}
         />
         <ComparisonMetricChip
-          label="Coverage"
+          label={t('results.coverageCmp')}
           rawValue={rawCoverage.toFixed(3)}
           protoValue={protoCoverage.toFixed(3)}
           delta={coverageDelta}
+          t={t}
         />
         <ComparisonMetricChip
-          label="Formula Match"
-          rawValue={formulasDiffer ? 'Different' : 'Same'}
+          label={t('results.formulaMatchCmp')}
+          rawValue={formulasDiffer ? t('common.different') : t('common.same')}
           protoValue=""
           delta={0}
           highlight={formulasDiffer}
+          t={t}
         />
         <ComparisonMetricChip
-          label="Necessary Cond."
+          label={t('results.necessaryCondCmp')}
           rawValue={String(rawNecessary)}
           protoValue={String(protoNecessary)}
           delta={protoNecessary - rawNecessary}
+          t={t}
         />
         <ComparisonMetricChip
-          label="Truth Table Rows"
+          label={t('results.truthTableRowsCmp')}
           rawValue={String(rawRows)}
           protoValue={String(protoRows)}
           delta={protoRows - rawRows}
+          t={t}
         />
       </div>
       {formulasDiffer && (
         <div style={{ marginTop: '12px', padding: '12px', background: 'var(--color-bg-primary)', borderRadius: 'var(--radius-md)' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 600, marginBottom: '6px', color: 'var(--color-text-secondary)' }}>
-            Solution Formula Comparison
+            {t('results.solutionFormulaComparison')}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.8125rem' }}>
             <div>
-              <span style={{ color: 'var(--color-text-secondary)' }}>Raw: </span>
-              <span className="mono" style={{ fontWeight: 600 }}>{rawFormula || '(none)'}</span>
+              <span style={{ color: 'var(--color-text-secondary)' }}>{t('results.raw')}: </span>
+              <span className="mono" style={{ fontWeight: 600 }}>{rawFormula || `(${t('common.none')})`}</span>
             </div>
             <div>
-              <span style={{ color: 'var(--color-text-secondary)' }}>Prototype: </span>
-              <span className="mono" style={{ fontWeight: 600 }}>{protoFormula || '(none)'}</span>
+              <span style={{ color: 'var(--color-text-secondary)' }}>{t('results.prototype')}: </span>
+              <span className="mono" style={{ fontWeight: 600 }}>{protoFormula || `(${t('common.none')})`}</span>
             </div>
           </div>
         </div>
@@ -451,9 +472,11 @@ function ComparisonSummary({
 function CompareView({
   raw,
   prototype,
+  t,
 }: {
   raw: QCAAnalysisResultJSON;
   prototype: QCAAnalysisResultJSON;
+  t: (path: string) => string;
 }) {
   const [compareTab, setCompareTab] = useState<'solutions' | 'truth-table' | 'necessity'>('solutions');
 
@@ -462,10 +485,19 @@ function CompareView({
   const hasNecessity = !!(raw.necessity && prototype.necessity);
 
   const compareTabs = [
-    { key: 'solutions' as const, label: 'Solutions', available: hasSolutions },
-    { key: 'truth-table' as const, label: 'Truth Table', available: hasTruthTable },
-    { key: 'necessity' as const, label: 'Necessity', available: hasNecessity },
+    { key: 'solutions' as const, label: t('results.tabSolutions'), available: hasSolutions },
+    { key: 'truth-table' as const, label: t('results.tabTruthTable'), available: hasTruthTable },
+    { key: 'necessity' as const, label: t('results.tabNecessity'), available: hasNecessity },
   ];
+
+  const headingStyle: React.CSSProperties = {
+    fontSize: '0.8125rem',
+    fontWeight: 600,
+    marginBottom: '8px',
+    color: 'var(--color-text-secondary)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.04em',
+  };
 
   return (
     <>
@@ -494,16 +526,16 @@ function CompareView({
       {compareTab === 'solutions' && raw.solutions && prototype.solutions && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <div>
-            <h4 style={{ fontSize: '0.8125rem', fontWeight: 600, marginBottom: '8px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Raw Text Solutions
+            <h4 style={headingStyle}>
+              {t('results.rawTextSolutions')}
             </h4>
             <div className="card" style={{ padding: '16px' }}>
               <SolutionViewer solutions={raw.solutions} showAll={true} />
             </div>
           </div>
           <div>
-            <h4 style={{ fontSize: '0.8125rem', fontWeight: 600, marginBottom: '8px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Prototype Solutions
+            <h4 style={headingStyle}>
+              {t('results.protoSolutions')}
             </h4>
             <div className="card" style={{ padding: '16px' }}>
               <SolutionViewer solutions={prototype.solutions} showAll={true} />
@@ -516,8 +548,8 @@ function CompareView({
       {compareTab === 'truth-table' && raw.truth_table && prototype.truth_table && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <div>
-            <h4 style={{ fontSize: '0.8125rem', fontWeight: 600, marginBottom: '8px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Raw Truth Table
+            <h4 style={headingStyle}>
+              {t('results.rawTruthTable')}
             </h4>
             <div className="card" style={{ padding: '16px' }}>
               <TruthTableViewer truthTable={raw.truth_table} />
@@ -527,8 +559,8 @@ function CompareView({
             </div>
           </div>
           <div>
-            <h4 style={{ fontSize: '0.8125rem', fontWeight: 600, marginBottom: '8px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Prototype Truth Table
+            <h4 style={headingStyle}>
+              {t('results.protoTruthTable')}
             </h4>
             <div className="card" style={{ padding: '16px' }}>
               <TruthTableViewer truthTable={prototype.truth_table} />
@@ -544,25 +576,25 @@ function CompareView({
       {compareTab === 'necessity' && raw.necessity && prototype.necessity && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <div>
-            <h4 style={{ fontSize: '0.8125rem', fontWeight: 600, marginBottom: '8px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Raw Necessity
+            <h4 style={headingStyle}>
+              {t('results.rawNecessity')}
             </h4>
             <div className="card" style={{ padding: '16px' }}>
               <NecessityXYPlot necessity={raw.necessity} height={350} />
             </div>
             <div className="card" style={{ padding: '16px', marginTop: '16px' }}>
-              <NecessityTable necessity={raw.necessity} highlight={prototype.necessity} />
+              <NecessityTable necessity={raw.necessity} highlight={prototype.necessity} t={t} />
             </div>
           </div>
           <div>
-            <h4 style={{ fontSize: '0.8125rem', fontWeight: 600, marginBottom: '8px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Prototype Necessity
+            <h4 style={headingStyle}>
+              {t('results.protoNecessity')}
             </h4>
             <div className="card" style={{ padding: '16px' }}>
               <NecessityXYPlot necessity={prototype.necessity} height={350} />
             </div>
             <div className="card" style={{ padding: '16px', marginTop: '16px' }}>
-              <NecessityTable necessity={prototype.necessity} highlight={raw.necessity} />
+              <NecessityTable necessity={prototype.necessity} highlight={raw.necessity} t={t} />
             </div>
           </div>
         </div>
@@ -573,7 +605,7 @@ function CompareView({
 
 // ─── Necessity Table (reusable for individual + compare views) ─────────────
 
-function NecessityTable({ necessity, highlight }: { necessity: any; highlight?: any }) {
+function NecessityTable({ necessity, highlight, t }: { necessity: any; highlight?: any; t: (path: string) => string }) {
   // Build a map of condition -> is_necessary from highlight source
   const highlightMap: Record<string, boolean> = {};
   if (highlight) {
@@ -587,10 +619,10 @@ function NecessityTable({ necessity, highlight }: { necessity: any; highlight?: 
       <table style={{ fontSize: '0.8125rem' }}>
         <thead>
           <tr>
-            <th>Condition</th>
-            <th>Consistency</th>
-            <th>Coverage</th>
-            <th>Necessary?</th>
+            <th>{t('results.colCondition')}</th>
+            <th>{t('results.colConsistency')}</th>
+            <th>{t('results.colCoverage')}</th>
+            <th>{t('results.colNecessary')}</th>
           </tr>
         </thead>
         <tbody>
@@ -609,7 +641,7 @@ function NecessityTable({ necessity, highlight }: { necessity: any; highlight?: 
                   {c.condition_name}
                   {differs && (
                     <span style={{ fontSize: '0.65rem', color: 'var(--color-warning)', marginLeft: '4px' }}>
-                      differs
+                      {t('common.differs')}
                     </span>
                   )}
                 </td>
@@ -617,9 +649,9 @@ function NecessityTable({ necessity, highlight }: { necessity: any; highlight?: 
                 <td className="mono">{c.coverage.toFixed(3)}</td>
                 <td>
                   {c.is_necessary ? (
-                    <span className="badge badge-success">Yes</span>
+                    <span className="badge badge-success">{t('common.yes')}</span>
                   ) : (
-                    <span className="badge badge-error">No</span>
+                    <span className="badge badge-error">{t('common.no')}</span>
                   )}
                 </td>
               </tr>
@@ -639,12 +671,14 @@ function ComparisonMetricChip({
   protoValue,
   delta,
   highlight = false,
+  t,
 }: {
   label: string;
   rawValue: string;
   protoValue: string;
   delta: number;
   highlight?: boolean;
+  t: (path: string) => string;
 }) {
   const deltaStr = delta > 0 ? `+${delta.toFixed(3)}` : delta.toFixed(3);
   const deltaColor = delta === 0
@@ -672,7 +706,7 @@ function ComparisonMetricChip({
         <span className="mono" style={{ fontWeight: 600, color: 'var(--color-accent)' }}>
           {rawValue}
         </span>
-        <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.65rem' }}>vs</span>
+        <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.65rem' }}>{t('common.vs')}</span>
         <span className="mono" style={{ fontWeight: 600, color: 'var(--color-accent-secondary, var(--color-accent))' }}>
           {protoValue || '-'}
         </span>
@@ -918,6 +952,7 @@ function generateNecessityInterpretation(
 
 function AutoInterpretation({ result }: { result: QCAAnalysisResultJSON }) {
   const [expanded, setExpanded] = useState(false);
+  const t = useT();
 
   const interpretationText = useMemo(() => {
     if (!result) return '';
@@ -943,10 +978,10 @@ function AutoInterpretation({ result }: { result: QCAAnalysisResultJSON }) {
         onClick={() => setExpanded(!expanded)}
       >
         <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-accent)' }}>
-          自动解读
+          {t('results.autoInterpretation')}
         </h4>
         <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
-          {expanded ? '收起' : '展开'}
+          {expanded ? t('results.collapse') : t('results.expand')}
         </span>
       </div>
 

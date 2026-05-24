@@ -13,6 +13,7 @@ import { DEFAULT_QCA_PARAMS, type QCAAnalysisParams, type ConditionSet, QCAVaria
 import { usePyodide } from '../hooks/usePyodide';
 import { useQCAWorkflow } from '../hooks/useQCAWorkflow';
 import { useQCAPipeline } from '../store/QCAPipelineContext';
+import { useT } from '../i18n/I18nContext';
 import './Settings.css';
 
 interface SettingField {
@@ -166,6 +167,7 @@ const settings: SettingField[] = [
 ];
 
 export default function Settings() {
+  const t = useT();
   const { initState } = usePyodide();
   const { exportKeywords } = useQCAWorkflow();
   const { state: pipelineState } = useQCAPipeline();
@@ -188,7 +190,7 @@ export default function Settings() {
   const handleExportDictionary = useCallback(async () => {
     const cs: ConditionSet | null = pipelineState.conditionSet;
     if (!cs) {
-      setExportStatus('No condition set loaded. Import or define a dictionary first.');
+      setExportStatus(t('settings.exportDictNoConditionSet'));
       return;
     }
     setIsExporting(true);
@@ -203,9 +205,9 @@ export default function Settings() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      setExportStatus(`Exported ${cs.conditions.length} condition(s) as ${exportFormat.toUpperCase()}.`);
+      setExportStatus(t('settings.exportedDict', cs.conditions.length, exportFormat.toUpperCase()));
     } catch (err: any) {
-      setExportStatus(`Export failed: ${err.message}`);
+      setExportStatus(t('settings.exportDictError') + err.message);
     } finally {
       setIsExporting(false);
     }
@@ -269,14 +271,14 @@ export default function Settings() {
   return (
     <div className="settings">
       <div className="page-header">
-        <h2 className="page-title">Settings</h2>
-        <p className="page-subtitle">QCA pipeline configuration and preferences</p>
+        <h2 className="page-title">{t('settings.title')}</h2>
+        <p className="page-subtitle">{t('settings.subtitle')}</p>
       </div>
 
       <form onSubmit={handleSave}>
         {/* Calibration Section */}
         <div className="settings-section card">
-          <h3 className="section-title">Calibration Defaults</h3>
+          <h3 className="section-title">{t('settings.calibrationDefaults')}</h3>
           {calibrationFields.map((s) => (
             <SettingRow key={s.key} field={s} value={values[s.key]} onChange={updateValue} />
           ))}
@@ -284,7 +286,7 @@ export default function Settings() {
 
         {/* Analysis Section */}
         <div className="settings-section card">
-          <h3 className="section-title">Analysis Thresholds</h3>
+          <h3 className="section-title">{t('settings.analysisThresholds')}</h3>
           {analysisFields.map((s) => (
             <SettingRow key={s.key} field={s} value={values[s.key]} onChange={updateValue} />
           ))}
@@ -292,7 +294,7 @@ export default function Settings() {
 
         {/* Export Section */}
         <div className="settings-section card">
-          <h3 className="section-title">Export Preferences</h3>
+          <h3 className="section-title">{t('settings.exportPreferences')}</h3>
           {exportFields.map((s) => (
             <SettingRow key={s.key} field={s} value={values[s.key]} onChange={updateValue} />
           ))}
@@ -300,41 +302,41 @@ export default function Settings() {
 
         {/* Engine Status */}
         <div className="settings-section card">
-          <h3 className="section-title">Engine Status</h3>
+          <h3 className="section-title">{t('settings.engineStatus')}</h3>
           <div className="about-grid">
             <div className="about-item">
-              <span className="about-label">Pyodide</span>
+              <span className="about-label">{t('settings.pyodide')}</span>
               <span className={`badge ${initState.status === 'ready' ? 'badge-success' : 'badge-warning'}`}>
                 {initState.status}
               </span>
             </div>
             <div className="about-item">
-              <span className="about-label">Python Version</span>
+              <span className="about-label">{t('settings.pythonVersion')}</span>
               <span className="about-value mono">3.12 (via Pyodide v0.26)</span>
             </div>
             <div className="about-item">
-              <span className="about-label">Packages</span>
+              <span className="about-label">{t('settings.packages')}</span>
               <span className="about-value mono">
                 {initState.status === 'ready'
                   ? (initState as any).loadedPackages?.join(', ') || 'numpy, pyyaml'
-                  : 'Not loaded'}
+                  : t('common.notLoaded')}
               </span>
             </div>
             <div className="about-item">
-              <span className="about-label">Worker Thread</span>
-              <span className="about-value">{initState.status === 'ready' ? 'Active' : 'Idle'}</span>
+              <span className="about-label">{t('settings.workerThread')}</span>
+              <span className="about-value">{initState.status === 'ready' ? t('common.active') : t('common.idle')}</span>
             </div>
           </div>
         </div>
 
         {/* Export Keyword Dictionary */}
         <div className="settings-section card">
-          <h3 className="section-title">Export Keyword Dictionary</h3>
+          <h3 className="section-title">{t('settings.exportDictSection')}</h3>
           <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '12px' }}>
-            Export the current condition set's keyword dictionary to CSV or JSON for reuse in other projects.
+            {t('settings.exportDictHelp')}
             {!pipelineState.conditionSet && (
               <span style={{ color: 'var(--color-warning)' }}>
-                {' '}No condition set is currently loaded. Import or define a dictionary first on the Data Input page.
+                {' '}{t('settings.exportDictNoConditionSet')}
               </span>
             )}
           </p>
@@ -354,14 +356,14 @@ export default function Settings() {
               disabled={isExporting || !pipelineState.conditionSet}
               style={{ fontSize: '0.8125rem' }}
             >
-              {isExporting ? 'Exporting...' : 'Export Dictionary'}
+              {isExporting ? t('settings.exportDictExporting') : t('settings.exportDictBtn')}
             </button>
           </div>
           {exportStatus && (
             <p style={{
               marginTop: '12px',
               fontSize: '0.8125rem',
-              color: exportStatus.includes('fail') ? 'var(--color-error)' : 'var(--color-success)',
+              color: exportStatus.includes('fail') || exportStatus.includes('失败') ? 'var(--color-error)' : 'var(--color-success)',
             }}>
               {exportStatus}
             </p>
@@ -370,30 +372,30 @@ export default function Settings() {
 
         {/* About */}
         <div className="settings-section card">
-          <h3 className="section-title">About</h3>
+          <h3 className="section-title">{t('settings.about')}</h3>
           <div className="about-grid">
             <div className="about-item">
-              <span className="about-label">Application</span>
+              <span className="about-label">{t('settings.aboutApp')}</span>
               <span className="about-value">QCA Text Analysis Tool</span>
             </div>
             <div className="about-item">
-              <span className="about-label">Version</span>
+              <span className="about-label">{t('settings.aboutVersion')}</span>
               <span className="about-value mono">0.2.0</span>
             </div>
             <div className="about-item">
-              <span className="about-label">Frontend</span>
+              <span className="about-label">{t('settings.aboutFrontend')}</span>
               <span className="about-value">React 18 + TypeScript + Vite 5</span>
             </div>
             <div className="about-item">
-              <span className="about-label">Python Engine</span>
+              <span className="about-label">{t('settings.aboutPythonEngine')}</span>
               <span className="about-value">Pyodide 0.26 (in-browser)</span>
             </div>
             <div className="about-item">
-              <span className="about-label">Analysis Engine</span>
+              <span className="about-label">{t('settings.aboutAnalysisEngine')}</span>
               <span className="about-value">experiment-engine v0.2.0</span>
             </div>
             <div className="about-item">
-              <span className="about-label">Visualization</span>
+              <span className="about-label">{t('settings.aboutVisualization')}</span>
               <span className="about-value">Plotly.js (client-side)</span>
             </div>
           </div>
@@ -402,11 +404,11 @@ export default function Settings() {
         {/* Save */}
         <div className="form-actions">
           <button type="submit" className="btn btn-primary">
-            Save Settings
+            {t('settings.saveBtn')}
           </button>
           {saved && (
             <span style={{ color: 'var(--color-success)', fontSize: '0.8125rem' }}>
-              Settings saved.
+              {t('settings.saved')}
             </span>
           )}
         </div>
@@ -426,13 +428,14 @@ function SettingRow({
   value: string | number | boolean;
   onChange: (key: string, value: string | number | boolean) => void;
 }) {
+  const t = useT();
   return (
     <div className="setting-row">
       <div className="setting-info">
         <label className="setting-label" htmlFor={field.key}>
-          {field.label}
+          {t(`settings.fields.${field.key}.label`)}
         </label>
-        <p className="setting-desc">{field.description}</p>
+        <p className="setting-desc">{t(`settings.fields.${field.key}.description`)}</p>
       </div>
       <div className="setting-control">
         {field.type === 'number' && (
@@ -487,7 +490,7 @@ function SettingRow({
               checked={value as boolean}
               onChange={(e) => onChange(field.key, e.target.checked)}
             />
-            <span className="toggle-text">{value ? 'Enabled' : 'Disabled'}</span>
+            <span className="toggle-text">{value ? t('common.enabled') : t('common.disabled')}</span>
           </label>
         )}
       </div>

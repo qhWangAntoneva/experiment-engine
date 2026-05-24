@@ -859,3 +859,51 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 04:10 | Edited src/pages/Results.tsx | modified if() | ~170 |
 | 04:10 | Edited src/pages/Results.tsx | 2→2 lines | ~36 |
 | 04:10 | Edited src/pages/Results.tsx | 18→18 lines | ~186 |
+| 04:19 | Edited src/pages/DataInput.tsx | inline fix | ~22 |
+| 04:19 | Edited src/pages/Results.tsx | 3→4 lines | ~74 |
+| 04:20 | Edited src/pages/Results.tsx | modified catch() | ~207 |
+| 04:20 | Edited src/pages/Results.tsx | expanded (+11 lines) | ~383 |
+| 04:20 | Edited src/pages/DataInput.tsx | modified if() | ~264 |
+| 04:20 | Edited src/pages/Results.tsx | modified toFixed() | ~278 |
+| 04:20 | Edited src/pages/DataInput.tsx | modified if() | ~242 |
+| 04:20 | Edited src/i18n/translations.ts | 2→3 lines | ~33 |
+| 04:20 | Edited src/i18n/translations.ts | 2→3 lines | ~40 |
+| 04:20 | Edited src/pages/Results.tsx | 45→45 lines | ~653 |
+| 04:20 | Edited src/pages/DataInput.tsx | modified catch() | ~295 |
+| 04:20 | Edited src/i18n/translations.ts | 2→3 lines | ~48 |
+| 04:20 | Edited src/pages/Results.tsx | modified t() | ~774 |
+| 04:20 | Edited src/pages/Settings.tsx | added 1 import(s) | ~68 |
+| 04:20 | Edited src/pages/DataInput.tsx | 12→15 lines | ~240 |
+| 04:21 | Edited src/pages/Settings.tsx | 3→4 lines | ~45 |
+| 04:21 | Edited src/pages/Settings.tsx | modified if() | ~28 |
+| 04:21 | Edited src/pages/Settings.tsx | modified catch() | ~56 |
+| 04:21 | Edited src/pages/Results.tsx | CSS: t, path | ~1021 |
+| 04:21 | Edited src/i18n/translations.ts | 20→21 lines | ~112 |
+| 04:21 | Edited src/pages/Settings.tsx | 2→2 lines | ~37 |
+| 04:21 | Edited src/pages/Results.tsx | 3→3 lines | ~52 |
+| 04:21 | Edited src/pages/Settings.tsx | inline fix | ~23 |
+| 04:21 | Edited src/i18n/translations.ts | 2→3 lines | ~16 |
+| 04:21 | Edited src/pages/Results.tsx | 6→7 lines | ~62 |
+| 04:21 | Edited src/pages/Settings.tsx | inline fix | ~23 |
+| 04:21 | Edited src/pages/Settings.tsx | inline fix | ~23 |
+| 04:21 | Edited src/i18n/translations.ts | 2→3 lines | ~19 |
+| 04:21 | Edited src/pages/Settings.tsx | 4→4 lines | ~66 |
+| 04:22 | Edited src/pages/Settings.tsx | inline fix | ~23 |
+| 04:22 | Edited src/pages/Settings.tsx | inline fix | ~22 |
+| 04:22 | Edited src/pages/Results.tsx | CSS: t, path, headingStyle | ~1425 |
+| 04:22 | Edited src/pages/Settings.tsx | modified t() | ~58 |
+| 04:22 | Edited src/pages/Settings.tsx | 2→2 lines | ~37 |
+| 04:22 | Edited src/pages/Settings.tsx | 8→8 lines | ~125 |
+| 04:22 | Edited src/pages/Results.tsx | CSS: t, path | ~608 |
+| 04:22 | Edited src/pages/Settings.tsx | "Exporting..." → "settings.exportDictExport" | ~27 |
+| 04:22 | Edited src/pages/DataInput.tsx | inline fix | ~23 |
+| 04:22 | Edited src/pages/Settings.tsx | inline fix | ~38 |
+| 04:22 | Edited src/pages/Results.tsx | CSS: t, path | ~453 |
+| 04:22 | Edited src/i18n/translations.ts | 2→3 lines | ~21 |
+| 04:22 | Edited src/pages/Settings.tsx | 27→27 lines | ~407 |
+| 04:23 | Edited src/pages/Settings.tsx | 5→5 lines | ~57 |
+| 04:23 | Edited src/pages/Results.tsx | modified t() | ~339 |
+| 04:23 | Edited src/i18n/translations.ts | 2→3 lines | ~20 |
+| 04:23 | Edited src/i18n/translations.ts | 2→3 lines | ~25 |
+| 04:23 | Edited src/pages/Results.tsx | modified AutoInterpretation() | ~530 |
+| 04:23 | Edited src/pages/Settings.tsx | modified SettingRow() | ~704 |

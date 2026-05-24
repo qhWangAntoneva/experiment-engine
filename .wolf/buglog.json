@@ -2303,6 +2303,86 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24T20:10:39.052Z"
+    },
+    {
+      "id": "bug-140",
+      "timestamp": "2026-05-24T20:20:10.054Z",
+      "error_message": "CSS fix: color",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "color: exportMsg.includes('fail') ? 'var(--color-error)' : 'var(--color-success)', → 'var(--color-error)',",
+      "fix": "Changed color: exportMsg.includes('fail') ? 'var(--color-error)' : 'var(--color-success)', → 'var(--color-error)',",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-24T20:22:11.078Z"
+    },
+    {
+      "id": "bug-141",
+      "timestamp": "2026-05-24T20:20:36.031Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "Had `已导出 ${n} 个条件（${fmt} 格式）。`",
+      "fix": "Changed to '导出失败：'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 5,
+      "last_seen": "2026-05-24T20:23:26.075Z"
+    },
+    {
+      "id": "bug-142",
+      "timestamp": "2026-05-24T20:20:58.778Z",
+      "error_message": "CSS fix: borderColor, background, color",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "borderColor: validationMessage.includes('Error') || validationMessage.includes('fail') → validationMessage.includes('Error') || validationMessage.includes('fail') ||; background: validationMessage.includes('Error') || validationMessage.includes('fail') → validationMessage.includes('Error') || validationMessage.includes('fail') ||; color: validationMessage.includes('Error') || validationMessage.includes('fail') → validationMessage.includes('Error') || validationMessage.includes('fail') ||",
+      "fix": "Changed borderColor: validationMessage.includes('Error') || validationMessage.includes('fail') → validationMessage.includes('Error') || validationMessage.includes('fail') ||; background: validationMessage.includes('Error') || validationMessage.includes('fail') → validationMessage.includes('Error') || validationMessage.includes('fail') ||; color: validationMessage.includes('Error') || validationMessage.includes('fail') → validationMessage.includes('Error') || validationMessage.includes('fail') ||",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T20:20:58.778Z"
+    },
+    {
+      "id": "bug-143",
+      "timestamp": "2026-05-24T20:21:15.984Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Had `Exported ${cs.conditions.length} condition(s) as ",
+      "fix": "Changed to 'settings.exportedDict'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 6,
+      "last_seen": "2026-05-24T20:22:42.552Z"
+    },
+    {
+      "id": "bug-144",
+      "timestamp": "2026-05-24T20:21:35.074Z",
+      "error_message": "Wrong reference: yes should be error",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "Used \"yes\" instead of \"error\"",
+      "fix": "Changed yes → error",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-24T20:22:54.358Z"
     }
   ]
 }

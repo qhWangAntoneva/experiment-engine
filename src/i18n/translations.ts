@@ -16,6 +16,7 @@ export interface TranslationDict {
     reset: string;
     loading: string;
     exporting: string;
+    error: string;
     yes: string;
     no: string;
     none: string;
@@ -102,6 +103,7 @@ export interface TranslationDict {
     pasteText: string;
     uploadFile: string;
     format: string;
+    formatPlainText: string;
     parseText: string;
     parseCsv: string;
     pastePlaceholderCsv: string;
@@ -262,6 +264,7 @@ export interface TranslationDict {
     exportDictNoConditionSet: string;
     exportDictBtn: string;
     exportDictExporting: string;
+    exportDictError: string;
     exportedDict: (n: number, fmt: string) => string;
     // About
     aboutApp: string;
@@ -287,6 +290,7 @@ const zh: TranslationDict = {
     reset: '重置',
     loading: '加载中...',
     exporting: '导出中...',
+    error: '错误',
     yes: '是',
     no: '否',
     none: '无',
@@ -371,6 +375,7 @@ const zh: TranslationDict = {
     pasteText: '粘贴文本',
     uploadFile: '上传文件',
     format: '格式：',
+    formatPlainText: '纯文本',
     parseText: '解析文本',
     parseCsv: '解析 CSV',
     pastePlaceholderCsv: 'id,text\ncase_1,投诉内容...\ncase_2,建议内容...',
@@ -592,6 +597,7 @@ const zh: TranslationDict = {
       '当前未加载条件集。请先在"数据输入"页面导入或定义词典。',
     exportDictBtn: '导出词典',
     exportDictExporting: '导出中...',
+    exportDictError: '导出失败：',
     exportedDict: (n: number, fmt: string) => `已导出 ${n} 个条件（${fmt} 格式）。`,
     aboutApp: '应用名称',
     aboutVersion: '版本',
@@ -630,6 +636,7 @@ const en: TranslationDict = {
     reset: 'Reset',
     loading: 'Loading...',
     exporting: 'Exporting...',
+    error: 'Error',
     yes: 'Yes',
     no: 'No',
     none: '(none)',
@@ -714,6 +721,7 @@ const en: TranslationDict = {
     pasteText: 'Paste Text',
     uploadFile: 'Upload File',
     format: 'Format:',
+    formatPlainText: 'Plain Text',
     parseText: 'Parse Text',
     parseCsv: 'Parse CSV',
     pastePlaceholderCsv: 'id,text\ncase_1,投诉内容...\ncase_2,建议内容...',
@@ -936,6 +944,7 @@ const en: TranslationDict = {
       'No condition set is currently loaded. Import or define a dictionary first on the Data Input page.',
     exportDictBtn: 'Export Dictionary',
     exportDictExporting: 'Exporting...',
+    exportDictError: 'Export failed: ',
     exportedDict: (n: number, fmt: string) => `Exported ${n} condition(s) as ${fmt}.`,
     aboutApp: 'Application',
     aboutVersion: 'Version',

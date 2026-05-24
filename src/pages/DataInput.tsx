@@ -345,7 +345,7 @@ export default function DataInput() {
 
       const sizeError = checkFileSize(file);
       if (sizeError) {
-        setValidationMessage(`Error: ${t('dataInput.fileTooLarge', (file.size / (1024 * 1024)).toFixed(1))}`);
+        setValidationMessage(t('dataInput.fileTooLarge', (file.size / (1024 * 1024)).toFixed(1)));
         return;
       }
 
@@ -365,7 +365,7 @@ export default function DataInput() {
           setTexts(entries);
           setValidationMessage(t('dataInput.loadedCases', entries.length, file.name));
         } catch (err: any) {
-          setValidationMessage(`Error: ${err.message}`);
+          setValidationMessage(`${t('common.error')}: ${err.message}`);
         }
       };
       reader.onerror = () => {
@@ -483,7 +483,7 @@ export default function DataInput() {
     const sizeError = checkFileSize(file);
     if (sizeError) {
       const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-      setValidationMessage(`Error: ${t('dataInput.fileTooLarge', sizeMB)}`);
+      setValidationMessage(t('dataInput.fileTooLarge', sizeMB));
       return;
     }
 
@@ -502,7 +502,7 @@ export default function DataInput() {
         setTexts(entries);
         setValidationMessage(t('dataInput.loadedCases', entries.length, file.name));
       } catch (err: any) {
-        setValidationMessage(`Error: ${err.message}`);
+        setValidationMessage(`${t('common.error')}: ${err.message}`);
       }
     };
     if (format === 'xlsx') {
@@ -545,7 +545,7 @@ export default function DataInput() {
             t('dataInput.loadedProtoCases', cases.length, outcome0, outcome1, file.name)
           );
         } catch (err: any) {
-          setValidationMessage(`Error: ${err.message}`);
+          setValidationMessage(`${t('common.error')}: ${err.message}`);
         }
       };
       reader.onerror = () => {
@@ -573,7 +573,7 @@ export default function DataInput() {
           t('dataInput.loadedProtoCases', cases.length, outcome0, outcome1, file.name)
         );
       } catch (err: any) {
-        setValidationMessage(`Error: ${err.message}`);
+        setValidationMessage(`${t('common.error')}: ${err.message}`);
       }
     };
     reader.readAsText(file, 'UTF-8');
@@ -791,7 +791,7 @@ export default function DataInput() {
                 >
                   <option value="csv">CSV</option>
                   <option value="json">JSON</option>
-                  <option value="txt">Plain Text</option>
+                  <option value="txt">{t('dataInput.formatPlainText')}</option>
                 </select>
                 <button className="btn btn-secondary" onClick={handleParsePaste} style={{ fontSize: '0.8125rem', marginLeft: 'auto' }}>
                   {t('dataInput.parseText')}
@@ -987,7 +987,7 @@ export default function DataInput() {
                     {textCases.length > 20 && (
                       <tr>
                         <td colSpan={3} style={{ textAlign: 'center', color: 'var(--color-text-secondary)' }}>
-                          ... and {textCases.length - 20} more cases
+                          {t('dataInput.andMoreCases', textCases.length - 20)}
                         </td>
                       </tr>
                     )}
@@ -1158,15 +1158,18 @@ export default function DataInput() {
             marginBottom: '16px',
             fontSize: '0.8125rem',
             borderColor:
-              validationMessage.includes('Error') || validationMessage.includes('fail')
+              validationMessage.includes('Error') || validationMessage.includes('fail') ||
+              validationMessage.includes('错误') || validationMessage.includes('失败')
                 ? 'var(--color-error)'
                 : 'var(--color-success)',
             background:
-              validationMessage.includes('Error') || validationMessage.includes('fail')
+              validationMessage.includes('Error') || validationMessage.includes('fail') ||
+              validationMessage.includes('错误') || validationMessage.includes('失败')
                 ? 'var(--color-error-bg)'
                 : 'var(--color-success-bg)',
             color:
-              validationMessage.includes('Error') || validationMessage.includes('fail')
+              validationMessage.includes('Error') || validationMessage.includes('fail') ||
+              validationMessage.includes('错误') || validationMessage.includes('失败')
                 ? 'var(--color-error)'
                 : 'var(--color-success)',
           }}
