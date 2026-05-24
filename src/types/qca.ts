@@ -38,8 +38,6 @@ export type PipelineStage =
   | 'loading-texts'
   | 'calibrating'
   | 'calibrated'
-  | 'calibrating-prototype'
-  | 'calibrated-prototype'
   | 'analyzing'
   | 'analyzed'
   | 'running-robustness'
@@ -265,6 +263,8 @@ export interface QCAPipelineState {
   // Pipeline artifacts (populated as stages complete)
   conditionSet: ConditionSet | null;
   fuzzyData: MembershipDataJSON | null;
+  /** Prototype-based calibration result (populated when prototype texts are provided) */
+  prototypeFuzzyData: MembershipDataJSON | null;
   analysisResult: QCAAnalysisResultJSON | null;
   robustnessReport: RobustnessReport | null;
   counterfactualReport: CounterfactualReport | null;
@@ -280,6 +280,7 @@ export const INITIAL_PIPELINE_STATE: QCAPipelineState = {
   elapsedMs: 0,
   conditionSet: null,
   fuzzyData: null,
+  prototypeFuzzyData: null,
   analysisResult: null,
   robustnessReport: null,
   counterfactualReport: null,
@@ -290,8 +291,7 @@ export const INITIAL_PIPELINE_STATE: QCAPipelineState = {
 
 export type PyodideWorkerRequest =
   | { type: 'init'; payload: { packages: string[] } }
-  | { type: 'calibrate'; payload: { texts: TextCorpusEntry[]; conditionSet: ConditionSet } }
-  | { type: 'calibrate_prototype'; payload: { texts: TextCase[]; conditionSet: ConditionSet } }
+  | { type: 'calibrate'; payload: { texts: TextCorpusEntry[]; conditionSet: ConditionSet; prototypeTexts?: TextCase[] } }
   | { type: 'load_corpus'; payload: { fileName: string; content: string; format: 'csv' | 'json' | 'txt' } }
   | { type: 'analyze'; payload: { fuzzyData: MembershipDataJSON; params: QCAAnalysisParams } }
   | { type: 'run_robustness'; payload: { fuzzyData: MembershipDataJSON; analysisResult: QCAAnalysisResultJSON } }
@@ -307,10 +307,8 @@ export type PyodideWorkerResponse =
   | { type: 'init-progress'; message: string; progress: number }
   | { type: 'init-done'; loadedPackages: string[] }
   | { type: 'init-error'; error: string }
-  | { type: 'calibrate-done'; fuzzyData: MembershipDataJSON }
+  | { type: 'calibrate-done'; fuzzyData: MembershipDataJSON; prototypeFuzzyData?: MembershipDataJSON }
   | { type: 'calibrate-error'; error: string }
-  | { type: 'calibrate-prototype-done'; fuzzyData: MembershipDataJSON }
-  | { type: 'calibrate-prototype-error'; error: string }
   | { type: 'corpus-loaded'; entries: TextCorpusEntry[] }
   | { type: 'corpus-error'; error: string }
   | { type: 'analyze-done'; result: QCAAnalysisResultJSON }

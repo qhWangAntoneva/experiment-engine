@@ -232,6 +232,12 @@ class TextCalibrationStage(Stage):
                 (FIXME-2). When provided, fixes column index offset when
                 PROTOTYPE conditions are interleaved with KEYWORD/HYBRID.
         """
+        # DEPRECATED: PROTOTYPE scoring source is deprecated.
+        # Prototype similarity computation is now handled at a higher level
+        # (see pyodide_handlers.py unified calibrate handler — prototype texts
+        # are calibrated through the same keyword pipeline as raw texts).
+        # This branch is retained for backward compatibility and will be
+        # removed when PROTOTYPE support is dropped.
         if cond.scoring_source == ScoringSource.PROTOTYPE:
             if not cond.prototypes:
                 return np.zeros(len(texts), dtype=np.float64)

@@ -290,15 +290,11 @@ export default function DataInput() {
   const {
     runFullPipeline,
     runCalibrateOnly,
-    runPrototypeCalibration,
-    runPrototypeFullPipeline,
     loadCorpus,
     importKeywords,
   } = useQCAWorkflow();
 
-  // ─── Calibration mode ────────────────────────────────────────────────────
-
-  const [calibrationMode, setCalibrationMode] = useState<'keyword' | 'prototype'>('keyword');
+  // ─── Form state ────────────────────────────────────────────────────
 
   // Keyword mode form state
   const [texts, setTexts] = useState<TextCorpusEntry[]>([]);
@@ -538,151 +534,71 @@ export default function DataInput() {
   }, []);
 
   const handleReset = useCallback(() => {
-    if (calibrationMode === 'prototype') {
-      setTextCases([]);
-      setProtoPasteContent('');
-      setProtoConditions([newProtoRow('', ''), newProtoRow('', '')]);
-      setValidationMessage(null);
-    } else {
-      handleParsePaste();
-    }
-  }, [calibrationMode, handleParsePaste]);
+    handleParsePaste();
+  }, [handleParsePaste]);
 
-  const handleSwitchMode = useCallback((mode: 'keyword' | 'prototype') => {
-    setCalibrationMode(mode);
-    setValidationMessage(null);
-    if (mode === 'prototype') {
-      setTextCases([]);
-      setProtoPasteContent('');
-      setProtoConditions([newProtoRow('', ''), newProtoRow('', '')]);
-    }
-  }, []);
 
-  // ─── Calibration / Pipeline triggers (mode-dependent) ────────────────────
+
+  // ─── Calibration / Pipeline triggers ─────────────────────────────────────
 
   const handleCalibrate = useCallback(async () => {
-    if (calibrationMode === 'prototype') {
-      if (textCases.length === 0) {
-        setValidationMessage('No prototype text cases loaded. Paste or upload CSV first.');
-        return;
-      }
-      const validRows = protoConditions.filter((r) => r.name.trim() !== '');
-      if (validRows.length === 0) {
-        setValidationMessage('No conditions defined. Add at least one condition in the prototype editor.');
-        return;
-      }
+    if (texts.length === 0) {
+      setValidationMessage('No text data loaded. Upload or paste text first.');
+      return;
+    }
 
-      setIsRunning(true);
-      setValidationMessage(null);
+    setIsRunning(true);
+    setValidationMessage(null);
 
-      try {
-        const conditionSet = generatePrototypeConditionSet(
-          protoConditions,
-          selectedDomain,
-          getQCAVariantFromSettings(),
-        );
-        await runPrototypeCalibration({ texts: textCases, conditionSet });
-        setValidationMessage('Prototype calibration complete. Navigate to Results to analyze.');
-      } catch (err: any) {
-        setValidationMessage(`Calibration failed: ${err.message}`);
-      } finally {
-        setIsRunning(false);
-      }
-    } else {
-      if (texts.length === 0) {
-        setValidationMessage('No text data loaded. Upload or paste text first.');
-        return;
-      }
-
-      setIsRunning(true);
-      setValidationMessage(null);
-
-      try {
-        await runCalibrateOnly({
-          texts,
-          conditionSet: importedConditionSet
-            ? { ...importedConditionSet, qca_variant: importedConditionSet.qca_variant ?? getQCAVariantFromSettings() }
-            : (yamlContent as any), // YAML string parsed on Python side
-        });
-        setValidationMessage('Calibration complete. Navigate to Results to analyze.');
-      } catch (err: any) {
-        setValidationMessage(`Calibration failed: ${err.message}`);
-      } finally {
-        setIsRunning(false);
-      }
+    try {
+      await runCalibrateOnly({
+        texts,
+        conditionSet: importedConditionSet
+          ? { ...importedConditionSet, qca_variant: importedConditionSet.qca_variant ?? getQCAVariantFromSettings() }
+          : (yamlContent as any), // YAML string parsed on Python side
+        prototypeTexts: textCases.length > 0 ? textCases : undefined,
+      });
+      const extra = textCases.length > 0 ? ` (with ${textCases.length} prototype cases)` : '';
+      setValidationMessage(`Calibration complete${extra}. Navigate to Results to analyze.`);
+    } catch (err: any) {
+      setValidationMessage(`Calibration failed: ${err.message}`);
+    } finally {
+      setIsRunning(false);
     }
   }, [
-    calibrationMode,
     textCases, texts, yamlContent,
-    protoConditions, selectedDomain,
-    runCalibrateOnly, runPrototypeCalibration,
+    runCalibrateOnly,
   ]);
 
   const handleRunPipeline = useCallback(async () => {
-    if (calibrationMode === 'prototype') {
-      if (textCases.length === 0) {
-        setValidationMessage('No prototype text cases loaded.');
-        return;
-      }
-      const validRows = protoConditions.filter((r) => r.name.trim() !== '');
-      if (validRows.length === 0) {
-        setValidationMessage('No conditions defined. Add at least one condition in the prototype editor.');
-        return;
-      }
+    if (texts.length === 0) {
+      setValidationMessage('No text data loaded.');
+      return;
+    }
 
-      setIsRunning(true);
-      setValidationMessage(null);
+    setIsRunning(true);
+    setValidationMessage(null);
 
-      try {
-        const conditionSet = generatePrototypeConditionSet(
-          protoConditions,
-          selectedDomain,
-          getQCAVariantFromSettings(),
-        );
-        await runPrototypeFullPipeline({
-          texts: textCases,
-          conditionSet,
-          runRobustness: true,
-          runCounterfactuals: false,
-        });
-        setValidationMessage('Analysis complete!');
-        setTimeout(() => navigate('/results'), 500);
-      } catch (err: any) {
-        setValidationMessage(`Pipeline failed: ${err.message}`);
-      } finally {
-        setIsRunning(false);
-      }
-    } else {
-      if (texts.length === 0) {
-        setValidationMessage('No text data loaded.');
-        return;
-      }
-
-      setIsRunning(true);
-      setValidationMessage(null);
-
-      try {
-        await runFullPipeline({
-          texts,
-          conditionSet: importedConditionSet
-            ? { ...importedConditionSet, qca_variant: importedConditionSet.qca_variant ?? getQCAVariantFromSettings() }
-            : (yamlContent as any), // YAML string parsed on Python side
-          runRobustness: true,
-          runCounterfactuals: false,
-        });
-        setValidationMessage('Analysis complete!');
-        setTimeout(() => navigate('/results'), 500);
-      } catch (err: any) {
-        setValidationMessage(`Pipeline failed: ${err.message}`);
-      } finally {
-        setIsRunning(false);
-      }
+    try {
+      await runFullPipeline({
+        texts,
+        conditionSet: importedConditionSet
+          ? { ...importedConditionSet, qca_variant: importedConditionSet.qca_variant ?? getQCAVariantFromSettings() }
+          : (yamlContent as any), // YAML string parsed on Python side
+        runRobustness: true,
+        runCounterfactuals: false,
+        prototypeTexts: textCases.length > 0 ? textCases : undefined,
+      });
+      setValidationMessage('Analysis complete!');
+      setTimeout(() => navigate('/results'), 500);
+    } catch (err: any) {
+      setValidationMessage(`Pipeline failed: ${err.message}`);
+    } finally {
+      setIsRunning(false);
     }
   }, [
-    calibrationMode,
     textCases, texts, yamlContent,
-    protoConditions, selectedDomain,
-    runFullPipeline, runPrototypeFullPipeline,
+    runFullPipeline,
     navigate,
   ]);
 
@@ -759,34 +675,9 @@ export default function DataInput() {
       {/* === Section 0: Calibration Mode Selector === */}
       <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
         <h3 className="section-title">Calibration Mode</h3>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.875rem' }}>
-            <input
-              type="radio"
-              name="calibrationMode"
-              value="keyword"
-              checked={calibrationMode === 'keyword'}
-              onChange={() => handleSwitchMode('keyword')}
-              style={{ accentColor: 'var(--color-accent)' }}
-            />
-            Keyword Mode
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.875rem' }}>
-            <input
-              type="radio"
-              name="calibrationMode"
-              value="prototype"
-              checked={calibrationMode === 'prototype'}
-              onChange={() => handleSwitchMode('prototype')}
-              style={{ accentColor: 'var(--color-accent)' }}
-            />
-            Prototype Mode
-          </label>
-        </div>
       </div>
 
-      {/* ── Keyword mode: Text Corpus Input ── */}
-      {calibrationMode === 'keyword' && (
+      {/* ── Text Corpus Input ── */}
         <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
           <h3 className="section-title">Text Corpus Input</h3>
 
@@ -909,10 +800,8 @@ export default function DataInput() {
             </div>
           )}
         </div>
-      )}
 
-      {/* ── Prototype mode: Structured Text Input ── */}
-      {calibrationMode === 'prototype' && (
+      {/* ── Prototype Text Input (Optional) ── */}
         <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
           <h3 className="section-title">Prototype Text Input (CSV with Outcomes)</h3>
 
@@ -1029,7 +918,6 @@ export default function DataInput() {
             </div>
           )}
         </div>
-      )}
 
       {/* Distribution plot (appears after calibration, shared across modes) */}
       {state.fuzzyData && (
@@ -1039,7 +927,7 @@ export default function DataInput() {
       )}
 
       {/* ── Keyword mode: Condition Set YAML Editor ── */}
-      {calibrationMode === 'keyword' && (
+      {true && (
         <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
           <h3 className="section-title">Condition Set (YAML)</h3>
 
@@ -1070,7 +958,7 @@ export default function DataInput() {
       )}
 
       {/* ── Prototype mode: Prototype Editor ── */}
-      {calibrationMode === 'prototype' && (
+      {true && (
         <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <h3 className="section-title" style={{ marginBottom: 0, borderBottom: 'none', paddingBottom: 0 }}>
@@ -1214,10 +1102,7 @@ export default function DataInput() {
           type="button"
           className="btn btn-primary"
           onClick={handleCalibrate}
-          disabled={
-            isRunning ||
-            (calibrationMode === 'keyword' ? texts.length === 0 : textCases.length === 0)
-          }
+          disabled={isRunning || texts.length === 0}
         >
           {isRunning ? 'Calibrating...' : 'Calibrate (Text to Fuzzy-Set)'}
         </button>
@@ -1225,10 +1110,7 @@ export default function DataInput() {
           type="button"
           className="btn btn-primary"
           onClick={handleRunPipeline}
-          disabled={
-            isRunning ||
-            (calibrationMode === 'keyword' ? texts.length === 0 : textCases.length === 0)
-          }
+          disabled={isRunning || texts.length === 0}
         >
           {isRunning ? 'Running...' : 'Run Full Pipeline'}
         </button>

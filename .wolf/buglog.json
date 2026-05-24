@@ -1839,6 +1839,86 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24T17:17:29.489Z"
+    },
+    {
+      "id": "bug-111",
+      "timestamp": "2026-05-24T17:39:27.368Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T17:39:27.368Z"
+    },
+    {
+      "id": "bug-112",
+      "timestamp": "2026-05-24T17:39:38.608Z",
+      "error_message": "CSS fix: finishCalibration",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "finishCalibration: (fuzzyData: MembershipDataJSON) => void → (fuzzyData: MembershipDataJSON, prototypeFuzzyData?: MembershipDataJSON) => void",
+      "fix": "Changed finishCalibration: (fuzzyData: MembershipDataJSON) => void → (fuzzyData: MembershipDataJSON, prototypeFuzzyData?: MembershipDataJSON) => void",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-24T17:39:45.831Z"
+    },
+    {
+      "id": "bug-113",
+      "timestamp": "2026-05-24T17:41:39.363Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/pyodide_handlers.py",
+      "root_cause": "45 lines replaced/restructured",
+      "fix": "Rewrote 121→183 lines (45 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T17:41:39.363Z"
+    },
+    {
+      "id": "bug-114",
+      "timestamp": "2026-05-24T17:52:01.764Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "25 lines replaced/restructured",
+      "fix": "Rewrote 28→3 lines (25 removed) | Also: )}; {/* ── Prototype mode: Structured Text Input ── */ | Also: disabled={; isRunning ||",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 4,
+      "last_seen": "2026-05-24T17:52:40.982Z"
+    },
+    {
+      "id": "bug-115",
+      "timestamp": "2026-05-24T17:52:22.048Z",
+      "error_message": "Wrong reference: calibrationMode should be true",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Used \"calibrationMode\" instead of \"true\"",
+      "fix": "Changed calibrationMode → true",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-24T17:52:22.456Z"
     }
   ]
 }

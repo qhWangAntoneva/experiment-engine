@@ -40,7 +40,7 @@ export type PipelineAction =
   | { type: 'SET_PROGRESS'; progress: number; message?: string }
   | { type: 'SET_ERROR'; error: string }
   | { type: 'SET_CONDITION_SET'; conditionSet: ConditionSet }
-  | { type: 'SET_FUZZY_DATA'; fuzzyData: MembershipDataJSON }
+  | { type: 'SET_FUZZY_DATA'; fuzzyData: MembershipDataJSON; prototypeFuzzyData?: MembershipDataJSON }
   | { type: 'SET_ANALYSIS_RESULT'; result: QCAAnalysisResultJSON }
   | { type: 'SET_ROBUSTNESS_REPORT'; report: RobustnessReport }
   | { type: 'SET_COUNTERFACTUAL_REPORT'; report: CounterfactualReport }
@@ -85,7 +85,11 @@ function pipelineReducer(
       return { ...state, conditionSet: action.conditionSet };
 
     case 'SET_FUZZY_DATA':
-      return { ...state, fuzzyData: action.fuzzyData };
+      return {
+        ...state,
+        fuzzyData: action.fuzzyData,
+        prototypeFuzzyData: action.prototypeFuzzyData ?? state.prototypeFuzzyData,
+      };
 
     case 'SET_ANALYSIS_RESULT':
       return { ...state, analysisResult: action.result };
@@ -117,9 +121,7 @@ interface QCAPipelineContextValue {
   // High-level workflow mutations
   reset: () => void;
   startCalibration: () => void;
-  finishCalibration: (fuzzyData: MembershipDataJSON) => void;
-  startPrototypeCalibration: () => void;
-  finishPrototypeCalibration: (fuzzyData: MembershipDataJSON) => void;
+  finishCalibration: (fuzzyData: MembershipDataJSON, prototypeFuzzyData?: MembershipDataJSON) => void;
   startAnalysis: () => void;
   finishAnalysis: (result: QCAAnalysisResultJSON) => void;
   startRobustness: () => void;
@@ -161,20 +163,13 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_STAGE', stage: 'calibrating', message: 'Calibrating conditions...' });
   }, []);
 
-  const finishCalibration = useCallback((fuzzyData: MembershipDataJSON) => {
-    dispatch({ type: 'SET_FUZZY_DATA', fuzzyData });
-    dispatch({ type: 'SET_STAGE', stage: 'calibrated', message: 'Calibration complete' });
-  }, []);
-
-  const startPrototypeCalibration = useCallback(() => {
-    startTimeRef.current = Date.now();
-    dispatch({ type: 'SET_STAGE', stage: 'calibrating-prototype', message: 'Calibrating with prototype method...' });
-  }, []);
-
-  const finishPrototypeCalibration = useCallback((fuzzyData: MembershipDataJSON) => {
-    dispatch({ type: 'SET_FUZZY_DATA', fuzzyData });
-    dispatch({ type: 'SET_STAGE', stage: 'calibrated-prototype', message: 'Prototype calibration complete' });
-  }, []);
+  const finishCalibration = useCallback(
+    (fuzzyData: MembershipDataJSON, prototypeFuzzyData?: MembershipDataJSON) => {
+      dispatch({ type: 'SET_FUZZY_DATA', fuzzyData, prototypeFuzzyData });
+      dispatch({ type: 'SET_STAGE', stage: 'calibrated', message: 'Calibration complete' });
+    },
+    []
+  );
 
   const startAnalysis = useCallback(() => {
     dispatch({ type: 'SET_STAGE', stage: 'analyzing', message: 'Running QCA analysis...' });
@@ -246,8 +241,6 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
     reset,
     startCalibration,
     finishCalibration,
-    startPrototypeCalibration,
-    finishPrototypeCalibration,
     startAnalysis,
     finishAnalysis,
     startRobustness,

@@ -122,10 +122,7 @@ self.onmessage = async (event: MessageEvent<PyodideWorkerRequest>) => {
         await handleInit(req.payload.packages);
         break;
       case 'calibrate':
-        await handleCalibrate(req.payload.texts, req.payload.conditionSet);
-        break;
-      case 'calibrate_prototype':
-        await handleCalibratePrototype(req.payload.texts, req.payload.conditionSet);
+        await handleCalibrate(req.payload.texts, req.payload.conditionSet, req.payload.prototypeTexts);
         break;
       case 'load_corpus':
         await handleLoadCorpus(
@@ -307,6 +304,7 @@ for _pkg in _packages:
 async function handleCalibrate(
   texts: TextCorpusEntry[],
   conditionSet: any,
+  prototypeTexts?: any[],
 ): Promise<void> {
   try {
     const fuzzyData = await runHandler(
@@ -317,32 +315,23 @@ async function handleCalibrate(
       ],
       '/tmp/calibrate_output.json',
     );
-    respond({ type: 'calibrate-done', fuzzyData });
+
+    let prototypeFuzzyData: any = undefined;
+    if (prototypeTexts && prototypeTexts.length > 0) {
+      prototypeFuzzyData = await runHandler(
+        "from experiment_engine.pyodide_handlers import handle_calibrate_prototype; handle_calibrate_prototype('/tmp/text_cases.json', '/tmp/condition_set.json', '/tmp/calibrate_proto_output.json')",
+        [
+          ['/tmp/text_cases.json', prototypeTexts],
+          ['/tmp/condition_set.json', conditionSet],
+        ],
+        '/tmp/calibrate_proto_output.json',
+      );
+    }
+
+    respond({ type: 'calibrate-done', fuzzyData, prototypeFuzzyData });
   } catch (err: any) {
     const msg = err.message || String(err);
     respond({ type: 'calibrate-error', error: `Calibration failed: ${msg}` });
-  }
-}
-
-// ─── Calibrate Prototype: text cases + prototype condition set → fuzzy-set ──
-
-async function handleCalibratePrototype(
-  textCases: any[],
-  conditionSet: any,
-): Promise<void> {
-  try {
-    const fuzzyData = await runHandler(
-      "from experiment_engine.pyodide_handlers import handle_calibrate_prototype; handle_calibrate_prototype('/tmp/text_cases.json', '/tmp/condition_set.json', '/tmp/calibrate_proto_output.json')",
-      [
-        ['/tmp/text_cases.json', textCases],
-        ['/tmp/condition_set.json', conditionSet],
-      ],
-      '/tmp/calibrate_proto_output.json',
-    );
-    respond({ type: 'calibrate-prototype-done', fuzzyData });
-  } catch (err: any) {
-    const msg = err.message || String(err);
-    respond({ type: 'calibrate-prototype-error', error: `Prototype calibration failed: ${msg}` });
   }
 }
 

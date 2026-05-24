@@ -700,3 +700,33 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 17:19 | Added csQCA variant support to frontend: qca_variant toggle in Settings with dynamic calibration method filtering, qca_variant propagation in DataInput ConditionSet creation, and ensureQCAVariant fallback in useQCAWorkflow hook | src/pages/Settings.tsx, src/pages/DataInput.tsx, src/hooks/useQCAWorkflow.ts | tsc -b and vite build both pass with zero errors | ~250 |
 | 01:20 | Session end: 77 writes across 16 files (qca.py, qca.ts, __init__.py, strategies.py, index.ts) | 32 reads | ~35717 tok |
 | 01:20 | Implemented csQCA (crisp-set QCA) end-to-end on Python backend | strategies.py, calibrator.py, truth_table.py, cli.py, __init__.py, test_qca_core.py | 490 tests pass, ruff clean | ~600 |
+| 01:22 | Session end: 77 writes across 16 files (qca.py, qca.ts, __init__.py, strategies.py, index.ts) | 32 reads | ~35717 tok |
+| 01:32 | Session end: 77 writes across 16 files (qca.py, qca.ts, __init__.py, strategies.py, index.ts) | 32 reads | ~35717 tok |
+| 01:37 | Session end: 77 writes across 16 files (qca.py, qca.ts, __init__.py, strategies.py, index.ts) | 33 reads | ~40680 tok |
+| 01:38 | Edited src/types/qca.ts | 18→16 lines | ~89 |
+| 01:38 | Edited src/types/qca.ts | 16→18 lines | ~211 |
+| 01:38 | Edited src/types/qca.ts | 14→15 lines | ~95 |
+| 01:39 | Edited src/types/qca.ts | 14→13 lines | ~328 |
+| 01:39 | Edited src/types/qca.ts | 10→8 lines | ~128 |
+| 01:39 | Edited src/store/QCAPipelineContext.tsx | 12→12 lines | ~200 |
+| 01:39 | Edited src/store/QCAPipelineContext.tsx | added nullish coalescing | ~54 |
+| 01:39 | Edited src/store/QCAPipelineContext.tsx | 21→19 lines | ~216 |
+| 01:39 | Edited src/store/QCAPipelineContext.tsx | reduced (-7 lines) | ~89 |
+| 01:39 | Edited src/store/QCAPipelineContext.tsx | 19→17 lines | ~94 |
+| 01:40 | Edited src/experiment_engine/models/qca.py | 3→8 lines | ~143 |
+| 01:41 | Edited src/experiment_engine/pyodide_handlers.py | modified _serialize_fuzzy() | ~1860 |
+| 01:41 | Edited src/experiment_engine/text_calibration/calibrator.py | expanded (+6 lines) | ~212 |
+| 01:43 | Edited src/experiment_engine/pyodide_handlers.py | added 1 import(s) | ~19 |
+| 01:43 | Edited src/experiment_engine/pyodide_handlers.py | modified in() | ~36 |
+| 01:45 | P0-9: unified calibrate pipeline Python side — deprecated PROTOTYPE in ScoringSource, merged handle_calibrate + handle_calibrate_prototype into unified handler with optional prototypeTexts, added deprecation comments in calibrator.py | src/experiment_engine/models/qca.py, src/experiment_engine/pyodide_handlers.py, src/experiment_engine/text_calibration/calibrator.py | 490 passed, ruff clean | ~350 |
+| 01:46 | Session end: 92 writes across 17 files (qca.py, qca.ts, __init__.py, strategies.py, index.ts) | 34 reads | ~62904 tok |
+| 01:52 | Edited src/pages/DataInput.tsx | removed 28 lines | ~15 |
+| 01:52 | Edited src/pages/DataInput.tsx | 5→3 lines | ~20 |
+| 01:52 | Edited src/pages/DataInput.tsx | inline fix | ~3 |
+| 01:52 | Edited src/pages/DataInput.tsx | inline fix | ~3 |
+| 01:52 | Edited src/pages/DataInput.tsx | 6→3 lines | ~40 |
+| 01:52 | Edited src/pages/DataInput.tsx | 6→3 lines | ~35 |
+| 01:53 | Edited src/hooks/useQCAWorkflow.ts | 7→8 lines | ~72 |
+| 01:53 | Session end: 99 writes across 17 files (qca.py, qca.ts, __init__.py, strategies.py, index.ts) | 34 reads | ~61853 tok |
+| 01:57 | Edited src/pages/DataInput.tsx | 4→3 lines | ~28 |
+| 02:01 | Removed extra `)} ` on line 921 of DataInput.tsx — leftover from P0-9 calibrationMode wrapper removal | src/pages/DataInput.tsx | npx tsc -b clean, 490 pytest pass | ~50 |

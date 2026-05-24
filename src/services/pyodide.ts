@@ -128,29 +128,20 @@ export class PyodideBridge {
 
   /**
    * Run text calibration: raw Chinese texts → fuzzy-set membership matrix.
+   * Optionally also runs prototype-based calibration when prototypeTexts is provided.
+   *
+   * @returns The calibrate-done response, which includes both fuzzyData (from raw texts)
+   *          and optionally prototypeFuzzyData (from prototype texts if provided).
    */
   async calibrate(
     texts: TextCorpusEntry[],
-    conditionSet: ConditionSet
-  ): Promise<MembershipDataJSON> {
-    return this.send<MembershipDataJSON>(
-      { type: 'calibrate', payload: { texts, conditionSet } },
+    conditionSet: ConditionSet,
+    prototypeTexts?: TextCase[]
+  ): Promise<{ fuzzyData: MembershipDataJSON; prototypeFuzzyData?: MembershipDataJSON }> {
+    return this.send<{ fuzzyData: MembershipDataJSON; prototypeFuzzyData?: MembershipDataJSON }>(
+      { type: 'calibrate', payload: { texts, conditionSet, prototypeTexts } },
       'calibrate-done',
       'calibrate'
-    );
-  }
-
-  /**
-   * Run prototype-based calibration: text cases with binary outcomes.
-   */
-  async calibratePrototype(
-    textCases: TextCase[],
-    conditionSet: ConditionSet
-  ): Promise<MembershipDataJSON> {
-    return this.send<MembershipDataJSON>(
-      { type: 'calibrate_prototype', payload: { texts: textCases, conditionSet } },
-      'calibrate-prototype-done',
-      'calibrate-prototype'
     );
   }
 

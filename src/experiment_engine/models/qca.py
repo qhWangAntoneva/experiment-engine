@@ -57,7 +57,12 @@ class ScoringSource(str, Enum):
     """How a condition's raw score is computed."""
 
     KEYWORD = "keyword"  # keyword dictionary matching
-    PROTOTYPE = "prototype"  # prototype text similarity
+    # DEPRECATED: PROTOTYPE scoring source is deprecated.
+    # The unified calibrate pipeline (see pyodide_handlers.py) processes both
+    # raw and prototype texts through the same keyword calibration path.
+    # This enum value is retained for backward compatibility and will be
+    # removed when support is dropped.
+    PROTOTYPE = "prototype"  # prototype text similarity (deprecated)
     HYBRID = "hybrid"  # weighted combination of both
 
 

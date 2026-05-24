@@ -12,30 +12,74 @@ in pyodide.worker.ts.
 """
 
 import json
+from contextlib import suppress
 
 import numpy as np
+
+# ─── Helper: serialize MembershipData to JSON ──────────────────────────────
+
+
+def _serialize_fuzzy(fuzzy):
+    """Serialize a MembershipData / FuzzySetData object to a JSON-compatible dict.
+
+    Returns an empty-skeleton dict when ``fuzzy`` is None.
+    """
+    if fuzzy is None:
+        return {
+            "membership": [],
+            "case_ids": [],
+            "condition_names": [],
+            "outcome_name": "",
+            "texts": [],
+            "metadata": {},
+        }
+    return {
+        "membership": fuzzy.membership.tolist(),
+        "case_ids": fuzzy.case_ids,
+        "condition_names": fuzzy.condition_names,
+        "outcome_name": fuzzy.outcome_name,
+        "texts": fuzzy.texts,
+        "metadata": fuzzy.metadata,
+    }
+
 
 # ─── Calibrate: texts + condition set → fuzzy-set membership ───────────────
 
 
-def handle_calibrate(texts_path, condition_set_path, output_path):
-    """Calibrate text corpus entries against a condition set.
+def handle_calibrate(
+    texts_path, condition_set_path, output_path, prototype_texts_path=None
+):
+    """Unified calibration handler — always uses keyword matching.
+
+    Calibrates the raw text corpus through the keyword pipeline. If
+    ``prototype_texts_path`` is provided, also calibrates those texts
+    through the **same** keyword pipeline and returns both result sets.
 
     Args:
         texts_path: VFS path to JSON array of text corpus entries
                     (list of {text_id, text, metadata}).
         condition_set_path: VFS path to JSON dict of condition set config.
-        output_path: VFS path to write the fuzzy-set membership JSON result.
+        output_path: VFS path to write output JSON.
+        prototype_texts_path: Optional VFS path to JSON array of prototype
+                    text cases (list of {text_id, text, outcome}).
+                    When provided the output contains both ``fuzzyData``
+                    and ``fuzzyDataPrototype``; otherwise only the raw
+                    MembershipData is returned (backward compatibility).
+
+    Returns:
+        Nothing — writes JSON to *output_path*.
     """
-    from experiment_engine.models import FuzzySetData, TrainingSample
+    from experiment_engine.models import FuzzySetData, InputData, TrainingSample
     from experiment_engine.text_calibration.calibrator import TextCalibrationStage
     from experiment_engine.text_calibration.condition import _condition_set_from_dict
 
-    with open(texts_path, encoding="utf-8") as f:
-        _texts = json.load(f)
     with open(condition_set_path, encoding="utf-8") as f:
         _cs_dict = json.load(f)
     _condition_set = _condition_set_from_dict(_cs_dict)
+
+    # ── Raw texts (keyword pipeline) ───────────────────────────────────
+    with open(texts_path, encoding="utf-8") as f:
+        _texts = json.load(f)
 
     _samples = [
         TrainingSample(
@@ -49,89 +93,103 @@ def handle_calibrate(texts_path, condition_set_path, output_path):
     _calibrator = TextCalibrationStage(condition_set=_condition_set)
     _calibrator.setup()
 
-    # Accumulate calibration results for all samples
-    _fuzzy_data = None
+    _raw_fuzzy = None
     for _s in _samples:
         _result = _calibrator.calibrate_one(_s)
-        if _fuzzy_data is None:
-            _fuzzy_data = _result
+        if _raw_fuzzy is None:
+            _raw_fuzzy = _result
         else:
-            _fuzzy_data = FuzzySetData(
-                membership=np.vstack([_fuzzy_data.membership, _result.membership]),
-                case_ids=_fuzzy_data.case_ids + _result.case_ids,
-                condition_names=_fuzzy_data.condition_names,
-                outcome_name=_fuzzy_data.outcome_name,
-                texts=_fuzzy_data.texts + _result.texts,
+            _raw_fuzzy = FuzzySetData(
+                membership=np.vstack([_raw_fuzzy.membership, _result.membership]),
+                case_ids=_raw_fuzzy.case_ids + _result.case_ids,
+                condition_names=_raw_fuzzy.condition_names,
+                outcome_name=_raw_fuzzy.outcome_name,
+                texts=_raw_fuzzy.texts + _result.texts,
                 metadata={},
             )
 
-    if _fuzzy_data is not None:
-        _json_out = {
-            "membership": _fuzzy_data.membership.tolist(),
-            "case_ids": _fuzzy_data.case_ids,
-            "condition_names": _fuzzy_data.condition_names,
-            "outcome_name": _fuzzy_data.outcome_name,
-            "texts": _fuzzy_data.texts,
-            "metadata": _fuzzy_data.metadata,
+    # ── Prototype texts (optional, same keyword pipeline) ──────────────
+    _proto_fuzzy = None
+    if prototype_texts_path is not None:
+        with open(prototype_texts_path, encoding="utf-8") as f:
+            _cases = json.load(f)
+
+        _p_texts = [c["text"] for c in _cases]
+        _p_outcomes = np.array([c.get("outcome", 0) for c in _cases], dtype=np.float64)
+        _p_case_ids = [c["text_id"] for c in _cases]
+
+        _proto_calibrator = TextCalibrationStage(condition_set=_condition_set)
+        _proto_calibrator.setup()
+
+        _p_data = InputData(data=np.array(_p_texts, dtype=object), index=_p_case_ids)
+        _p_result = _proto_calibrator.process_with_outcome(_p_data, _p_outcomes)
+        _proto_fuzzy = _p_result.processed
+
+    # ── Write output ──────────────────────────────────────────────────
+    if prototype_texts_path is not None:
+        # Unified output: both raw and prototype MembershipData
+        _output = {
+            "fuzzyData": _serialize_fuzzy(_raw_fuzzy),
+            "fuzzyDataPrototype": _serialize_fuzzy(_proto_fuzzy),
         }
     else:
-        _json_out = {
-            "membership": [],
-            "case_ids": [],
-            "condition_names": [],
-            "outcome_name": "",
-            "texts": [],
-            "metadata": {},
-        }
+        # Backward-compatible: raw MembershipData directly at top level
+        _output = _serialize_fuzzy(_raw_fuzzy)
 
     with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(_json_out, f, ensure_ascii=False)
+        json.dump(_output, f, ensure_ascii=False)
 
 
-# ─── Calibrate Prototype: text cases + prototype condition set → fuzzy-set ──
+# ─── Calibrate Prototype (backward-compatible wrapper) ─────────────────────
 
 
 def handle_calibrate_prototype(text_cases_path, condition_set_path, output_path):
-    """Calibrate using prototype-based similarity (instead of keyword matching).
+    """Calibrate prototype texts — backward-compatible wrapper.
 
-    Args:
-        text_cases_path: VFS path to JSON array of text cases
-                         (list of {text_id, text, outcome}).
-        condition_set_path: VFS path to JSON dict of condition set config.
-        output_path: VFS path to write the fuzzy-set membership JSON result.
+    **Deprecated.**  Prefer ``handle_calibrate(prototype_texts_path=...)``
+    which runs prototype texts through the same keyword calibration
+    pipeline and can return both raw and prototype results in a single
+    call.
+
+    This wrapper delegates to the unified handler and extracts the
+    prototype-only result, preserving the original output format.
     """
-    from experiment_engine.models import InputData
-    from experiment_engine.text_calibration.calibrator import TextCalibrationStage
-    from experiment_engine.text_calibration.condition import _condition_set_from_dict
+    import os
 
-    with open(text_cases_path, encoding="utf-8") as f:
-        _cases = json.load(f)
-    with open(condition_set_path, encoding="utf-8") as f:
-        _cs_dict = json.load(f)
-    _condition_set = _condition_set_from_dict(_cs_dict)
+    # Write a minimal (empty) raw-texts file so the unified handler has
+    # something for its required ``texts_path`` argument.
+    _empty_path = "/tmp/_handle_calibrate_prototype_empty_raw.json"
+    _temp_output = "/tmp/_handle_calibrate_prototype_unified_out.json"
 
-    _texts = [c["text"] for c in _cases]
-    _outcomes = np.array([c.get("outcome", 0) for c in _cases], dtype=np.float64)
-    _case_ids = [c["text_id"] for c in _cases]
+    with open(_empty_path, "w", encoding="utf-8") as f:
+        json.dump([], f)
 
-    _calibrator = TextCalibrationStage(condition_set=_condition_set)
-    _calibrator.setup()
-
-    _data = InputData(data=np.array(_texts, dtype=object), index=_case_ids)
-    _result = _calibrator.process_with_outcome(_data, _outcomes)
-    _fuzzy = _result.processed
-
-    _json_out = {
-        "membership": _fuzzy.membership.tolist(),
-        "case_ids": _fuzzy.case_ids,
-        "condition_names": _fuzzy.condition_names,
-        "outcome_name": _fuzzy.outcome_name,
-        "texts": _texts,
-        "metadata": _fuzzy.metadata,
-    }
-
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(_json_out, f, ensure_ascii=False)
+    try:
+        handle_calibrate(
+            _empty_path,
+            condition_set_path,
+            _temp_output,
+            prototype_texts_path=text_cases_path,
+        )
+        with open(_temp_output, encoding="utf-8") as f:
+            _result = json.load(f)
+        _output = _result.get(
+            "fuzzyDataPrototype",
+            {
+                "membership": [],
+                "case_ids": [],
+                "condition_names": [],
+                "outcome_name": "",
+                "texts": [],
+                "metadata": {},
+            },
+        )
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(_output, f, ensure_ascii=False)
+    finally:
+        for _p in (_empty_path, _temp_output):
+            with suppress(OSError):
+                os.remove(_p)
 
 
 # ─── Analyze: fuzzy data → truth table + solutions + necessity/sufficiency ──
