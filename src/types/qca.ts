@@ -29,7 +29,7 @@ export enum QCAVariant {
   CSQCA = "csqca",
 }
 
-export type ScoringSource = 'keyword' | 'prototype' | 'hybrid';
+export type ScoringSource = 'prototype';
 
 export type PipelineStage =
   | 'idle'
@@ -75,14 +75,13 @@ export interface ConditionDefinition {
   name: string;
   display_name: string;
   domain: TextDomain;
-  keywords: KeywordEntry[];
   calibration_type: CalibrationMethod;
   calibration_params: CalibrationParams | null;
   description: string;
   scoring_source: ScoringSource;
   prototypes: ConceptPrototype[];
-  hybrid_keyword_weight: number;
-  hybrid_prototype_weight: number;
+  prototype_embeddings: number[][] | null;
+  embedding_model: string | null;
 }
 
 export interface ConditionSet {
@@ -303,8 +302,7 @@ export type PyodideWorkerRequest =
   | { type: 'run_counterfactuals'; payload: { fuzzyData: MembershipDataJSON; analysisResult: QCAAnalysisResultJSON } }
   | { type: 'export_result'; payload: { format: 'csv' | 'json' | 'latex'; result: QCAAnalysisResultJSON } }
   | { type: 'validate_condition_set'; payload: { conditionSet: ConditionSet } }
-  | { type: 'import_keywords'; payload: { fileName: string; content: string; format: 'csv' | 'json'; domain: string } }
-  | { type: 'export_keywords'; payload: { conditionSet: ConditionSet; format: 'csv' | 'json' } }
+  // FIXME-BERT: import_keywords / export_keywords removed — Phase 3 clears pyodide.ts/worker.ts references
   | { type: 'get_package_status'; payload?: never }
   | { type: 'terminate'; payload?: never };
 
@@ -326,10 +324,7 @@ export type PyodideWorkerResponse =
   | { type: 'export-error'; error: string }
   | { type: 'validate-done'; valid: boolean; warnings: string[] }
   | { type: 'validate-error'; error: string }
-  | { type: 'import-keywords-done'; conditionSet: ConditionSet }
-  | { type: 'import-keywords-error'; error: string }
-  | { type: 'export-keywords-done'; data: string; mimeType: string }
-  | { type: 'export-keywords-error'; error: string }
+  // FIXME-BERT: import-keywords-* / export-keywords-* response types removed — Phase 3 clears references
   | { type: 'package-status'; packages: Record<string, string> }
   | { type: 'log'; message: string; level: 'debug' | 'info' | 'warn' | 'error' }
   | { type: 'terminated' };

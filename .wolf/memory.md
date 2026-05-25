@@ -987,3 +987,31 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 13:56 | Edited src/experiment_engine/text_calibration/cosine_similarity.py | 7→7 lines | ~88 |
 | 13:59 | Edited src/experiment_engine/text_calibration/__init__.py | 7→10 lines | ~92 |
 | 13:59 | Edited src/experiment_engine/text_calibration/__init__.py | 7→8 lines | ~63 |
+| 14:04 | Session end: 32 writes across 9 files (TODO.md, experiment-engine-roadmap.json, package.json, bert.ts, bert-cache.ts) | 50 reads | ~71865 tok |
+| 14:21 | Edited src/experiment_engine/models/qca.py | modified ScoringSource() | ~159 |
+| 14:21 | Edited src/experiment_engine/models/qca.py | modified ConditionDefinition() | ~379 |
+| 14:21 | Edited src/experiment_engine/models/qca.py | 2→2 lines | ~31 |
+| 14:22 | Edited src/types/qca.ts | "keyword" → "prototype" | ~12 |
+| 14:22 | Edited src/types/qca.ts | 13→12 lines | ~102 |
+| 14:22 | Edited src/i18n/translations.ts | expanded (+8 lines) | ~78 |
+| 14:22 | Edited src/i18n/translations.ts | expanded (+8 lines) | ~88 |
+| 14:22 | Edited src/i18n/translations.ts | expanded (+8 lines) | ~121 |
+| 14:23 | Session end: 40 writes across 12 files (TODO.md, experiment-engine-roadmap.json, package.json, bert.ts, bert-cache.ts) | 50 reads | ~72835 tok |
+| 14:24 | Session end: 40 writes across 12 files (TODO.md, experiment-engine-roadmap.json, package.json, bert.ts, bert-cache.ts) | 50 reads | ~78275 tok |
+| 14:27 | Edited src/types/qca.ts | 4→3 lines | ~69 |
+| 14:27 | Edited src/types/qca.ts | 7→4 lines | ~81 |
+| 14:27 | Session end: 42 writes across 12 files (TODO.md, experiment-engine-roadmap.json, package.json, bert.ts, bert-cache.ts) | 54 reads | ~90822 tok |
+| 14:27 | Edited src/pages/DataInput.tsx | CSS: prototype_embeddings, embedding_model | ~177 |
+| 14:27 | Edited src/pages/DataInput.tsx | CSS: prototype_embeddings, embedding_model | ~128 |
+| 14:27 | Edited src/pages/DataInput.tsx | added optional chaining | ~134 |
+| 14:27 | Edited src/pages/DataInput.tsx | added optional chaining | ~69 |
+| 14:28 | Edited src/pages/DataInput.tsx | added optional chaining | ~273 |
+| 14:28 | Edited src/pages/DataInput.tsx | CSS: FIXME-BERT | ~42 |
+| 14:28 | Edited src/pages/DataInput.tsx | CSS: FIXME-BERT | ~55 |
+| 14:28 | Edited src/pages/DataInput.tsx | CSS: FIXME-BERT | ~52 |
+| 14:28 | Created src/i18n/translations.ts | — | ~8236 |
+| 14:28 | Edited src/hooks/useQCAWorkflow.ts | 2→3 lines | ~42 |
+| 14:28 | Edited src/hooks/useQCAWorkflow.ts | 2→3 lines | ~49 |
+| 14:29 | Session end: 53 writes across 14 files (TODO.md, experiment-engine-roadmap.json, package.json, bert.ts, bert-cache.ts) | 54 reads | ~100079 tok |
+| 2026-05-25 | Removed 21 keyword-dict-specific strings from TranslationDict interface/zh/en (dataInput: importExportTitle, importCsvJson, exportCsv, exporting, importHelp, imported, kw, calibrationMode, importedDict, importedDictNoOutcome, dictImportError, exportDictError, noDictLoaded, exportedDict; settings: exportDictSection, exportDictHelp, exportDictNoConditionSet, exportDictBtn, exportDictExporting, exportDictError, exportedDict). Updated calibration_direction descriptions (zh: remove '关键词', en: 'keyword scores' -> 'raw scores'). Added bert_model setting field to zh/en translations. All tsc checks pass. | src/i18n/translations.ts, .wolf/anatomy.md | Clean removal, no TS errors | ~1000 |
+| 14:30 | Session end: 53 writes across 14 files (TODO.md, experiment-engine-roadmap.json, package.json, bert.ts, bert-cache.ts) | 54 reads | ~100079 tok |

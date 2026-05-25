@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-25T05:59:19.461Z
-> Files: 10 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-25T06:28:37.576Z
+> Files: 15 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -53,6 +53,7 @@
 
 ## src/experiment_engine/models/
 
+- `qca.py` — QCA domain models — text analysis, calibration, truth tables, solutions, etc. (~5440 tok)
 
 ## src/experiment_engine/qca_engine/
 
@@ -73,15 +74,18 @@
 
 ## src/hooks/
 
+- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. (~3010 tok)
 
 ## src/i18n/
 
+- `translations.ts` — i18n translations: Chinese (zh) and English (en). Keyword dict import/export strings removed; BERT model setting added. (~8000 tok)
 
 ## src/layouts/
 
 
 ## src/pages/
 
+- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~13186 tok)
 - `Results.tsx` — Results — displays all QCA analysis output in organized sections: (~10757 tok)
 
 ## src/pyodide/
@@ -98,6 +102,7 @@
 ## src/types/
 
 - `bert.ts` — BERT engine status. (~642 tok)
+- `qca.ts` — QCA-specific TypeScript interfaces mirroring experiment_engine/models.py. (~3169 tok)
 
 ## tests/
 

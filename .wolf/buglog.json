@@ -2543,6 +2543,102 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-25T05:54:13.012Z"
+    },
+    {
+      "id": "bug-155",
+      "timestamp": "2026-05-25T06:21:54.099Z",
+      "error_message": "Wrong reference: KEYWORD should be PROTOTYPE",
+      "file": "src/experiment_engine/models/qca.py",
+      "root_cause": "Used \"KEYWORD\" instead of \"PROTOTYPE\"",
+      "fix": "Changed KEYWORD → PROTOTYPE",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T06:21:54.099Z"
+    },
+    {
+      "id": "bug-156",
+      "timestamp": "2026-05-25T06:22:05.358Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/types/qca.ts",
+      "root_cause": "Had 'keyword'",
+      "fix": "Changed to 'prototype'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T06:22:05.358Z"
+    },
+    {
+      "id": "bug-157",
+      "timestamp": "2026-05-25T06:27:13.283Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/types/qca.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→3 lines (2 removed) | Also: | { type: 'import-keywords-done'; conditionSet: Co; | { type: 'import-keywords-error'; error: string }",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-25T06:27:20.272Z"
+    },
+    {
+      "id": "bug-158",
+      "timestamp": "2026-05-25T06:27:47.384Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: // FIXME-BERT: c.keywords removed from ConditionDefinition —; (sum, c) => sum + ((c as any).keywords?.length ?? 0), 0 | Also: {/* FIXME-BERT: c.keywords removed — kw count display broken; <span style={{ color: 'var(--color-text-secondary)' }}> ({(c",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-05-25T06:28:03.072Z"
+    },
+    {
+      "id": "bug-159",
+      "timestamp": "2026-05-25T06:28:10.030Z",
+      "error_message": "Type error",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: // FIXME-BERT: YAML template still uses 'keywords' fields — ",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-25T06:28:24.278Z"
+    },
+    {
+      "id": "bug-160",
+      "timestamp": "2026-05-25T06:28:30.769Z",
+      "error_message": "Wrong reference: importKeywords should be deprecated",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Used \"importKeywords\" instead of \"deprecated\"",
+      "fix": "Changed importKeywords → deprecated",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-25T06:28:37.611Z"
     }
   ]
 }

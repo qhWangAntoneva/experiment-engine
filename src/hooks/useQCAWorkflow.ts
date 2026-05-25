@@ -78,7 +78,8 @@ interface UseQCAWorkflowReturn {
     format: 'csv' | 'json' | 'txt' | 'xlsx',
   ) => Promise<TextCorpusEntry[]>;
 
-  /** Import a keyword dictionary from CSV/JSON */
+  /** Import a keyword dictionary from CSV/JSON.
+   * @deprecated FIXME-BERT: remove after Phase 3 (keyword scoring removed) */
   importKeywords: (
     fileName: string,
     content: string,
@@ -86,7 +87,8 @@ interface UseQCAWorkflowReturn {
     domain?: string,
   ) => Promise<ConditionSet>;
 
-  /** Export the current condition set keyword dictionary to CSV/JSON */
+  /** Export the current condition set keyword dictionary to CSV/JSON.
+   * @deprecated FIXME-BERT: remove after Phase 3 (keyword scoring removed) */
   exportKeywords: (
     conditionSet: ConditionSet,
     format: 'csv' | 'json',

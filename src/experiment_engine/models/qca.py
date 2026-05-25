@@ -54,16 +54,18 @@ CalibrationType = CalibrationMethod
 
 
 class ScoringSource(str, Enum):
-    """How a condition's raw score is computed."""
+    """How a condition's raw score is computed.
 
-    KEYWORD = "keyword"  # keyword dictionary matching
-    # DEPRECATED: PROTOTYPE scoring source is deprecated.
-    # The unified calibrate pipeline (see pyodide_handlers.py) processes both
-    # raw and prototype texts through the same keyword calibration path.
-    # This enum value is retained for backward compatibility and will be
-    # removed when support is dropped.
-    PROTOTYPE = "prototype"  # prototype text similarity (deprecated)
-    HYBRID = "hybrid"  # weighted combination of both
+    PROTOTYPE is the primary scoring source using BERT CLS embedding + cosine
+    similarity. KEYWORD and HYBRID are retained for backward compatibility
+    with old serialized data and will be removed in a future cleanup.
+    """
+
+    PROTOTYPE = "prototype"  # BERT CLS embedding + cosine similarity (primary)
+    # DEPRECATED: legacy keyword-based scoring, to be removed
+    KEYWORD = "keyword"
+    # DEPRECATED: legacy hybrid scoring, to be removed
+    HYBRID = "hybrid"
 
 
 class CalibrationParams(BaseModel):
@@ -134,25 +136,26 @@ class ConditionDefinition(BaseModel):
         name: Machine-readable condition identifier (e.g., 'strong_negative_affect').
         display_name: Human-readable label, typically Chinese.
         domain: The text domain this condition belongs to.
-        keywords: List of keyword entries for text matching.
         calibration_type: Method used for fuzzy-set calibration.
         calibration_params: Thresholds for calibration (fitted or manual).
         description: Optional longer description of the condition.
-        scoring_source: How raw scores are computed (keyword/prototype/hybrid).
-        prototypes: Prototype texts for prototype-based scoring.
+        scoring_source: How raw scores are computed (PROTOTYPE is primary).
+        prototypes: Prototype texts for BERT cosine-similarity scoring.
+        prototype_embeddings: Pre-computed BERT CLS embeddings per prototype
+            (N_prototypes, 768). Computed once and cached.
+        embedding_model: Which BERT model produced prototype_embeddings.
     """
 
     name: str
     display_name: str
     domain: TextDomain
-    keywords: list[KeywordEntry] = Field(default_factory=list)
     calibration_type: CalibrationMethod = CalibrationMethod.DIRECT
     calibration_params: CalibrationParams | None = None
     description: str = ""
-    scoring_source: ScoringSource = ScoringSource.KEYWORD
+    scoring_source: ScoringSource = ScoringSource.PROTOTYPE
     prototypes: list[ConceptPrototype] = Field(default_factory=list)
-    hybrid_keyword_weight: float = Field(0.5, ge=0.0, le=1.0)
-    hybrid_prototype_weight: float = Field(0.5, ge=0.0, le=1.0)
+    prototype_embeddings: list[list[float]] | None = None
+    embedding_model: str | None = None
 
 
 class ConditionSet(BaseModel):
@@ -173,7 +176,7 @@ class ConditionSet(BaseModel):
     conditions: list[ConditionDefinition] = Field(default_factory=list)
     outcome: ConditionDefinition | None = None
     domain: TextDomain = TextDomain.DISSATISFACTION
-    scoring_source: ScoringSource = ScoringSource.KEYWORD
+    scoring_source: ScoringSource = ScoringSource.PROTOTYPE
     qca_variant: QCAVariant = QCAVariant.FSQCA
 
     @property

@@ -32,6 +32,8 @@ import './DataInput.css';
 
 // ─── Default condition set YAML template ────────────────────────────────────
 
+// FIXME-BERT: YAML template still uses 'keywords' fields — replace with prototype-based template after Phase 2
+
 const DEFAULT_CONDITION_SET_YAML = `# QCA Condition Set Definition
 # Define causal conditions and the outcome for fuzzy-set analysis.
 name: "citizen-feedback-qca"
@@ -250,7 +252,6 @@ function generatePrototypeConditionSet(
       name: row.name.trim(),
       display_name: row.displayName.trim() || row.name.trim(),
       domain,
-      keywords: [],
       calibration_type: calType,
       calibration_params: qcaVariant === QCAVariant.CSQCA
         ? null
@@ -263,8 +264,8 @@ function generatePrototypeConditionSet(
       description: '',
       scoring_source: 'prototype' as ScoringSource,
       prototypes: parsePrototypeTexts(row.prototypesText),
-      hybrid_keyword_weight: 0,
-      hybrid_prototype_weight: 0,
+      prototype_embeddings: null,
+      embedding_model: null,
     }));
 
   return {
@@ -279,12 +280,11 @@ function generatePrototypeConditionSet(
         ? CalibrationMethod.CRISP_SET
         : CalibrationMethod.PASSTHROUGH,
       calibration_params: null,
-      keywords: [],
       description: 'Binary outcome from text input',
       scoring_source: 'prototype' as ScoringSource,
       prototypes: [],
-      hybrid_keyword_weight: 0,
-      hybrid_prototype_weight: 0,
+      prototype_embeddings: null,
+      embedding_model: null,
     },
     domain,
     scoring_source: 'prototype',
@@ -305,6 +305,7 @@ export default function DataInput() {
     runFullPipeline,
     runCalibrateOnly,
     loadCorpus,
+    // FIXME-BERT: importKeywords/exportKeywords deprecated — remove after Phase 3
     importKeywords,
     exportKeywords,
   } = useQCAWorkflow();
@@ -420,11 +421,12 @@ export default function DataInput() {
           const content = e.target?.result as string;
           const cs = await importKeywords(file.name, content, format, selectedDomain);
           setImportedConditionSet(cs);
+          // FIXME-BERT: c.keywords removed from ConditionDefinition — keyword count unavailable after Phase 2
           const kwCount = cs.conditions.reduce(
-            (sum, c) => sum + c.keywords.length, 0
+            (sum, c) => sum + ((c as any).keywords?.length ?? 0), 0
           );
           if (cs.outcome) {
-            const outcomeKws = cs.outcome.keywords.length;
+            const outcomeKws = (cs.outcome as any).keywords?.length ?? 0;
             setValidationMessage(
               t('dataInput.importedDict', cs.conditions.length, true, kwCount + outcomeKws, file.name)
             );
@@ -462,8 +464,9 @@ export default function DataInput() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      // FIXME-BERT: c.keywords removed from ConditionDefinition — keyword count unavailable after Phase 2
       const kwCount = importedConditionSet.conditions.reduce(
-        (sum, c) => sum + c.keywords.length, 0
+        (sum, c) => sum + ((c as any).keywords?.length ?? 0), 0
       );
       setValidationMessage(
         t('dataInput.exportedDict', importedConditionSet.conditions.length, kwCount)
@@ -699,7 +702,7 @@ export default function DataInput() {
         </div>
       )}
 
-      {/* === Section 0: Import/Export Keyword Dictionary (shared across modes) === */}
+      {/* FIXME-BERT: Section 0 — Import/Export Keyword Dictionary (keyword-specific, remove after Phase 3) */}
       <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           <h3 className="section-title" style={{ marginBottom: 0, borderBottom: 'none', paddingBottom: 0 }}>
@@ -739,13 +742,15 @@ export default function DataInput() {
             {importedConditionSet.conditions.map((c) => (
               <span key={c.name} style={{ marginRight: '12px' }}>
                 <span style={{ fontWeight: 600 }}>{c.name}</span>
-                <span style={{ color: 'var(--color-text-secondary)' }}> ({c.keywords.length} {t('dataInput.kw')})</span>
+                {/* FIXME-BERT: c.keywords removed — kw count display broken until Phase 3 */}
+                <span style={{ color: 'var(--color-text-secondary)' }}> ({(c as any).keywords?.length ?? 0} {t('dataInput.kw')})</span>
               </span>
             ))}
             {importedConditionSet.outcome && (
               <span>
                 | {t('dataInput.outcomeLabel')}: <span style={{ fontWeight: 600 }}>{importedConditionSet.outcome.name}</span>
-                <span style={{ color: 'var(--color-text-secondary)' }}> ({importedConditionSet.outcome.keywords.length} {t('dataInput.kw')})</span>
+                {/* FIXME-BERT: outcome.keywords removed — kw count display broken until Phase 3 */}
+                <span style={{ color: 'var(--color-text-secondary)' }}> ({(importedConditionSet.outcome as any).keywords?.length ?? 0} {t('dataInput.kw')})</span>
               </span>
             )}
           </div>

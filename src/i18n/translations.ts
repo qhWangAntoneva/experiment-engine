@@ -87,17 +87,15 @@ export interface TranslationDict {
     title: string;
     subtitle: string;
     engineNotReady: string;
-    // Import/Export dictionary
-    importExportTitle: string;
-    importCsvJson: string;
-    exportCsv: string;
-    exporting: string;
-    importHelp: string;
-    imported: string;
-    kw: string;
+    // BERT
+    bertModel: string;
+    bertModelDesc: string;
+    bertStatus: string;
+    bertNotLoaded: string;
+    bertLoadingProgress: (pct: number) => string;
+    bertReady: string;
+    bertError: string;
     outcomeLabel: string;
-    // Calibration mode
-    calibrationMode: string;
     // Text corpus
     textCorpus: string;
     pasteText: string;
@@ -164,12 +162,6 @@ export interface TranslationDict {
     parseError: string;
     fileTooLarge: (size: string) => string;
     errorReadingFile: string;
-    importedDict: (nConds: number, hasOutcome: boolean, nKws: number, name: string) => string;
-    importedDictNoOutcome: (nConds: number, nKws: number, name: string) => string;
-    dictImportError: string;
-    exportDictError: string;
-    noDictLoaded: string;
-    exportedDict: (nConds: number, nKws: number) => string;
     parsedProtoCases: (total: number, out0: number, out1: number) => string;
     loadedProtoCases: (total: number, out0: number, out1: number, name: string) => string;
     protoCsvParseError: string;
@@ -250,7 +242,6 @@ export interface TranslationDict {
     analysisThresholds: string;
     exportPreferences: string;
     engineStatus: string;
-    exportDictSection: string;
     about: string;
     // Setting field labels & descriptions
     fields: Record<string, { label: string; description: string }>;
@@ -259,13 +250,6 @@ export interface TranslationDict {
     pythonVersion: string;
     packages: string;
     workerThread: string;
-    // Export dictionary
-    exportDictHelp: string;
-    exportDictNoConditionSet: string;
-    exportDictBtn: string;
-    exportDictExporting: string;
-    exportDictError: string;
-    exportedDict: (n: number, fmt: string) => string;
     // About
     aboutApp: string;
     aboutVersion: string;
@@ -358,18 +342,15 @@ const zh: TranslationDict = {
     title: '数据输入',
     subtitle: '上传文本语料并定义 QCA 条件',
     engineNotReady: 'Pyodide 引擎尚未就绪。请前往首页点击"加载引擎"。',
-    // Import/Export
-    importExportTitle: '导入 / 导出关键词词典',
-    importCsvJson: '导入 CSV/JSON',
-    exportCsv: '导出 CSV',
-    exporting: '导出中...',
-    importHelp:
-      '从 CSV 或 JSON 文件导入关键词，或将当前词典导出为 CSV。CSV 列格式：condition,keyword,weight,notes。JSON 格式请参见文档。',
-    imported: '已导入：',
-    kw: '关键词',
+    // BERT
+    bertModel: 'BERT 模型',
+    bertModelDesc: '用于原型语义匹配的嵌入模型',
+    bertStatus: 'BERT 状态',
+    bertNotLoaded: '未加载',
+    bertLoadingProgress: (pct: number) => `下载模型中... ${pct}%`,
+    bertReady: '就绪',
+    bertError: '加载失败',
     outcomeLabel: '结果',
-    // Calibration mode
-    calibrationMode: '校准模式',
     // Text corpus
     textCorpus: '文本语料输入',
     pasteText: '粘贴文本',
@@ -444,14 +425,6 @@ const zh: TranslationDict = {
     parseError: '解析错误：',
     fileTooLarge: (size: string) => `文件过大：${size} MB（上限 10 MB）`,
     errorReadingFile: '读取文件出错',
-    importedDict: (nConds, hasOutcome, nKws, name) =>
-      `已从 ${name} 导入 ${nConds} 个条件${hasOutcome ? ' + 1 个结果' : ''}，共 ${nKws} 个关键词`,
-    importedDictNoOutcome: (nConds, nKws, name) =>
-      `已从 ${name} 导入 ${nConds} 个条件，共 ${nKws} 个关键词`,
-    dictImportError: '词典导入错误：',
-    exportDictError: '导出失败：',
-    noDictLoaded: '未加载关键词词典。请先导入 CSV/JSON 文件。',
-    exportedDict: (nConds, nKws) => `已导出 ${nConds} 个条件、${nKws} 个关键词（CSV 格式）。`,
     parsedProtoCases: (total, out0, out1) =>
       `已解析 ${total} 条文本案例（结果=0: ${out0}, 结果=1: ${out1})`,
     loadedProtoCases: (total, out0, out1, name) =>
@@ -531,7 +504,6 @@ const zh: TranslationDict = {
     analysisThresholds: '分析阈值',
     exportPreferences: '导出偏好',
     engineStatus: '引擎状态',
-    exportDictSection: '导出关键词词典',
     about: '关于',
     fields: {
       threshold_full_in: {
@@ -548,7 +520,7 @@ const zh: TranslationDict = {
       },
       calibration_direction: {
         label: '默认方向',
-        description: '关键词分数越高对应越高隶属度（ascending）还是越低隶属度（descending）',
+        description: '分数越高对应越高隶属度（ascending）还是越低隶属度（descending）',
       },
       calibration_type: {
         label: '校准方法',
@@ -586,19 +558,15 @@ const zh: TranslationDict = {
         label: 'JSON 格式化输出',
         description: '导出 JSON 时使用缩进格式',
       },
+      bert_model: {
+        label: 'BERT 模型',
+        description: '用于原型语义相似度的 BERT 模型。切换模型后需重新计算嵌入。',
+      },
     },
     pyodide: 'Pyodide',
     pythonVersion: 'Python 版本',
     packages: '已加载包',
     workerThread: 'Worker 线程',
-    exportDictHelp:
-      '将当前条件集的关键词词典导出为 CSV 或 JSON 格式，供其他项目复用。',
-    exportDictNoConditionSet:
-      '当前未加载条件集。请先在"数据输入"页面导入或定义词典。',
-    exportDictBtn: '导出词典',
-    exportDictExporting: '导出中...',
-    exportDictError: '导出失败：',
-    exportedDict: (n: number, fmt: string) => `已导出 ${n} 个条件（${fmt} 格式）。`,
     aboutApp: '应用名称',
     aboutVersion: '版本',
     aboutFrontend: '前端框架',
@@ -704,18 +672,15 @@ const en: TranslationDict = {
     title: 'Data Input',
     subtitle: 'Upload text corpus and define QCA conditions',
     engineNotReady: 'Pyodide engine is not ready. Go to Dashboard and click "Load Engine" first.',
-    // Import/Export
-    importExportTitle: 'Import / Export Keyword Dictionary',
-    importCsvJson: 'Import CSV/JSON',
-    exportCsv: 'Export CSV',
-    exporting: 'Exporting...',
-    importHelp:
-      'Import keywords from a CSV or JSON file, or export the current dictionary as CSV. CSV columns: condition,keyword,weight,notes. See the JSON format in documentation.',
-    imported: 'Imported:',
-    kw: 'kw',
+    // BERT
+    bertModel: 'BERT Model',
+    bertModelDesc: 'Embedding model for prototype semantic matching',
+    bertStatus: 'BERT Status',
+    bertNotLoaded: 'Not loaded',
+    bertLoadingProgress: (pct: number) => `Downloading model... ${pct}%`,
+    bertReady: 'Ready',
+    bertError: 'Load failed',
     outcomeLabel: 'Outcome',
-    // Calibration mode
-    calibrationMode: 'Calibration Mode',
     // Text corpus
     textCorpus: 'Text Corpus Input',
     pasteText: 'Paste Text',
@@ -791,14 +756,6 @@ const en: TranslationDict = {
     parseError: 'Parse error: ',
     fileTooLarge: (size: string) => `File too large: ${size} MB (max 10 MB)`,
     errorReadingFile: 'Error reading file',
-    importedDict: (nConds, hasOutcome, nKws, name) =>
-      `Imported ${nConds} condition(s)${hasOutcome ? ' + 1 outcome' : ''}, ${nKws} keyword(s) from ${name}`,
-    importedDictNoOutcome: (nConds, nKws, name) =>
-      `Imported ${nConds} condition(s), ${nKws} keyword(s) from ${name}`,
-    dictImportError: 'Dictionary import error: ',
-    exportDictError: 'Export failed: ',
-    noDictLoaded: 'No keyword dictionary loaded. Import a CSV/JSON file first.',
-    exportedDict: (nConds, nKws) => `Exported ${nConds} condition(s), ${nKws} keyword(s) as CSV.`,
     parsedProtoCases: (total, out0, out1) =>
       `Parsed ${total} text cases (outcome=0: ${out0}, outcome=1: ${out1})`,
     loadedProtoCases: (total, out0, out1, name) =>
@@ -878,7 +835,6 @@ const en: TranslationDict = {
     analysisThresholds: 'Analysis Thresholds',
     exportPreferences: 'Export Preferences',
     engineStatus: 'Engine Status',
-    exportDictSection: 'Export Keyword Dictionary',
     about: 'About',
     fields: {
       threshold_full_in: {
@@ -895,7 +851,7 @@ const en: TranslationDict = {
       },
       calibration_direction: {
         label: 'Default Direction',
-        description: 'Whether higher keyword scores mean higher membership (ascending) or lower (descending)',
+        description: 'Whether higher raw scores mean higher membership (ascending) or lower (descending)',
       },
       calibration_type: {
         label: 'Calibration Method',
@@ -933,19 +889,15 @@ const en: TranslationDict = {
         label: 'Pretty-Print JSON',
         description: 'Use indented formatting when exporting JSON',
       },
+      bert_model: {
+        label: 'BERT Model',
+        description: 'BERT model for prototype semantic similarity. Switching models requires re-computing embeddings.',
+      },
     },
     pyodide: 'Pyodide',
     pythonVersion: 'Python Version',
     packages: 'Packages',
     workerThread: 'Worker Thread',
-    exportDictHelp:
-      "Export the current condition set's keyword dictionary to CSV or JSON for reuse in other projects.",
-    exportDictNoConditionSet:
-      'No condition set is currently loaded. Import or define a dictionary first on the Data Input page.',
-    exportDictBtn: 'Export Dictionary',
-    exportDictExporting: 'Exporting...',
-    exportDictError: 'Export failed: ',
-    exportedDict: (n: number, fmt: string) => `Exported ${n} condition(s) as ${fmt}.`,
     aboutApp: 'Application',
     aboutVersion: 'Version',
     aboutFrontend: 'Frontend',
