@@ -2639,6 +2639,70 @@
       "related_bugs": [],
       "occurrences": 2,
       "last_seen": "2026-05-25T06:28:37.611Z"
+    },
+    {
+      "id": "bug-161",
+      "timestamp": "2026-05-25T08:05:14.405Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/experiment_engine/pyodide_handlers.py",
+      "root_cause": "Had ' has no keywords\"",
+      "fix": "Changed to ' has no prototypes\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T08:05:14.405Z"
+    },
+    {
+      "id": "bug-162",
+      "timestamp": "2026-05-25T08:05:19.439Z",
+      "error_message": "Wrong reference: keywords should be prototypes",
+      "file": "src/experiment_engine/pyodide_handlers.py",
+      "root_cause": "Used \"keywords\" instead of \"prototypes\"",
+      "fix": "Changed keywords → prototypes",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T08:05:19.439Z"
+    },
+    {
+      "id": "bug-163",
+      "timestamp": "2026-05-25T08:07:53.446Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/text_calibration/condition.py",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 13→10 lines (3 removed) | Also: keywords=[KeywordEntry(**kw) for kw in self._keywo; hybrid_keyword_weight=self._hybrid_kw_weight,",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-25T08:08:13.968Z"
+    },
+    {
+      "id": "bug-164",
+      "timestamp": "2026-05-25T08:08:04.191Z",
+      "error_message": "Significant refactor of ",
+      "file": "tests/test_prototype_similarity.py",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 64→128 lines (2 removed) | Also: \"\"\"process_with_outcome uses provided binary outco; result = stage.process_with_outcome(data, outcomes",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-25T08:08:22.362Z"
     }
   ]
 }

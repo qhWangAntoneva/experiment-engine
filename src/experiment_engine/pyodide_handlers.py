@@ -445,8 +445,8 @@ def handle_validate(condition_set_path, output_path):
     if _cs.outcome is None:
         warnings.append("No outcome condition defined")
     for c in _cs.conditions:
-        if not c.keywords:
-            warnings.append(f"Condition '{c.name}' has no keywords")
+        if not c.prototypes:
+            warnings.append(f"Condition '{c.name}' has no prototypes")
         if c.calibration_params is None:
             warnings.append(f"Condition '{c.name}' has no calibration parameters")
 
@@ -540,3 +540,130 @@ def handle_export_keywords(condition_set_path, config_path, output_path):
 
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump({"data": _data, "mime": _mime}, f, ensure_ascii=False)
+
+
+# ─── Embed Calibrate: embedding-based prototype cosine similarity ─────────────
+
+
+def handle_embed_calibrate(texts_path, condition_set_path, output_path):
+    """Calibrate texts using pre-computed BERT embeddings via CosineSimilarityEngine.
+
+    Replaces keyword matching with prototype-based cosine similarity scoring
+    from pre-computed embeddings (computed in the browser by Transformers.js).
+
+    Args:
+        texts_path: VFS path to JSON array of text entries, each with
+                    ``{text_id, text, embedding: [768 floats]}``.
+        condition_set_path: VFS path to JSON dict of condition set config.
+        output_path: VFS path to write the MembershipData JSON.
+
+    Returns:
+        Nothing — writes MembershipData JSON to *output_path*.
+    """
+    from experiment_engine.models import MembershipData
+    from experiment_engine.text_calibration.condition import _condition_set_from_dict
+    from experiment_engine.text_calibration.cosine_similarity import (
+        CosineSimilarityEngine,
+    )
+    from experiment_engine.text_calibration.strategies import (
+        CalibrationStrategyRegistry,
+    )
+
+    # ── Load condition set ───────────────────────────────────────────
+    with open(condition_set_path, encoding="utf-8") as f:
+        _cs_dict = json.load(f)
+    _condition_set = _condition_set_from_dict(_cs_dict)
+
+    # ── Load texts with embeddings ───────────────────────────────────
+    with open(texts_path, encoding="utf-8") as f:
+        _texts = json.load(f)
+
+    _n_texts = len(_texts)
+
+    # ── Collect all conditions (causal + outcome) ────────────────────
+    _all_conditions = list(_condition_set.conditions)
+    if _condition_set.outcome:
+        _all_conditions.append(_condition_set.outcome)
+
+    # ── Build raw-dict lookup for prototype_embeddings ───────────────
+    # _condition_from_dict does not yet deserialise prototype_embeddings,
+    # so we extract them from the raw JSON dict.
+    _raw_conds: dict[str, dict] = {}
+    for _c in _cs_dict.get("conditions", []):
+        _raw_conds[_c["name"]] = _c
+    if _cs_dict.get("outcome"):
+        _raw_conds[_cs_dict["outcome"]["name"]] = _cs_dict["outcome"]
+
+    # ── Build condition_prototypes + prototype_embeddings dicts ──────
+    _condition_prototypes: dict[str, list[dict]] = {}
+    _prototype_embeddings: dict[str, np.ndarray] = {}
+
+    for _cond in _all_conditions:
+        _raw = _raw_conds.get(_cond.name, {})
+        _pe = _raw.get("prototype_embeddings")
+        if _pe and len(_pe) > 0 and len(_cond.prototypes) > 0:
+            _condition_prototypes[_cond.name] = [
+                {
+                    "prototype_text": _p.prototype_text,
+                    "is_member": _p.is_member,
+                    "weight": _p.weight,
+                }
+                for _p in _cond.prototypes
+            ]
+            _prototype_embeddings[_cond.name] = np.array(_pe, dtype=np.float64)
+
+    # ── Determine embedding dimension ────────────────────────────────
+    _emb_dim = 768
+    for _e in _prototype_embeddings.values():
+        _emb_dim = _e.shape[1]
+        break
+
+    # ── Build text embeddings array ──────────────────────────────────
+    if _n_texts > 0:
+        _text_embeddings = np.array([t["embedding"] for t in _texts], dtype=np.float64)
+    else:
+        _text_embeddings = np.zeros((0, _emb_dim), dtype=np.float64)
+
+    # ── Compute raw scores via CosineSimilarityEngine ────────────────
+    _engine = CosineSimilarityEngine(
+        temperature=5.0, aggregation="centroid", scoring="softmax"
+    )
+    if _condition_prototypes:
+        _raw_scores = _engine.compute_scores(
+            _text_embeddings, _condition_prototypes, _prototype_embeddings
+        )
+    else:
+        _raw_scores = np.zeros((_n_texts, 0), dtype=np.float64)
+
+    # ── Apply calibration per condition ──────────────────────────────
+    _cond_names_with_embeddings = list(_condition_prototypes.keys())
+    _m_conds = len(_all_conditions)
+    _membership = np.zeros((_n_texts, _m_conds), dtype=np.float64)
+    _registry = CalibrationStrategyRegistry()
+
+    for _j, _cond in enumerate(_all_conditions):
+        if _cond.name in _condition_prototypes:
+            _col_idx = _cond_names_with_embeddings.index(_cond.name)
+            _raw_col = _raw_scores[:, _col_idx]
+        else:
+            _raw_col = np.zeros(_n_texts, dtype=np.float64)
+
+        if _cond.calibration_params is not None:
+            _strategy = _registry.get(_cond.calibration_type)
+            _membership[:, _j] = _strategy.calibrate(_raw_col, _cond.calibration_params)
+        else:
+            _membership[:, _j] = _raw_col
+
+    # ── Build MembershipData ─────────────────────────────────────────
+    _fuzzy = MembershipData(
+        membership=_membership,
+        case_ids=[t["text_id"] for t in _texts],
+        condition_names=_condition_set.condition_names,
+        outcome_name=(_condition_set.outcome.name if _condition_set.outcome else ""),
+        texts=[t.get("text", "") for t in _texts],
+        metadata={},
+    )
+
+    # ── Write output ─────────────────────────────────────────────────
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(_serialize_fuzzy(_fuzzy), f, ensure_ascii=False)

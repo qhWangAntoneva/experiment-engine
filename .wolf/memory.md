@@ -1016,3 +1016,51 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 2026-05-25 | Removed 21 keyword-dict-specific strings from TranslationDict interface/zh/en (dataInput: importExportTitle, importCsvJson, exportCsv, exporting, importHelp, imported, kw, calibrationMode, importedDict, importedDictNoOutcome, dictImportError, exportDictError, noDictLoaded, exportedDict; settings: exportDictSection, exportDictHelp, exportDictNoConditionSet, exportDictBtn, exportDictExporting, exportDictError, exportedDict). Updated calibration_direction descriptions (zh: remove '关键词', en: 'keyword scores' -> 'raw scores'). Added bert_model setting field to zh/en translations. All tsc checks pass. | src/i18n/translations.ts, .wolf/anatomy.md | Clean removal, no TS errors | ~1000 |
 | 14:30 | Session end: 53 writes across 14 files (TODO.md, experiment-engine-roadmap.json, package.json, bert.ts, bert-cache.ts) | 54 reads | ~100079 tok |
 | 15:29 | Session end: 53 writes across 14 files (TODO.md, experiment-engine-roadmap.json, package.json, bert.ts, bert-cache.ts) | 54 reads | ~100079 tok |
+| 15:49 | Session end: 53 writes across 14 files (TODO.md, experiment-engine-roadmap.json, package.json, bert.ts, bert-cache.ts) | 54 reads | ~100079 tok |
+
+## Session: 2026-05-25 15:57
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 16:02 | Edited tests/test_keyword_io.py | modified test_basic_csv_import() | ~55 |
+| 16:02 | Edited tests/test_keyword_io.py | modified test_weight_validation() | ~35 |
+| 16:02 | Edited tests/test_keyword_io.py | modified test_duplicate_keyword_rejected() | ~37 |
+| 16:02 | Edited tests/test_keyword_io.py | modified test_missing_columns() | ~34 |
+| 16:02 | Edited tests/test_keyword_io.py | modified test_empty_values_rejected() | ~36 |
+| 16:02 | Edited tests/test_keyword_io.py | modified test_default_weight_when_missing() | ~38 |
+| 16:02 | Edited tests/test_keyword_io.py | modified test_invalid_weight_string() | ~36 |
+| 16:03 | Edited tests/test_keyword_io.py | modified test_basic_json_import() | ~56 |
+| 16:03 | Edited tests/test_keyword_io.py | modified test_json_with_outcome() | ~35 |
+| 16:03 | Edited tests/test_keyword_io.py | modified test_duplicate_condition_name_rejected() | ~39 |
+| 16:03 | Edited tests/test_keyword_io.py | modified test_duplicate_keyword_in_condition_rejected() | ~41 |
+| 16:03 | Edited tests/test_keyword_io.py | modified test_weight_out_of_range_rejected() | ~38 |
+| 16:03 | Edited tests/test_keyword_io.py | modified test_missing_condition_name_rejected() | ~39 |
+| 16:03 | Edited tests/test_keyword_io.py | modified test_export_csv_roundtrip() | ~56 |
+| 16:03 | Edited tests/test_keyword_io.py | modified test_export_csv_includes_notes() | ~37 |
+| 16:03 | Edited tests/test_keyword_io.py | modified test_export_json_roundtrip() | ~57 |
+| 16:03 | Edited tests/test_keyword_io.py | modified test_export_json_without_outcome() | ~38 |
+| 16:04 | Edited src/experiment_engine/pyodide_handlers.py | modified handle_embed_calibrate() | ~1518 |
+| 16:04 | Edited tests/test_integration.py | modified _make_valid_condition_set() | ~514 |
+| 16:04 | Edited tests/test_qca_core.py | modified test_csqca_calibrator_forces_crisp_set() | ~787 |
+| 16:04 | Edited tests/test_qca_core.py | modified test_load_from_conditions() | ~192 |
+| 16:04 | Edited tests/test_prototype_similarity.py | modified test_keyword_mode_unchanged() | ~599 |
+| 16:04 | Edited src/experiment_engine/pyodide_handlers.py | 6→8 lines | ~102 |
+| 16:04 | Created src/experiment_engine/text_calibration/calibrator.py | — | ~4838 |
+| 16:05 | Edited src/experiment_engine/pyodide_handlers.py | modified enumerate() | ~248 |
+| 16:05 | Edited src/experiment_engine/pyodide_handlers.py | inline fix | ~20 |
+| 16:05 | Edited src/experiment_engine/pyodide_handlers.py | inline fix | ~8 |
+| 2026-05-25 | Added handle_embed_calibrate to pyodide_handlers.py — integrates CosineSimilarityEngine into Pyodide handler pipeline. Loads texts with pre-computed BERT embeddings + condition set JSON, builds condition_prototypes/prototype_embeddings dicts, computes raw cosine-similarity scores via engine, applies calibration via CalibrationStrategyRegistry, outputs MembershipData JSON. Handles edge cases: empty texts, missing prototype_embeddings, missing calibration_params. Ruff clean. | src/experiment_engine/pyodide_handlers.py | 131 lines added. Note: _condition_from_dict does not deserialize prototype_embeddings — handler extracts from raw JSON dict as workaround. | ~3000 |
+| 16:06 | Session end: 27 writes across 6 files (test_keyword_io.py, pyodide_handlers.py, test_integration.py, test_qca_core.py, test_prototype_similarity.py) | 12 reads | ~43596 tok |
+| 16:07 | Edited src/experiment_engine/text_calibration/condition.py | 19→19 lines | ~214 |
+| 16:07 | Edited src/experiment_engine/text_calibration/condition.py | 13→10 lines | ~136 |
+| 16:08 | Edited tests/test_prototype_similarity.py | modified test_prototype_calibration_produces_fuzzy_data() | ~1426 |
+| 16:08 | Edited src/experiment_engine/text_calibration/condition.py | 13→10 lines | ~123 |
+| 16:08 | Edited tests/test_prototype_similarity.py | modified test_prototype_calibration_with_outcome() | ~758 |
+| 16:09 | Edited tests/test_prototype_similarity.py | modified test_prototype_calibration_without_embeddings_zeroes_scores() | ~522 |
+| 16:09 | Edited tests/test_prototype_similarity.py | modified test_prototype_calibration_without_embeddings_zeroes_scores() | ~96 |
+| 16:10 | Edited src/experiment_engine/text_calibration/condition.py | modified build() | ~23 |
+| 16:11 | Edited src/experiment_engine/text_calibration/condition.py | modified _condition_from_dict() | ~30 |
+| 16:11 | Phase 2: refactored calibrator.py — removed ChineseKeywordDictionary and PrototypeSimilarityEngine, integrated CosineSimilarityEngine, added text_embeddings/prototype_embeddings params to process/process_with_outcome/calibrate_one, rewrote _precompute_kw_context as _precompute_scores | src/experiment_engine/text_calibration/calibrator.py, tests/test_prototype_similarity.py | 513 passed, 21 skipped, 6 xfailed | ~3600 |
+| 16:12 | Session end: 36 writes across 7 files (test_keyword_io.py, pyodide_handlers.py, test_integration.py, test_qca_core.py, test_prototype_similarity.py) | 12 reads | ~50310 tok |
+| 16:13 | Session end: 36 writes across 7 files (test_keyword_io.py, pyodide_handlers.py, test_integration.py, test_qca_core.py, test_prototype_similarity.py) | 12 reads | ~50310 tok |
+| 16:16 | Session end: 36 writes across 7 files (test_keyword_io.py, pyodide_handlers.py, test_integration.py, test_qca_core.py, test_prototype_similarity.py) | 13 reads | ~80937 tok |

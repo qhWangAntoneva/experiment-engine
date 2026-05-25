@@ -120,8 +120,9 @@ def _make_valid_condition_set(temp_dir: Path, name: str = "integration_test") ->
         ConditionDefinitionBuilder(
             "negative_affect", "负面情绪", TextDomain.DISSATISFACTION
         )
-        .add_keyword("不满", 1.0, "bigram")
-        .add_keyword("差劲", 0.8, "bigram")
+        .add_prototype("不满 差劲 服务差", is_member=1)
+        .add_prototype("满意 很好 优秀", is_member=0)
+        .scoring(source="prototype")
         .calibration(
             CalibrationType.DIRECT,
             full_in=0.80,
@@ -136,8 +137,9 @@ def _make_valid_condition_set(temp_dir: Path, name: str = "integration_test") ->
         ConditionDefinitionBuilder(
             "strong_demand", "强烈诉求", TextDomain.DISSATISFACTION
         )
-        .add_keyword("要求", 1.0, "bigram")
-        .add_keyword("举报", 0.9, "bigram")
+        .add_prototype("要求 举报 投诉", is_member=1)
+        .add_prototype("无关 普通 一般", is_member=0)
+        .scoring(source="prototype")
         .calibration(
             CalibrationType.DIRECT,
             full_in=0.80,
@@ -152,8 +154,9 @@ def _make_valid_condition_set(temp_dir: Path, name: str = "integration_test") ->
         ConditionDefinitionBuilder(
             "citizen_dissatisfaction", "市民不满意", TextDomain.DISSATISFACTION
         )
-        .add_keyword("差", 1.0, "unigram")
-        .add_keyword("不满意", 1.0, "bigram")
+        .add_prototype("很差 不满意 愤怒", is_member=1)
+        .add_prototype("很好 满意 开心", is_member=0)
+        .scoring(source="prototype")
         .calibration(
             CalibrationType.DIRECT,
             full_in=0.80,

@@ -92,20 +92,15 @@ class ConditionDefinitionBuilder:
         return self
 
     def build(self) -> ConditionDefinition:
-        from experiment_engine.models import KeywordEntry
-
         return ConditionDefinition(
             name=self._name,
             display_name=self._display_name,
             domain=self._domain,
-            keywords=[KeywordEntry(**kw) for kw in self._keywords],
             calibration_type=self._calibration_type,
             calibration_params=self._calibration_params,
             description=self._description,
             scoring_source=self._scoring_source,
             prototypes=[ConceptPrototype(**p) for p in self._prototypes],
-            hybrid_keyword_weight=self._hybrid_kw_weight,
-            hybrid_prototype_weight=self._hybrid_proto_weight,
         )
 
 
@@ -188,9 +183,9 @@ def _condition_to_dict(cond: ConditionDefinition) -> dict:
         "calibration_type": cond.calibration_type.value,
         "description": cond.description,
         "scoring_source": cond.scoring_source.value,
-        "hybrid_keyword_weight": cond.hybrid_keyword_weight,
-        "hybrid_prototype_weight": cond.hybrid_prototype_weight,
-        "keywords": [_kw_to_dict(k) for k in cond.keywords],
+        "hybrid_keyword_weight": getattr(cond, "hybrid_keyword_weight", 0.5),
+        "hybrid_prototype_weight": getattr(cond, "hybrid_prototype_weight", 0.5),
+        "keywords": [_kw_to_dict(k) for k in getattr(cond, "keywords", [])],
         "prototypes": [
             {
                 "prototype_text": p.prototype_text,
@@ -227,8 +222,6 @@ def _condition_set_from_dict(data: dict) -> ConditionSet:
 
 
 def _condition_from_dict(data: dict, domain: TextDomain) -> ConditionDefinition:
-    from experiment_engine.models import KeywordEntry
-
     cal_params = None
     if data.get("calibration_params"):
         cp = data["calibration_params"]
@@ -243,12 +236,9 @@ def _condition_from_dict(data: dict, domain: TextDomain) -> ConditionDefinition:
         name=data["name"],
         display_name=data.get("display_name", data["name"]),
         domain=domain,
-        keywords=[KeywordEntry(**kw) for kw in data.get("keywords", [])],
         calibration_type=CalibrationType(data.get("calibration_type", "direct")),
         calibration_params=cal_params,
         description=data.get("description", ""),
         scoring_source=ScoringSource(data.get("scoring_source", "keyword")),
         prototypes=[ConceptPrototype(**p) for p in data.get("prototypes", [])],
-        hybrid_keyword_weight=data.get("hybrid_keyword_weight", 0.5),
-        hybrid_prototype_weight=data.get("hybrid_prototype_weight", 0.5),
     )

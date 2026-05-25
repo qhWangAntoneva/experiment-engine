@@ -1,8 +1,9 @@
-"""Text calibration stage: keyword scores → fuzzy-set membership (0-1).
+"""Text calibration stage: BERT prototype scores → fuzzy-set membership (0-1).
 
-The TextCalibrationStage is a Pipeline Stage that takes raw keyword scores
-and produces fuzzy-set membership values using one of three calibration
-methods (direct, indirect, or Ragin's fuzzy direct method).
+The TextCalibrationStage is a Pipeline Stage that takes pre-computed BERT
+embedding-based prototype similarity scores and produces fuzzy-set membership
+values using one of four calibration methods (direct, indirect, Ragin's fuzzy
+direct, or crisp-set).
 
 Calibration method dispatch uses the strategy pattern (HACK-6 resolved).
 New methods can be added by registering a CalibrationStrategy without
@@ -28,11 +29,8 @@ from experiment_engine.models import (
     TrainingSample,
 )
 from experiment_engine.pipeline import Stage
-from experiment_engine.text_calibration.keyword_dict import (
-    ChineseKeywordDictionary,
-)
-from experiment_engine.text_calibration.prototype_similarity import (
-    PrototypeSimilarityEngine,
+from experiment_engine.text_calibration.cosine_similarity import (
+    CosineSimilarityEngine,
 )
 from experiment_engine.text_calibration.strategies import (
     CalibrationStrategyRegistry,
@@ -43,13 +41,14 @@ from experiment_engine.text_calibration.strategies import (
 
 
 class TextCalibrationStage(Stage):
-    """Pipeline stage: raw keyword scores → fuzzy-set membership scores.
+    """Pipeline stage: BERT prototype scores → fuzzy-set membership scores.
 
     This stage:
-    1. Accepts raw text corpus via InputData
-    2. Runs keyword matching to get raw scores per condition
-    3. Applies the specified calibration function to produce 0-1 fuzzy values
-    4. Returns MembershipData
+    1. Accepts pre-computed BERT text embeddings and prototype embeddings
+       (optional — when omitted, all raw scores default to zero).
+    2. Computes cosine-similarity raw scores via CosineSimilarityEngine.
+    3. Applies the specified calibration function to produce 0-1 fuzzy values.
+    4. Returns MembershipData.
 
     Attributes:
         condition_set: The QCA condition definitions.
@@ -65,18 +64,10 @@ class TextCalibrationStage(Stage):
         super().__init__(name=name)
         self.condition_set = condition_set
         self._method_override = method
-        self._dict = ChineseKeywordDictionary()
 
     def setup(self) -> None:
-        # Build keyword dictionary for keyword/hybrid conditions only
-        kw_conditions = [
-            c
-            for c in self._all_conditions()
-            if c.scoring_source in (ScoringSource.KEYWORD, ScoringSource.HYBRID)
-        ]
-        if kw_conditions:
-            self._dict.load_from_conditions(kw_conditions)
-        self._prototype_engine = PrototypeSimilarityEngine()
+        """Instantiate the cosine similarity engine for BERT prototype scoring."""
+        self._cosine_engine = CosineSimilarityEngine()
 
     def _all_conditions(self) -> list[ConditionDefinition]:
         conds = list(self.condition_set.conditions)
@@ -84,57 +75,120 @@ class TextCalibrationStage(Stage):
             conds.append(self.condition_set.outcome)
         return conds
 
-    # ── Pre-computation helpers (FIXME-2, FIXME-4) ────────────────────────
+    # ── Pre-computation helpers ─────────────────────────────────────────
 
-    def _precompute_kw_context(
-        self, texts: list[str]
-    ) -> tuple[np.ndarray | None, dict[int, int]]:
-        """Pre-compute keyword matrix and col_idx -> kw_col_idx mapping.
+    def _precompute_scores(
+        self,
+        texts: list[str],
+        text_embeddings: np.ndarray | None,
+        prototype_embeddings: dict[str, np.ndarray] | None,
+    ) -> np.ndarray:
+        """Pre-compute all raw scores via CosineSimilarityEngine in one shot.
 
-        FIXME-2: Builds the mapping from global condition index to keyword
-        matrix column, so that PROTOTYPE conditions interleaved with
-        KEYWORD/HYBRID conditions do not cause column index offset.
+        Computes an (N, M) scores matrix for all conditions at once, replacing
+        the old per-condition keyword-matching loop. Non-PROTOTYPE conditions
+        (deprecated KEYWORD/HYBRID) and PROTOTYPE conditions without embeddings
+        receive zero scores.
 
-        FIXME-4: Calls match_corpus() once and caches the result matrix,
-        avoiding O(n_conditions) redundant recomputation.
+        Args:
+            texts: List of text strings (used for row-count dimension only).
+            text_embeddings: (N, d) pre-computed BERT embeddings, or None.
+            prototype_embeddings: Mapping from condition name to (K, d)
+                prototype embedding arrays, or None.
+
+        Returns:
+            Raw scores matrix of shape (N, M) where M = len(all_conditions).
         """
         all_conditions = self._all_conditions()
+        n_texts = len(texts)
+        n_conds = len(all_conditions)
 
-        kw_conditions = [
+        # Identify PROTOTYPE conditions that have both prototypes and embeddings
+        proto_conds = [
             c
             for c in all_conditions
-            if c.scoring_source in (ScoringSource.KEYWORD, ScoringSource.HYBRID)
+            if c.scoring_source == ScoringSource.PROTOTYPE and c.prototypes
         ]
-        kw_matrix = self._dict.match_corpus(texts) if kw_conditions else None
 
-        col_to_kw: dict[int, int] = {}
-        kw_idx = 0
+        if not (
+            text_embeddings is not None
+            and prototype_embeddings is not None
+            and proto_conds
+        ):
+            return np.zeros((n_texts, n_conds), dtype=np.float64)
+
+        # Build condition_prototypes dict for CosineSimilarityEngine
+        # (from ConditionDefinition.prototypes: list[ConceptPrototype])
+        condition_prototypes: dict[str, list[dict]] = {}
+        cond_proto_embs: dict[str, np.ndarray] = {}
+
+        for cond in proto_conds:
+            if cond.name not in prototype_embeddings:
+                continue
+            condition_prototypes[cond.name] = [
+                {
+                    "prototype_text": p.prototype_text,
+                    "is_member": p.is_member,
+                    "weight": p.weight,
+                }
+                for p in cond.prototypes
+            ]
+            cond_proto_embs[cond.name] = prototype_embeddings[cond.name]
+
+        if not condition_prototypes:
+            return np.zeros((n_texts, n_conds), dtype=np.float64)
+
+        # Compute all scores at once via cosine engine — one (N, M_proto) matrix
+        scores = self._cosine_engine.compute_scores(
+            text_embeddings, condition_prototypes, cond_proto_embs
+        )  # (N, M_proto)
+
+        # Map back to full condition ordering (all_conditions may include
+        # the outcome condition and deprecated KEYWORD/HYBRID conditions)
+        full_scores = np.zeros((n_texts, n_conds), dtype=np.float64)
+        proto_names = list(condition_prototypes.keys())
         for j, cond in enumerate(all_conditions):
-            if cond.scoring_source in (ScoringSource.KEYWORD, ScoringSource.HYBRID):
-                col_to_kw[j] = kw_idx
-                kw_idx += 1
+            if cond.name in condition_prototypes:
+                proto_idx = proto_names.index(cond.name)
+                full_scores[:, j] = scores[:, proto_idx]
 
-        return kw_matrix, col_to_kw
+        return full_scores
+
+    @staticmethod
+    def _compute_raw_scores(
+        scores_matrix: np.ndarray,
+        col_idx: int,
+    ) -> np.ndarray:
+        """Extract raw scores for a single condition column.
+
+        Args:
+            scores_matrix: Pre-computed (N, M) raw scores matrix.
+            col_idx: Column index into the scores matrix.
+
+        Returns:
+            1D array of raw scores for this condition.
+        """
+        return scores_matrix[:, col_idx]
 
     def _process_core(
         self,
         texts: list[str],
-        kw_matrix: np.ndarray | None,
-        col_to_kw: dict[int, int],
+        scores_matrix: np.ndarray,
         outcome_provider: Callable[[int], np.ndarray | None],
     ) -> np.ndarray:
         """Core membership computation shared by process/process_with_outcome.
 
-        FIXME-20: Extracted common logic from process() and
-        process_with_outcome() to eliminate ~60 lines of duplicated code.
+        Iterates over all conditions, indexing into the pre-computed scores
+        matrix. The outcome column (if any) receives its values from
+        *outcome_provider*.
 
         Args:
             texts: List of text strings.
-            kw_matrix: Pre-computed keyword match matrix (or None).
-            col_to_kw: Mapping from global col_idx to keyword matrix column.
+            scores_matrix: Pre-computed raw scores of shape (N, M)
+                where M = len(all_conditions).
             outcome_provider: Called as outcome_provider(col_idx) for each
                 column. Returns a membership vector for the outcome column,
-                or None if this column is a regular condition.
+                or None if this column is scored normally.
 
         Returns:
             membership matrix of shape (n_texts, n_conditions).
@@ -149,9 +203,7 @@ class TextCalibrationStage(Stage):
             if outcome_vals is not None:
                 membership[:, j] = outcome_vals.astype(np.float64)
             else:
-                raw_scores = self._compute_raw_scores(
-                    texts, cond, j, kw_matrix, col_to_kw
-                )
+                raw_scores = self._compute_raw_scores(scores_matrix, j)
                 cal_type = self._method_override or cond.calibration_type
 
                 # csQCA: force crisp-set calibration regardless of per-condition settings
@@ -169,15 +221,34 @@ class TextCalibrationStage(Stage):
 
     # ── Main processing methods ───────────────────────────────────────────
 
-    def process(self, data: InputData) -> OutputData:
+    def process(
+        self,
+        data: InputData,
+        text_embeddings: np.ndarray | None = None,
+        prototype_embeddings: dict[str, np.ndarray] | None = None,
+    ) -> OutputData:
+        """Run text calibration on input data.
+
+        Args:
+            data: InputData with text corpus.
+            text_embeddings: (N, d) pre-computed BERT embeddings for each text.
+                When None, all raw scores default to zero.
+            prototype_embeddings: Mapping from condition name to (K, d)
+                prototype embedding arrays. When None, all raw scores default
+                to zero.
+
+        Returns:
+            OutputData with MembershipData containing fuzzy-set scores.
+        """
         texts = self._extract_texts(data)
-        kw_matrix, col_to_kw = self._precompute_kw_context(texts)
+        scores_matrix = self._precompute_scores(
+            texts, text_embeddings, prototype_embeddings
+        )
 
         n_conds = len(self._all_conditions())
         membership = self._process_core(
             texts,
-            kw_matrix,
-            col_to_kw,
+            scores_matrix,
             outcome_provider=lambda _j: None,
         )
 
@@ -213,99 +284,39 @@ class TextCalibrationStage(Stage):
             },
         )
 
-    def _compute_raw_scores(
-        self,
-        texts: list[str],
-        cond: ConditionDefinition,
-        col_idx: int,
-        kw_matrix: np.ndarray | None = None,
-        col_to_kw: dict[int, int] | None = None,
-    ) -> np.ndarray:
-        """Compute raw scores for a condition based on its scoring source.
-
-        Args:
-            texts: List of text strings.
-            cond: The condition definition.
-            col_idx: Global column index in all_conditions.
-            kw_matrix: Pre-computed keyword match matrix (FIXME-4).
-            col_to_kw: Mapping from global col_idx to keyword matrix column
-                (FIXME-2). When provided, fixes column index offset when
-                PROTOTYPE conditions are interleaved with KEYWORD/HYBRID.
-        """
-        # DEPRECATED: PROTOTYPE scoring source is deprecated.
-        # Prototype similarity computation is now handled at a higher level
-        # (see pyodide_handlers.py unified calibrate handler — prototype texts
-        # are calibrated through the same keyword pipeline as raw texts).
-        # This branch is retained for backward compatibility and will be
-        # removed when PROTOTYPE support is dropped.
-        if cond.scoring_source == ScoringSource.PROTOTYPE:
-            if not cond.prototypes:
-                return np.zeros(len(texts), dtype=np.float64)
-            proto_map = {cond.name: cond.prototypes}
-            matrix = self._prototype_engine.compute_similarities(texts, proto_map)
-            return matrix[:, 0]
-
-        # KEYWORD and HYBRID: determine the keyword matrix column.
-        # Use the corrected mapping when available (FIXME-2), otherwise fall
-        # back to col_idx (legacy behaviour, only correct when all conditions
-        # are KEYWORD/HYBRID).
-        kw_col = col_to_kw.get(col_idx, 0) if col_to_kw is not None else col_idx
-
-        if kw_matrix is not None:
-            if kw_matrix.shape[1] > kw_col:
-                kw_scores = kw_matrix[:, kw_col]
-            else:
-                kw_scores = kw_matrix[:, 0]
-        else:
-            # Fallback: compute on the fly (backward compat for callers that
-            # do not pre-compute).
-            kw_scores_full = self._dict.match_corpus(texts)
-            if kw_scores_full.shape[1] > kw_col:
-                kw_scores = kw_scores_full[:, kw_col]
-            else:
-                kw_scores = kw_scores_full[:, 0]
-
-        if cond.scoring_source == ScoringSource.KEYWORD:
-            return kw_scores.astype(np.float64)
-
-        # HYBRID — blend keyword score with prototype similarity
-        proto_map = {cond.name: cond.prototypes} if cond.prototypes else {}
-        if proto_map:
-            proto_matrix = self._prototype_engine.compute_similarities(texts, proto_map)
-            proto_col = proto_matrix[:, 0]
-        else:
-            proto_col = np.zeros(len(texts), dtype=np.float64)
-
-        return (
-            cond.hybrid_keyword_weight * kw_scores
-            + cond.hybrid_prototype_weight * proto_col
-        )
-
     def process_with_outcome(
-        self, data: InputData, outcome_vector: np.ndarray
+        self,
+        data: InputData,
+        outcome_vector: np.ndarray,
+        text_embeddings: np.ndarray | None = None,
+        prototype_embeddings: dict[str, np.ndarray] | None = None,
     ) -> OutputData:
         """Process conditions normally but use pre-supplied outcome values.
 
-        The outcome column is set from outcome_vector (crisp 0/1) instead
-        of being computed from keywords or prototypes.
+        The outcome column is set from *outcome_vector* (crisp 0/1) instead
+        of being computed from prototype similarity.
 
         Args:
             data: InputData with texts.
             outcome_vector: 1D array of binary outcomes (0 or 1).
+            text_embeddings: (N, d) pre-computed BERT embeddings, or None.
+            prototype_embeddings: Mapping from condition name to (K, d)
+                prototype embedding arrays, or None.
 
         Returns:
             OutputData with MembershipData where the last column is the outcome.
         """
         texts = self._extract_texts(data)
-        kw_matrix, col_to_kw = self._precompute_kw_context(texts)
+        scores_matrix = self._precompute_scores(
+            texts, text_embeddings, prototype_embeddings
+        )
 
         n_conds = len(self._all_conditions())
         has_outcome = self.condition_set.outcome is not None
 
         membership = self._process_core(
             texts,
-            kw_matrix,
-            col_to_kw,
+            scores_matrix,
             outcome_provider=(
                 lambda j: outcome_vector if (has_outcome and j == n_conds - 1) else None
             ),
@@ -336,25 +347,36 @@ class TextCalibrationStage(Stage):
             },
         )
 
-    def calibrate_one(self, sample: TrainingSample) -> MembershipData:
+    def calibrate_one(
+        self,
+        sample: TrainingSample,
+        text_embeddings: np.ndarray | None = None,
+        prototype_embeddings: dict[str, np.ndarray] | None = None,
+    ) -> MembershipData:
         """Calibrate a single training sample.
 
         Used by the Pyodide worker to process samples one at a time.
 
         Args:
             sample: A TrainingSample with text and optional labeled_scores.
+            text_embeddings: (1, d) pre-computed BERT embedding for this
+                single sample, or None.
+            prototype_embeddings: Mapping from condition name to (K, d)
+                prototype embedding arrays, or None.
 
         Returns:
-            MembershipData with membership shape (1, n_conditions + 1).
+            MembershipData with membership shape (1, n_conditions).
         """
         texts = [sample.text]
-        kw_matrix, col_to_kw = self._precompute_kw_context(texts)
+        scores_matrix = self._precompute_scores(
+            texts, text_embeddings, prototype_embeddings
+        )
         all_conditions = self._all_conditions()
         n_conds = len(all_conditions)
         membership = np.zeros((1, n_conds), dtype=np.float64)
 
         for j, cond in enumerate(all_conditions):
-            raw_scores = self._compute_raw_scores(texts, cond, j, kw_matrix, col_to_kw)
+            raw_scores = self._compute_raw_scores(scores_matrix, j)
             cal_type = self._method_override or cond.calibration_type
 
             # csQCA: force crisp-set calibration regardless of per-condition settings

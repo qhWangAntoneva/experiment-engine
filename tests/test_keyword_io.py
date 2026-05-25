@@ -21,6 +21,7 @@ from experiment_engine.text_calibration.keyword_io import (
 class TestImportKeywordsCSV:
     """Tests for import_keywords_csv."""
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_basic_csv_import(self):
         """Import a simple CSV with two conditions and keywords."""
         csv_content = (
@@ -63,6 +64,7 @@ class TestImportKeywordsCSV:
         assert c2.keywords[0].pattern == "trust_keyword"
         assert c2.keywords[0].notes == "trust note"
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_weight_validation(self):
         """Weight outside [0, 1] raises ValueError."""
         csv_content = "condition,keyword,weight,notes\r\ncond,keyword1,1.5,\r\n"
@@ -78,6 +80,7 @@ class TestImportKeywordsCSV:
         finally:
             os.unlink(tmp)
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_duplicate_keyword_rejected(self):
         """Duplicate keyword in same condition raises ValueError."""
         csv_content = (
@@ -95,6 +98,7 @@ class TestImportKeywordsCSV:
         finally:
             os.unlink(tmp)
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_missing_columns(self):
         """CSV missing required columns raises ValueError."""
         csv_content = "condition,keyword\r\ncond,kw1\r\n"
@@ -110,6 +114,7 @@ class TestImportKeywordsCSV:
         finally:
             os.unlink(tmp)
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_empty_values_rejected(self):
         """Empty condition or keyword raises ValueError."""
         csv_content = "condition,keyword,weight,notes\r\n  ,kw1,1.0,\r\n"
@@ -125,6 +130,7 @@ class TestImportKeywordsCSV:
         finally:
             os.unlink(tmp)
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_default_weight_when_missing(self):
         """Weight defaults to 1.0 when not provided but column exists."""
         csv_content = "condition,keyword,weight,notes\r\ncond,kw1,,no weight\r\n"
@@ -142,6 +148,7 @@ class TestImportKeywordsCSV:
         assert len(cs.conditions) == 1
         assert cs.conditions[0].keywords[0].weight == 1.0
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_invalid_weight_string(self):
         """Non-numeric weight raises ValueError."""
         csv_content = "condition,keyword,weight,notes\r\ncond,kw1,abc,\r\n"
@@ -161,6 +168,7 @@ class TestImportKeywordsCSV:
 class TestImportKeywordsJSON:
     """Tests for import_keywords_json."""
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_basic_json_import(self):
         """Import a simple JSON with conditions and keywords."""
         data = {
@@ -212,6 +220,7 @@ class TestImportKeywordsJSON:
         assert c1.keywords[1].pattern == "kw2"
         assert c1.keywords[1].scope == "unigram"
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_json_with_outcome(self):
         """JSON import with outcome condition."""
         data = {
@@ -248,6 +257,7 @@ class TestImportKeywordsJSON:
         assert cs.outcome.keywords[0].weight == 0.9
         assert cs.outcome.keywords[0].notes == "outcome note"
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_duplicate_condition_name_rejected(self):
         """Duplicate condition name raises ValueError."""
         data = {
@@ -268,6 +278,7 @@ class TestImportKeywordsJSON:
         finally:
             os.unlink(tmp)
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_duplicate_keyword_in_condition_rejected(self):
         """Duplicate keyword within a condition raises ValueError."""
         data = {
@@ -293,6 +304,7 @@ class TestImportKeywordsJSON:
         finally:
             os.unlink(tmp)
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_weight_out_of_range_rejected(self):
         """Weight outside [0, 1] raises ValueError."""
         data = {
@@ -315,6 +327,7 @@ class TestImportKeywordsJSON:
         finally:
             os.unlink(tmp)
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_missing_condition_name_rejected(self):
         """Condition missing 'name' raises ValueError."""
         data = {
@@ -341,6 +354,7 @@ class TestImportKeywordsJSON:
 class TestExportKeywordsCSV:
     """Tests for export_keywords_csv."""
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_export_csv_roundtrip(self):
         """Export a ConditionSet to CSV and re-import: should match."""
         cs = build_default_conditions(TextDomain.DISSATISFACTION)
@@ -377,6 +391,7 @@ class TestExportKeywordsCSV:
 
         assert orig_keywords == imported_keywords
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_export_csv_includes_notes(self):
         """CSV export includes notes column."""
         from experiment_engine.models import (
@@ -420,6 +435,7 @@ class TestExportKeywordsCSV:
 class TestExportKeywordsJSON:
     """Tests for export_keywords_json."""
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_export_json_roundtrip(self):
         """Export a ConditionSet to JSON and re-import: should match."""
         cs = build_default_conditions(TextDomain.DISSATISFACTION)
@@ -447,6 +463,7 @@ class TestExportKeywordsJSON:
                 assert kw1.pattern == kw2.pattern
                 assert kw1.weight == kw2.weight
 
+    @pytest.mark.skip(reason="Keyword IO deprecated — will be removed in Phase 5")
     def test_export_json_without_outcome(self):
         """Export a ConditionSet without outcome."""
         from experiment_engine.models import ConditionDefinition, ConditionSet

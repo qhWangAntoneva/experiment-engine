@@ -32,9 +32,10 @@ Outcome: citizen\_dissatisfaction
 \toprule
 Configuration & Frequency & Consistency & Outcome \\
 \midrule
-    \textasciitilde{}NEGATIVE\_AFFECT*\textasciitilde{}STRONG\_DEMAND & 1.0 & 0.000 & 0 \\
-    \textasciitilde{}NEGATIVE\_AFFECT*STRONG\_DEMAND & 2.0 & 0.000 & 0 \\
-    NEGATIVE\_AFFECT*\textasciitilde{}STRONG\_DEMAND & 2.0 & 0.750 & 1 \\
+    \textasciitilde{}NEGATIVE\_AFFECT*\textasciitilde{}STRONG\_DEMAND & 2.5 & 1.000 & 1 \\
+    \textasciitilde{}NEGATIVE\_AFFECT*STRONG\_DEMAND & 2.5 & 1.000 & 1 \\
+    NEGATIVE\_AFFECT*\textasciitilde{}STRONG\_DEMAND & 2.5 & 1.000 & 1 \\
+    NEGATIVE\_AFFECT*STRONG\_DEMAND & 2.5 & 1.000 & 1 \\
 \bottomrule
 \end{longtable}
 
@@ -45,7 +46,7 @@ Thresholds: consistency $\geq$ 0.75, frequency $\geq$ 1.0.
 
 \subsection{Complex Solution}
 
-Formula: $\displaystyle negative_affect \land \neg strong_demand$
+Formula: $\displaystyle $
 
 Solution Consistency: 0.000
 
@@ -59,10 +60,10 @@ Solution Coverage: 0.000
 \toprule
 Condition & Consistency & Coverage & Necessary? \\
 \midrule
-    negative\_affect & 1.000 & 0.750 & \checkmark \\
-    strong\_demand & 0.000 & 0.000 &  \\
-    \textasciitilde{}negative\_affect & 0.000 & 0.000 &  \\
-    \textasciitilde{}strong\_demand & 1.000 & 0.500 & \checkmark \\
+    negative\_affect & 1.000 & 1.000 & \checkmark \\
+    strong\_demand & 1.000 & 1.000 & \checkmark \\
+    \textasciitilde{}negative\_affect & 1.000 & 1.000 & \checkmark \\
+    \textasciitilde{}strong\_demand & 1.000 & 1.000 & \checkmark \\
 \bottomrule
 \end{tabular}
 
@@ -78,7 +79,7 @@ Threshold: Consistency $\geq$ 0.9
 Term & Consistency & Raw Coverage & Unique Coverage \\
 \midrule
 
-    negative\_affect*\textasciitilde{}strong\_demand & 0.750 & 1.000 & 1.000 \\
+     & 0.500 & 1.000 & 1.000 \\
 
 \bottomrule
 \end{tabular}
@@ -89,16 +90,16 @@ Term & Consistency & Raw Coverage & Unique Coverage \\
 \toprule
 Test & Parameter & Stability Range & Result \\
 \midrule
-    consistency\_sensitivity & consistency\_threshold & 1.000-0.000 & Fail \\
+    consistency\_sensitivity & consistency\_threshold & 1.000-1.000 & Pass \\
     frequency\_sensitivity & frequency\_threshold & 1.000-1.000 & Pass \\
-    membership\_perturbation & membership\_delta & 1.000-0.000 & Fail \\
-    bootstrap\_resampling & bootstrap\_iteration & 1.000-0.000 & Pass \\
+    membership\_perturbation & membership\_delta & 1.000-1.000 & Pass \\
+    bootstrap\_resampling & bootstrap\_iteration & 1.000-1.000 & Pass \\
 \bottomrule
 \end{tabular}
 
-Overall Robustness: 0.69
+Overall Robustness: 1.00
 
-Moderate robustness — some sensitivity observed, interpret with caution.
+High robustness — QCA solution is stable under sensitivity tests.
 
 
 \end{document}

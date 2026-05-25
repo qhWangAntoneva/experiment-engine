@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-25T06:28:37.576Z
-> Files: 15 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-25T08:11:09.996Z
+> Files: 22 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -41,6 +41,7 @@
 
 ## src/experiment_engine/
 
+- `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~7204 tok)
 
 ## src/experiment_engine/algorithms/
 
@@ -67,6 +68,8 @@
 ## src/experiment_engine/text_calibration/
 
 - `__init__.py` — Text calibration layer: raw text → fuzzy-set membership scores. (~533 tok)
+- `calibrator.py` — Text calibration stage: BERT prototype scores → fuzzy-set membership (0-1). (~4838 tok)
+- `condition.py` — Condition set I/O helpers — YAML serialization for QCA condition definitions. (~2415 tok)
 - `cosine_similarity.py` — BERT CLS embedding cosine similarity engine for prototype-based QCA scoring. (~4804 tok)
 
 ## src/experiment_engine/viz/
@@ -107,5 +110,9 @@
 ## tests/
 
 - `test_cosine_similarity.py` — Comprehensive unit tests for CosineSimilarityEngine. (~12066 tok)
+- `test_integration.py` — Integration tests for experiment-engine. (~11633 tok)
+- `test_keyword_io.py` — Unit tests for keyword dictionary import/export (keyword_io.py). (~4914 tok)
+- `test_prototype_similarity.py` — Unit tests for prototype-based text similarity engine. (~5456 tok)
+- `test_qca_core.py` — Unit tests for QCA core modules. (~17670 tok)
 
 ## tmp/
