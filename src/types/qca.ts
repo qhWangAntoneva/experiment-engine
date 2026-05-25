@@ -38,6 +38,10 @@ export type PipelineStage =
   | 'loading-texts'
   | 'calibrating'
   | 'calibrated'
+  | 'bert-loading'
+  | 'embedding'
+  | 'calibrating-embed'
+  | 'embed-calibrated'
   | 'analyzing'
   | 'analyzed'
   | 'prototype-analyzing'
@@ -57,12 +61,6 @@ export interface CalibrationParams {
   threshold_full_out: number;  // <= crossover
   crossover_point: number;     // where membership = 0.5
   direction: 'ascending' | 'descending';
-}
-
-export interface KeywordEntry {
-  pattern: string;
-  weight: number;               // 0-1 typical
-  scope: 'unigram' | 'bigram' | 'trigram' | 'regex' | 'exact';
 }
 
 export interface ConceptPrototype {
@@ -272,6 +270,11 @@ export interface QCAPipelineState {
   robustnessReport: RobustnessReport | null;
   counterfactualReport: CounterfactualReport | null;
   exportFormats: string[];        // e.g. ['csv', 'json', 'latex']
+
+  // BERT state
+  bertStatus: 'unloaded' | 'loading' | 'ready' | 'error';
+  bertMessage: string;
+  bertEmbeddingsReady: boolean;
 }
 
 export const INITIAL_PIPELINE_STATE: QCAPipelineState = {
@@ -289,7 +292,19 @@ export const INITIAL_PIPELINE_STATE: QCAPipelineState = {
   robustnessReport: null,
   counterfactualReport: null,
   exportFormats: [],
+  bertStatus: 'unloaded',
+  bertMessage: '',
+  bertEmbeddingsReady: false,
 };
+
+// ─── BERT Embedding Calibration Input ──────────────────────────────────────
+
+/** Text entry with pre-computed BERT embedding for embed_calibrate. */
+export interface EmbedCalibrateTextEntry {
+  text_id: string;
+  text: string;
+  embedding: number[];           // 768-dim float array from BertEngine
+}
 
 // ─── Pyodide Worker Messages ───────────────────────────────────────────────
 
@@ -302,7 +317,11 @@ export type PyodideWorkerRequest =
   | { type: 'run_counterfactuals'; payload: { fuzzyData: MembershipDataJSON; analysisResult: QCAAnalysisResultJSON } }
   | { type: 'export_result'; payload: { format: 'csv' | 'json' | 'latex'; result: QCAAnalysisResultJSON } }
   | { type: 'validate_condition_set'; payload: { conditionSet: ConditionSet } }
-  // FIXME-BERT: import_keywords / export_keywords removed — Phase 3 clears pyodide.ts/worker.ts references
+  | { type: 'init_bert'; payload: { modelName: string } }
+  | { type: 'embed_calibrate'; payload: { texts: EmbedCalibrateTextEntry[]; conditionSet: any } }
+  | { type: 'compute_embeddings'; payload: { texts: string[]; batchSize?: number } }
+  | { type: 'compute_prototype_embeddings'; payload: { prototypes: Record<string, string[]> } }
+  | { type: 'get_bert_status' }
   | { type: 'get_package_status'; payload?: never }
   | { type: 'terminate'; payload?: never };
 
@@ -324,7 +343,15 @@ export type PyodideWorkerResponse =
   | { type: 'export-error'; error: string }
   | { type: 'validate-done'; valid: boolean; warnings: string[] }
   | { type: 'validate-error'; error: string }
-  // FIXME-BERT: import-keywords-* / export-keywords-* response types removed — Phase 3 clears references
+  | { type: 'bert-init-progress'; progress: number; message: string }
+  | { type: 'bert-init-done'; modelName: string }
+  | { type: 'bert-init-error'; error: string }
+  | { type: 'embeddings-computed'; embeddings: number[][] }
+  | { type: 'embeddings-error'; error: string }
+  | { type: 'prototype-embeddings-computed'; embeddings: Record<string, {embeddings: number[][]; labels: number[]; weights: number[]}> }
+  | { type: 'embed-calibrate-done'; fuzzyData: MembershipDataJSON }
+  | { type: 'embed-calibrate-error'; error: string }
+  | { type: 'bert-status'; loaded: boolean; modelName: string | null }
   | { type: 'package-status'; packages: Record<string, string> }
   | { type: 'log'; message: string; level: 'debug' | 'info' | 'warn' | 'error' }
   | { type: 'terminated' };

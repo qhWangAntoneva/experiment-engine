@@ -1064,3 +1064,92 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 16:12 | Session end: 36 writes across 7 files (test_keyword_io.py, pyodide_handlers.py, test_integration.py, test_qca_core.py, test_prototype_similarity.py) | 12 reads | ~50310 tok |
 | 16:13 | Session end: 36 writes across 7 files (test_keyword_io.py, pyodide_handlers.py, test_integration.py, test_qca_core.py, test_prototype_similarity.py) | 12 reads | ~50310 tok |
 | 16:16 | Session end: 36 writes across 7 files (test_keyword_io.py, pyodide_handlers.py, test_integration.py, test_qca_core.py, test_prototype_similarity.py) | 13 reads | ~80937 tok |
+| 16:24 | Session end: 36 writes across 7 files (test_keyword_io.py, pyodide_handlers.py, test_integration.py, test_qca_core.py, test_prototype_similarity.py) | 13 reads | ~80937 tok |
+
+## Session: 2026-05-25 16:30
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 16:48 | Edited src/types/qca.ts | expanded (+21 lines) | ~991 |
+| 16:48 | Edited src/services/pyodide.worker.ts | added 1 import(s) | ~46 |
+| 16:48 | Edited src/services/pyodide.worker.ts | 4→5 lines | ~58 |
+| 16:48 | Edited src/services/pyodide.worker.ts | expanded (+15 lines) | ~204 |
+| 16:49 | Edited src/services/pyodide.worker.ts | added error handling | ~1054 |
+| 16:49 | Edited src/services/pyodide.ts | 15→16 lines | ~102 |
+| 16:49 | Edited src/services/pyodide.ts | modified initBert() | ~795 |
+| 16:50 | Edited src/types/qca.ts | 6→8 lines | ~182 |
+| 16:50 | Edited src/types/qca.ts | 1→5 lines | ~89 |
+| 16:55 | Phase 3 — Worker protocol extension for BERT+Prototype | src/types/qca.ts (+BERT msg types), src/services/pyodide.worker.ts (+5 BERT handlers), src/services/pyodide.ts (+5 bridge methods) | npm run build passes, 662 lines delta | ~1800 |
+| 16:55 | Session end: 9 writes across 3 files (qca.ts, pyodide.worker.ts, pyodide.ts) | 11 reads | ~3521 tok |
+| 16:55 | Edited src/types/qca.ts | 18→22 lines | ~127 |
+| 16:56 | Edited src/types/qca.ts | expanded (+6 lines) | ~399 |
+| 16:56 | Edited src/store/QCAPipelineContext.tsx | CSS: status, embeddings | ~268 |
+| 16:56 | Edited src/store/QCAPipelineContext.tsx | added nullish coalescing | ~149 |
+| 16:57 | Edited src/types/qca.ts | 4→5 lines | ~38 |
+| 16:57 | Edited src/types/qca.ts | 3→4 lines | ~22 |
+| 16:57 | Edited src/store/QCAPipelineContext.tsx | CSS: bertEmbeddingsReady | ~25 |
+| 16:57 | Edited src/store/QCAPipelineContext.tsx | 4→9 lines | ~105 |
+| 16:57 | Edited src/store/QCAPipelineContext.tsx | expanded (+26 lines) | ~362 |
+| 16:57 | Edited src/store/QCAPipelineContext.tsx | CSS: setBertStatus | ~56 |
+| 16:57 | Edited src/hooks/useQCAWorkflow.ts | 7→8 lines | ~56 |
+| 16:57 | Edited src/hooks/useQCAWorkflow.ts | expanded (+9 lines) | ~104 |
+| 16:58 | Edited src/hooks/useQCAWorkflow.ts | 16→21 lines | ~125 |
+| 16:58 | Edited src/hooks/useQCAWorkflow.ts | added error handling | ~968 |
+| 16:58 | Edited src/pages/DataInput.tsx | 8→10 lines | ~72 |
+| 16:58 | Edited src/pages/DataInput.tsx | 2→6 lines | ~99 |
+| 16:58 | Edited src/pages/DataInput.tsx | added 1 condition(s) | ~650 |
+| 16:59 | Edited src/pages/DataInput.tsx | inline fix | ~27 |
+| 16:59 | Edited src/experiment_engine/models/qca.py | modified ScoringSource() | ~88 |
+| 16:59 | Edited src/pages/DataInput.tsx | modified t() | ~965 |
+| 16:59 | Edited src/types/index.ts | 2→1 lines | ~7 |
+| 16:59 | Edited src/experiment_engine/text_calibration/__init__.py | removed 14 lines | ~17 |
+| 16:59 | Edited src/experiment_engine/models/__init__.py | 3→2 lines | ~21 |
+| 16:59 | Edited src/pages/Settings.tsx | modified t() | ~796 |
+| 16:59 | Edited src/types/qca.ts | removed 7 lines | ~10 |
+| 17:00 | Edited src/experiment_engine/text_calibration/__init__.py | reduced (-7 lines) | ~130 |
+| 17:00 | Edited src/experiment_engine/models/__init__.py | 2→1 lines | ~6 |
+| 17:00 | Edited src/experiment_engine/pyodide_handlers.py | removed 87 lines | ~6 |
+| 17:00 | Edited src/services/pyodide.worker.ts | reduced (-11 lines) | ~38 |
+| 17:00 | Edited src/services/pyodide.worker.ts | removed 47 lines | ~23 |
+| 17:00 | Edited src/services/pyodide.ts | removed 51 lines | ~22 |
+| 17:00 | Edited src/pyodide/engine.ts | 2→1 lines | ~23 |
+| 17:00 | Edited src/experiment_engine/text_calibration/training.py | expanded (+11 lines) | ~378 |
+| 17:01 | Edited src/experiment_engine/text_calibration/training.py | 6→5 lines | ~63 |
+| 17:01 | Edited src/experiment_engine/text_calibration/training.py | modified _compute_raw_scores() | ~208 |
+| 17:01 | Edited src/types/qca.ts | removed 3 lines | ~7 |
+| 17:01 | Edited src/types/qca.ts | removed 5 lines | ~10 |
+| 17:01 | Edited src/i18n/translations.ts | expanded (+15 lines) | ~145 |
+| 17:02 | Edited src/i18n/translations.ts | expanded (+15 lines) | ~171 |
+| 17:02 | Edited src/i18n/translations.ts | expanded (+15 lines) | ~241 |
+| 17:03 | Edited src/pages/Settings.tsx | 4→4 lines | ~63 |
+| 17:03 | Edited src/experiment_engine/models/__init__.py | 2→3 lines | ~39 |
+| 17:03 | Edited src/experiment_engine/models/__init__.py | 4→5 lines | ~40 |
+| 17:03 | Edited src/pages/Settings.tsx | 2→2 lines | ~47 |
+| 17:04 | Edited src/i18n/translations.ts | 4→7 lines | ~36 |
+| 17:04 | Edited src/hooks/useQCAWorkflow.ts | removed 26 lines | ~10 |
+| 17:04 | Edited src/hooks/useQCAWorkflow.ts | 5→3 lines | ~19 |
+| 17:04 | Edited src/i18n/translations.ts | 2→5 lines | ~37 |
+| 17:04 | Edited src/i18n/translations.ts | 2→5 lines | ~50 |
+| 17:04 | Edited src/hooks/useQCAWorkflow.ts | removed 20 lines | ~34 |
+| 17:05 | Edited src/hooks/useQCAWorkflow.ts | expanded (+16 lines) | ~184 |
+| 17:07 | Edited src/hooks/useQCAWorkflow.ts | modified useCallback() | ~229 |
+| 17:08 | Edited src/hooks/useQCAWorkflow.ts | added 1 import(s) | ~41 |
+| 17:10 | Edited src/pages/DataInput.tsx | 8→5 lines | ~27 |
+| 17:12 | Session end: 63 writes across 14 files (qca.ts, pyodide.worker.ts, pyodide.ts, QCAPipelineContext.tsx, useQCAWorkflow.ts) | 24 reads | ~50801 tok |
+| 17:14 | Edited src/hooks/useQCAWorkflow.ts | removed 28 lines | ~6 |
+| 17:14 | Edited src/hooks/useQCAWorkflow.ts | 4→2 lines | ~12 |
+| 17:14 | Edited src/pages/DataInput.tsx | — | ~0 |
+| 17:14 | Edited src/pages/Settings.tsx | — | ~0 |
+| 17:15 | Edited src/pages/Settings.tsx | 3→2 lines | ~32 |
+| 17:17 | Fix Phase 4/5 merge conflict: removed dangling importKeywords/exportKeywords from useQCAWorkflow.ts (callbacks + return obj), removed FIXME-BERT keyword import/export section from DataInput.tsx, removed Export Keyword Dictionary UI + unused useQCAWorkflow import from Settings.tsx | useQCAWorkflow.ts, DataInput.tsx, Settings.tsx | npm build passes | ~2000 |
+| 17:20 | Edited src/experiment_engine/text_calibration/condition.py | inline fix | ~16 |
+| 17:39 | Edited src/services/pyodide.ts | expanded (+6 lines) | ~143 |
+| 17:41 | Edited src/hooks/useQCAWorkflow.ts | reduced (-11 lines) | ~20 |
+| 17:41 | Edited src/hooks/useQCAWorkflow.ts | removed 17 lines | ~11 |
+| 17:41 | Edited src/hooks/useQCAWorkflow.ts | removed 26 lines | ~10 |
+| 17:42 | Session end: 73 writes across 15 files (qca.ts, pyodide.worker.ts, pyodide.ts, QCAPipelineContext.tsx, useQCAWorkflow.ts) | 33 reads | ~69138 tok |
+| 17:42 | Edited src/hooks/useQCAWorkflow.ts | 4→2 lines | ~12 |
+| 17:43 | Edited src/pages/DataInput.tsx | CSS: sum, c | ~45 |
+| 17:44 | Fixed remaining TS build errors: added explicit types to reduce() callback params in DataInput.tsx line 426 | src/pages/DataInput.tsx | build passes (31s, 0 errors) | ~50 |
+| 17:45 | Phase 5: Cleanup old keyword code — deleted keyword_dict.py, keyword_io.py, prototype_similarity.py + tests. Removed KEYWORD/HYBRID from ScoringSource. Updated calibrator/similarity to PROTOTYPE-only. Cleaned pyodide handlers, worker, bridge, hook, and UI of keyword methods. Build passes, 515 tests pass. | src/experiment_engine/text_calibration/*, src/experiment_engine/models/qca.py, src/types/qca.ts, src/services/*.ts, src/hooks/useQCAWorkflow.ts, src/pages/{DataInput,Settings}.tsx, tests/* | 26 files, +2425/-675 | ~1200 tok |
+| 17:46 | Session end: 75 writes across 15 files (qca.ts, pyodide.worker.ts, pyodide.ts, QCAPipelineContext.tsx, useQCAWorkflow.ts) | 33 reads | ~70957 tok |

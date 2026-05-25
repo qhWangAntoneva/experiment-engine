@@ -1,15 +1,13 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-25T08:11:09.996Z
-> Files: 22 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-25T09:43:26.125Z
+> Files: 19 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
 
 ## ./
 
-- `package.json` — Node.js package manifest (~172 tok)
-- `TODO.md` — TODO — QCA Analysis Tool (~3163 tok)
 
 ## .claude/
 
@@ -31,7 +29,6 @@
 
 ## roadmap/
 
-- `experiment-engine-roadmap.json` (~8572 tok)
 
 ## src/
 
@@ -41,7 +38,7 @@
 
 ## src/experiment_engine/
 
-- `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~7204 tok)
+- `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~6266 tok)
 
 ## src/experiment_engine/algorithms/
 
@@ -54,7 +51,8 @@
 
 ## src/experiment_engine/models/
 
-- `qca.py` — QCA domain models — text analysis, calibration, truth tables, solutions, etc. (~5440 tok)
+- `__init__.py` — QCA Text Analysis Tool — data models. (~738 tok)
+- `qca.py` — QCA domain models — text analysis, calibration, truth tables, solutions, etc. (~5368 tok)
 
 ## src/experiment_engine/qca_engine/
 
@@ -67,52 +65,51 @@
 
 ## src/experiment_engine/text_calibration/
 
-- `__init__.py` — Text calibration layer: raw text → fuzzy-set membership scores. (~533 tok)
-- `calibrator.py` — Text calibration stage: BERT prototype scores → fuzzy-set membership (0-1). (~4838 tok)
+- `__init__.py` — Text calibration layer: raw text → fuzzy-set membership scores. (~368 tok)
 - `condition.py` — Condition set I/O helpers — YAML serialization for QCA condition definitions. (~2415 tok)
-- `cosine_similarity.py` — BERT CLS embedding cosine similarity engine for prototype-based QCA scoring. (~4804 tok)
+- `training.py` — Training engine for fitting calibration parameters from labeled samples. (~2411 tok)
 
 ## src/experiment_engine/viz/
 
 
 ## src/hooks/
 
-- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. (~3010 tok)
+- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. (~2640 tok)
 
 ## src/i18n/
 
-- `translations.ts` — i18n translations: Chinese (zh) and English (en). Keyword dict import/export strings removed; BERT model setting added. (~8000 tok)
+- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~8807 tok)
 
 ## src/layouts/
 
 
 ## src/pages/
 
-- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~13186 tok)
-- `Results.tsx` — Results — displays all QCA analysis output in organized sections: (~10757 tok)
+- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~13227 tok)
+- `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~4901 tok)
 
 ## src/pyodide/
 
+- `engine.ts` — jsdelivr CDN URL for Pyodide full build (stdlib + numpy + common pkgs). (~3669 tok)
 
 ## src/services/
 
-- `bert-cache.ts` — BERT embedding cache service — IndexedDB persistence for prototype embeddings + text embeddings, keyed by model name (~288 tok)
-- `bert-engine.ts` — Default BERT model for Chinese text feature extraction. (~2432 tok)
+- `bert-cache.ts` — BERT embedding cache service — IndexedDB persistence. (~288 tok)
+- `bert-engine.ts` — BertEngine class — Transformers.js feature extraction. (~2432 tok)
+- `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~4307 tok)
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~5883 tok)
 
 ## src/store/
 
+- `QCAPipelineContext.tsx` — React Context for tracking the QCA pipeline lifecycle. (~3090 tok)
 
 ## src/types/
 
-- `bert.ts` — BERT engine status. (~642 tok)
-- `qca.ts` — QCA-specific TypeScript interfaces mirroring experiment_engine/models.py. (~3169 tok)
+- `bert.ts` — BERT engine types: status, embeddings, prototype maps, worker request/response interfaces. (~642 tok)
+- `index.ts` — Legacy types — kept for backward compatibility with existing UI components. (~412 tok)
+- `qca.ts` — QCA-specific TypeScript interfaces mirroring experiment_engine/models.py. (~3516 tok)
 
 ## tests/
 
-- `test_cosine_similarity.py` — Comprehensive unit tests for CosineSimilarityEngine. (~12066 tok)
-- `test_integration.py` — Integration tests for experiment-engine. (~11633 tok)
-- `test_keyword_io.py` — Unit tests for keyword dictionary import/export (keyword_io.py). (~4914 tok)
-- `test_prototype_similarity.py` — Unit tests for prototype-based text similarity engine. (~5456 tok)
-- `test_qca_core.py` — Unit tests for QCA core modules. (~17670 tok)
 
 ## tmp/

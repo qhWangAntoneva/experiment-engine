@@ -169,7 +169,8 @@ const settings: SettingField[] = [
 export default function Settings() {
   const t = useT();
   const { initState } = usePyodide();
-  const { exportKeywords } = useQCAWorkflow();
+  // Phase 5 stub: keyword functionality removed
+  const exportKeywords = async (..._args: any[]): Promise<any> => new Blob();
   const { state: pipelineState } = useQCAPipeline();
 
   const [values, setValues] = useState<Record<string, string | number | boolean>>(() => {

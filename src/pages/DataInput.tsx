@@ -305,10 +305,10 @@ export default function DataInput() {
     runFullPipeline,
     runCalibrateOnly,
     loadCorpus,
-    // FIXME-BERT: importKeywords/exportKeywords deprecated — remove after Phase 3
-    importKeywords,
-    exportKeywords,
   } = useQCAWorkflow();
+  // Phase 5 stubs: keyword functionality removed
+  const importKeywords = async (..._args: any[]): Promise<any> => ({ conditions: [], outcome: null } as any);
+  const exportKeywords = async (..._args: any[]): Promise<any> => new Blob();
 
   // ─── Form state ────────────────────────────────────────────────────
 
@@ -423,7 +423,7 @@ export default function DataInput() {
           setImportedConditionSet(cs);
           // FIXME-BERT: c.keywords removed from ConditionDefinition — keyword count unavailable after Phase 2
           const kwCount = cs.conditions.reduce(
-            (sum, c) => sum + ((c as any).keywords?.length ?? 0), 0
+            (sum: number, c: any) => sum + ((c as any).keywords?.length ?? 0), 0
           );
           if (cs.outcome) {
             const outcomeKws = (cs.outcome as any).keywords?.length ?? 0;

@@ -2,9 +2,16 @@
 
 Given concept prototypes (text + human-labeled fuzzy-set membership scores),
 the TrainingEngine learns optimal calibration thresholds for each condition.
+
+.. note::
+    Keyword-based scoring was removed in Phase 5. Prototype-based training
+    (via BERT embeddings + CosineSimilarityEngine) is not yet implemented.
+    The engine is retained as a structural placeholder.
 """
 
 from __future__ import annotations
+
+import warnings
 
 import numpy as np
 
@@ -14,17 +21,21 @@ from experiment_engine.models import (
     ConditionSet,
     TrainingDataset,
 )
-from experiment_engine.text_calibration.keyword_dict import KeywordMatcher
 
 
 class TrainingEngine:
     """Fit calibration parameters from labeled training samples.
 
     For each condition, the engine:
-    1. Computes raw keyword scores for all training texts
+    1. Computes raw scores for all training texts
     2. Compares raw score distribution with labeled fuzzy-set scores
     3. Estimates optimal thresholds (full_out, crossover, full_in) via
        quantile matching
+
+    .. note::
+        Prototype-based training (BERT embedding + CosineSimilarityEngine)
+        is not yet implemented. This engine currently returns raw scores of
+        0.0 for all text-condition pairs.
 
     Usage:
         engine = TrainingEngine()
@@ -97,7 +108,6 @@ class TrainingEngine:
                 name=cond.name,
                 display_name=cond.display_name,
                 domain=cond.domain,
-                keywords=cond.keywords,
                 calibration_type=cond.calibration_type,
                 calibration_params=CalibrationParams(
                     threshold_full_in=full_in,
@@ -128,13 +138,21 @@ class TrainingEngine:
     def _compute_raw_scores(
         texts: list[str], conditions: list[ConditionDefinition]
     ) -> np.ndarray:
+        """Compute raw scores matrix — prototype-based training TBD.
+
+        Keyword scoring was removed in Phase 5.  Prototype-based training
+        (via BERT embeddings + CosineSimilarityEngine) is not yet
+        implemented.  Returns a zero matrix for now.
+        """
         n = len(texts)
         m = len(conditions)
-        matrix = np.zeros((n, m), dtype=np.float64)
-        for j, cond in enumerate(conditions):
-            for i, text in enumerate(texts):
-                matrix[i, j] = KeywordMatcher.score_single(text, cond.keywords)
-        return matrix
+        warnings.warn(
+            "TrainingEngine._compute_raw_scores: prototype-based training "
+            "not yet implemented — returning zero scores",
+            FutureWarning,
+            stacklevel=2,
+        )
+        return np.zeros((n, m), dtype=np.float64)
 
     @staticmethod
     def estimate_thresholds_quantile(

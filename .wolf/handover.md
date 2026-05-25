@@ -10,11 +10,11 @@
 |------|-----|
 | 分支 | `master` |
 | 远程 | `origin/master` |
-| HEAD | `003e46e` — refactor: Phase 1 — model alignment for BERT+Prototype |
-| 工作树 | `.wolf/*` 文件未提交 + `src/i18n/translations.ts` 有未暂存变更 |
-| 测试 | 577 collected, 561 passed, 16 failed, 6 xfailed |
+| HEAD | `c1b8fa1` — refactor: Phase 2 — calibrator embedding integration + test migration |
+| 工作树 | clean（仅 `.wolf/bert-prototype-algorithm-spec.md` 未跟踪） |
+| 测试 | 557 passed, 21 skipped, 6 xfailed, 0 failures |
 | Python lint | ruff clean |
-| TypeScript build | `npm run build` passes |
+| TypeScript build | `npm run build` 4 预存错误（Phase 1 遗留，FIXME-BERT 标记） |
 
 ---
 
@@ -61,7 +61,7 @@
 
 | 阶段 | 优先级 | 风险 | 说明 |
 |------|--------|------|------|
-| **Phase 2** | 🔴 P0 | 中 | calibrator.py 重构 — 移除关键词路径，集成 CosineSimilarityEngine |
+| **Phase 2** | ✅ 完成 | `c1b8fa1` | calibrator.py 重构 — 移除 ChineseKeywordDictionary/PrototypeSimilarityEngine，集成 CosineSimilarityEngine；_compute_raw_scores 统一走 embedding；process/process_with_outcome/calibrate_one 新增 text_embeddings + prototype_embeddings 可选参数；condition.py 序列化修复；pyodide_handlers.py 新增 handle_embed_calibrate；16 失败测试全部修复（关键词相关测试 skip） |
 | **Phase 3** | 🔴 P0 | 中-高 | Worker 协议扩展 — 并行加载 Pyodide+BERT，新消息类型 |
 | **Phase 4** | 🔴 P0 | 中 | UI 集成 — QCAPipelineContext, DataInput.tsx, Settings.tsx |
 | **Phase 5** | 🟡 P1 | 低 | 清理 — 删除 keyword_dict.py, keyword_io.py, PrototypeSimilarityEngine |
@@ -148,21 +148,17 @@
 
 ## 6. 下一 session 推荐开工顺序
 
-1. **Phase 2 — calibrator.py 重构**（最高优先级）
-   - 移除关键词预计算逻辑
-   - 集成 CosineSimilarityEngine
-   - 修复 16 个测试失败
-   - 新增 embedding-based calibrate handler
-2. **Phase 3 — Worker 协议扩展**
-   - pyodide.worker.ts 新增 BERT 消息类型
+1. **Phase 3 — Worker 协议扩展**（最高优先级）
+   - pyodide.worker.ts 新增 `embed_calibrate` 消息类型
+   - 前端调用 `handle_embed_calibrate`（已在 Python 侧就绪）
    - 并行加载 Pyodide + BERT
-3. **Phase 4 — UI 集成**
+2. **Phase 4 — UI 集成**
    - QCAPipelineContext + useQCAWorkflow embedding 状态
    - DataInput.tsx 移除关键词 UI
    - Settings.tsx BERT 模型选择器
-4. **Phase 5 — 清理**
+3. **Phase 5 — 清理**
    - 删除 keyword_dict.py, keyword_io.py, prototype_similarity.py
-   - 移除 deprecated 枚举值
+   - 移除 deprecated 枚举值 (KEYWORD, HYBRID)
 
 > P1 功能需求（P1-5~P1-13）在 BERT 重构完成后再推进。
 

@@ -39,7 +39,6 @@ export type {
   CalibrationType,
   PipelineStage,
   CalibrationParams,
-  KeywordEntry,
   ConditionDefinition,
   ConditionSet,
   MembershipDataJSON,

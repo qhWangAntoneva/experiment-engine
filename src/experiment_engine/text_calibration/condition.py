@@ -37,7 +37,7 @@ class ConditionDefinitionBuilder:
         self._calibration_type = CalibrationType.DIRECT
         self._calibration_params: CalibrationParams | None = None
         self._description = ""
-        self._scoring_source = ScoringSource.KEYWORD
+        self._scoring_source = ScoringSource.PROTOTYPE
         self._hybrid_kw_weight = 0.5
         self._hybrid_proto_weight = 0.5
 
@@ -61,7 +61,7 @@ class ConditionDefinitionBuilder:
 
     def scoring(
         self,
-        source: str = "keyword",
+        source: str = "prototype",
         hybrid_kw_weight: float = 0.5,
         hybrid_proto_weight: float = 0.5,
     ) -> ConditionDefinitionBuilder:
@@ -217,7 +217,7 @@ def _condition_set_from_dict(data: dict) -> ConditionSet:
         domain=domain,
         conditions=conditions,
         outcome=outcome,
-        scoring_source=ScoringSource(data.get("scoring_source", "keyword")),
+        scoring_source=ScoringSource(data.get("scoring_source", "prototype")),
     )
 
 
@@ -239,6 +239,6 @@ def _condition_from_dict(data: dict, domain: TextDomain) -> ConditionDefinition:
         calibration_type=CalibrationType(data.get("calibration_type", "direct")),
         calibration_params=cal_params,
         description=data.get("description", ""),
-        scoring_source=ScoringSource(data.get("scoring_source", "keyword")),
+        scoring_source=ScoringSource(data.get("scoring_source", "prototype")),
         prototypes=[ConceptPrototype(**p) for p in data.get("prototypes", [])],
     )

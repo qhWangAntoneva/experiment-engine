@@ -23,11 +23,13 @@ import type {
   PyodideWorkerResponse,
   TextCorpusEntry,
 } from '../types/qca';
+import { BertEngine } from '../services/bert-engine';
 
 // ─── Module-scoped state (persists across messages) ────────────────────────
 let pyodide: any = null;
 let isReady = false;
 let loadedPackages: string[] = [];
+let bertEngine: BertEngine | null = null;
 
 const REQUIRED_PACKAGES = [
   'numpy',
@@ -146,16 +148,20 @@ self.onmessage = async (event: MessageEvent<PyodideWorkerRequest>) => {
       case 'validate_condition_set':
         await handleValidate(req.payload.conditionSet);
         break;
-      case 'import_keywords':
-        await handleImportKeywords(
-          req.payload.fileName,
-          req.payload.content,
-          req.payload.format,
-          req.payload.domain,
-        );
+      case 'init_bert':
+        await handleInitBert(req.payload.modelName);
         break;
-      case 'export_keywords':
-        await handleExportKeywords(req.payload.conditionSet, req.payload.format);
+      case 'embed_calibrate':
+        await handleEmbedCalibrate(req.payload.texts, req.payload.conditionSet);
+        break;
+      case 'compute_embeddings':
+        await handleComputeEmbeddings(req.payload.texts, req.payload.batchSize);
+        break;
+      case 'compute_prototype_embeddings':
+        await handleComputePrototypeEmbeddings(req.payload.prototypes);
+        break;
+      case 'get_bert_status':
+        handleGetBertStatus();
         break;
       case 'get_package_status':
         respond({
@@ -462,49 +468,109 @@ async function handleValidate(conditionSet: any): Promise<void> {
   }
 }
 
-// ─── Import Keywords from CSV/JSON ─────────────────────────────────────────
+// ─── BERT Handlers ──────────────────────────────────────────────────────────
 
-async function handleImportKeywords(
-  fileName: string,
-  content: string,
-  format: 'csv' | 'json',
-  domain: string,
-): Promise<void> {
+async function handleInitBert(modelName: string): Promise<void> {
   try {
-    const vfsFile = `/tmp/${fileName}`;
-    pyodide.FS.writeFile(vfsFile, content, { encoding: 'utf8' });
+    bertEngine = new BertEngine();
 
-    const conditionSet = await runHandler(
-      "from experiment_engine.pyodide_handlers import handle_import_keywords; handle_import_keywords('/tmp/import_config.json', '/tmp/import_output.json')",
-      [['/tmp/import_config.json', { vfs_file: vfsFile, format, domain, name: fileName.replace(/\.[^/.]+$/, '') }]],
-      '/tmp/import_output.json',
-    );
-    respond({ type: 'import-keywords-done', conditionSet });
+    bertEngine.onProgress((progress: number, message: string) => {
+      respond({ type: 'bert-init-progress', progress, message });
+    });
+
+    await bertEngine.loadModel(modelName);
+    respond({ type: 'bert-init-done', modelName });
+    log('info', `BERT model "${modelName}" loaded successfully`);
   } catch (err: any) {
     const msg = err.message || String(err);
-    respond({ type: 'import-keywords-error', error: `Keyword import failed: ${msg}` });
+    respond({ type: 'bert-init-error', error: msg });
+    log('error', `BERT init failed: ${msg}`);
   }
 }
 
-// ─── Export Keywords to CSV/JSON ───────────────────────────────────────────
-
-async function handleExportKeywords(
+async function handleEmbedCalibrate(
+  texts: Array<{text_id: string; text: string; embedding: number[]}>,
   conditionSet: any,
-  format: 'csv' | 'json',
 ): Promise<void> {
+  ensureReady();
+
   try {
-    const { data, mime: mimeType } = await runHandler(
-      "from experiment_engine.pyodide_handlers import handle_export_keywords; handle_export_keywords('/tmp/export_cs.json', '/tmp/export_config.json', '/tmp/export_output.json')",
+    const fuzzyData = await runHandler(
+      "from experiment_engine.pyodide_handlers import handle_embed_calibrate; handle_embed_calibrate('/tmp/texts.json', '/tmp/condition_set.json', '/tmp/embed_calibrate_output.json')",
       [
-        ['/tmp/export_cs.json', conditionSet],
-        ['/tmp/export_config.json', { format }],
+        ['/tmp/texts.json', texts],
+        ['/tmp/condition_set.json', conditionSet],
       ],
-      '/tmp/export_output.json',
+      '/tmp/embed_calibrate_output.json',
     );
-    respond({ type: 'export-keywords-done', data, mimeType });
+
+    respond({ type: 'embed-calibrate-done', fuzzyData });
   } catch (err: any) {
     const msg = err.message || String(err);
-    respond({ type: 'export-keywords-error', error: `Keyword export failed: ${msg}` });
+    respond({ type: 'embed-calibrate-error', error: `Embed calibration failed: ${msg}` });
+  }
+}
+
+async function handleComputeEmbeddings(
+  texts: string[],
+  batchSize?: number,
+): Promise<void> {
+  if (!bertEngine || !bertEngine.isReady()) {
+    respond({ type: 'embeddings-error', error: 'BERT model not loaded. Call init_bert first.' });
+    return;
+  }
+
+  try {
+    const batch = await bertEngine.extractEmbeddings(texts, batchSize ?? 16);
+    const arrays: number[][] = batch.embeddings.map((e) => Array.from(e));
+    respond({ type: 'embeddings-computed', embeddings: arrays });
+  } catch (err: any) {
+    const msg = err.message || String(err);
+    respond({ type: 'embeddings-error', error: `Embedding computation failed: ${msg}` });
+  }
+}
+
+async function handleComputePrototypeEmbeddings(
+  prototypes: Record<string, string[]>,
+): Promise<void> {
+  if (!bertEngine || !bertEngine.isReady()) {
+    respond({ type: 'embeddings-error', error: 'BERT model not loaded. Call init_bert first.' });
+    return;
+  }
+
+  try {
+    const result: Record<string, {embeddings: number[][]; labels: number[]; weights: number[]}> = {};
+
+    for (const [conditionName, protoTexts] of Object.entries(prototypes)) {
+      if (protoTexts.length === 0) {
+        result[conditionName] = { embeddings: [], labels: [], weights: [] };
+        continue;
+      }
+
+      const batch = await bertEngine.extractEmbeddings(protoTexts, 16);
+      result[conditionName] = {
+        embeddings: batch.embeddings.map((e) => Array.from(e)),
+        labels: protoTexts.map(() => 1),
+        weights: protoTexts.map(() => 1.0),
+      };
+    }
+
+    respond({ type: 'prototype-embeddings-computed', embeddings: result });
+  } catch (err: any) {
+    const msg = err.message || String(err);
+    respond({ type: 'embeddings-error', error: `Prototype embedding failed: ${msg}` });
+  }
+}
+
+function handleGetBertStatus(): void {
+  if (!bertEngine) {
+    respond({ type: 'bert-status', loaded: false, modelName: null });
+  } else {
+    respond({
+      type: 'bert-status',
+      loaded: bertEngine.isReady(),
+      modelName: bertEngine.getModelName(),
+    });
   }
 }
 

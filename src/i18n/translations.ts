@@ -95,6 +95,21 @@ export interface TranslationDict {
     bertLoadingProgress: (pct: number) => string;
     bertReady: string;
     bertError: string;
+    bertCalibration: string;
+    bertDescription: string;
+    bertUnloaded: string;
+    bertLoading: string;
+    bertLoadingBtn: string;
+    bertLoadedBtn: string;
+    bertLoadBtn: string;
+    bertCalibratingBtn: string;
+    bertCalibrateBtn: string;
+    bertNotReady: string;
+    bertModelReady: string;
+    bertLoadFailed: string;
+    bertCalibrationComplete: string;
+    bertCalibrationFailed: string;
+    bertErrorUnknown: string;
     outcomeLabel: string;
     // Text corpus
     textCorpus: string;
@@ -260,6 +275,9 @@ export interface TranslationDict {
     // Save
     saveBtn: string;
     saved: string;
+    // BERT
+    bertModelSection: string;
+    bertStatusDesc: string;
   };
 
   // ── Pipeline Status ──
@@ -350,6 +368,21 @@ const zh: TranslationDict = {
     bertLoadingProgress: (pct: number) => `下载模型中... ${pct}%`,
     bertReady: '就绪',
     bertError: '加载失败',
+    bertCalibration: 'BERT 嵌入校准',
+    bertDescription: '使用 BERT 嵌入余弦相似度替代关键词匹配进行原型校准。',
+    bertUnloaded: '未加载',
+    bertLoading: '加载中...',
+    bertLoadingBtn: '加载中...',
+    bertLoadedBtn: '已加载',
+    bertLoadBtn: '加载 BERT 模型',
+    bertCalibratingBtn: '校准中...',
+    bertCalibrateBtn: '使用 BERT 嵌入校准',
+    bertNotReady: '请先加载 BERT 模型',
+    bertModelReady: 'BERT 模型加载成功。',
+    bertLoadFailed: 'BERT 模型加载失败: ',
+    bertCalibrationComplete: 'BERT 嵌入校准完成。',
+    bertCalibrationFailed: 'BERT 嵌入校准失败: ',
+    bertErrorUnknown: '未知 BERT 错误',
     outcomeLabel: '结果',
     // Text corpus
     textCorpus: '文本语料输入',
@@ -575,6 +608,9 @@ const zh: TranslationDict = {
     aboutVisualization: '可视化',
     saveBtn: '保存设置',
     saved: '设置已保存。',
+    // BERT
+    bertModelSection: 'BERT 模型',
+    bertStatusDesc: '当前 BERT 嵌入模型的加载状态',
   },
 
   pipelineStatus: {
@@ -680,6 +716,21 @@ const en: TranslationDict = {
     bertLoadingProgress: (pct: number) => `Downloading model... ${pct}%`,
     bertReady: 'Ready',
     bertError: 'Load failed',
+    bertCalibration: 'BERT Embedding Calibration',
+    bertDescription: 'Use BERT embedding cosine similarity instead of keyword matching for prototype calibration.',
+    bertUnloaded: 'Not loaded',
+    bertLoading: 'Loading...',
+    bertLoadingBtn: 'Loading...',
+    bertLoadedBtn: 'Loaded',
+    bertLoadBtn: 'Load BERT Model',
+    bertCalibratingBtn: 'Calibrating...',
+    bertCalibrateBtn: 'Calibrate with BERT Embeddings',
+    bertNotReady: 'Please load BERT model first',
+    bertModelReady: 'BERT model loaded successfully.',
+    bertLoadFailed: 'BERT model load failed: ',
+    bertCalibrationComplete: 'BERT embedding calibration complete.',
+    bertCalibrationFailed: 'BERT embedding calibration failed: ',
+    bertErrorUnknown: 'Unknown BERT error',
     outcomeLabel: 'Outcome',
     // Text corpus
     textCorpus: 'Text Corpus Input',
@@ -906,6 +957,9 @@ const en: TranslationDict = {
     aboutVisualization: 'Visualization',
     saveBtn: 'Save Settings',
     saved: 'Settings saved.',
+    // BERT
+    bertModelSection: 'BERT Model',
+    bertStatusDesc: 'Current BERT embedding model loading status',
   },
 
   pipelineStatus: {

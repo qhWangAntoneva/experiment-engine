@@ -19,6 +19,7 @@ import type {
   RobustnessReport,
   CounterfactualReport,
   ExportResult,
+  EmbedCalibrateTextEntry,
   PyodideWorkerRequest as PWReq,
   PyodideWorkerResponse as PWRes,
 } from '../types/qca';
@@ -246,52 +247,83 @@ export class PyodideBridge {
   }
 
   /**
-   * Import a keyword dictionary from a CSV or JSON file.
+   * Initialise the BERT model in the worker for embedding extraction.
    *
-   * The file content is written to the Pyodide VFS and processed by
-   * the keyword_io module. Returns a parsed ConditionSet.
+   * The model is lazily loaded on first call; subsequent calls with the
+   * same model name are no-ops. Progress events are forwarded as
+   * bert-init-progress worker responses.
    */
-  async importKeywords(
-    fileName: string,
-    content: string,
-    format: 'csv' | 'json',
-    domain: string = 'dissatisfaction',
-  ): Promise<ConditionSet> {
-    const resp = await this.send<{ conditionSet: ConditionSet }>(
-      {
-        type: 'import_keywords',
-        payload: { fileName, content, format, domain },
-      },
-      'import-keywords-done',
-      'import-keywords',
+  async initBert(modelName: string): Promise<void> {
+    return this.send<void>(
+      { type: 'init_bert', payload: { modelName } },
+      'bert-init-done',
+      'init-bert'
     );
-    return resp.conditionSet;
   }
 
   /**
-   * Export the current condition set keyword dictionary to CSV or JSON.
-   *
-   * Returns a Blob with the exported content.
+   * Run embed-based calibration: texts with pre-computed BERT embeddings
+   * are scored against condition prototypes via CosineSimilarityEngine
+   * (Python side) and then calibrated to fuzzy-set memberships.
    */
-  async exportKeywords(
-    conditionSet: ConditionSet,
-    format: 'csv' | 'json',
-  ): Promise<ExportResult> {
-    const resp = await this.send<{ data: string; mimeType: string }>(
-      {
-        type: 'export_keywords',
-        payload: { conditionSet, format },
-      },
-      'export-keywords-done',
-      `export-keywords-${format}`,
+  async embedCalibrate(
+    texts: EmbedCalibrateTextEntry[],
+    conditionSet: any,
+  ): Promise<{ fuzzyData: MembershipDataJSON }> {
+    return this.send<{ fuzzyData: MembershipDataJSON }>(
+      { type: 'embed_calibrate', payload: { texts, conditionSet } },
+      'embed-calibrate-done',
+      'embed-calibrate'
     );
+  }
 
-    const ext = format === 'csv' ? 'csv' : 'json';
-    return {
-      data: new Blob([resp.data], { type: resp.mimeType }),
-      mimeType: resp.mimeType,
-      filename: `keywords-dictionary.${ext}`,
-    };
+  /**
+   * Extract BERT CLS embeddings for a list of texts.
+   *
+   * @param texts - Input strings to embed.
+   * @param batchSize - Max texts per pipeline call (default 16).
+   * @returns Array of 768-dim embedding vectors as plain number arrays.
+   */
+  async computeEmbeddings(
+    texts: string[],
+    batchSize?: number,
+  ): Promise<number[][]> {
+    const resp = await this.send<{ embeddings: number[][] }>(
+      { type: 'compute_embeddings', payload: { texts, batchSize } },
+      'embeddings-computed',
+      'compute-embeddings'
+    );
+    return resp.embeddings;
+  }
+
+  /**
+   * Compute BERT embeddings for prototype texts, grouped by condition name.
+   *
+   * @param prototypes - Record mapping condition names to arrays of prototype texts.
+   * @returns Embeddings grouped by condition with labels (default all 1) and weights (default all 1.0).
+   */
+  async computePrototypeEmbeddings(
+    prototypes: Record<string, string[]>,
+  ): Promise<Record<string, {embeddings: number[][]; labels: number[]; weights: number[]}>> {
+    const resp = await this.send<{
+      embeddings: Record<string, {embeddings: number[][]; labels: number[]; weights: number[]}>;
+    }>(
+      { type: 'compute_prototype_embeddings', payload: { prototypes } },
+      'prototype-embeddings-computed',
+      'compute-prototype-embeddings'
+    );
+    return resp.embeddings;
+  }
+
+  /**
+   * Query the current BERT model loading status.
+   */
+  async getBertStatus(): Promise<{ loaded: boolean; modelName: string | null }> {
+    return this.send<{ loaded: boolean; modelName: string | null }>(
+      { type: 'get_bert_status' },
+      'bert-status',
+      'bert-status'
+    );
   }
 
   /**
@@ -347,6 +379,12 @@ export class PyodideBridge {
             cb({ ts: Date.now(), level: msg.level, message: msg.message })
           );
           return;
+        // BERT lifecycle — progress events must not resolve the initBert promise
+        case 'bert-init-progress':
+          return;
+        case 'bert-init-done':
+        case 'bert-init-error':
+          break;
       }
 
       // Route response to the pending request that matches this message type

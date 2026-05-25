@@ -56,16 +56,11 @@ CalibrationType = CalibrationMethod
 class ScoringSource(str, Enum):
     """How a condition's raw score is computed.
 
-    PROTOTYPE is the primary scoring source using BERT CLS embedding + cosine
-    similarity. KEYWORD and HYBRID are retained for backward compatibility
-    with old serialized data and will be removed in a future cleanup.
+    PROTOTYPE is the only scoring source using BERT CLS embedding + cosine
+    similarity. Legacy KEYWORD and HYBRID values were removed in Phase 5.
     """
 
-    PROTOTYPE = "prototype"  # BERT CLS embedding + cosine similarity (primary)
-    # DEPRECATED: legacy keyword-based scoring, to be removed
-    KEYWORD = "keyword"
-    # DEPRECATED: legacy hybrid scoring, to be removed
-    HYBRID = "hybrid"
+    PROTOTYPE = "prototype"  # BERT CLS embedding + cosine similarity
 
 
 class CalibrationParams(BaseModel):

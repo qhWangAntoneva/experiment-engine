@@ -310,7 +310,6 @@ from experiment_engine.models import MembershipData, TruthTable, QCASolutions
 from experiment_engine.pipeline import Pipeline, Stage
 from experiment_engine.config import load_config
 from experiment_engine.text_calibration.domains import DOMAIN_PRESETS
-from experiment_engine.text_calibration.keyword_dict import ChineseKeywordDictionary
 from experiment_engine.text_calibration.calibrator import TextCalibrationStage
 from experiment_engine.qca_engine.truth_table import TruthTableBuilder
 from experiment_engine.qca_engine.consistency import ConsistencyCalculator

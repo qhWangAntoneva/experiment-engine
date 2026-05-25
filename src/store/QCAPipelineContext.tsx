@@ -46,6 +46,8 @@ export type PipelineAction =
   | { type: 'SET_ROBUSTNESS_REPORT'; report: RobustnessReport }
   | { type: 'SET_COUNTERFACTUAL_REPORT'; report: CounterfactualReport }
   | { type: 'SET_EXPORT_FORMATS'; formats: string[] }
+  | { type: 'SET_BERT_STATUS'; status: 'unloaded' | 'loading' | 'ready' | 'error'; message?: string }
+  | { type: 'SET_EMBEDDINGS_READY'; embeddings: number[][] }
   | { type: 'TICK_ELAPSED' }; // heartbeat for timing
 
 // ─── Reducer ───────────────────────────────────────────────────────────────
@@ -107,6 +109,16 @@ function pipelineReducer(
     case 'SET_EXPORT_FORMATS':
       return { ...state, exportFormats: action.formats };
 
+    case 'SET_BERT_STATUS':
+      return {
+        ...state,
+        bertStatus: action.status,
+        bertMessage: action.message ?? state.bertMessage,
+      };
+
+    case 'SET_EMBEDDINGS_READY':
+      return { ...state, bertEmbeddingsReady: true };
+
     case 'TICK_ELAPSED':
       if (state.startTime === null) return state;
       return { ...state, elapsedMs: Date.now() - state.startTime };
@@ -138,6 +150,11 @@ interface QCAPipelineContextValue {
   fail: (error: string) => void;
   setProgress: (progress: number, message?: string) => void;
   setConditionSet: (cs: ConditionSet) => void;
+  startBertLoading: () => void;
+  finishBertLoading: () => void;
+  setBertStatus: (status: 'unloaded' | 'loading' | 'ready' | 'error', message?: string) => void;
+  startEmbedding: () => void;
+  finishEmbedding: () => void;
 }
 
 const QCAPipelineContext = createContext<QCAPipelineContextValue | null>(null);
@@ -254,6 +271,32 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_CONDITION_SET', conditionSet: cs });
   }, []);
 
+  const startBertLoading = useCallback(() => {
+    dispatch({ type: 'SET_STAGE', stage: 'bert-loading', message: 'Loading BERT model...' });
+    dispatch({ type: 'SET_BERT_STATUS', status: 'loading', message: 'BERT model downloading...' });
+  }, []);
+
+  const finishBertLoading = useCallback(() => {
+    dispatch({ type: 'SET_BERT_STATUS', status: 'ready', message: 'BERT model ready' });
+    dispatch({ type: 'SET_STAGE', stage: 'pyodide-ready', message: 'BERT model loaded' });
+  }, []);
+
+  const setBertStatusAction = useCallback(
+    (status: 'unloaded' | 'loading' | 'ready' | 'error', message?: string) => {
+      dispatch({ type: 'SET_BERT_STATUS', status, message });
+    },
+    []
+  );
+
+  const startEmbedding = useCallback(() => {
+    dispatch({ type: 'SET_STAGE', stage: 'embedding', message: 'Computing BERT embeddings...' });
+  }, []);
+
+  const finishEmbedding = useCallback(() => {
+    dispatch({ type: 'SET_EMBEDDINGS_READY', embeddings: [] });
+    dispatch({ type: 'SET_STAGE', stage: 'calibrating-embed', message: 'Running embedding-based calibration...' });
+  }, []);
+
   const value: QCAPipelineContextValue = {
     state,
     dispatch,
@@ -272,6 +315,11 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
     fail,
     setProgress,
     setConditionSet,
+    startBertLoading,
+    finishBertLoading,
+    setBertStatus: setBertStatusAction,
+    startEmbedding,
+    finishEmbedding,
   };
 
   return (
