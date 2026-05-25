@@ -32,8 +32,6 @@ import './DataInput.css';
 
 // ─── Default condition set YAML template ────────────────────────────────────
 
-// FIXME-BERT: YAML template still uses 'keywords' fields — replace with prototype-based template after Phase 2
-
 const DEFAULT_CONDITION_SET_YAML = `# QCA Condition Set Definition
 # Define causal conditions and the outcome for fuzzy-set analysis.
 name: "citizen-feedback-qca"
@@ -305,6 +303,8 @@ export default function DataInput() {
     runFullPipeline,
     runCalibrateOnly,
     loadCorpus,
+    initBert,
+    runEmbedCalibrate,
   } = useQCAWorkflow();
   // Phase 5 stubs: keyword functionality removed
   const importKeywords = async (..._args: any[]): Promise<any> => ({ conditions: [], outcome: null } as any);
@@ -336,6 +336,8 @@ export default function DataInput() {
 
   const [validationMessage, setValidationMessage] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [isBertLoading, setIsBertLoading] = useState(false);
+  const [isEmbedding, setIsEmbedding] = useState(false);
 
   // ─── Keyword mode handlers ───────────────────────────────────────────────
 
@@ -421,12 +423,11 @@ export default function DataInput() {
           const content = e.target?.result as string;
           const cs = await importKeywords(file.name, content, format, selectedDomain);
           setImportedConditionSet(cs);
-          // FIXME-BERT: c.keywords removed from ConditionDefinition — keyword count unavailable after Phase 2
           const kwCount = cs.conditions.reduce(
-            (sum: number, c: any) => sum + ((c as any).keywords?.length ?? 0), 0
+            (sum: number, c: any) => sum + ((c as any).prototypes?.length ?? 0), 0
           );
           if (cs.outcome) {
-            const outcomeKws = (cs.outcome as any).keywords?.length ?? 0;
+            const outcomeKws = (cs.outcome as any).prototypes?.length ?? 0;
             setValidationMessage(
               t('dataInput.importedDict', cs.conditions.length, true, kwCount + outcomeKws, file.name)
             );
@@ -464,9 +465,8 @@ export default function DataInput() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      // FIXME-BERT: c.keywords removed from ConditionDefinition — keyword count unavailable after Phase 2
       const kwCount = importedConditionSet.conditions.reduce(
-        (sum, c) => sum + ((c as any).keywords?.length ?? 0), 0
+        (sum, c) => sum + ((c as any).prototypes?.length ?? 0), 0
       );
       setValidationMessage(
         t('dataInput.exportedDict', importedConditionSet.conditions.length, kwCount)
@@ -610,6 +610,43 @@ export default function DataInput() {
 
 
 
+  // ─── BERT handlers ─────────────────────────────────────────────────────
+
+  const handleLoadBert = useCallback(async () => {
+    setIsBertLoading(true);
+    setValidationMessage(null);
+    try {
+      await initBert();
+      setValidationMessage(t('dataInput.bertLoaded'));
+    } catch (err: any) {
+      setValidationMessage(`${t('common.error')}: ${err.message}`);
+    } finally {
+      setIsBertLoading(false);
+    }
+  }, [initBert, t]);
+
+  const handleBertCalibrate = useCallback(async () => {
+    if (texts.length === 0) {
+      setValidationMessage(t('dataInput.noTextData'));
+      return;
+    }
+    // Build condition set from YAML or imported
+    const cs = importedConditionSet
+      ? { ...importedConditionSet, qca_variant: importedConditionSet.qca_variant ?? getQCAVariantFromSettings() }
+      : (yamlContent as any);
+
+    setIsEmbedding(true);
+    setValidationMessage(null);
+    try {
+      await runEmbedCalibrate({ texts, conditionSet: cs });
+      setValidationMessage(t('dataInput.bertCalibrationComplete'));
+    } catch (err: any) {
+      setValidationMessage(`${t('dataInput.bertCalibrationFailed')}: ${err.message}`);
+    } finally {
+      setIsEmbedding(false);
+    }
+  }, [texts, yamlContent, importedConditionSet, runEmbedCalibrate, t]);
+
   // ─── Calibration / Pipeline triggers ─────────────────────────────────────
 
   const handleCalibrate = useCallback(async () => {
@@ -702,7 +739,6 @@ export default function DataInput() {
         </div>
       )}
 
-      {/* FIXME-BERT: Section 0 — Import/Export Keyword Dictionary (keyword-specific, remove after Phase 3) */}
       <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           <h3 className="section-title" style={{ marginBottom: 0, borderBottom: 'none', paddingBottom: 0 }}>
@@ -742,15 +778,13 @@ export default function DataInput() {
             {importedConditionSet.conditions.map((c) => (
               <span key={c.name} style={{ marginRight: '12px' }}>
                 <span style={{ fontWeight: 600 }}>{c.name}</span>
-                {/* FIXME-BERT: c.keywords removed — kw count display broken until Phase 3 */}
-                <span style={{ color: 'var(--color-text-secondary)' }}> ({(c as any).keywords?.length ?? 0} {t('dataInput.kw')})</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}> ({(c as any).prototypes?.length ?? 0} {t('dataInput.kw')})</span>
               </span>
             ))}
             {importedConditionSet.outcome && (
               <span>
                 | {t('dataInput.outcomeLabel')}: <span style={{ fontWeight: 600 }}>{importedConditionSet.outcome.name}</span>
-                {/* FIXME-BERT: outcome.keywords removed — kw count display broken until Phase 3 */}
-                <span style={{ color: 'var(--color-text-secondary)' }}> ({(importedConditionSet.outcome as any).keywords?.length ?? 0} {t('dataInput.kw')})</span>
+                <span style={{ color: 'var(--color-text-secondary)' }}> ({(importedConditionSet.outcome as any).prototypes?.length ?? 0} {t('dataInput.kw')})</span>
               </span>
             )}
           </div>
@@ -760,6 +794,54 @@ export default function DataInput() {
       {/* === Section 0: Calibration Mode Selector === */}
       <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
         <h3 className="section-title">{t('dataInput.calibrationMode')}</h3>
+      </div>
+
+      {/* === BERT Embedding Controls === */}
+      <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
+        <h3 className="section-title">BERT Embedding 校准</h3>
+        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '12px' }}>
+          使用 BERT 中文模型（bert-base-chinese）计算文本语义嵌入，
+          通过余弦相似度与原型文本进行匹配，替代传统关键词匹配。
+          首次加载需下载约 400MB 模型文件。
+        </p>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <button
+            className="btn btn-secondary"
+            onClick={handleLoadBert}
+            disabled={isBertLoading || isRunning}
+            style={{ fontSize: '0.8125rem' }}
+          >
+            {isBertLoading ? '加载中...' : '加载 BERT 模型'}
+          </button>
+          {state.bertStatus === 'ready' && (
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>
+              BERT 模型就绪
+            </span>
+          )}
+          {state.bertStatus === 'loading' && (
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-warning)' }}>
+              下载中...
+            </span>
+          )}
+          {state.bertStatus === 'error' && (
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-error)' }}>
+              加载失败: {state.bertMessage}
+            </span>
+          )}
+          {state.bertStatus === 'unloaded' && (
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
+              未加载
+            </span>
+          )}
+          <button
+            className="btn btn-primary"
+            onClick={handleBertCalibrate}
+            disabled={isEmbedding || isRunning || texts.length === 0 || state.bertStatus !== 'ready'}
+            style={{ fontSize: '0.8125rem', marginLeft: 'auto' }}
+          >
+            {isEmbedding ? '计算中...' : 'BERT Embedding 校准'}
+          </button>
+        </div>
       </div>
 
       {/* ── Text Corpus Input ── */}
@@ -1189,7 +1271,7 @@ export default function DataInput() {
           type="button"
           className="btn btn-primary"
           onClick={handleCalibrate}
-          disabled={isRunning || texts.length === 0}
+          disabled={isRunning || isBertLoading || isEmbedding || texts.length === 0}
         >
           {isRunning ? t('dataInput.calibrating') : t('dataInput.calibrateBtn')}
         </button>
@@ -1197,7 +1279,7 @@ export default function DataInput() {
           type="button"
           className="btn btn-primary"
           onClick={handleRunPipeline}
-          disabled={isRunning || texts.length === 0}
+          disabled={isRunning || isBertLoading || isEmbedding || texts.length === 0}
         >
           {isRunning ? t('dataInput.running') : t('dataInput.runPipelineBtn')}
         </button>

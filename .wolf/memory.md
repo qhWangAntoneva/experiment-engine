@@ -1171,3 +1171,24 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 18:36 | Edited src/hooks/useQCAWorkflow.ts | modified catch() | ~80 |
 | 18:36 | Edited src/hooks/useQCAWorkflow.ts | 16→18 lines | ~144 |
 | 18:36 | Edited src/hooks/useQCAWorkflow.ts | 3→3 lines | ~33 |
+| 18:39 | Session end: 9 writes across 1 files (useQCAWorkflow.ts) | 9 reads | ~40113 tok |
+| 18:40 | Edited src/pages/DataInput.tsx | 5→7 lines | ~37 |
+| 18:40 | Edited src/pages/DataInput.tsx | 2→4 lines | ~73 |
+| 18:40 | Edited src/pages/DataInput.tsx | 4→2 lines | ~10 |
+| 18:40 | Edited src/pages/DataInput.tsx | 3→3 lines | ~69 |
+| 18:40 | Edited src/pages/DataInput.tsx | inline fix | ~22 |
+| 18:41 | Edited src/pages/DataInput.tsx | 4→4 lines | ~70 |
+| 18:41 | Edited src/pages/DataInput.tsx | 2→1 lines | ~23 |
+| 18:41 | Edited src/pages/DataInput.tsx | 2→2 lines | ~67 |
+| 18:41 | Edited src/pages/DataInput.tsx | 2→2 lines | ~76 |
+| 18:42 | Edited src/pages/DataInput.tsx | added error handling | ~386 |
+| 18:42 | Edited src/pages/DataInput.tsx | expanded (+48 lines) | ~635 |
+| 18:42 | Edited src/pages/Settings.tsx | added error handling | ~193 |
+| 18:42 | Edited src/pages/Settings.tsx | modified t() | ~763 |
+| 18:42 | Edited src/pages/DataInput.tsx | inline fix | ~24 |
+| 2026-05-25 16:00 | Phase C: Added BERT model selector and status display to Settings page — model select dropdown, bertStatus/bertMessage display, load button with useQCAWorkflow.initBert integration. TypeScript build passes. | src/pages/Settings.tsx | Modified: added BERT section in Engine Status card, bertModel state, handleLoadBert callback | ~500 |
+| 18:44 | Phase B: BERT controls integration — added initBert/runEmbedCalibrate to hook destructuring, BERT state (isBertLoading/isEmbedding), BERT handlers (handleLoadBert/handleBertCalibrate), BERT UI section after calibration mode selector, cleaned 2 FIXME-BERT comments, updated 4 keyword→prototypes refs, updated button disabled logic | src/pages/DataInput.tsx | ts compilation clean, 4 FIXME-BERT comments remain | ~800 |
+| 18:46 | Edited src/pages/DataInput.tsx | modified if() | ~71 |
+| 18:46 | Edited src/pages/DataInput.tsx | 6→5 lines | ~72 |
+| 18:46 | Edited src/pages/DataInput.tsx | 2→1 lines | ~40 |
+| 18:46 | Edited src/pages/DataInput.tsx | 2→1 lines | ~47 |

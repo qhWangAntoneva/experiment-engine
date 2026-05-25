@@ -172,6 +172,20 @@ export default function Settings() {
   // Phase 5 stub: keyword functionality removed
   const exportKeywords = async (..._args: any[]): Promise<any> => new Blob();
   const { state: pipelineState } = useQCAPipeline();
+  const [bertModel, setBertModel] = useState('Xenova/bert-base-chinese');
+  const [isBertLoading, setIsBertLoading] = useState(false);
+  const { initBert } = useQCAWorkflow();
+
+  const handleLoadBert = useCallback(async () => {
+    setIsBertLoading(true);
+    try {
+      await initBert(bertModel);
+    } catch (err: any) {
+      console.error('BERT load error:', err);
+    } finally {
+      setIsBertLoading(false);
+    }
+  }, [initBert, bertModel]);
 
   const [values, setValues] = useState<Record<string, string | number | boolean>>(() => {
     const initial: Record<string, string | number | boolean> = {};
@@ -326,6 +340,56 @@ export default function Settings() {
             <div className="about-item">
               <span className="about-label">{t('settings.workerThread')}</span>
               <span className="about-value">{initState.status === 'ready' ? t('common.active') : t('common.idle')}</span>
+            </div>
+          </div>
+          {/* BERT Model Section */}
+          <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--color-border)' }}>
+            <h4 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '12px' }}>BERT 模型</h4>
+            <div className="about-grid">
+              <div className="about-item">
+                <span className="about-label">模型选择</span>
+                <select
+                  className="input"
+                  value={bertModel}
+                  onChange={(e) => setBertModel(e.target.value)}
+                  style={{ width: 260 }}
+                >
+                  <option value="Xenova/bert-base-chinese">bert-base-chinese (768维, ~400MB)</option>
+                  <option value="Xenova/bert-base-multilingual-cased">bert-base-multilingual-cased (768维, ~700MB)</option>
+                </select>
+              </div>
+              <div className="about-item">
+                <span className="about-label">加载状态</span>
+                <span className={`badge ${
+                  pipelineState.bertStatus === 'ready' ? 'badge-success' :
+                  pipelineState.bertStatus === 'loading' ? 'badge-warning' :
+                  pipelineState.bertStatus === 'error' ? 'badge-error' : ''
+                }`}>
+                  {pipelineState.bertStatus === 'unloaded' ? '未加载' :
+                   pipelineState.bertStatus === 'loading' ? '加载中...' :
+                   pipelineState.bertStatus === 'ready' ? '就绪' :
+                   pipelineState.bertStatus === 'error' ? '错误' : pipelineState.bertStatus}
+                </span>
+              </div>
+              {pipelineState.bertMessage && (
+                <div className="about-item">
+                  <span className="about-label">详情</span>
+                  <span className="about-value" style={{ fontSize: '0.75rem' }}>
+                    {pipelineState.bertMessage}
+                  </span>
+                </div>
+              )}
+              <div className="about-item">
+                <span className="about-label">操作</span>
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleLoadBert}
+                  disabled={isBertLoading || initState.status !== 'ready'}
+                  style={{ fontSize: '0.75rem' }}
+                >
+                  {isBertLoading ? '加载中...' : '加载模型'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

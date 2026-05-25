@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-25T10:36:59.382Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-25T10:46:57.920Z
 > Files: 19 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
@@ -85,8 +85,8 @@
 
 ## src/pages/
 
-- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~13227 tok)
-- `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~4901 tok)
+- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~13680 tok)
+- `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~5929 tok)
 
 ## src/pyodide/
 
