@@ -1,5 +1,8 @@
 # Memory
 
+| 2026-05-25 | Designed BERT Prototype similarity algorithm spec: mean pooling > CLS, centroid aggregation > max-similarity, softmax-with-temperature formula as primary (Eq.1), normalized-difference as fallback (Eq.3), full pipeline pseudocode, edge cases, Prototype Theory + fsQCA theoretical justification | .wolf/bert-prototype-algorithm-spec.md | Written, ~27KB, no implementation code | ~12000 |
+| 2026-05-25 | Implemented CosineSimilarityEngine + 52 comprehensive unit tests: softmax(tau)/diff scoring, centroid/max aggregation, weighted prototypes, 8 edge cases, numerical stability (overflow-safe softmax, cos clipping, L2 normalization), input validation. 577 total tests pass (52 new), ruff clean | src/experiment_engine/text_calibration/cosine_similarity.py, tests/test_cosine_similarity.py, src/experiment_engine/text_calibration/__init__.py | Created: engine ~4.8k tok, tests ~12k tok; updated __init__.py exports | ~7000 |
+
 > Chronological action log. Hooks and AI append to this file automatically.
 
 | 2026-05-25 | P1-31: Verified build + committed raw-prototype contrast view (pre-existing implementation). TODO.md stats updated. | qca.ts, QCAPipelineContext.tsx, useQCAWorkflow.ts, Results.tsx, Results.css, PipelineStatus.tsx, TODO.md | npm build clean, 0 errors | ~800 |
@@ -938,3 +941,49 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 09:10 | Edited TODO.md | inline fix | ~14 |
 | 09:11 | Edited roadmap/experiment-engine-roadmap.json | inline fix | ~10 |
 | 09:11 | Removed all BERT content from TODO.md, handover.md, roadmap: P1-32/33 + P2-25/26 + P2-14 removed. Stats recalculated (P1: 23→10 remaining, P2: 28→23 remaining). | TODO.md, handover.md, experiment-engine-roadmap.json | 33 tasks remaining | ~3000 |
+| 09:14 | Session end: 11 writes across 2 files (TODO.md, experiment-engine-roadmap.json) | 3 reads | ~2910 tok |
+
+## Session: 2026-05-25 12:46
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:35 | Edited TODO.md | expanded (+40 lines) | ~643 |
+| 13:35 | Edited TODO.md | inline fix | ~17 |
+| 13:36 | Edited TODO.md | 15→17 lines | ~128 |
+| 13:36 | Edited roadmap/experiment-engine-roadmap.json | 18→19 lines | ~175 |
+| 13:36 | Edited roadmap/experiment-engine-roadmap.json | expanded (+160 lines) | ~1935 |
+| 13:37 | Edited roadmap/experiment-engine-roadmap.json | expanded (+14 lines) | ~113 |
+| 13:37 | Edited roadmap/experiment-engine-roadmap.json | 15→16 lines | ~122 |
+| 13:42 | BERT+Prototype architecture refactoring plan finalized: TODO.md + roadmap.json + cerebrum.md | 3 files | 5-phase implementation sequence designed | ~12000 tok |
+| 13:43 | Session end: 7 writes across 2 files (TODO.md, experiment-engine-roadmap.json) | 42 reads | ~25591 tok |
+| 13:44 | Edited package.json | 1→2 lines | ~18 |
+| 13:44 | Created src/types/bert.ts | — | ~675 |
+| 13:46 | Session end: 9 writes across 4 files (TODO.md, experiment-engine-roadmap.json, package.json, bert.ts) | 43 reads | ~26959 tok |
+| 13:47 | Created src/services/bert-cache.ts | — | ~3612 |
+| 13:48 | Created src/experiment_engine/text_calibration/cosine_similarity.py | — | ~4701 |
+| 13:49 | Session end: 11 writes across 6 files (TODO.md, experiment-engine-roadmap.json, package.json, bert.ts, bert-cache.ts) | 46 reads | ~35444 tok |
+| 13:49 | Created src/services/bert-engine.ts | — | ~2378 |
+| 13:50 | created bert-cache.ts — IndexedDB cache for BERT prototype + text embeddings | src/services/bert-cache.ts | build passes | ~288 tok |
+| 13:50 | Edited src/services/bert-engine.ts | modified for() | ~173 |
+| 13:51 | Session end: 13 writes across 7 files (TODO.md, experiment-engine-roadmap.json, package.json, bert.ts, bert-cache.ts) | 47 reads | ~38283 tok |
+| 13:51 | Created BertEngine service at src/services/bert-engine.ts | bert-engine.ts | TS type-check passes; lazy-load pipeline, attention-masked mean pooling, L2 norm, embedding cache, batch processing | ~3200 |
+| 13:52 | Created tests/test_cosine_similarity.py | — | ~12116 |
+| 13:53 | Edited tests/test_cosine_similarity.py | modified test_opposite_with_both_softmax_near_zero() | ~241 |
+| 13:53 | Edited tests/test_cosine_similarity.py | modified test_diff_formula_symmetric() | ~312 |
+| 13:53 | Edited src/types/bert.ts | 7→5 lines | ~42 |
+| 13:53 | Edited src/services/bert-engine.ts | 2→1 lines | ~18 |
+| 13:53 | Edited src/experiment_engine/text_calibration/cosine_similarity.py | 8→7 lines | ~120 |
+| 13:54 | Edited src/experiment_engine/text_calibration/cosine_similarity.py | modified _normalize_rows() | ~125 |
+| 13:54 | Edited src/services/bert-engine.ts | 3→2 lines | ~22 |
+| 13:54 | Edited src/services/bert-engine.ts | modified if() | ~27 |
+| 13:54 | Edited src/services/bert-engine.ts | inline fix | ~16 |
+| 13:54 | Edited src/services/bert-engine.ts | 2→5 lines | ~81 |
+| 13:54 | Edited src/services/bert-engine.ts | modified _truncateText() | ~38 |
+| 13:54 | Edited src/types/bert.ts | 5→4 lines | ~33 |
+| 13:54 | Session end: 26 writes across 8 files (TODO.md, experiment-engine-roadmap.json, package.json, bert.ts, bert-cache.ts) | 48 reads | ~54674 tok |
+| 13:55 | Edited src/experiment_engine/text_calibration/cosine_similarity.py | inline fix | ~13 |
+| 13:55 | Edited src/experiment_engine/text_calibration/cosine_similarity.py | 4→3 lines | ~43 |
+| 13:55 | Edited tests/test_cosine_similarity.py | inline fix | ~22 |
+| 13:56 | Edited src/experiment_engine/text_calibration/cosine_similarity.py | 7→7 lines | ~88 |
+| 13:59 | Edited src/experiment_engine/text_calibration/__init__.py | 7→10 lines | ~92 |
+| 13:59 | Edited src/experiment_engine/text_calibration/__init__.py | 7→8 lines | ~63 |

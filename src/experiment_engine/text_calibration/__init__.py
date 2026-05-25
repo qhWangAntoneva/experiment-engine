@@ -7,6 +7,9 @@ from experiment_engine.text_calibration.condition import (
     load_condition_set,
     save_condition_set,
 )
+from experiment_engine.text_calibration.cosine_similarity import (
+    CosineSimilarityEngine,
+)
 from experiment_engine.text_calibration.domains import (
     DOMAIN_PRESETS,
     build_default_conditions,
@@ -42,6 +45,7 @@ __all__ = [
     "ChineseKeywordDictionary",
     "ConditionDefinitionBuilder",
     "ConditionSetBuilder",
+    "CosineSimilarityEngine",
     "CrispCalibration",
     "DirectCalibration",
     "IndirectCalibration",

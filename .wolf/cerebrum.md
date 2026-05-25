@@ -274,6 +274,7 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 - **ScoringSource 枚举应预留 BERT 值**：当前 KEYWORD/PROTOTYPE/HYBRID 三者封闭，将来新增 BERT 是破坏性变更。应在 P1-32 阶段提前添加 `BERT = "bert"` 占位。
 - **BERT 首次加载将增至 ~150MB**（Pyodide 50MB + ONNX Runtime 5MB + BERT 量化模型 ~100MB），需 lazy loading 且仅在选择 BERT scoring 时加载。
 - **[2026-05-25] BERT 架构决策已定案**：BERT 作为辅助工具不做主引擎。关键词匹配是 QCA 方法论核心不可替代。BERT 仅用于 CLI 端差异标记/覆盖率诊断/候选词推荐（P1-32/33），从 MiniLM-L6（~25MB）轻量模型开始。浏览器端 BERT 等待 WebGPU >90% + Safari 稳定 + 模型 <30MB 后再评估。定量对比数据：冷启动 5.9x 慢、WASM CPU 推理 86x 慢、内存 2.6x、体积 8.3x。决策过程详见 `.wolf/bert-vs-keyword-analysis.md` 第 10 节。
+- **[2026-05-25] 🔄 BERT 决策已推翻**：用户明确要求放弃关键词识别方案，Prototype 理论是 QCA 的唯一理论基础。BERT CLS embedding + 余弦相似度（Softmax τ=5.0）完全替代关键词匹配。架构方案：Hybrid Transformers.js + Pyodide。模型：bert-base-chinese。详细规范见 `.wolf/bert-prototype-algorithm-spec.md`。
 
 ## 10. Do-Not-Repeat
 

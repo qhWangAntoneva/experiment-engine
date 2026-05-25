@@ -2,8 +2,8 @@
   "metadata": {
     "project": "experiment-engine",
     "version": "1.0.0",
-    "last_updated": "2026-05-25T12:00",
-    "description": "QCA Text Analysis Tool: Chinese citizen feedback text → fuzzy-set QCA. CLI + Pyodide Web (browser-based, zero-server deployment to GitHub Pages).",
+    "last_updated": "2026-05-25T14:00",
+    "description": "QCA Text Analysis Tool: BERT CLS embedding + cosine similarity → Prototype-based QCA. CLI + Pyodide Web (browser-based, zero-server deployment to GitHub Pages).",
     "tech_stack": [
       "Python >=3.10",
       "Pydantic v2 (CLI) / dataclass (Browser)",
@@ -11,6 +11,7 @@
       "PyYAML",
       "Plotly",
       "Pyodide v0.29",
+      "Transformers.js (BERT ONNX inference)",
       "React 18",
       "TypeScript 5",
       "Vite 5",
@@ -377,6 +378,166 @@
         }
       ]
     },
+    "phase_7_bert_prototype": {
+      "title": "BERT + Prototype 架构重构 (BERT CLS + Cosine Similarity)",
+      "priority": "CRITICAL",
+      "summary": "废弃关键词识别方案，用 BERT CLS embedding + 余弦相似度实现 Prototype 理论驱动的模糊集校准。架构方案：Hybrid Transformers.js + Pyodide。模型：bert-base-chinese (ONNX int8, ~100MB)。算法：Mean Pooling + Centroid Aggregation + Softmax(tau=5.0)。",
+      "architecture": {
+        "bert_runtime": "Transformers.js (ONNX Runtime Web) in Web Worker",
+        "embedding_model": "Xenova/bert-base-chinese (ONNX int8 quantized)",
+        "cosine_engine": "Python/numpy in Pyodide (CosineSimilarityEngine)",
+        "calibration": "Existing strategies (Direct/Indirect/Ragin) — unchanged",
+        "qca_analysis": "QCA pipeline — unchanged",
+        "new_dependency": "@xenova/transformers (npm)"
+      },
+      "tasks": [
+        {
+          "id": "B1",
+          "description": "新增 cosine_similarity.py — BERT CLS 余弦相似度引擎，支持 Centroid/Max 聚合、Softmax/NormDiff 公式、加权原型",
+          "effort_hours": 4.0,
+          "dependencies": [],
+          "status": "PENDING",
+          "files": ["src/experiment_engine/text_calibration/cosine_similarity.py"]
+        },
+        {
+          "id": "B2",
+          "description": "新增 bert-engine.ts — Transformers.js 模型加载 (pipeline('feature-extraction', 'Xenova/bert-base-chinese')) + Mean Pooling + CLS embedding 提取",
+          "effort_hours": 5.0,
+          "dependencies": [],
+          "status": "PENDING",
+          "files": ["src/services/bert-engine.ts"]
+        },
+        {
+          "id": "B3",
+          "description": "新增 bert-cache.ts — IndexedDB 持久化缓存 (模型权重 + 预计算原型嵌入)，支持版本迁移",
+          "effort_hours": 3.0,
+          "dependencies": ["B2"],
+          "status": "PENDING",
+          "files": ["src/services/bert-cache.ts"]
+        },
+        {
+          "id": "B4",
+          "description": "模型层重构 — ScoringSource 仅保留 PROTOTYPE；ConditionDefinition 删除 keywords/hybrid_weight/ hybrid_prototype_weight；新增 prototype_embeddings/embedding_model 字段；删除 KeywordEntry；新增 EmbeddingCache 模型",
+          "effort_hours": 3.0,
+          "dependencies": [],
+          "status": "PENDING",
+          "files": [
+            "src/experiment_engine/models/qca.py",
+            "src/types/qca.ts",
+            "src/types/bert.ts"
+          ]
+        },
+        {
+          "id": "B5",
+          "description": "calibrator.py 重构 — 移除 _precompute_kw_context/ChineseKeywordDictionary；_compute_raw_scores 统一走 CosineSimilarityEngine；process/process_with_outcome/calibrate_one 适配嵌入输入",
+          "effort_hours": 4.0,
+          "dependencies": ["B1", "B4"],
+          "status": "PENDING",
+          "files": [
+            "src/experiment_engine/text_calibration/calibrator.py",
+            "src/experiment_engine/text_calibration/__init__.py"
+          ]
+        },
+        {
+          "id": "B6",
+          "description": "Worker 协议扩展 — 新增 init_bert/compute_embeddings/compute_prototype_embeddings/get_bert_status 消息类型；并行加载 Pyodide + BERT；添加进度回调",
+          "effort_hours": 5.0,
+          "dependencies": ["B2", "B3"],
+          "status": "PENDING",
+          "files": [
+            "src/services/pyodide.worker.ts",
+            "src/services/pyodide.ts",
+            "src/pyodide/engine.ts"
+          ]
+        },
+        {
+          "id": "B7",
+          "description": "pyodide_handlers.py 新增 embedding handler — handle_calibrate_v2 接收预计算 text_embeddings + prototype_embeddings 而非关键词分数；调用 CosineSimilarityEngine；输入验证",
+          "effort_hours": 3.0,
+          "dependencies": ["B1", "B4", "B5"],
+          "status": "PENDING",
+          "files": ["src/experiment_engine/pyodide_handlers.py"]
+        },
+        {
+          "id": "B8",
+          "description": "前端 DataInput.tsx 重构 — 移除关键词编辑器/YAML 导入导出/模式选择器；升级原型编辑器为唯一输入；结构化原型表格 (条件, 文本, is_member, weight)",
+          "effort_hours": 5.0,
+          "dependencies": ["B4"],
+          "status": "PENDING",
+          "files": [
+            "src/pages/DataInput.tsx",
+            "src/components/PrototypeEditor.tsx",
+            "src/components/ConditionSetEditor.tsx"
+          ]
+        },
+        {
+          "id": "B9",
+          "description": "Settings.tsx 新增 BERT 模型选择 — 模型下拉框 (bert-base-chinese 默认)；模型加载进度条；嵌入维度显示 (768d)；清除模型缓存按钮",
+          "effort_hours": 3.0,
+          "dependencies": ["B6"],
+          "status": "PENDING",
+          "files": ["src/pages/Settings.tsx"]
+        },
+        {
+          "id": "B10",
+          "description": "QCAPipelineContext 新增 embedding 状态 — embeddingState (idle/loading-bert/computing-prototypes/computing-texts/ready/error)；embedding 进度 (0-100%)；useQCAWorkflow 新增 embedding 步骤",
+          "effort_hours": 3.0,
+          "dependencies": ["B6"],
+          "status": "PENDING",
+          "files": [
+            "src/store/QCAPipelineContext.tsx",
+            "src/hooks/useQCAWorkflow.ts"
+          ]
+        },
+        {
+          "id": "B11",
+          "description": "端到端集成测试 — BERT 嵌入 → CosineSimilarityEngine → calibrator → QCAnalyzerStage 全链路；验证余弦相似度→隶属度映射正确性；Ragin Lipset 数据集基准对比",
+          "effort_hours": 4.0,
+          "dependencies": ["B1", "B2", "B5", "B6", "B7"],
+          "status": "PENDING",
+          "files": [
+            "tests/test_cosine_similarity.py",
+            "tests/test_bert_integration.py"
+          ]
+        },
+        {
+          "id": "B12",
+          "description": "清理阶段 — 删除 keyword_dict.py/keyword_io.py；删除 PrototypeSimilarityEngine (被 CosineSimilarityEngine 替换)；domains.py 改为原型文本预置模板；更新 anatomy.md",
+          "effort_hours": 2.0,
+          "dependencies": ["B5", "B7", "B8"],
+          "status": "PENDING",
+          "files": [
+            "src/experiment_engine/text_calibration/keyword_dict.py",
+            "src/experiment_engine/text_calibration/keyword_io.py",
+            "src/experiment_engine/text_calibration/prototype_similarity.py",
+            "src/experiment_engine/text_calibration/domains.py",
+            ".wolf/anatomy.md"
+          ]
+        }
+      ],
+      "risk_register": [
+        {
+          "risk": "Transformers.js ONNX 模型首次下载失败 (HF Hub 限流/CDN 不可用)",
+          "mitigation": "模型缓存到 IndexedDB 后无需重新下载；备选 CDN URL；显示明确错误引导用户检查网络",
+          "severity": "MEDIUM"
+        },
+        {
+          "risk": "BERT 推理耗时过长 (500+ 文本 >30s)",
+          "mitigation": "分批处理 (batch_size=32) + 进度条；Web Worker 不阻塞 UI；后续支持 WebGPU 加速",
+          "severity": "MEDIUM"
+        },
+        {
+          "risk": "浏览器内存超限 (Pyodide 50MB + BERT 100MB = 150MB+)",
+          "mitigation": "BERT 模型惰性加载 (仅选择 PROTOTYPE scoring 时加载)；大文本分块处理；内存监控面板",
+          "severity": "LOW"
+        },
+        {
+          "risk": "Mean Pooling 在 ONNX 图中不可用 (部分模型仅输出 CLS)",
+          "mitigation": "回退到 CLS token；CLS 仍可用于相似度但质量稍低；优先选择支持 mean pooling 的模型",
+          "severity": "LOW"
+        }
+      ]
+    },
     "phase_5_advanced": {
       "title": "高级功能 (Advanced Features)",
       "priority": "LOW",
@@ -705,6 +866,20 @@
       "W11",
       "W12"
     ],
+    "version_2_5_bert_prototype": [
+      "B1",
+      "B2",
+      "B3",
+      "B4",
+      "B5",
+      "B6",
+      "B7",
+      "B8",
+      "B9",
+      "B10",
+      "B11",
+      "B12"
+    ],
     "web_prototype_demo": [
       "W2",
       "W3",
@@ -716,19 +891,20 @@
     ]
   },
   "summary": {
-    "total_tasks": 44,
-    "total_estimated_effort_hours": 86.3,
-    "remaining_effort_hours": 42.8,
+    "total_tasks": 56,
+    "total_estimated_effort_hours": 130.3,
+    "remaining_effort_hours": 86.8,
     "completed_tasks": 30,
     "prototype_tasks": 7,
-    "pending_tasks": 7,
+    "pending_tasks": 19,
     "completed_phases": [
       "phase_1_foundation",
       "phase_1_fix",
       "phase_2_integration",
       "phase_4_docs_polish"
     ],
-    "active_phase": "phase_6_web_deployment"
+    "active_phase": "phase_7_bert_prototype",
+    "next_phase": "phase_6_web_deployment"
   },
   "known_issues": [
     {

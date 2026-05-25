@@ -2447,6 +2447,102 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-25T01:11:07.342Z"
+    },
+    {
+      "id": "bug-149",
+      "timestamp": "2026-05-25T05:44:58.821Z",
+      "error_message": "Incorrect value in code",
+      "file": "package.json",
+      "root_cause": "Had \"pyodide\"",
+      "fix": "Changed to \"@xenova/transformers\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "json"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T05:44:58.821Z"
+    },
+    {
+      "id": "bug-150",
+      "timestamp": "2026-05-25T05:50:47.823Z",
+      "error_message": "Type error",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T05:50:47.823Z"
+    },
+    {
+      "id": "bug-151",
+      "timestamp": "2026-05-25T05:53:53.516Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/types/bert.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 7→5 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T05:53:53.516Z"
+    },
+    {
+      "id": "bug-152",
+      "timestamp": "2026-05-25T05:54:09.940Z",
+      "error_message": "Wrong reference: tokenCounts should be continue",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "Used \"tokenCounts\" instead of \"continue\"",
+      "fix": "Changed tokenCounts → continue",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T05:54:09.940Z"
+    },
+    {
+      "id": "bug-153",
+      "timestamp": "2026-05-25T05:54:10.558Z",
+      "error_message": "Wrong return value",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "Was returning: { embeddings, tokenCounts, modelName: this._modelN",
+      "fix": "Now returns: { embeddings, modelName: this._modelName }",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-25T05:54:11.283Z"
+    },
+    {
+      "id": "bug-154",
+      "timestamp": "2026-05-25T05:54:13.012Z",
+      "error_message": "Wrong condition in logic",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "Condition was: if (text.length <= MAX_TOKENS)",
+      "fix": "Changed to: if (text.length <= MAX_CHARS)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T05:54:13.012Z"
     }
   ]
 }
