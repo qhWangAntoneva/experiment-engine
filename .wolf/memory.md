@@ -1153,3 +1153,21 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 17:44 | Fixed remaining TS build errors: added explicit types to reduce() callback params in DataInput.tsx line 426 | src/pages/DataInput.tsx | build passes (31s, 0 errors) | ~50 |
 | 17:45 | Phase 5: Cleanup old keyword code — deleted keyword_dict.py, keyword_io.py, prototype_similarity.py + tests. Removed KEYWORD/HYBRID from ScoringSource. Updated calibrator/similarity to PROTOTYPE-only. Cleaned pyodide handlers, worker, bridge, hook, and UI of keyword methods. Build passes, 515 tests pass. | src/experiment_engine/text_calibration/*, src/experiment_engine/models/qca.py, src/types/qca.ts, src/services/*.ts, src/hooks/useQCAWorkflow.ts, src/pages/{DataInput,Settings}.tsx, tests/* | 26 files, +2425/-675 | ~1200 tok |
 | 17:46 | Session end: 75 writes across 15 files (qca.ts, pyodide.worker.ts, pyodide.ts, QCAPipelineContext.tsx, useQCAWorkflow.ts) | 33 reads | ~70957 tok |
+| 17:52 | Session end: 75 writes across 15 files (qca.ts, pyodide.worker.ts, pyodide.ts, QCAPipelineContext.tsx, useQCAWorkflow.ts) | 33 reads | ~70957 tok |
+| 18:13 | Session end: 75 writes across 15 files (qca.ts, pyodide.worker.ts, pyodide.ts, QCAPipelineContext.tsx, useQCAWorkflow.ts) | 33 reads | ~78614 tok |
+
+## Session: 2026-05-25 18:22
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 18:27 | Edited src/hooks/useQCAWorkflow.ts | 6→7 lines | ~38 |
+| 18:27 | Edited src/hooks/useQCAWorkflow.ts | expanded (+9 lines) | ~109 |
+| 18:27 | Edited src/hooks/useQCAWorkflow.ts | 3→8 lines | ~46 |
+| 18:28 | Edited src/hooks/useQCAWorkflow.ts | added error handling | ~186 |
+| 18:28 | Edited src/hooks/useQCAWorkflow.ts | added error handling | ~816 |
+| 18:28 | Edited src/hooks/useQCAWorkflow.ts | 2→4 lines | ~24 |
+| 18:29 | Phase A: add initBert() + runEmbedCalibrate() to useQCAWorkflow hook | src/hooks/useQCAWorkflow.ts | 6 edits, tsc clean | ~400 |
+| 18:31 | Session end: 6 writes across 1 files (useQCAWorkflow.ts) | 5 reads | ~30457 tok |
+| 18:36 | Edited src/hooks/useQCAWorkflow.ts | modified catch() | ~80 |
+| 18:36 | Edited src/hooks/useQCAWorkflow.ts | 16→18 lines | ~144 |
+| 18:36 | Edited src/hooks/useQCAWorkflow.ts | 3→3 lines | ~33 |

@@ -16,6 +16,7 @@ import { useQCAPipeline } from '../store/QCAPipelineContext';
 import type {
   TextCorpusEntry,
   TextCase,
+  EmbedCalibrateTextEntry,
   ConditionSet,
   QCAAnalysisParams,
 } from '../types/qca';
@@ -68,6 +69,15 @@ interface UseQCAWorkflowReturn {
     params?: Partial<QCAAnalysisParams>;
   }) => Promise<void>;
 
+  /** Initialize BERT model for embedding-based calibration */
+  initBert: (modelName?: string) => Promise<void>;
+
+  /** Run embedding-based calibration using BERT */
+  runEmbedCalibrate: (opts: {
+    texts: TextCorpusEntry[];
+    conditionSet: ConditionSet;
+  }) => Promise<void>;
+
   /** Export current results */
   runExport: (format: 'csv' | 'json' | 'latex') => Promise<Blob>;
 
@@ -99,6 +109,11 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
     finishExport,
     fail,
     setConditionSet,
+    startBertLoading,
+    finishBertLoading,
+    setBertStatus,
+    startEmbedding,
+    finishEmbedding,
   } = useQCAPipeline();
 
   const ensureReady = useCallback(async () => {
@@ -106,6 +121,107 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
       await init();
     }
   }, [bridge, init]);
+
+  const initBert = useCallback(
+    async (modelName?: string) => {
+      try {
+        await ensureReady();
+        startBertLoading();
+        await bridge.initBert(modelName || 'Xenova/bert-base-chinese');
+        finishBertLoading();
+      } catch (err: any) {
+        setBertStatus('error', err.message || 'BERT initialization failed');
+        fail(err.message || 'BERT initialization failed');
+        throw err;
+      }
+    },
+    [ensureReady, bridge, startBertLoading, finishBertLoading, setBertStatus, fail]
+  );
+
+  const runEmbedCalibrate = useCallback(
+    async (opts: { texts: TextCorpusEntry[]; conditionSet: ConditionSet }) => {
+      try {
+        await ensureReady();
+
+        // Check BERT is loaded
+        const bertStatus = await bridge.getBertStatus();
+        if (!bertStatus.loaded) {
+          throw new Error('BERT model not loaded. Please load the BERT model first.');
+        }
+
+        const conditionSet = ensureQCAVariant(opts.conditionSet);
+        setConditionSet(conditionSet);
+        startEmbedding();
+
+        // Build prototype texts grouped by condition
+        const prototypeTextsByCondition: Record<string, string[]> = {};
+        for (const cond of conditionSet.conditions) {
+          if (cond.prototypes && cond.prototypes.length > 0) {
+            prototypeTextsByCondition[cond.name] = cond.prototypes.map(
+              (p) => p.prototype_text
+            );
+          }
+        }
+
+        if (Object.keys(prototypeTextsByCondition).length === 0) {
+          throw new Error(
+            'No prototype texts found in condition set. ' +
+            'Each condition must have at least one prototype text for BERT calibration.'
+          );
+        }
+
+        // Compute prototype embeddings
+        const protoEmbeddings = await bridge.computePrototypeEmbeddings(
+          prototypeTextsByCondition
+        );
+
+        // Attach prototype embeddings to condition definitions
+        const enrichedConditions = conditionSet.conditions.map((cond) => {
+          const embResult = protoEmbeddings[cond.name];
+          return {
+            ...cond,
+            prototype_embeddings: embResult ? embResult.embeddings : null,
+            embedding_model: embResult ? 'Xenova/bert-base-chinese' : null,
+          };
+        });
+
+        const enrichedConditionSet = {
+          ...conditionSet,
+          conditions: enrichedConditions,
+        };
+
+        // Compute text embeddings
+        const textStrings = opts.texts.map((t) => t.text);
+        const textEmbeddings = await bridge.computeEmbeddings(textStrings);
+
+        finishEmbedding();
+
+        // Build EmbedCalibrateTextEntry[]
+        const textsWithEmbeds: EmbedCalibrateTextEntry[] = opts.texts.map(
+          (t, i) => ({
+            text_id: t.text_id,
+            text: t.text,
+            embedding: textEmbeddings[i],
+          })
+        );
+
+        // Run embed calibration
+        const result = await bridge.embedCalibrate(
+          textsWithEmbeds,
+          enrichedConditionSet
+        );
+
+        finishCalibration(result.fuzzyData, undefined);
+      } catch (err: any) {
+        fail(err.message || 'BERT calibration failed');
+        throw err;
+      }
+    },
+    [
+      ensureReady, bridge, setConditionSet,
+      startEmbedding, finishEmbedding, finishCalibration, fail,
+    ]
+  );
 
   const runCalibrateOnly = useCallback(
     async (opts: { texts: TextCorpusEntry[]; conditionSet: ConditionSet; prototypeTexts?: TextCase[] }) => {
@@ -284,6 +400,8 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
     runCalibrateOnly,
     runAnalyzeOnly,
     runAnalyzeOnlyForPrototype,
+    initBert,
+    runEmbedCalibrate,
     runExport,
     loadCorpus: loadCorpusFn,
     abort,

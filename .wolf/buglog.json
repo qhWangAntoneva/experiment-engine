@@ -3119,6 +3119,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-25T09:43:26.160Z"
+    },
+    {
+      "id": "bug-191",
+      "timestamp": "2026-05-25T10:28:02.623Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block | Also: const runEmbedCalibrate = useCallback(; async (opts: { texts: TextCorpusEntry[]; conditionSet: Condi",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-25T10:28:14.070Z"
     }
   ]
 }

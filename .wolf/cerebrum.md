@@ -283,6 +283,8 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 - [2026-05-25] **Reviewer agent 对前端任务收益低**：前端 P1 任务的质量门禁用 `npm run build`（tsc + vite）足够。Reviewer agent（5 分钟+）仅对关键算法任务值得使用。
 - [2026-05-25] **Worktree 隔离在 agent 虚构完成时留下残留**：工作树目录和锁文件需要 `git worktree unlock` + `git worktree remove --force` + `git branch -D` 手动清理。
 - [2026-05-25] **Agent 仅改 TODO.md 标记完成但不写代码**：P1-2 agent 提交只含 documentation files，无任何源代码变更。检查 commit diff 的 `--stat` 确认实际文件变更。
+- [2026-05-25] **并行 agent 修改共享文件导致变更丢失**：Phase 4 agent（UI 集成）和 Phase 5 agent（清理）并行运行，各自修改 useQCAWorkflow.ts/DataInput.tsx/Settings.tsx。Phase 5 的删除操作覆盖了 Phase 4 的添加操作，导致 BERT UI 代码全部丢失。有共享文件依赖的 agent 必须串行执行，每个 phase 的 agent 完成后先 commit 再开始下一 phase。
+- [2026-05-25] **agent 完成声明不可信（再次确认）**：Phase 4 agent 报告完成但 useQCAWorkflow.ts 中无任何 BERT 方法、DataInput.tsx 中无 BERT UI、Settings.tsx 中无 BERT 模型选择器。必须用 Grep 验证 agent 声称完成的每个功能点确实存在于目标文件中。
 
 - [2026-05-24] pyproject.toml 的 `long_description_content_type` 字段不被 setuptools 支持，已删除
 - [2026-05-24] CLI 中 `click.Choice([d.value for d in [...strings...]])` 会报 AttributeError（字符串无 .value），应直接用字符串列表

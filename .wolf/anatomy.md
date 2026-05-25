@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-25T09:43:26.125Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-25T10:36:59.382Z
 > Files: 19 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
@@ -74,7 +74,7 @@
 
 ## src/hooks/
 
-- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. (~2640 tok)
+- `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. (~3749 tok)
 
 ## src/i18n/
 
