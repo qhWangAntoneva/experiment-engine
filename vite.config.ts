@@ -14,10 +14,11 @@ export default defineConfig(({ mode }) => ({
 
   server: {
     port: 3000,
+    host: '127.0.0.1',
     open: true,
   },
 
-  // Web Worker: use ES module workers (Vite 5 supports this natively)
+  // Web Worker: ES module worker — Pyodide loaded via dynamic import()
   worker: {
     format: "es",
   },
@@ -37,7 +38,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
 
-  // Pyodide is loaded via importScripts in the Web Worker, not bundled
+  // Pyodide is loaded via dynamic import() from CDN in the Web Worker, not bundled
   optimizeDeps: {
     exclude: ["pyodide"],
   },

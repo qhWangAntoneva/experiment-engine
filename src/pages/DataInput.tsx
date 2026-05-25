@@ -306,9 +306,32 @@ export default function DataInput() {
     initBert,
     runEmbedCalibrate,
   } = useQCAWorkflow();
-  // Phase 5 stubs: keyword functionality removed
+  // Phase 5 stubs: keyword import removed
   const importKeywords = async (..._args: any[]): Promise<any> => ({ conditions: [], outcome: null } as any);
-  const exportKeywords = async (..._args: any[]): Promise<any> => new Blob();
+  // Keyword dictionary export
+  const exportKeywords = useCallback(
+    async (conditionSet: ConditionSet, format: 'csv' | 'json'): Promise<Blob> => {
+      if (format === 'json') {
+        const json = JSON.stringify(conditionSet, null, 2);
+        return new Blob([json], { type: 'application/json' });
+      }
+      const rows: string[] = ['condition,display_name,prototype_text,is_member,weight'];
+      for (const cond of conditionSet.conditions) {
+        if (cond.prototypes && cond.prototypes.length > 0) {
+          for (const proto of cond.prototypes) {
+            const escaped = proto.prototype_text.replace(/"/g, '""');
+            rows.push(
+              `${cond.name},${cond.display_name},"${escaped}",${proto.is_member},${proto.weight}`
+            );
+          }
+        } else {
+          rows.push(`${cond.name},${cond.display_name},,,`);
+        }
+      }
+      return new Blob(['﻿' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+    },
+    []
+  );
 
   // ─── Form state ────────────────────────────────────────────────────
 
@@ -798,11 +821,9 @@ export default function DataInput() {
 
       {/* === BERT Embedding Controls === */}
       <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
-        <h3 className="section-title">BERT Embedding 校准</h3>
+        <h3 className="section-title">{t('dataInput.bertCalibration')}</h3>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '12px' }}>
-          使用 BERT 中文模型（bert-base-chinese）计算文本语义嵌入，
-          通过余弦相似度与原型文本进行匹配，替代传统关键词匹配。
-          首次加载需下载约 400MB 模型文件。
+          {t('dataInput.bertDescription')}
         </p>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
           <button
@@ -811,26 +832,26 @@ export default function DataInput() {
             disabled={isBertLoading || isRunning}
             style={{ fontSize: '0.8125rem' }}
           >
-            {isBertLoading ? '加载中...' : '加载 BERT 模型'}
+            {isBertLoading ? t('dataInput.bertLoadingBtn') : t('dataInput.bertLoadBtn')}
           </button>
           {state.bertStatus === 'ready' && (
             <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', fontWeight: 600 }}>
-              BERT 模型就绪
+              {t('dataInput.bertModelReady')}
             </span>
           )}
           {state.bertStatus === 'loading' && (
             <span style={{ fontSize: '0.75rem', color: 'var(--color-warning)' }}>
-              下载中...
+              {t('dataInput.bertLoading')}
             </span>
           )}
           {state.bertStatus === 'error' && (
             <span style={{ fontSize: '0.75rem', color: 'var(--color-error)' }}>
-              加载失败: {state.bertMessage}
+              {t('dataInput.bertLoadFailed')}{state.bertMessage}
             </span>
           )}
           {state.bertStatus === 'unloaded' && (
             <span style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
-              未加载
+              {t('dataInput.bertUnloaded')}
             </span>
           )}
           <button
@@ -839,7 +860,7 @@ export default function DataInput() {
             disabled={isEmbedding || isRunning || texts.length === 0 || state.bertStatus !== 'ready'}
             style={{ fontSize: '0.8125rem', marginLeft: 'auto' }}
           >
-            {isEmbedding ? '计算中...' : 'BERT Embedding 校准'}
+            {isEmbedding ? t('dataInput.bertCalibratingBtn') : t('dataInput.bertCalibrateBtn')}
           </button>
         </div>
       </div>

@@ -3183,6 +3183,511 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-25T10:42:20.535Z"
+    },
+    {
+      "id": "bug-195",
+      "timestamp": "2026-05-25T11:00:00.000Z",
+      "error_message": "Browser hangs when opening http://localhost:3001 — page never loads despite HTTP 200 responses from curl",
+      "file": "N/A (process issue)",
+      "root_cause": "8 zombie Vite/node processes from previous dev server starts were occupying ports 3000, 3001, and 3002 (PIDs 38952, 34576, 27884, 16868, 19328, 33628 + 2 orphan node.exe 26336, 31284). Port 3000 had two listeners; ports 3001 and 3002 each had one. The config says port 3000 but Vite auto-incremented to 3001/3002 on subsequent starts. Browser connected to a stale process that served HTML but did not correctly handle the React app lifecycle.",
+      "fix": "Killed all 8 zombie processes via taskkill /F /PID. Started a single clean Vite dev server on port 3000. Verified HTTP 200 on /, /src/main.tsx, and /@vite/client.",
+      "tags": [
+        "dev-server",
+        "zombie-process",
+        "port-conflict",
+        "vite",
+        "browser-hang"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T11:00:00.000Z"
+    },
+    {
+      "id": "bug-196",
+      "timestamp": "2026-05-25T12:00:00.000Z",
+      "error_message": "Browser hangs on http://localhost:3001 with no response, but curl returns HTTP 200",
+      "file": "vite.config.ts (dev server process management)",
+      "root_cause": "8 zombie Vite/node processes from previous dev server starts occupied ports 3000/3001/3002. The stale process on port 3001 served HTTP (curl got 200) but its React lifecycle was broken, causing browser to hang indefinitely.",
+      "fix": "taskkill /F on all 8 zombie PIDs (port 3000: 38952,34576; port 3001: 27884,19328,33628; port 3002: 16868; orphans: 26336,31284). Started single clean Vite server on port 3000.",
+      "tags": [
+        "dev-server",
+        "zombie-process",
+        "vite",
+        "browser-hang",
+        "port-conflict"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T12:00:00.000Z"
+    },
+    {
+      "id": "bug-197",
+      "timestamp": "2026-05-25T14:27:37.533Z",
+      "error_message": "Type error",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T14:27:37.533Z"
+    },
+    {
+      "id": "bug-198",
+      "timestamp": "2026-05-25T14:28:15.018Z",
+      "error_message": "CSS fix: max",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "max: 20, → 10,",
+      "fix": "Changed max: 20, → 10,",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T14:28:15.018Z"
+    },
+    {
+      "id": "bug-199",
+      "timestamp": "2026-05-25T14:28:34.814Z",
+      "error_message": "Wrong reference: span should be t",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Used \"span\" instead of \"t\"",
+      "fix": "Changed span → t",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T14:28:34.814Z"
+    },
+    {
+      "id": "bug-200",
+      "timestamp": "2026-05-25T14:29:09.879Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block | Also: // Read saved settings from localStorage on mount; useEffect(() => {",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-25T14:29:20.617Z"
+    },
+    {
+      "id": "bug-201",
+      "timestamp": "2026-05-25T22:31:41.603447",
+      "error_message": "BERT UI hardcoded Chinese strings in DataInput.tsx (L800-843) and Settings.tsx (L346-394) instead of i18n t() calls",
+      "file": "src/pages/DataInput.tsx, src/pages/Settings.tsx",
+      "root_cause": "BERT sections were built without i18n integration",
+      "fix": "Replaced all hardcoded Chinese text with t() calls; added 14 new i18n keys (settings BERT labels + export dictionary) to translations.ts",
+      "tags": [
+        "i18n",
+        "BERT",
+        "frontend",
+        "DataInput",
+        "Settings",
+        "T005",
+        "T083"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T22:31:41.603447"
+    },
+    {
+      "id": "bug-202",
+      "timestamp": "2026-05-25T22:31:41.603447",
+      "error_message": "Settings page never reads saved values from localStorage on mount; useState initializer uses only hardcoded defaults",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Missing useEffect to read qca-settings from localStorage on component mount",
+      "fix": "Added useEffect that reads localStorage qca-settings on mount and merges into state via setValues(prev => ({...prev, ...JSON.parse(saved)}))",
+      "tags": [
+        "localStorage",
+        "Settings",
+        "state",
+        "frontend",
+        "T026"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T22:31:41.603447"
+    },
+    {
+      "id": "bug-203",
+      "timestamp": "2026-05-25T22:31:41.603447",
+      "error_message": "BERT model selection resets on page remount; useState hardcoded default ignoring localStorage",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "useState initialized with literal string instead of reading from localStorage",
+      "fix": "Changed to lazy initializer reading qca-bert-model from localStorage with fallback; added useEffect to persist changes to localStorage",
+      "tags": [
+        "localStorage",
+        "BERT",
+        "persistence",
+        "frontend",
+        "T080"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T22:31:41.603447"
+    },
+    {
+      "id": "bug-204",
+      "timestamp": "2026-05-25T22:31:41.603447",
+      "error_message": "Keyword dictionary export function is a stub returning empty Blob",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Phase 5 stub was never replaced with real implementation",
+      "fix": "Implemented real CSV/JSON export: CSV exports condition,display_name,prototype_text,is_member,weight columns with BOM for Excel; JSON exports full ConditionSet object",
+      "tags": [
+        "export",
+        "dictionary",
+        "stub",
+        "frontend",
+        "T085"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T22:31:41.603447"
+    },
+    {
+      "id": "bug-205",
+      "timestamp": "2026-05-25T22:31:41.603447",
+      "error_message": "N-Cut range slider max value set to 20 instead of specification value of 10",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Incorrect max value in SettingField definition array",
+      "fix": "Changed max: 20 to max: 10 on the n_cut range field definition",
+      "tags": [
+        "spec",
+        "N-Cut",
+        "slider",
+        "range",
+        "frontend",
+        "T020"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T22:31:41.603447"
+    },
+    {
+      "id": "bug-206",
+      "timestamp": "2026-05-25T14:32:47.709Z",
+      "error_message": "CSS fix: stubs, _args",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "stubs: keyword functionality removed → keyword import removed; _args: any[]): Promise<any> => new Blob() → any[]): Promise<any> => ({ conditions: [], outcome: null",
+      "fix": "Changed stubs: keyword functionality removed → keyword import removed; _args: any[]): Promise<any> => new Blob() → any[]): Promise<any> => ({ conditions: [], outcome: null",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T14:32:47.709Z"
+    },
+    {
+      "id": "bug-207",
+      "timestamp": "2026-05-25T15:27:43.233Z",
+      "error_message": "Significant refactor of ",
+      "file": "vite.config.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→5 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T15:27:43.233Z"
+    },
+    {
+      "id": "bug-208",
+      "timestamp": "2026-05-25T15:28:27.429Z",
+      "error_message": "CSS fix: value",
+      "file": "src/pages/Dashboard.tsx",
+      "root_cause": "value: initState.status === 'ready' ? t('dashboard.statusReady') : initState.status === 'loading' ? t('dashboard.statusLoading') : t('dashboard.statusNotLoaded'), → initState.status === 'ready'",
+      "fix": "Changed value: initState.status === 'ready' ? t('dashboard.statusReady') : initState.status === 'loading' ? t('dashboard.statusLoading') : t('dashboard.statusNotLoaded'), → initState.status === 'ready'",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T15:28:27.429Z"
+    },
+    {
+      "id": "bug-209",
+      "timestamp": "2026-05-25T15:28:27.877Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/pages/Dashboard.tsx",
+      "root_cause": "Had '0.8125rem'",
+      "fix": "Changed to `btn ${initState.status === '",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T15:28:27.877Z"
+    },
+    {
+      "id": "bug-210",
+      "timestamp": "2026-05-25T15:28:28.274Z",
+      "error_message": "Type error",
+      "file": "src/pages/Dashboard.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T15:28:28.275Z"
+    },
+    {
+      "id": "bug-211",
+      "timestamp": "2026-05-25T15:28:57.548Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 31→48 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T15:28:57.548Z"
+    },
+    {
+      "id": "bug-212",
+      "timestamp": "2026-05-25T15:34:06.704Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Had ', import.meta.url), { type: '",
+      "fix": "Changed to ', import.meta.url))`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T15:34:06.704Z"
+    },
+    {
+      "id": "bug-213",
+      "timestamp": "2026-05-25T15:34:07.056Z",
+      "error_message": "CSS fix: border-left",
+      "file": "src/pages/Dashboard.css",
+      "root_cause": "border-left: 3px solid var(--color-warning) → 3px solid var(--color-error)",
+      "fix": "Changed border-left: 3px solid var(--color-warning) → 3px solid var(--color-error)",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "css"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T15:34:07.056Z"
+    },
+    {
+      "id": "bug-214",
+      "timestamp": "2026-05-25T18:00:00.000Z",
+      "error_message": "Clicking \"Load Engine\" immediately reverts: button flashes \"Loading...\" then goes back to \"Load Engine\", engine status stays \"Not Loaded\"",
+      "file": "src/services/pyodide.ts, vite.config.ts, src/pages/Dashboard.tsx, src/i18n/translations.ts, src/pages/Dashboard.css, src/services/pyodide.worker.ts",
+      "root_cause": "Module Worker (created with {type:\"module\"}) does not support importScripts() per HTML spec. pyodide.worker.ts:203 calls importScripts() which throws TypeError immediately. Combined with Dashboard UI masking \"error\" state as \"unloaded\" (same ternary branch for both), user sees instant revert.",
+      "fix": "1) vite.config.ts: worker.format \"es\"→\"iife\"; 2) pyodide.ts: removed {type:\"module\"} from Worker ctor; 3) pyodide.ts: init-done/init-error use break instead of return so resolveOne() fires; 4) Dashboard.tsx: added explicit error branches for metric, button, banner; 5) pyodide.ts: terminate old worker before new, try-catch createWorker, fix listener leak; 6) Dashboard.css: added .metric-critical class; 7) pyodide.worker.ts: updated JSDoc comment. Also added 4 i18n keys (statusError/step1BtnError zh+en).",
+      "tags": [
+        "module-worker",
+        "importScripts",
+        "TypeError",
+        "engine-init",
+        "frontend",
+        "bug-fix",
+        "expert-team"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T18:00:00.000Z"
+    },
+    {
+      "id": "bug-215",
+      "timestamp": "2026-05-25T15:52:22.691Z",
+      "error_message": "Significant refactor of ",
+      "file": "vite.config.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 5→4 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T15:52:22.691Z"
+    },
+    {
+      "id": "bug-216",
+      "timestamp": "2026-05-25T15:52:23.285Z",
+      "error_message": "Type error",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T15:52:23.285Z"
+    },
+    {
+      "id": "bug-217",
+      "timestamp": "2026-05-25T15:52:23.979Z",
+      "error_message": "Missing import: https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Module(s) not imported: https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs",
+      "fix": "Added import(s) for https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs",
+      "tags": [
+        "auto-detected",
+        "missing-import",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T15:52:23.979Z"
+    },
+    {
+      "id": "bug-218",
+      "timestamp": "2026-05-25T15:52:34.799Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Had ', import.meta.url))`",
+      "fix": "Changed to ', import.meta.url), { type: '",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T15:52:34.799Z"
+    },
+    {
+      "id": "bug-219",
+      "timestamp": "2026-05-25T15:58:39.010Z",
+      "error_message": "Wrong reference: quickStart should be statusError",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "Used \"quickStart\" instead of \"statusError\"",
+      "fix": "Changed quickStart → statusError",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-25T15:58:39.489Z"
+    },
+    {
+      "id": "bug-220",
+      "timestamp": "2026-05-25T16:41:37.511Z",
+      "error_message": "Type error",
+      "file": "src/vite-env.d.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T16:41:37.511Z"
+    },
+    {
+      "id": "bug-221",
+      "timestamp": "2026-05-25T17:04:47.240Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T17:04:47.240Z"
+    },
+    {
+      "id": "bug-222",
+      "timestamp": "2026-05-25T17:05:26.208Z",
+      "error_message": "Type error",
+      "file": "src/main.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T17:05:26.208Z"
+    },
+    {
+      "id": "bug-223",
+      "timestamp": "2026-05-26T17:05:00.000Z",
+      "error_message": "Worker fetches non-existent /pyodide-modules.json; Python modules never loaded",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "mountProjectModules() fetches /pyodide-modules.json which is never generated by CI. The fallback mountFromInline() only creates empty __init__.py stubs with no actual Python source code.",
+      "fix": "Replaced mountProjectModules() to fetch py/experiment_engine.tar.gz (generated by CI at build time), write it to Pyodide VFS, and extract via Python tarfile. Uses import.meta.env.BASE_URL for correct subdirectory path (/experiment-engine/).",
+      "tags": ["deployment", "python", "pyodide", "tar.gz", "worker"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T17:05:00.000Z"
+    },
+    {
+      "id": "bug-224",
+      "timestamp": "2026-05-26T17:05:00.000Z",
+      "error_message": "BrowserRouter sub-routes 404 on direct navigation or page refresh",
+      "file": "src/main.tsx, public/404.html",
+      "root_cause": "GitHub Pages has no SPA fallback. Navigating directly to /experiment-engine/dashboard returns 404 because no static file exists at that path.",
+      "fix": "Created public/404.html (GitHub Pages custom 404) that stores attempted URL in sessionStorage + redirects to root. Added RedirectRestorer component inside BrowserRouter in main.tsx that reads sessionStorage and calls navigate() to restore the intended route.",
+      "tags": ["deployment", "spa", "routing", "github-pages", "404"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T17:05:00.000Z"
+    },
+    {
+      "id": "bug-225",
+      "timestamp": "2026-05-26T17:05:00.000Z",
+      "error_message": "ImportError when experiment_engine/io/db.py is excluded from Pyodide deployment bundle",
+      "file": "src/experiment_engine/io/__init__.py",
+      "root_cause": "io/__init__.py unconditionally does `from experiment_engine.io.db import (...)` at module level, but db.py is excluded from the CI tar.gz bundle (no SQLite/PostgreSQL in browser). Any import of io.* fails.",
+      "fix": "Wrapped the db.py imports in try/except ImportError. When db.py is absent, the db classes are set to None so that `from experiment_engine.io import get_reader` and other non-db imports still work.",
+      "tags": ["deployment", "python", "import", "pyodide", "io"],
+      "related_bugs": ["bug-223"],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T17:05:00.000Z"
     }
   ]
 }

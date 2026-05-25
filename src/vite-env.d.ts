@@ -14,3 +14,10 @@
 // we pin v2 for compatibility with the CDN-hosted Plotly.js version used by the
 // Pyodide engine's JSON export path.
 declare module 'plotly.js-dist-min';
+
+declare module 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs' {
+  export function loadPyodide(options?: {
+    indexURL?: string;
+    fullStdLib?: boolean;
+  }): Promise<any>;
+}

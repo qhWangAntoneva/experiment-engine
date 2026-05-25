@@ -57,12 +57,14 @@ export interface TranslationDict {
     statusReady: string;
     statusLoading: string;
     statusNotLoaded: string;
+    statusError: string;
     quickStart: string;
     step1Title: string;
     step1Desc: string;
     step1BtnReady: string;
     step1BtnLoading: string;
     step1BtnLoad: string;
+    step1BtnError: string;
     step2Title: string;
     step2Desc: string;
     step2Btn: string;
@@ -278,6 +280,19 @@ export interface TranslationDict {
     // BERT
     bertModelSection: string;
     bertStatusDesc: string;
+    bertModelLabel: string;
+    bertStatusLabel: string;
+    bertDetailLabel: string;
+    bertActionLabel: string;
+    bertLoadModelBtn: string;
+    // Export Dictionary
+    exportDictSection: string;
+    exportDictHelp: string;
+    exportDictBtn: string;
+    exportDictExporting: string;
+    exportDictNoConditionSet: string;
+    exportedDict: (count: number, format: string) => string;
+    exportDictError: string;
   };
 
   // ── Pipeline Status ──
@@ -331,12 +346,14 @@ const zh: TranslationDict = {
     statusReady: '就绪',
     statusLoading: '加载中...',
     statusNotLoaded: '未加载',
+    statusError: '错误',
     quickStart: '快速开始',
     step1Title: '加载分析引擎',
     step1Desc: '启动 Pyodide（浏览器中的 Python）。首次加载约需 30 秒，后续加载使用缓存。',
     step1BtnReady: '引擎就绪',
     step1BtnLoading: '加载中...',
     step1BtnLoad: '加载引擎',
+    step1BtnError: '重试（错误）',
     step2Title: '上传数据并定义条件',
     step2Desc: '上传中文文本语料（CSV/JSON/TXT）并定义模糊集校准条件。',
     step2Btn: '前往数据输入',
@@ -611,6 +628,19 @@ const zh: TranslationDict = {
     // BERT
     bertModelSection: 'BERT 模型',
     bertStatusDesc: '当前 BERT 嵌入模型的加载状态',
+    bertModelLabel: '模型选择',
+    bertStatusLabel: '加载状态',
+    bertDetailLabel: '详情',
+    bertActionLabel: '操作',
+    bertLoadModelBtn: '加载模型',
+    // Export Dictionary
+    exportDictSection: '导出关键词字典',
+    exportDictHelp: '将当前条件集的关键词模式导出为文件。',
+    exportDictBtn: '导出字典',
+    exportDictExporting: '导出中...',
+    exportDictNoConditionSet: '（暂无已定义的条件集）',
+    exportedDict: (count: number, format: string) => `已导出 ${count} 个条件为 ${format} 格式`,
+    exportDictError: '导出失败：',
   },
 
   pipelineStatus: {
@@ -679,12 +709,14 @@ const en: TranslationDict = {
     statusReady: 'Ready',
     statusLoading: 'Loading...',
     statusNotLoaded: 'Not Loaded',
+    statusError: 'Error',
     quickStart: 'Quick Start',
     step1Title: 'Load Analysis Engine',
     step1Desc: 'Start Pyodide (Python in browser). First load takes ~30s. Subsequent loads are cached.',
     step1BtnReady: 'Engine Ready',
     step1BtnLoading: 'Loading...',
     step1BtnLoad: 'Load Engine',
+    step1BtnError: 'Retry (Error)',
     step2Title: 'Upload Data & Define Conditions',
     step2Desc: 'Upload Chinese text corpus (CSV/JSON/TXT) and define fuzzy-set calibration conditions.',
     step2Btn: 'Go to Data Input',
@@ -960,6 +992,19 @@ const en: TranslationDict = {
     // BERT
     bertModelSection: 'BERT Model',
     bertStatusDesc: 'Current BERT embedding model loading status',
+    bertModelLabel: 'Model',
+    bertStatusLabel: 'Status',
+    bertDetailLabel: 'Details',
+    bertActionLabel: 'Action',
+    bertLoadModelBtn: 'Load Model',
+    // Export Dictionary
+    exportDictSection: 'Export Keyword Dictionary',
+    exportDictHelp: 'Export keyword patterns from the current condition set to a file.',
+    exportDictBtn: 'Export Dictionary',
+    exportDictExporting: 'Exporting...',
+    exportDictNoConditionSet: ' (no condition set defined yet)',
+    exportedDict: (count: number, format: string) => `Exported ${count} conditions as ${format}`,
+    exportDictError: 'Export failed: ',
   },
 
   pipelineStatus: {

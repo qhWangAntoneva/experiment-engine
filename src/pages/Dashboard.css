@@ -39,6 +39,10 @@
   border-left: 3px solid var(--color-warning);
 }
 
+.metric-critical {
+  border-left: 3px solid var(--color-error);
+}
+
 .metric-header {
   display: flex;
   align-items: center;

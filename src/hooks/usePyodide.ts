@@ -27,7 +27,7 @@ interface UsePyodideReturn {
 export function usePyodide(maxLogEntries = 200): UsePyodideReturn {
   const bridge = getPyodideBridge();
   const [initState, setInitState] = useState<PyodideInitState>(
-    bridge.getInitState
+    bridge.getInitState()
   );
   const [logs, setLogs] = useState<WorkerLogEntry[]>([]);
   const logsRef = useRef<WorkerLogEntry[]>([]);

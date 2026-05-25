@@ -80,15 +80,32 @@ export class PyodideBridge {
     if (this.initState.status === 'loading') {
       return new Promise((resolve, reject) => {
         const check = (state: PyodideInitState) => {
-          if (state.status === 'ready') resolve();
-          else if (state.status === 'error') reject(new Error(state.error));
+          if (state.status === 'ready') {
+            this.initListeners.delete(check);
+            resolve();
+          } else if (state.status === 'error') {
+            this.initListeners.delete(check);
+            reject(new Error(state.error));
+          }
         };
         this.initListeners.add(check);
       });
     }
 
+    // Cleanup any previous zombie worker before creating a new one
+    if (this.worker) {
+      try { this.worker.terminate(); } catch {}
+      this.worker = null;
+    }
+
     this.setState({ status: 'loading', progress: 0, message: 'Starting worker...' });
-    this.createWorker();
+
+    try {
+      this.createWorker();
+    } catch (workerErr: any) {
+      this.setState({ status: 'error', error: workerErr.message || 'Failed to create worker' });
+      throw workerErr;
+    }
 
     return new Promise<void>((resolve, reject) => {
       const waitForReady = (state: PyodideInitState) => {
@@ -354,7 +371,7 @@ export class PyodideBridge {
   private createWorker(): void {
     this.worker = new Worker(
       new URL('./pyodide.worker.ts', import.meta.url),
-      { type: 'module' }
+      { type: 'module' },
     );
 
     this.worker.onmessage = (event: MessageEvent) => {
@@ -367,10 +384,10 @@ export class PyodideBridge {
           return;
         case 'init-done':
           this.setState({ status: 'ready', loadedPackages: msg.loadedPackages });
-          return;
+          break;
         case 'init-error':
           this.setState({ status: 'error', error: msg.error });
-          return;
+          break;
         case 'terminated':
           this.setState({ status: 'unloaded' });
           return;

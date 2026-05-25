@@ -4,12 +4,22 @@ Provides data readers, data sources, and exporters for standardized
 experiment data handling.
 """
 
-from experiment_engine.io.db import (
-    PostgreSQLDataSource,
-    PostgreSQLDataWriter,
-    SQLiteDataSource,
-    SQLiteDataWriter,
-)
+try:
+    from experiment_engine.io.db import (
+        PostgreSQLDataSource,
+        PostgreSQLDataWriter,
+        SQLiteDataSource,
+        SQLiteDataWriter,
+    )
+except ImportError:
+    # db.py is excluded from Pyodide deployments (SQLite/PostgreSQL require
+    # native filesystem access, unavailable in the browser's Pyodide runtime).
+    # These names are set to None so that `from experiment_engine.io import
+    # PostgreSQLDataSource` still works but returns None instead of raising.
+    PostgreSQLDataSource = None  # type: ignore
+    PostgreSQLDataWriter = None  # type: ignore
+    SQLiteDataSource = None  # type: ignore
+    SQLiteDataWriter = None  # type: ignore
 from experiment_engine.io.exporters import CSVExporter, HTMLExporter, JSONExporter
 from experiment_engine.io.readers import (
     ArrayReader,

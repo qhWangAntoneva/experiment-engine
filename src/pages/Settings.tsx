@@ -8,7 +8,7 @@
  *   4. About / Version Info
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { DEFAULT_QCA_PARAMS, type QCAAnalysisParams, type ConditionSet, QCAVariant } from '../types/qca';
 import { usePyodide } from '../hooks/usePyodide';
 import { useQCAWorkflow } from '../hooks/useQCAWorkflow';
@@ -132,7 +132,7 @@ const settings: SettingField[] = [
     type: 'range',
     default: DEFAULT_QCA_PARAMS.n_cut,
     min: 1,
-    max: 20,
+    max: 10,
     step: 1,
     description: 'Frequency cutoff for truth table rows. Higher values reduce noise but require more cases.',
     group: 'analysis',
@@ -169,12 +169,46 @@ const settings: SettingField[] = [
 export default function Settings() {
   const t = useT();
   const { initState } = usePyodide();
-  // Phase 5 stub: keyword functionality removed
-  const exportKeywords = async (..._args: any[]): Promise<any> => new Blob();
+  const exportKeywords = useCallback(
+    async (conditionSet: ConditionSet, format: 'csv' | 'json'): Promise<Blob> => {
+      if (format === 'json') {
+        const json = JSON.stringify(conditionSet, null, 2);
+        return new Blob([json], { type: 'application/json' });
+      }
+      // CSV format: header + one row per prototype text
+      const rows: string[] = ['condition,display_name,prototype_text,is_member,weight'];
+      for (const cond of conditionSet.conditions) {
+        if (cond.prototypes && cond.prototypes.length > 0) {
+          for (const proto of cond.prototypes) {
+            const escaped = proto.prototype_text.replace(/"/g, '""');
+            rows.push(
+              `${cond.name},${cond.display_name},"${escaped}",${proto.is_member},${proto.weight}`
+            );
+          }
+        } else {
+          // Condition with no prototypes: export condition info only
+          rows.push(`${cond.name},${cond.display_name},,,`);
+        }
+      }
+      return new Blob(['﻿' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+    },
+    []
+  );
   const { state: pipelineState } = useQCAPipeline();
-  const [bertModel, setBertModel] = useState('Xenova/bert-base-chinese');
+  const [bertModel, setBertModel] = useState(() => {
+    try {
+      return localStorage.getItem('qca-bert-model') || 'Xenova/bert-base-chinese';
+    } catch { return 'Xenova/bert-base-chinese'; }
+  });
   const [isBertLoading, setIsBertLoading] = useState(false);
   const { initBert } = useQCAWorkflow();
+
+  // Persist BERT model selection to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('qca-bert-model', bertModel);
+    } catch {}
+  }, [bertModel]);
 
   const handleLoadBert = useCallback(async () => {
     setIsBertLoading(true);
@@ -194,6 +228,16 @@ export default function Settings() {
     }
     return initial;
   });
+
+  // Read saved settings from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('qca-settings');
+      if (saved) {
+        setValues((prev) => ({ ...prev, ...JSON.parse(saved) }));
+      }
+    } catch {}
+  }, []);
 
   const [saved, setSaved] = useState(false);
 
@@ -344,10 +388,10 @@ export default function Settings() {
           </div>
           {/* BERT Model Section */}
           <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--color-border)' }}>
-            <h4 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '12px' }}>BERT 模型</h4>
+            <h4 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '12px' }}>{t('settings.bertModelSection')}</h4>
             <div className="about-grid">
               <div className="about-item">
-                <span className="about-label">模型选择</span>
+                <span className="about-label">{t('settings.bertModelLabel')}</span>
                 <select
                   className="input"
                   value={bertModel}
@@ -359,35 +403,35 @@ export default function Settings() {
                 </select>
               </div>
               <div className="about-item">
-                <span className="about-label">加载状态</span>
+                <span className="about-label">{t('settings.bertStatusLabel')}</span>
                 <span className={`badge ${
                   pipelineState.bertStatus === 'ready' ? 'badge-success' :
                   pipelineState.bertStatus === 'loading' ? 'badge-warning' :
                   pipelineState.bertStatus === 'error' ? 'badge-error' : ''
                 }`}>
-                  {pipelineState.bertStatus === 'unloaded' ? '未加载' :
-                   pipelineState.bertStatus === 'loading' ? '加载中...' :
-                   pipelineState.bertStatus === 'ready' ? '就绪' :
-                   pipelineState.bertStatus === 'error' ? '错误' : pipelineState.bertStatus}
+                  {pipelineState.bertStatus === 'unloaded' ? t('common.notLoaded') :
+                   pipelineState.bertStatus === 'loading' ? t('common.loading') :
+                   pipelineState.bertStatus === 'ready' ? t('dataInput.bertReady') :
+                   pipelineState.bertStatus === 'error' ? t('common.error') : pipelineState.bertStatus}
                 </span>
               </div>
               {pipelineState.bertMessage && (
                 <div className="about-item">
-                  <span className="about-label">详情</span>
+                  <span className="about-label">{t('settings.bertDetailLabel')}</span>
                   <span className="about-value" style={{ fontSize: '0.75rem' }}>
                     {pipelineState.bertMessage}
                   </span>
                 </div>
               )}
               <div className="about-item">
-                <span className="about-label">操作</span>
+                <span className="about-label">{t('settings.bertActionLabel')}</span>
                 <button
                   className="btn btn-secondary"
                   onClick={handleLoadBert}
                   disabled={isBertLoading || initState.status !== 'ready'}
                   style={{ fontSize: '0.75rem' }}
                 >
-                  {isBertLoading ? '加载中...' : '加载模型'}
+                  {isBertLoading ? t('common.loading') : t('settings.bertLoadModelBtn')}
                 </button>
               </div>
             </div>

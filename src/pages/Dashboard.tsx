@@ -23,7 +23,13 @@ export default function Dashboard() {
   const metrics: MetricCardData[] = [
     {
       label: t('dashboard.pyodideStatus'),
-      value: initState.status === 'ready' ? t('dashboard.statusReady') : initState.status === 'loading' ? t('dashboard.statusLoading') : t('dashboard.statusNotLoaded'),
+      value: initState.status === 'ready'
+        ? t('dashboard.statusReady')
+        : initState.status === 'loading'
+        ? t('dashboard.statusLoading')
+        : initState.status === 'error'
+        ? t('dashboard.statusError')
+        : t('dashboard.statusNotLoaded'),
       status: initState.status === 'ready' ? 'normal' : initState.status === 'error' ? 'critical' : 'warning',
     },
     {
@@ -110,13 +116,17 @@ export default function Dashboard() {
                 {t('dashboard.step1Desc')}
               </p>
               <button
-                className="btn btn-primary"
                 onClick={handleLoadEngine}
                 disabled={initState.status === 'ready' || initState.status === 'loading'}
-                style={{ fontSize: '0.8125rem' }}
+                className={`btn ${initState.status === 'error' ? 'btn-danger' : 'btn-primary'}`}
               >
-                {initState.status === 'ready' ? t('dashboard.step1BtnReady') : initState.status === 'loading' ? t('dashboard.step1BtnLoading') : t('dashboard.step1BtnLoad')}
+                {initState.status === 'ready' ? t('dashboard.step1BtnReady') : initState.status === 'loading' ? t('dashboard.step1BtnLoading') : initState.status === 'error' ? t('dashboard.step1BtnError') : t('dashboard.step1BtnLoad')}
               </button>
+              {initState.status === 'error' && (
+                <div style={{ marginTop: '8px', padding: '8px', background: 'var(--color-error-bg, #fef2f2)', border: '1px solid var(--color-error, #ef4444)', borderRadius: '4px', fontSize: '0.75rem', color: 'var(--color-error, #ef4444)' }}>
+                  {(initState as any).error || 'Unknown error'}
+                </div>
+              )}
               {initState.status === 'loading' && (
                 <div style={{ marginTop: '8px' }}>
                   <div style={{ width: '100%', height: 3, background: 'var(--color-border)', borderRadius: 2 }}>

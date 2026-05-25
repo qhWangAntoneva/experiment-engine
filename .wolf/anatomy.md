@@ -1,13 +1,15 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-25T10:46:57.920Z
-> Files: 19 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-25T17:05:46.248Z
+> Files: 30 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
 
 ## ./
 
+- `DEPLOY-CHECKLIST.md` — Deployment Verification Checklist -- QCA Analysis Tool (~5095 tok)
+- `vite.config.ts` — ============================================================================= (~344 tok)
 
 ## .claude/
 
@@ -26,12 +28,19 @@
 
 ## .wolf/
 
+- `e2e-test-plan.md` — UX-focused E2E test plan: 45 tests across 6 phases, with PASS/FAIL criteria and execution order (~1200 tok)
+
+## public/
+
+- `404.html` — QCA Analysis Tool (~278 tok)
 
 ## roadmap/
 
 
 ## src/
 
+- `main.tsx` — ============================================================================= (~725 tok)
+- `vite-env.d.ts` — / <reference types="vite/client" /> (~296 tok)
 
 ## src/components/
 
@@ -48,6 +57,7 @@
 
 ## src/experiment_engine/io/
 
+- `__init__.py` — Input/output layer for experiment-engine. (~658 tok)
 
 ## src/experiment_engine/models/
 
@@ -74,19 +84,22 @@
 
 ## src/hooks/
 
+- `usePyodide.ts` — React hook wrapping the Pyodide bridge singleton. (~452 tok)
 - `useQCAWorkflow.ts` — Hook that ties the Pyodide bridge to the pipeline state context. (~3749 tok)
 
 ## src/i18n/
 
-- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~8807 tok)
+- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~9280 tok)
 
 ## src/layouts/
 
 
 ## src/pages/
 
-- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~13680 tok)
-- `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~5929 tok)
+- `Dashboard.css` — Styles: 23 rules (~553 tok)
+- `Dashboard.tsx` — Dashboard — QCA pipeline overview with pipeline status widget, (~3022 tok)
+- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~13966 tok)
+- `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~6443 tok)
 
 ## src/pyodide/
 
@@ -96,8 +109,8 @@
 
 - `bert-cache.ts` — BERT embedding cache service — IndexedDB persistence. (~288 tok)
 - `bert-engine.ts` — BertEngine class — Transformers.js feature extraction. (~2432 tok)
-- `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~4307 tok)
-- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~5883 tok)
+- `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~4448 tok)
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~6177 tok)
 
 ## src/store/
 
@@ -113,3 +126,5 @@
 
 
 ## tmp/
+
+- `verify-load-engine.mjs` — BASE: snap, check (~2089 tok)

@@ -1,10 +1,16 @@
 # Memory
 
+| 2026-05-26 | 创建 DEPLOY-CHECKLIST.md: 全面部署验证清单, 6 章节 76 项检查(预构建/构建/SPA 404/GH Pages 配置/部署后浏览器测试/边缘用例)。关键发现: site/404.html 是 MkDocs 产物,不会被部署; SPA BrowserRouter 需要专属 404.html 处理直接 URL 访问。清单包含快速运行脚本。 | DEPLOY-CHECKLIST.md, anatomy.md, memory.md | 清单已创建,等待部署前验证 | ~6000 |
+| 2026-05-26 | 第二轮修复 + handover 更新: 第一轮经典 worker 方案导致 "Cannot use import statement outside a module" → 正确方案(保持模块 Worker + 动态 import() 加载 pyodide.mjs)。3-agent 验证 26/26 PASS。更新 handover 至最新状态。 | pyodide.worker.ts, pyodide.ts, vite.config.ts, handover.md, memory.md | 2 次要修复 (stale comment + 类型定义 gap), tsc clean | ~80000 |
+| 2026-05-26 | 修复"加载引擎"按钮闪回 bug: 4-agent expert team 诊断 → root cause (module worker + importScripts 不兼容, TypeError) → fix (模块 Worker 保持 + import() 加载 pyodide.mjs + Dashboard error state + resolveOne routing + worker cleanup) → explorer+fixer+reviewer 验证(全部 PASS) → 3 次要问题已清理。Dev server 运行在 127.0.0.1:3000。 | pyodide.ts, Dashboard.tsx, vite.config.ts, translations.ts, Dashboard.css, pyodide.worker.ts | 1 critical bug fixed (bug-214), 3 minor issues cleaned, tsc clean | ~120000 |
+| 2026-05-25 | 完整 session: E2E 全功能测试 (4 agent 并行, 85 项, 10 Phase, PASS 70/FAIL 5) → 定位 localhost 代理陷阱 (Clash 拦截, 修复为 127.0.0.1) → fixer 修复 5 缺陷 → reviewer 审核 (发现 1 遗漏已补修) → tsc 零错误。核心 Pipeline/BERT/QCA 链路全部验证通过。 | DataInput.tsx, Settings.tsx, translations.ts, vite.config.ts, handover.md, buglog.json, memory.md, e2e-test-plan.md | 5 bugs fixed, handover updated, @~400k total session tokens |
+| 2026-05-25 | Phase 4 UI 对接完成 — 3 个文件、2 次提交、6 FIXME 清除。useQCAWorkflow (initBert+runEmbedCalibrate) → DataInput (BERT 按钮+状态) + Settings (模型选择器)。code-review 发现 3 bugs (initBert error 卡 stage、finishEmbedding 未调用、stale prototypeFuzzyData) 并已修复。Build 通过。 | useQCAWorkflow.ts, DataInput.tsx, Settings.tsx | 2 commits: 3df7e57, eba4e1f | ~8000 |
 | 2026-05-25 | Designed BERT Prototype similarity algorithm spec: mean pooling > CLS, centroid aggregation > max-similarity, softmax-with-temperature formula as primary (Eq.1), normalized-difference as fallback (Eq.3), full pipeline pseudocode, edge cases, Prototype Theory + fsQCA theoretical justification | .wolf/bert-prototype-algorithm-spec.md | Written, ~27KB, no implementation code | ~12000 |
 | 2026-05-25 | Implemented CosineSimilarityEngine + 52 comprehensive unit tests: softmax(tau)/diff scoring, centroid/max aggregation, weighted prototypes, 8 edge cases, numerical stability (overflow-safe softmax, cos clipping, L2 normalization), input validation. 577 total tests pass (52 new), ruff clean | src/experiment_engine/text_calibration/cosine_similarity.py, tests/test_cosine_similarity.py, src/experiment_engine/text_calibration/__init__.py | Created: engine ~4.8k tok, tests ~12k tok; updated __init__.py exports | ~7000 |
 
 > Chronological action log. Hooks and AI append to this file automatically.
 
+| 2026-05-25 | UX tester: Created comprehensive E2E test plan (45 tests, 6 phases) with PASS/FAIL criteria. Focus on engine loading (known bug: Load Engine reverts immediately), i18n, settings persistence, data input/calibration, full pipeline, error handling/edge cases. Includes test data CSV samples and execution order. | .wolf/e2e-test-plan.md | Written: 342 lines, 6 phases, 45 test scenarios | ~1200 |
 | 2026-05-25 | P1-31: Verified build + committed raw-prototype contrast view (pre-existing implementation). TODO.md stats updated. | qca.ts, QCAPipelineContext.tsx, useQCAWorkflow.ts, Results.tsx, Results.css, PipelineStatus.tsx, TODO.md | npm build clean, 0 errors | ~800 |
 | 2026-05-24 | Reconciled TODO/FIXME/HACK after 3-agent requirement change review: fixed P1-15/16/17 done status, unchecked P2-20 (k=10 still hardcoded), reordered P2 section, corrected all stats tables | TODO.md, FIXME.md, HACK.md | 3 stats tables corrected, 4 checkbox fixes, 2 contradictions resolved, 1 section reordered | ~600 |
 | 2026-05-25 | BERT 架构决策定案：Explore Agent 深度复审 bert-vs-keyword-analysis.md + 技术顾问设计浏览器端双 Worker 架构 + 评审者 16 项批判 + 定量对比（86x WASM CPU 推理差距、5.9x 冷启动差距）+ 最终决议 BERT 作为 CLI 辅助工具不做主引擎 | .wolf/bert-vs-keyword-analysis.md, TODO.md, HACK.md, cerebrum.md | 文档已更新，P1-32/33 范围缩小为纯 Python CLI，P2-25/26 添加条件门控 | ~35000 |
@@ -1192,3 +1198,91 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 18:46 | Edited src/pages/DataInput.tsx | 6→5 lines | ~72 |
 | 18:46 | Edited src/pages/DataInput.tsx | 2→1 lines | ~40 |
 | 18:46 | Edited src/pages/DataInput.tsx | 2→1 lines | ~47 |
+| 18:49 | Session end: 27 writes across 3 files (useQCAWorkflow.ts, DataInput.tsx, Settings.tsx) | 9 reads | ~44426 tok |
+| 18:52 | Session end: 27 writes across 3 files (useQCAWorkflow.ts, DataInput.tsx, Settings.tsx) | 9 reads | ~44426 tok |
+| 18:56 | Session end: 27 writes across 3 files (useQCAWorkflow.ts, DataInput.tsx, Settings.tsx) | 9 reads | ~44426 tok |
+| 19:54 | Session end: 27 writes across 3 files (useQCAWorkflow.ts, DataInput.tsx, Settings.tsx) | 9 reads | ~44426 tok |
+| 19:58 | designqc: captured 6 screenshots (25KB, ~15000 tok) | /, /Dashboard, /DataInput, /Results, /Settings | ready for eval | ~0 |
+| 20:00 | Session end: 27 writes across 3 files (useQCAWorkflow.ts, DataInput.tsx, Settings.tsx) | 9 reads | ~44426 tok |
+| 20:01 | Session end: 27 writes across 3 files (useQCAWorkflow.ts, DataInput.tsx, Settings.tsx) | 9 reads | ~44426 tok |
+
+## Session: 2026-05-25 20:01
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 20:44 | Debugged browser hang: killed 8 zombie Vite/node processes (PIDs 38952,34576,27884,16868,19328,33628 + 2 orphan node.exe) occupying ports 3000-3002, started fresh Vite on port 3000. All endpoints respond HTTP 200. | .wolf/memory.md, .wolf/buglog.json | FIXED — app now serves at http://localhost:3000 | ~2000 |
+| 21:40 | Edited src/hooks/usePyodide.ts | 3→3 lines | ~27 |
+| 21:48 | Edited vite.config.ts | 4→5 lines | ~19 |
+| 21:55 | Edited vite.config.ts | 5→5 lines | ~21 |
+| 21:57 | Session end: 3 writes across 2 files (usePyodide.ts, vite.config.ts) | 54 reads | ~59859 tok |
+| 21:57 | Session end: 3 writes across 2 files (usePyodide.ts, vite.config.ts) | 55 reads | ~59859 tok |
+| 22:18 | Session end: 3 writes across 2 files (usePyodide.ts, vite.config.ts) | 56 reads | ~59859 tok |
+| 22:24 | Session end: 3 writes across 2 files (usePyodide.ts, vite.config.ts) | 62 reads | ~67642 tok |
+| 22:27 | Edited src/i18n/translations.ts | expanded (+13 lines) | ~164 |
+| 22:27 | Edited src/i18n/translations.ts | expanded (+13 lines) | ~165 |
+| 22:27 | Edited src/i18n/translations.ts | expanded (+13 lines) | ~222 |
+| 22:28 | Edited src/pages/DataInput.tsx | modified t() | ~588 |
+| 22:28 | Edited src/pages/Settings.tsx | 20 → 10 | ~4 |
+| 22:28 | Edited src/pages/Settings.tsx | 4→4 lines | ~84 |
+| 22:28 | Edited src/pages/Settings.tsx | modified t() | ~216 |
+| 22:28 | Edited src/pages/Settings.tsx | inline fix | ~25 |
+| 22:28 | Edited src/pages/Settings.tsx | modified t() | ~131 |
+| 22:29 | Edited src/pages/Settings.tsx | inline fix | ~19 |
+| 22:29 | Edited src/pages/Settings.tsx | added error handling | ~151 |
+| 22:29 | Edited src/pages/Settings.tsx | added error handling | ~160 |
+| 22:29 | Edited src/pages/Settings.tsx | added 2 condition(s) | ~308 |
+| 2026-05-25 | E2E bug fixes: Bug 1 (BERT i18n)→DataInput.tsx+Settings.tsx, Bug 2 (localStorage read-on-mount)→Settings.tsx, Bug 3 (BERT model persistence)→Settings.tsx, Bug 4 (keyword export stub)→Settings.tsx, Bug 5 (N-Cut max:20→10)→Settings.tsx. 14 new i18n keys added to translations.ts. tsc --noEmit PASS | translations.ts, DataInput.tsx, Settings.tsx | All 5 bugs fixed, type-safe | ~8000 |
+| 22:32 | Edited src/pages/DataInput.tsx | added 2 condition(s) | ~324 |
+| 22:34 | Session end: 17 writes across 5 files (usePyodide.ts, vite.config.ts, translations.ts, DataInput.tsx, Settings.tsx) | 62 reads | ~70866 tok |
+| 22:48 | Session end: 17 writes across 5 files (usePyodide.ts, vite.config.ts, translations.ts, DataInput.tsx, Settings.tsx) | 62 reads | ~70866 tok |
+
+## Session: 2026-05-25 23:06
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 23:27 | Edited vite.config.ts | workers() → importScripts() | ~50 |
+| 23:27 | Edited src/services/pyodide.ts | 4→3 lines | ~26 |
+| 23:28 | Edited src/i18n/translations.ts | 4→5 lines | ~36 |
+| 23:28 | Edited src/i18n/translations.ts | 3→4 lines | ~32 |
+| 23:28 | Edited src/i18n/translations.ts | 4→5 lines | ~43 |
+| 23:28 | Edited src/i18n/translations.ts | 3→4 lines | ~40 |
+| 23:28 | Edited src/pages/Dashboard.tsx | modified t() | ~79 |
+| 23:28 | Edited src/pages/Dashboard.tsx | 2→2 lines | ~54 |
+| 23:28 | Edited src/pages/Dashboard.tsx | modified t() | ~187 |
+| 23:28 | Edited src/services/pyodide.ts | modified switch() | ~296 |
+| 23:28 | Edited src/services/pyodide.ts | added 1 condition(s) | ~450 |
+| 23:34 | Edited src/pages/Dashboard.tsx | 5→4 lines | ~72 |
+| 23:34 | Edited src/services/pyodide.worker.ts | 2→2 lines | ~46 |
+| 23:34 | Edited src/pages/Dashboard.css | 3→7 lines | ~38 |
+| 23:36 | Session end: 14 writes across 6 files (vite.config.ts, pyodide.ts, translations.ts, Dashboard.tsx, pyodide.worker.ts) | 17 reads | ~51104 tok |
+| 23:52 | Edited vite.config.ts | importScripts() → import() | ~31 |
+| 23:52 | Edited src/services/pyodide.ts | 3→4 lines | ~34 |
+| 23:52 | Edited src/services/pyodide.worker.ts | 9→9 lines | ~126 |
+| 23:52 | Edited src/services/pyodide.worker.ts | 2→3 lines | ~68 |
+| 23:58 | Edited src/i18n/translations.ts | 2→3 lines | ~22 |
+| 23:58 | Edited src/i18n/translations.ts | 2→3 lines | ~22 |
+| 23:58 | Edited vite.config.ts | inline fix | ~24 |
+| 23:59 | Session end: 21 writes across 6 files (vite.config.ts, pyodide.ts, translations.ts, Dashboard.tsx, pyodide.worker.ts) | 21 reads | ~51989 tok |
+| 00:16 | Session end: 21 writes across 6 files (vite.config.ts, pyodide.ts, translations.ts, Dashboard.tsx, pyodide.worker.ts) | 21 reads | ~51989 tok |
+
+## Session: 2026-05-25 00:16
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 00:23 | Created tmp/verify-load-engine.mjs | — | ~2084 |
+| 00:28 | Edited tmp/verify-load-engine.mjs | inline fix | ~22 |
+| 00:31 | Session end: 2 writes across 1 files (verify-load-engine.mjs) | 7 reads | ~2256 tok |
+| 00:41 | Edited src/vite-env.d.ts | modified loadPyodide() | ~65 |
+| 00:43 | Session end: 3 writes across 2 files (verify-load-engine.mjs, vite-env.d.ts) | 36 reads | ~42832 tok |
+| 00:43 | Created DEPLOY-CHECKLIST.md | — | ~5434 |
+| 00:44 | Session end: 4 writes across 3 files (verify-load-engine.mjs, vite-env.d.ts, DEPLOY-CHECKLIST.md) | 36 reads | ~48654 tok |
+| 00:45 | Session end: 4 writes across 3 files (verify-load-engine.mjs, vite-env.d.ts, DEPLOY-CHECKLIST.md) | 36 reads | ~48654 tok |
+| 01:04 | Edited src/services/pyodide.worker.ts | added optional chaining | ~454 |
+| 01:05 | Created public/404.html | — | ~278 |
+| 01:05 | Edited src/main.tsx | 5→5 lines | ~54 |
+| 01:05 | Edited src/main.tsx | CSS: replace | ~442 |
+| 01:05 | Edited src/main.tsx | 3→4 lines | ~29 |
+| 01:05 | Edited src/experiment_engine/io/__init__.py | expanded (+10 lines) | ~225 |
+| 2026-05-26 | Fix 3 critical deployment blockers: (1) Worker now fetches experiment_engine.tar.gz instead of non-existent /pyodide-modules.json, extracts via tarfile. (2) Created public/404.html + RedirectRestorer component in main.tsx for SPA routing fallback. (3) io/__init__.py db imports wrapped in try/except ImportError. Build passes clean. | pyodide.worker.ts, main.tsx, 404.html, io/__init__.py | tsc + vite build clean, verified tar.gz extraction code and spa-redirect in dist bundles | ~8000 |
+| 01:10 | Session end: 10 writes across 7 files (verify-load-engine.mjs, vite-env.d.ts, DEPLOY-CHECKLIST.md, pyodide.worker.ts, 404.html) | 38 reads | ~51079 tok |
+| 01:11 | Session end: 10 writes across 7 files (verify-load-engine.mjs, vite-env.d.ts, DEPLOY-CHECKLIST.md, pyodide.worker.ts, 404.html) | 38 reads | ~51079 tok |
