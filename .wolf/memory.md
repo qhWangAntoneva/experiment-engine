@@ -920,3 +920,21 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 04:41 | Edited TODO.md | inline fix | ~45 |
 | 04:41 | Edited TODO.md | 3→3 lines | ~34 |
 | 04:41 | Edited TODO.md | 3→5 lines | ~33 |
+| 04:43 | Session end: 172 writes across 24 files (qca.ts, QCAPipelineContext.tsx, useQCAWorkflow.ts, PipelineStatus.tsx, Results.tsx) | 31 reads | ~147914 tok |
+
+## Session: 2026-05-25 09:02
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 09:08 | Edited TODO.md | 7→4 lines | ~26 |
+| 09:08 | Edited TODO.md | removed 3 lines | ~11 |
+| 09:08 | Edited TODO.md | 6→6 lines | ~70 |
+| 09:09 | Edited TODO.md | removed 8 lines | ~2 |
+| 09:09 | Edited TODO.md | removed 9 lines | ~7 |
+| 09:09 | Edited TODO.md | removed 18 lines | ~1 |
+| 09:09 | Edited TODO.md | 4→3 lines | ~26 |
+| 09:10 | Edited TODO.md | 6→6 lines | ~70 |
+| 09:10 | Edited TODO.md | inline fix | ~11 |
+| 09:10 | Edited TODO.md | inline fix | ~14 |
+| 09:11 | Edited roadmap/experiment-engine-roadmap.json | inline fix | ~10 |
+| 09:11 | Removed all BERT content from TODO.md, handover.md, roadmap: P1-32/33 + P2-25/26 + P2-14 removed. Stats recalculated (P1: 23→10 remaining, P2: 28→23 remaining). | TODO.md, handover.md, experiment-engine-roadmap.json | 33 tasks remaining | ~3000 |

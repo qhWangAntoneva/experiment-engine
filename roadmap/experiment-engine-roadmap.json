@@ -2,7 +2,7 @@
   "metadata": {
     "project": "experiment-engine",
     "version": "1.0.0",
-    "last_updated": "2026-05-24T03:40",
+    "last_updated": "2026-05-25T12:00",
     "description": "QCA Text Analysis Tool: Chinese citizen feedback text → fuzzy-set QCA. CLI + Pyodide Web (browser-based, zero-server deployment to GitHub Pages).",
     "tech_stack": [
       "Python >=3.10",
