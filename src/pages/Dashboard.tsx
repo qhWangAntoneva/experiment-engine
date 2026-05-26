@@ -67,6 +67,7 @@ export default function Dashboard() {
       <div className="page-header">
         <h2 className="page-title">{t('dashboard.title')}</h2>
         <p className="page-subtitle">{t('dashboard.subtitle')}</p>
+        <p className="page-desc">{t('dashboard.description')}</p>
       </div>
 
       {/* Pipeline Status Widget */}

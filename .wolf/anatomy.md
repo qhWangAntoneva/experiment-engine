@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T03:17:14.044Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T03:37:15.653Z
 > Files: 43 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
@@ -95,15 +95,15 @@
 
 ## src/i18n/
 
-- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~9280 tok)
+- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~9360 tok)
 
 ## src/layouts/
 
 
 ## src/pages/
 
-- `Dashboard.css` — Styles: 23 rules (~553 tok)
-- `Dashboard.tsx` — Dashboard — QCA pipeline overview with pipeline status widget, (~3022 tok)
+- `Dashboard.css` — Styles: 24 rules (~592 tok)
+- `Dashboard.tsx` — Dashboard — QCA pipeline overview with pipeline status widget, (~3040 tok)
 - `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~13966 tok)
 - `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~6443 tok)
 

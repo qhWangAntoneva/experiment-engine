@@ -18,6 +18,14 @@
   margin-top: 2px;
 }
 
+.page-desc {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  margin-top: 6px;
+  line-height: 1.5;
+  max-width: 720px;
+}
+
 /* Metric Cards */
 .metric-grid {
   display: grid;

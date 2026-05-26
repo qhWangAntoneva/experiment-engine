@@ -1369,3 +1369,14 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 11:05 | Session end: 5 writes across 3 files (__init__.py, pyodide_handlers.py, test_robustness.py) | 3 reads | ~9663 tok |
 | 11:15 | Session end: 5 writes across 3 files (__init__.py, pyodide_handlers.py, test_robustness.py) | 5 reads | ~14758 tok |
 | 11:17 | Edited .gitignore | expanded (+9 lines) | ~45 |
+| 11:18 | Session end: 6 writes across 4 files (__init__.py, pyodide_handlers.py, test_robustness.py, .gitignore) | 5 reads | ~14806 tok |
+| 11:21 | Session end: 6 writes across 4 files (__init__.py, pyodide_handlers.py, test_robustness.py, .gitignore) | 5 reads | ~14806 tok |
+| 11:37 | Edited src/i18n/translations.ts | inline fix | ~22 |
+| 11:37 | Edited src/i18n/translations.ts | "zh" → "en" | ~11 |
+| 11:37 | Edited src/i18n/translations.ts | 2→3 lines | ~21 |
+| 11:37 | Edited src/i18n/translations.ts | 2→3 lines | ~38 |
+| 11:37 | Edited src/i18n/translations.ts | 2→3 lines | ~78 |
+| 11:37 | Edited src/pages/Dashboard.tsx | 2→3 lines | ~42 |
+| 11:37 | Edited src/pages/Dashboard.css | CSS: line-height, max-width | ~68 |
+| 11:39 | Session end: 13 writes across 7 files (__init__.py, pyodide_handlers.py, test_robustness.py, .gitignore, translations.ts) | 16 reads | ~28078 tok |
+| 11:43 | Session end: 13 writes across 7 files (__init__.py, pyodide_handlers.py, test_robustness.py, .gitignore, translations.ts) | 16 reads | ~28078 tok |

@@ -50,6 +50,7 @@ export interface TranslationDict {
   dashboard: {
     title: string;
     subtitle: string;
+    description: string;
     pyodideStatus: string;
     pipelineStage: string;
     casesAnalyzed: string;
@@ -339,6 +340,7 @@ const zh: TranslationDict = {
   dashboard: {
     title: '首页',
     subtitle: 'QCA 文本分析管道概览',
+    description: '将公民反馈中文文本自动转化为模糊集 QCA 分析结果，支持关键词匹配与 BERT 原型校准两种方式。',
     pyodideStatus: 'Pyodide 状态',
     pipelineStage: '管道阶段',
     casesAnalyzed: '已分析案例',
@@ -702,6 +704,7 @@ const en: TranslationDict = {
   dashboard: {
     title: 'Dashboard',
     subtitle: 'QCA Text Analysis Pipeline Overview',
+    description: 'Automatically transforms Chinese-language citizen feedback into fuzzy-set QCA analysis results, supporting both keyword matching and BERT prototype calibration.',
     pyodideStatus: 'Pyodide Status',
     pipelineStage: 'Pipeline Stage',
     casesAnalyzed: 'Cases Analyzed',
@@ -1031,11 +1034,11 @@ const en: TranslationDict = {
 
 export const translations: Record<Language, TranslationDict> = { zh, en };
 
-/** Get the preferred language from browser locale, fallback to Chinese. */
+/** Get the preferred language from browser locale, fallback to English. */
 export function detectLanguage(): Language {
   try {
     const locale = navigator.language || (navigator as any).userLanguage || '';
     if (locale.toLowerCase().startsWith('zh')) return 'zh';
   } catch {}
-  return 'zh'; // default to Chinese
+  return 'en'; // default to English
 }
