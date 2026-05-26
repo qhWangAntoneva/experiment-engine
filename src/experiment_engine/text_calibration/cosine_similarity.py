@@ -183,12 +183,16 @@ class CosineSimilarityEngine:
                 )
             else:  # max
                 sim_pos = (
-                    self._compute_max_similarity(text_unit, proto_unit, pos_indices)
+                    self._compute_max_similarity(
+                        text_unit, proto_unit, pos_indices, proto_meta
+                    )
                     if has_pos
                     else None
                 )
                 sim_neg = (
-                    self._compute_max_similarity(text_unit, proto_unit, neg_indices)
+                    self._compute_max_similarity(
+                        text_unit, proto_unit, neg_indices, proto_meta
+                    )
                     if has_neg
                     else None
                 )
@@ -326,16 +330,23 @@ class CosineSimilarityEngine:
         text_unit: np.ndarray,
         proto_unit: np.ndarray,
         indices: list[int],
+        proto_meta: list[dict],
     ) -> np.ndarray:
-        """Compute maximum cosine similarity between each text and a set of prototypes.
+        """Compute maximum weighted cosine similarity between each text and prototypes.
+
+        Each prototype's cosine similarity is multiplied by its weight before
+        taking the max. A prototype with weight 0.0 is effectively ignored;
+        a prototype with weight 1.0 contributes its full similarity.
 
         Args:
             text_unit: Row-normalized text embeddings, shape ``(N, d)``.
             proto_unit: Row-normalized prototype embeddings, shape ``(K, d)``.
             indices: Indices of prototypes to consider.
+            proto_meta: Metadata for each prototype (has ``weight`` field).
 
         Returns:
-            Maximum cosine similarity per text, shape ``(N,)``, clipped to ``[-1, 1]``.
+            Maximum weighted cosine similarity per text, shape ``(N,)``,
+            clipped to ``[-1, 1]``.
         """
         if len(indices) == 0:
             return np.zeros(text_unit.shape[0], dtype=np.float64)
@@ -343,7 +354,19 @@ class CosineSimilarityEngine:
         # (N, d) @ (d, K_sub) -> (N, K_sub)
         cos_all = text_unit @ proto_unit[indices].T
         cos_all = np.clip(cos_all, -1.0, 1.0)
-        return np.max(cos_all, axis=1)
+
+        # Weight each prototype's similarity by its weight before taking max
+        weights = np.array(
+            [proto_meta[i]["weight"] for i in indices],
+            dtype=np.float64,
+        )
+        weighted = cos_all * weights[np.newaxis, :]
+
+        # If all weights are zero, return zeros to avoid misleading max
+        if np.all(weights == 0.0):
+            return np.zeros(text_unit.shape[0], dtype=np.float64)
+
+        return np.max(weighted, axis=1)
 
     # ------------------------------------------------------------------
     # Input validation

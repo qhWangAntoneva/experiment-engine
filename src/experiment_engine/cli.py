@@ -11,6 +11,8 @@ import numpy as np
 from rich.console import Console
 from rich.table import Table
 
+# Shared helpers from the public API layer
+from experiment_engine.api import _load_fuzzy_data as _load_fuzzy_data
 from experiment_engine.models import FuzzySetData, QCAVariant, TrainingDataset
 
 console = Console()
@@ -74,24 +76,9 @@ def calibrate(
     verbose: bool,
 ) -> None:
     """Calibrate raw texts to fuzzy-set membership scores."""
-    from experiment_engine.io.readers import TextCorpusReader
-    from experiment_engine.text_calibration import (
-        TextCalibrationStage,
-        load_condition_set,
-    )
+    from experiment_engine.api import run_calibrate
 
-    cs = load_condition_set(condition_set)
-    if variant == "csqca":
-        cs.qca_variant = QCAVariant.CSQCA
-    reader = TextCorpusReader()
-    input_data = reader.read(input, text_column=text_column)
-    console.print(f"[green]✓[/] Loaded {input_data.n_samples} texts")
-
-    stage = TextCalibrationStage(cs)
-    stage.setup()
-    result = stage.process(input_data)
-
-    fuzzy: FuzzySetData = result.processed  # type: ignore[assignment]
+    fuzzy = run_calibrate(condition_set, input, variant, text_column)
     console.print(
         f"[green]✓[/] Calibrated: {fuzzy.n_cases} cases x{fuzzy.n_conditions + 1} sets"
     )
@@ -233,22 +220,16 @@ def analyze(
     output: str,
     verbose: bool,
 ) -> None:
-    """Run full QCA analysis: truth table → minimization → necessity → sufficiency."""
-    from experiment_engine.qca_engine import QCAnalyzerStage
-    from experiment_engine.text_calibration import load_condition_set
+    """Run full QCA analysis: truth table -> minimization -> necessity -> sufficiency."""
+    from experiment_engine.api import run_analyze
 
-    cs = load_condition_set(condition_set)
-    if variant == "csqca":
-        cs.qca_variant = QCAVariant.CSQCA
-    fuzzy = _load_fuzzy_data(fuzzy_data, cs)
-
-    stage = QCAnalyzerStage(
-        condition_set=cs,
+    result = run_analyze(
+        condition_set,
+        fuzzy_data,
+        variant,
         consistency_threshold=consistency,
         frequency_threshold=frequency,
     )
-    stage.setup()
-    result = stage.analyze(fuzzy)
 
     # Print summary
     _print_analysis_summary(result, verbose)
@@ -282,8 +263,8 @@ def analyze(
     "--output",
     "-o",
     type=click.Path(),
-    default="robustness_report.json",
-    help="Output path for robustness report",
+    default=".",
+    help="Output directory for robustness report",
 )
 @click.option(
     "--variant",
@@ -296,28 +277,18 @@ def robustness(
     condition_set: str, fuzzy_data: str, output: str, variant: str, verbose: bool
 ) -> None:
     """Run robustness and sensitivity tests on QCA results."""
-    from experiment_engine.qca_engine import QCAnalyzerStage
-    from experiment_engine.qca_engine.advanced import RobustnessTester
-    from experiment_engine.text_calibration import load_condition_set
+    from experiment_engine.api import run_robustness
 
-    cs = load_condition_set(condition_set)
-    if variant == "csqca":
-        cs.qca_variant = QCAVariant.CSQCA
-    fuzzy = _load_fuzzy_data(fuzzy_data, cs)
-
-    stage = QCAnalyzerStage(condition_set=cs)
-    stage.setup()
-    baseline = stage.analyze(fuzzy)
-
-    tester = RobustnessTester()
-    report = tester.run_all(fuzzy, baseline)
+    _baseline, report = run_robustness(condition_set, fuzzy_data, variant)
 
     console.print(f"Overall robustness: {report.overall_robustness:.2f}")
     console.print(report.summary)
 
-    with open(output, "w", encoding="utf-8") as fh:
-        fh.write(report.model_dump_json(indent=2))
-    console.print(f"[green]✓[/] Report saved to {output}")
+    out_dir = Path(output)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / "robustness_report.json"
+    out_path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+    console.print(f"[green]✓[/] Report saved to {out_path}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -351,8 +322,8 @@ def robustness(
     "--output",
     "-o",
     type=click.Path(),
-    default="counterfactual_report.json",
-    help="Output path for counterfactual report",
+    default=".",
+    help="Output directory for counterfactual report",
 )
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
 def counterfactuals(
@@ -363,57 +334,32 @@ def counterfactuals(
     verbose: bool,
 ) -> None:
     """Run counterfactual analysis (complex/parsimonious/intermediate solutions)."""
-    from experiment_engine.qca_engine import QCAnalyzerStage
-    from experiment_engine.qca_engine.advanced import CounterfactualAnalyzer
-    from experiment_engine.text_calibration import load_condition_set
+    from experiment_engine.api import run_counterfactuals
 
-    cs = load_condition_set(condition_set)
-    fuzzy = _load_fuzzy_data(fuzzy_data, cs)
-
-    stage = QCAnalyzerStage(condition_set=cs)
-    stage.setup()
-    result = stage.analyze(fuzzy)
-
-    if result.truth_table is None:
-        console.print("[red]No truth table in analysis result[/]")
-        sys.exit(1)
-
-    # Load directional expectations
-    dir_exp = None
-    if expectations:
-        import yaml as _yaml
-
-        with open(expectations, encoding="utf-8") as fh:
-            dir_exp = _yaml.safe_load(fh)
-
-    analyzer = CounterfactualAnalyzer()
-    cf_report = analyzer.analyze(result.truth_table, dir_exp)
-
-    # Produce all three solution types
-    complex_terms = analyzer.produce_complex_solution(result.truth_table)
-    parsimonious_terms = analyzer.produce_parsimonious_solution(
-        result.truth_table, dir_exp
-    )
-    intermediate_terms = analyzer.produce_intermediate_solution(
-        result.truth_table, dir_exp or {}
+    data_out = run_counterfactuals(
+        condition_set,
+        fuzzy_data,
+        expectations_path=expectations,
     )
 
-    console.print(f"Easy counterfactuals: {cf_report.n_easy_counterfactuals}")
-    console.print(f"Hard counterfactuals: {cf_report.n_hard_counterfactuals}")
-    console.print(f"Logical remainders: {cf_report.n_logical_remainders}")
+    cf_report = data_out["counterfactual_report"]
+    complex_terms = data_out["complex_terms"]
+    parsimonious_terms = data_out["parsimonious_terms"]
+    intermediate_terms = data_out["intermediate_terms"]
+
+    console.print(f"Easy counterfactuals: {cf_report['n_easy_counterfactuals']}")
+    console.print(f"Hard counterfactuals: {cf_report['n_hard_counterfactuals']}")
+    console.print(f"Logical remainders: {cf_report['n_logical_remainders']}")
     console.print(f"Complex solution: {len(complex_terms)} terms")
     console.print(f"Parsimonious solution: {len(parsimonious_terms)} terms")
     console.print(f"Intermediate solution: {len(intermediate_terms)} terms")
 
-    data_out = {
-        "counterfactual_report": cf_report.model_dump(),
-        "complex_terms": complex_terms,
-        "parsimonious_terms": parsimonious_terms,
-        "intermediate_terms": intermediate_terms,
-    }
-    with open(output, "w", encoding="utf-8") as fh:
+    out_dir = Path(output)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / "counterfactuals_report.json"
+    with open(str(out_path), "w", encoding="utf-8") as fh:
         json.dump(data_out, fh, indent=2, ensure_ascii=False)
-    console.print(f"[green]✓[/] Report saved to {output}")
+    console.print(f"[green]✓[/] Report saved to {out_path}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -433,7 +379,7 @@ def counterfactuals(
     "--format",
     "-f",
     "fmt",
-    type=click.Choice(["latex", "console"]),
+    type=click.Choice(["latex", "console", "docx"]),
     default="console",
     help="Report format",
 )
@@ -441,24 +387,21 @@ def counterfactuals(
     "--output",
     "-o",
     type=click.Path(),
-    default=None,
-    help="Output path for report",
+    default=".",
+    help="Output directory for the report",
 )
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
-def report(results: str, fmt: str, output: str | None, verbose: bool) -> None:
+def report(results: str, fmt: str, output: str, verbose: bool) -> None:
     """Generate an analysis report (LaTeX or console)."""
     with open(results, encoding="utf-8") as fh:
         data = json.load(fh)
 
-    if fmt == "latex":
-        from experiment_engine.models import QCAAnalysisResult
-        from experiment_engine.report.qca_reporter import QCALaTeXReporter
+    if fmt in ("latex", "docx"):
+        from experiment_engine.api import run_report
 
-        result = QCAAnalysisResult(**data)
-        out_path = output or "qca_report.tex"
-        reporter = QCALaTeXReporter()
-        reporter.generate(result, output_path=out_path)
-        console.print(f"[green]✓[/] LaTeX report saved to {out_path}")
+        out_file = run_report(results, output, fmt, robustness_path=None)
+        suffix = "LaTeX" if fmt == "latex" else "DOCX"
+        console.print(f"[green]✓[/] {suffix} report saved to {out_file}")
     else:
         _print_console_report(data)
 
@@ -555,7 +498,7 @@ def run(config: str, output_dir: str, variant: str, verbose: bool) -> None:
     with open(str(rob_path), "w", encoding="utf-8") as fh:
         fh.write(rob_report.model_dump_json(indent=2))
 
-    # 4. Report
+    # 4. Report (LaTeX)
     console.print("[bold cyan]Step 4/4:[/] Generating report...")
     from experiment_engine.report.qca_reporter import QCALaTeXReporter
 
@@ -566,7 +509,22 @@ def run(config: str, output_dir: str, variant: str, verbose: bool) -> None:
         output_path=str(report_path),
         robustness=rob_report,
     )
-    console.print(f"  [green]✓[/] Report saved to {report_path}")
+    console.print(f"  [green]✓[/] LaTeX report saved to {report_path}")
+
+    # Optional: DOCX report
+    try:
+        from experiment_engine.report.docx_reporter import QCADocxReporter
+
+        docx_reporter = QCADocxReporter()
+        docx_bytes = docx_reporter.generate(qca_result, robustness=rob_report)
+        docx_path = out_dir / "qca_report.docx"
+        with open(str(docx_path), "wb") as fh:
+            fh.write(docx_bytes)
+        console.print(f"  [green]✓[/] DOCX report saved to {docx_path}")
+    except ImportError:
+        console.print("  [yellow]⚠[/] DOCX report skipped (python-docx not installed)")
+    except Exception as exc:
+        console.print(f"  [yellow]⚠[/] DOCX report skipped: {exc}")
 
     console.print(f"\n[bold green]Done![/] All outputs in {out_dir}")
 
@@ -678,47 +636,6 @@ def _save_fuzzy_data(fuzzy: FuzzySetData, path: str) -> None:
             writer.writerow(all_names)
             for i in range(fuzzy.n_cases):
                 writer.writerow(fuzzy.membership[i].tolist())
-
-
-def _load_fuzzy_data(path: str, cs) -> FuzzySetData:
-    from experiment_engine.models import FuzzySetData as FSD
-
-    if path.endswith(".npz"):
-        data = np.load(path, allow_pickle=True)
-        return FSD(
-            membership=data["membership"],
-            condition_names=data.get("condition_names", cs.condition_names).tolist(),
-            outcome_name=str(
-                data.get("outcome_name", cs.outcome.name if cs.outcome else "")
-            ),
-            case_ids=data.get("case_ids", []).tolist()
-            if data.get("case_ids") is not None
-            else None,
-        )
-    if path.endswith(".json"):
-        import json as _json
-
-        with open(path, encoding="utf-8") as fh:
-            raw = _json.load(fh)
-        return FSD(
-            membership=np.array(raw["membership"]),
-            condition_names=raw.get("condition_names", []),
-            outcome_name=raw.get("outcome_name", ""),
-            case_ids=raw.get("case_ids"),
-        )
-    import pandas as pd
-
-    df = pd.read_csv(path)
-    condition_names = cs.condition_names
-    outcome_name = cs.outcome.name if cs.outcome else ""
-    all_names = [*condition_names, outcome_name]
-    available = [c for c in all_names if c in df.columns]
-    membership = df[available].to_numpy(dtype=np.float64)
-    return FSD(
-        membership=membership,
-        condition_names=[c for c in available if c != outcome_name],
-        outcome_name=outcome_name,
-    )
 
 
 def _load_training_samples(path, cs) -> TrainingDataset:

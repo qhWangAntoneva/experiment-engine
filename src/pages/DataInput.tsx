@@ -19,6 +19,7 @@ import { useT } from '../i18n/I18nContext';
 import PipelineStatus from '../components/PipelineStatus';
 import DistributionPlot from '../components/DistributionPlot';
 import ShareLinkButton from '../components/ShareLinkButton';
+import HelpTooltip from '../components/HelpTooltip';
 import type {
   TextCorpusEntry,
   TextCase,
@@ -1156,6 +1157,10 @@ export default function DataInput() {
           <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '12px' }}>
             {t('dataInput.prototypeHelp')}
           </p>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginBottom: '12px' }}>
+            <strong>Weight:</strong> Each prototype has a weight (default 1.0) that controls its contribution.
+            <HelpTooltip text={t('help.weight')} />
+          </p>
 
           {/* Domain picker (shared for all prototype conditions) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
@@ -1225,6 +1230,7 @@ export default function DataInput() {
               <div>
                 <label className="label" style={{ fontSize: '0.75rem' }}>
                   {t('dataInput.prototypeTextsLabel')}
+                  <HelpTooltip text={t('help.prototypeText')} placement="right" />
                 </label>
                 <textarea
                   className="input input-mono"

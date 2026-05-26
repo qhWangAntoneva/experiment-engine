@@ -115,7 +115,11 @@ class TextCalibrationStage(Stage):
             and prototype_embeddings is not None
             and proto_conds
         ):
-            return np.zeros((n_texts, n_conds), dtype=np.float64)
+            # Fallback: compute text-level similarity when BERT embeddings
+            # are not available (CLI/api path without Transformers.js).
+            # Uses character trigram Jaccard similarity between input texts
+            # and prototype texts, aggregated per condition.
+            return self._fallback_text_scores(texts, all_conditions)
 
         # Build condition_prototypes dict for CosineSimilarityEngine
         # (from ConditionDefinition.prototypes: list[ConceptPrototype])
@@ -153,6 +157,113 @@ class TextCalibrationStage(Stage):
                 full_scores[:, j] = scores[:, proto_idx]
 
         return full_scores
+
+    @staticmethod
+    def _fallback_text_scores(
+        texts: list[str],
+        all_conditions: list[ConditionDefinition],
+    ) -> np.ndarray:
+        """Compute text-level prototype similarity without BERT embeddings.
+
+        Falls back to character trigram Jaccard similarity between each input
+        text and the prototype texts of each condition. This produces varied
+        raw scores (unlike returning all zeros), which translates to varied
+        fuzzy membership values after calibration.
+
+        Algorithm (per condition):
+          1. Collect all prototype texts for the condition.
+          2. For each input text, compute the mean Jaccard similarity to
+             positive prototypes and negative prototypes separately.
+          3. Combine pos/neg via: raw = (sim_pos + 1 - sim_neg) / 2
+             which maps to [0, 1] where higher = more similar to positives.
+          4. If only one side has prototypes, use:
+             positive-only: raw = sim_pos
+             negative-only: raw = 1.0 - sim_neg
+
+        Args:
+            texts: List of input text strings (N,).
+            all_conditions: List of all condition definitions.
+
+        Returns:
+            Raw scores matrix of shape (N, M) where M = len(all_conditions).
+        """
+        n_texts = len(texts)
+        n_conds = len(all_conditions)
+        if n_texts == 0 or n_conds == 0:
+            return np.zeros((n_texts, n_conds), dtype=np.float64)
+
+        # Pre-compute trigram sets for all input texts
+        text_tri_sets = [TextCalibrationStage._char_trigrams(t) for t in texts]
+
+        scores = np.zeros((n_texts, n_conds), dtype=np.float64)
+
+        for j, cond in enumerate(all_conditions):
+            if not cond.prototypes:
+                scores[:, j] = 0.0
+                continue
+
+            # Split prototypes into positive and negative
+            pos_protos = [p for p in cond.prototypes if p.is_member == 1]
+            neg_protos = [p for p in cond.prototypes if p.is_member == 0]
+
+            has_pos = len(pos_protos) > 0
+            has_neg = len(neg_protos) > 0
+
+            if not has_pos and not has_neg:
+                scores[:, j] = 0.0
+                continue
+
+            # Pre-compute trigram sets for prototype texts
+            pos_tri_sets = [
+                TextCalibrationStage._char_trigrams(p.prototype_text)
+                for p in pos_protos
+            ]
+            neg_tri_sets = [
+                TextCalibrationStage._char_trigrams(p.prototype_text)
+                for p in neg_protos
+            ]
+
+            for i, text_tri in enumerate(text_tri_sets):
+                sim_pos = 0.0
+                sim_neg = 0.0
+
+                if has_pos:
+                    sim_pos = max(
+                        TextCalibrationStage._jaccard(text_tri, pts)
+                        for pts in pos_tri_sets
+                    )
+                if has_neg:
+                    sim_neg = max(
+                        TextCalibrationStage._jaccard(text_tri, nts)
+                        for nts in neg_tri_sets
+                    )
+
+                if has_pos and not has_neg:
+                    scores[i, j] = sim_pos
+                elif not has_pos and has_neg:
+                    scores[i, j] = 1.0 - sim_neg
+                else:
+                    # Both pos and neg: combine
+                    scores[i, j] = (sim_pos + (1.0 - sim_neg)) / 2.0
+
+        return scores
+
+    @staticmethod
+    def _char_trigrams(text: str) -> set[str]:
+        """Extract character trigrams from a text string."""
+        if len(text) < 3:
+            return {text}
+        return {text[i : i + 3] for i in range(len(text) - 2)}
+
+    @staticmethod
+    def _jaccard(a: set[str], b: set[str]) -> float:
+        """Jaccard similarity between two sets."""
+        if not a and not b:
+            return 1.0
+        union = a | b
+        if not union:
+            return 0.0
+        return len(a & b) / len(union)
 
     @staticmethod
     def _compute_raw_scores(

@@ -39,7 +39,6 @@ class QCADocxReporter:
     def _set_run_font(run, font_name: str, size_pt: float = 10.5, bold: bool = False):
         """Set both Western and East-Asian font on a run."""
         run.font.name = font_name
-        run.font.size = font_name  # dummy; actual size set below
         run.font.size = int(size_pt * 12700)  # EMU: 1 pt = 12700 EMU
         run.bold = bold
         # Set east-Asia font via XML

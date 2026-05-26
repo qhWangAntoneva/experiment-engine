@@ -75,23 +75,40 @@ class BasePlugin(Stage):
 
 
 class PluginRegistry:
-    """Singleton registry that maps stage type names to Stage subclasses.
+    """Registry that maps stage type names to Stage subclasses.
 
-    Stages are registered via the :func:`register_stage` decorator or the
-    :meth:`register` method. The registry supports plugin discovery and
-    provides a way to list all available stages.
+    Supports both dependency injection (pass a ``registry`` dict and ``enabled``
+    set on construction) and classic singleton access via :meth:`get_instance`.
 
-    Usage:
+    In DI mode, construct with explicit arguments for test isolation:
+        >>> reg = PluginRegistry(registry={"my_stage": MyStage}, enabled={"my_stage"})
+
+    In singleton mode (backward-compatible default), use :meth:`get_instance`:
         >>> registry = PluginRegistry.get_instance()
         >>> registry.register("my_stage", MyStage)
         >>> cls = registry.get("my_stage")
+
+    Stages are registered via the :func:`register_stage` decorator or the
+    :meth:`register` method.
     """
 
     _instance: PluginRegistry | None = None
 
-    def __init__(self) -> None:
-        self._registry: dict[str, type[Stage]] = {}
-        self._enabled: set[str] = set()
+    def __init__(
+        self,
+        registry: dict[str, type[Stage]] | None = None,
+        enabled: set[str] | None = None,
+    ) -> None:
+        """Initialise the registry.
+
+        Args:
+            registry: Pre-populated registry mapping stage names to classes.
+                Defaults to an empty dict.
+            enabled: Set of stage names enabled by default. Defaults to an
+                empty set.
+        """
+        self._registry: dict[str, type[Stage]] = registry or {}
+        self._enabled: set[str] = enabled or set()
 
     # ── Singleton ──────────────────────────────
 

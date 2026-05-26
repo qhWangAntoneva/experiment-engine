@@ -1,0 +1,118 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[UTF8]{ctex}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+\title{QCA Analysis Report}
+
+\begin{document}
+
+\maketitle
+\begin{center}
+\large
+Analysis Summary \\
+Cases: 30 \\
+Conditions: 5 \\
+Outcome: high\_responsiveness
+\end{center}
+\newpage
+
+\tableofcontents
+
+\newpage
+
+
+\section{Truth Table}
+\begin{longtable}{lrrr}
+\toprule
+Configuration & Frequency & Consistency & Outcome \\
+\midrule
+    \textasciitilde{}RESPONSE\_TIMELINESS*\textasciitilde{}SOLUTION\_EFFECTIVENESS*\textasciitilde{}PROCESS\_TRANSPARENCY*\textasciitilde{}INTERACTION\_QUALITY*\textasciitilde{}FOLLOW\_UP\_MECHANISM & 1.5 & 0.286 & 0 \\
+    \textasciitilde{}RESPONSE\_TIMELINESS*\textasciitilde{}SOLUTION\_EFFECTIVENESS*\textasciitilde{}PROCESS\_TRANSPARENCY*\textasciitilde{}INTERACTION\_QUALITY*FOLLOW\_UP\_MECHANISM & 11.0 & 0.855 & 1 \\
+    \textasciitilde{}RESPONSE\_TIMELINESS*\textasciitilde{}SOLUTION\_EFFECTIVENESS*PROCESS\_TRANSPARENCY*\textasciitilde{}INTERACTION\_QUALITY*FOLLOW\_UP\_MECHANISM & 3.8 & 0.890 & 1 \\
+    \textasciitilde{}RESPONSE\_TIMELINESS*SOLUTION\_EFFECTIVENESS*\textasciitilde{}PROCESS\_TRANSPARENCY*\textasciitilde{}INTERACTION\_QUALITY*FOLLOW\_UP\_MECHANISM & 3.3 & 0.918 & 1 \\
+    \textasciitilde{}RESPONSE\_TIMELINESS*SOLUTION\_EFFECTIVENESS*PROCESS\_TRANSPARENCY*\textasciitilde{}INTERACTION\_QUALITY*FOLLOW\_UP\_MECHANISM & 3.3 & 0.918 & 1 \\
+    RESPONSE\_TIMELINESS*\textasciitilde{}SOLUTION\_EFFECTIVENESS*\textasciitilde{}PROCESS\_TRANSPARENCY*\textasciitilde{}INTERACTION\_QUALITY*FOLLOW\_UP\_MECHANISM & 14.1 & 0.853 & 1 \\
+    RESPONSE\_TIMELINESS*\textasciitilde{}SOLUTION\_EFFECTIVENESS*\textasciitilde{}PROCESS\_TRANSPARENCY*INTERACTION\_QUALITY*FOLLOW\_UP\_MECHANISM & 1.1 & 0.993 & 1 \\
+    RESPONSE\_TIMELINESS*\textasciitilde{}SOLUTION\_EFFECTIVENESS*PROCESS\_TRANSPARENCY*\textasciitilde{}INTERACTION\_QUALITY*FOLLOW\_UP\_MECHANISM & 4.0 & 0.896 & 1 \\
+    RESPONSE\_TIMELINESS*SOLUTION\_EFFECTIVENESS*\textasciitilde{}PROCESS\_TRANSPARENCY*\textasciitilde{}INTERACTION\_QUALITY*FOLLOW\_UP\_MECHANISM & 4.1 & 0.833 & 1 \\
+    RESPONSE\_TIMELINESS*SOLUTION\_EFFECTIVENESS*PROCESS\_TRANSPARENCY*\textasciitilde{}INTERACTION\_QUALITY*FOLLOW\_UP\_MECHANISM & 3.6 & 0.923 & 1 \\
+\bottomrule
+\end{longtable}
+
+Thresholds: consistency $\geq$ 0.75, frequency $\geq$ 1.0.
+
+
+\section{QCA Solutions}
+
+\subsection{Complex Solution}
+
+Formula: $\displaystyle response_timeliness \land \neg solution_effectiveness \land \neg process_transparency \land follow_up_mechanism  \lor  \neg interaction_quality \land follow_up_mechanism$
+
+Solution Consistency: 0.000
+
+Solution Coverage: 0.000
+
+
+
+
+\section{Necessity Analysis}
+\begin{tabular}{lrrl}
+\toprule
+Condition & Consistency & Coverage & Necessary? \\
+\midrule
+    response\_timeliness & 0.859 & 0.830 &  \\
+    solution\_effectiveness & 0.237 & 0.800 &  \\
+    process\_transparency & 0.239 & 0.797 &  \\
+    interaction\_quality & 0.069 & 0.605 &  \\
+    follow\_up\_mechanism & 0.995 & 0.573 & \checkmark \\
+    \textasciitilde{}response\_timeliness & 0.647 & 0.803 &  \\
+    \textasciitilde{}solution\_effectiveness & 0.939 & 0.608 & \checkmark \\
+    \textasciitilde{}process\_transparency & 0.931 & 0.604 & \checkmark \\
+    \textasciitilde{}interaction\_quality & 0.939 & 0.544 & \checkmark \\
+    \textasciitilde{}follow\_up\_mechanism & 0.028 & 0.270 &  \\
+\bottomrule
+\end{tabular}
+
+Threshold: Consistency $\geq$ 0.9
+
+
+\section{Sufficiency Analysis}
+
+\subsection{Complex Solution}
+
+\begin{tabular}{lrrr}
+\toprule
+Term & Consistency & Raw Coverage & Unique Coverage \\
+\midrule
+
+    response\_timeliness*\textasciitilde{}solution\_effectiveness*\textasciitilde{}process\_transparency*follow\_up\_mechanism & 0.862 & 0.797 & 0.061 \\
+    \textasciitilde{}interaction\_quality*follow\_up\_mechanism & 0.575 & 0.934 & 0.611 \\
+
+\bottomrule
+\end{tabular}
+
+
+\section{Robustness Tests}
+\begin{tabular}{llrl}
+\toprule
+Test & Parameter & Stability Range & Result \\
+\midrule
+    consistency\_sensitivity & consistency\_threshold & 1.000-0.250 & Fail \\
+    frequency\_sensitivity & frequency\_threshold & 1.000-0.000 & Fail \\
+    membership\_perturbation & membership\_delta & 0.000-0.000 & Fail \\
+    bootstrap\_resampling & bootstrap\_iteration & 1.000-0.500 & Fail \\
+\bottomrule
+\end{tabular}
+
+Overall Robustness: 0.53
+
+Moderate robustness — some sensitivity observed, interpret with caution.
+
+
+\end{document}

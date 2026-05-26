@@ -1,0 +1,759 @@
+{
+  "truth_table": {
+    "rows": [
+      {
+        "config": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 13.840491033633494,
+        "raw_consistency": 0.9011618707483791,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 1.7799352750808948,
+        "raw_consistency": 0.96,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 1.1294457303566499,
+        "raw_consistency": 0.9271925958572058,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 1.4757495402249652,
+        "raw_consistency": 0.9640022311753763,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 13.840491033633494,
+        "raw_consistency": 0.9011618707483791,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          0,
+          1
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 1.7799352750808948,
+        "raw_consistency": 0.96,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          1,
+          0
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 1.1294457303566499,
+        "raw_consistency": 0.9271925958572058,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 1.4757495402249652,
+        "raw_consistency": 0.9640022311753763,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 7.779529445583785,
+        "raw_consistency": 0.9590498129790225,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          0,
+          1
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 1.708737864077659,
+        "raw_consistency": 0.9583333333333333,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 1.0472137186092199,
+        "raw_consistency": 0.9607377127103337,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 1.2532067200831079,
+        "raw_consistency": 0.9671913617962499,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          0,
+          0
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 7.779529445583785,
+        "raw_consistency": 0.9590498129790225,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 1.708737864077659,
+        "raw_consistency": 0.9583333333333333,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          1,
+          0
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 1.0472137186092199,
+        "raw_consistency": 0.9607377127103337,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          1,
+          1
+        ],
+        "config_label": "~STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 1.2532067200831079,
+        "raw_consistency": 0.9671913617962499,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 4.3370652931210865,
+        "raw_consistency": 0.8820416099547056,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 1.708737864077659,
+        "raw_consistency": 0.9583333333333333,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 1.1229343757109438,
+        "raw_consistency": 0.9267704208490652,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 1.1118997749667496,
+        "raw_consistency": 0.9630218417168539,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          0,
+          0
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 4.3370652931210865,
+        "raw_consistency": 0.8820416099547056,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 1.708737864077659,
+        "raw_consistency": 0.9583333333333333,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          1,
+          0
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 1.1229343757109438,
+        "raw_consistency": 0.9267704208490652,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          1,
+          1
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*~SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 1.1118997749667496,
+        "raw_consistency": 0.9630218417168539,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 3.91314196072633,
+        "raw_consistency": 0.9652069267846053,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          0,
+          1
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 2.137540453074423,
+        "raw_consistency": 0.9666919000757004,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 1.0818183698372288,
+        "raw_consistency": 0.96199361462137,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          1,
+          1
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*~URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 1.1118997749667496,
+        "raw_consistency": 0.9630218417168539,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          0,
+          0
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 3.91314196072633,
+        "raw_consistency": 0.9652069267846053,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          0,
+          1
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*~COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 2.137540453074423,
+        "raw_consistency": 0.9666919000757004,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          1,
+          0
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*~ESCALATION_THREAT",
+        "frequency": 1.0818183698372288,
+        "raw_consistency": 0.96199361462137,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "config_label": "STRONG_NEGATIVE_AFFECT*SERVICE_FAILURE_MENTION*URGENCY_EXPRESSION*COMPARATIVE_COMPLAINT*ESCALATION_THREAT",
+        "frequency": 1.1118997749667496,
+        "raw_consistency": 0.9630218417168539,
+        "outcome_value": 1,
+        "included": true
+      }
+    ],
+    "condition_names": [
+      "strong_negative_affect",
+      "service_failure_mention",
+      "urgency_expression",
+      "comparative_complaint",
+      "escalation_threat"
+    ],
+    "outcome_name": "high_dissatisfaction",
+    "consistency_threshold": 0.75,
+    "frequency_threshold": 1.0,
+    "n_cases": 30
+  },
+  "solutions": {
+    "complex": {
+      "solution_type": "complex",
+      "terms": [
+        {
+          "term": [],
+          "label": "",
+          "consistency": 0.0,
+          "raw_coverage": 0.0,
+          "unique_coverage": 0.0
+        }
+      ],
+      "formula": "",
+      "solution_consistency": 0.0,
+      "solution_coverage": 0.0
+    },
+    "parsimonious": null,
+    "intermediate": null
+  },
+  "necessity": {
+    "outcome_name": "high_dissatisfaction",
+    "threshold": 0.9,
+    "conditions": [
+      {
+        "condition_name": "strong_negative_affect",
+        "consistency": 0.34901188267822675,
+        "coverage": 0.8808565541325649,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "service_failure_mention",
+        "consistency": 0.6175722218955662,
+        "coverage": 0.9649846568409407,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "urgency_expression",
+        "consistency": 0.9468434810805206,
+        "coverage": 0.8973676738017986,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "comparative_complaint",
+        "consistency": 0.11088210483610049,
+        "coverage": 0.7262276917781663,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "escalation_threat",
+        "consistency": 0.19715051804235395,
+        "coverage": 0.8277566119045112,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "~strong_negative_affect",
+        "consistency": 0.9266735813134092,
+        "coverage": 0.540633925206787,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "~service_failure_mention",
+        "consistency": 0.924434313098547,
+        "coverage": 0.6287439694821505,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "~urgency_expression",
+        "consistency": 0.9468434810805206,
+        "coverage": 0.8973676738017986,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "~comparative_complaint",
+        "consistency": 0.9627813081075542,
+        "coverage": 0.4918205784059416,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "~escalation_threat",
+        "consistency": 0.9230460193570778,
+        "coverage": 0.49305531401569336,
+        "is_necessary": true
+      }
+    ]
+  },
+  "sufficiency": {
+    "outcome_name": "high_dissatisfaction",
+    "solutions": {
+      "complex": {
+        "solution_type": "complex",
+        "terms": [
+          {
+            "term": [],
+            "label": "",
+            "consistency": 0.4738732914851665,
+            "raw_coverage": 1.0,
+            "unique_coverage": 1.0
+          }
+        ],
+        "formula": "",
+        "solution_consistency": 0.4738732914851665,
+        "solution_coverage": 1.0
+      },
+      "parsimonious": null,
+      "intermediate": null
+    }
+  },
+  "condition_set": {
+    "name": "dissatisfaction_default",
+    "description": "Default QCA conditions for dissatisfaction domain",
+    "conditions": [
+      {
+        "name": "strong_negative_affect",
+        "display_name": "strong_negative_affect",
+        "domain": "dissatisfaction",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "你们这服务太差了，态度恶劣，办事效率极低，我非常愤怒要投诉你们",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "请帮我查一下这个申请什么时候能办好，谢谢",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "service_failure_mention",
+        "display_name": "service_failure_mention",
+        "domain": "dissatisfaction",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "我去办证跑了好几趟都没办成，窗口人员互相推诿踢皮球，不予办理",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "工作人员态度很好，耐心解答了我的问题，顺利办完了",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "urgency_expression",
+        "display_name": "urgency_expression",
+        "domain": "dissatisfaction",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "这个问题急需解决，迫在眉睫，不能再等了，耽误不起，请立即处理",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "慢慢来吧，等你们有空了再帮我处理一下就行",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "comparative_complaint",
+        "display_name": "comparative_complaint",
+        "domain": "dissatisfaction",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "为什么别的地方能办我们这里就不行？凭什么区别对待，太不公平了",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "我想了解一下这个业务的办理流程是什么",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "escalation_threat",
+        "display_name": "escalation_threat",
+        "domain": "dissatisfaction",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "如果再不解决我就打市长热线，找纪委和媒体曝光你们",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "希望能尽快帮我处理一下，我已经等了一周了",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      }
+    ],
+    "outcome": {
+      "name": "high_dissatisfaction",
+      "display_name": "high_dissatisfaction",
+      "domain": "dissatisfaction",
+      "calibration_type": "direct",
+      "calibration_params": {
+        "threshold_full_in": 0.8,
+        "threshold_full_out": 0.2,
+        "crossover_point": 0.5,
+        "direction": "ascending",
+        "steepness": null
+      },
+      "description": "",
+      "scoring_source": "prototype",
+      "prototypes": [
+        {
+          "prototype_text": "你们的服务太差了，严重不作为，我对你们彻底失望",
+          "is_member": 1,
+          "weight": 1.0
+        },
+        {
+          "prototype_text": "事情办完了，效率还可以，整体来说比较满意",
+          "is_member": 0,
+          "weight": 1.0
+        }
+      ],
+      "prototype_embeddings": null,
+      "embedding_model": null
+    },
+    "domain": "dissatisfaction",
+    "scoring_source": "prototype",
+    "qca_variant": "fsqca"
+  },
+  "metadata": {
+    "consistency_threshold": 0.75,
+    "frequency_threshold": 1.0
+  }
+}

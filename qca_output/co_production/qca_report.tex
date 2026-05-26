@@ -1,0 +1,109 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[UTF8]{ctex}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\geometry{margin=2.5cm}
+\title{QCA Analysis Report}
+
+\begin{document}
+
+\maketitle
+\begin{center}
+\large
+Analysis Summary \\
+Cases: 30 \\
+Conditions: 4 \\
+Outcome: co\_production\_request
+\end{center}
+\newpage
+
+\tableofcontents
+
+\newpage
+
+
+\section{Truth Table}
+\begin{longtable}{lrrr}
+\toprule
+Configuration & Frequency & Consistency & Outcome \\
+\midrule
+    \textasciitilde{}WILLINGNESS\_TO\_PARTICIPATE*\textasciitilde{}RESOURCE\_CONTRIBUTION\_OFFER*KNOWLEDGE\_SHARING*COLLECTIVE\_ACTION\_CALL & 4.0 & 0.978 & 1 \\
+    \textasciitilde{}WILLINGNESS\_TO\_PARTICIPATE*RESOURCE\_CONTRIBUTION\_OFFER*KNOWLEDGE\_SHARING*COLLECTIVE\_ACTION\_CALL & 13.2 & 0.959 & 1 \\
+    WILLINGNESS\_TO\_PARTICIPATE*\textasciitilde{}RESOURCE\_CONTRIBUTION\_OFFER*KNOWLEDGE\_SHARING*COLLECTIVE\_ACTION\_CALL & 3.1 & 0.971 & 1 \\
+    WILLINGNESS\_TO\_PARTICIPATE*RESOURCE\_CONTRIBUTION\_OFFER*KNOWLEDGE\_SHARING*COLLECTIVE\_ACTION\_CALL & 13.7 & 0.964 & 1 \\
+\bottomrule
+\end{longtable}
+
+Thresholds: consistency $\geq$ 0.75, frequency $\geq$ 1.0.
+
+
+\section{QCA Solutions}
+
+\subsection{Complex Solution}
+
+Formula: $\displaystyle knowledge_sharing \land collective_action_call$
+
+Solution Consistency: 0.000
+
+Solution Coverage: 0.000
+
+
+
+
+\section{Necessity Analysis}
+\begin{tabular}{lrrl}
+\toprule
+Condition & Consistency & Coverage & Necessary? \\
+\midrule
+    willingness\_to\_participate & 0.501 & 0.966 &  \\
+    resource\_contribution\_offer & 0.856 & 0.948 &  \\
+    knowledge\_sharing & 0.965 & 0.947 & \checkmark \\
+    collective\_action\_call & 0.961 & 0.947 & \checkmark \\
+    \textasciitilde{}willingness\_to\_participate & 0.515 & 0.964 &  \\
+    \textasciitilde{}resource\_contribution\_offer & 0.147 & 0.979 &  \\
+    \textasciitilde{}knowledge\_sharing & 0.035 & 1.000 &  \\
+    \textasciitilde{}collective\_action\_call & 0.039 & 1.000 &  \\
+\bottomrule
+\end{tabular}
+
+Threshold: Consistency $\geq$ 0.9
+
+
+\section{Sufficiency Analysis}
+
+\subsection{Complex Solution}
+
+\begin{tabular}{lrrr}
+\toprule
+Term & Consistency & Raw Coverage & Unique Coverage \\
+\midrule
+
+    knowledge\_sharing*collective\_action\_call & 0.946 & 0.928 & 0.928 \\
+
+\bottomrule
+\end{tabular}
+
+
+\section{Robustness Tests}
+\begin{tabular}{llrl}
+\toprule
+Test & Parameter & Stability Range & Result \\
+\midrule
+    consistency\_sensitivity & consistency\_threshold & 1.000-1.000 & Pass \\
+    frequency\_sensitivity & frequency\_threshold & 1.000-0.000 & Fail \\
+    membership\_perturbation & membership\_delta & 0.000-0.000 & Fail \\
+    bootstrap\_resampling & bootstrap\_iteration & 1.000-0.500 & Pass \\
+\bottomrule
+\end{tabular}
+
+Overall Robustness: 0.72
+
+Moderate robustness — some sensitivity observed, interpret with caution.
+
+
+\end{document}

@@ -348,6 +348,9 @@ export interface TranslationDict {
     reset: string;
   };
 
+  // ── Help Tooltips ──
+  help: Record<string, string>;
+
   // ── Performance ──
   performance: {
     title: string;
@@ -852,6 +855,18 @@ const zh: TranslationDict = {
     reset: '重置',
   },
 
+  help: {
+    temperatureTau: '控制相似度分数的区分程度。较高值（如10.0）会创建更接近二元的区分；较低值（如1.0）产生更平滑的边界。',
+    calibrationMethod: 'Direct：分段线性映射。Indirect：Log-Odds 转换。Fuzzy Direct：fsQCA 文献中的逻辑公式。',
+    aggregation: 'Centroid：所有原型嵌入的均值（标准原型理论）。Max：与任意单一原型的最高相似度（样例理论）。',
+    scoring: 'Softmax：带温度的指数级 Softmax。Diff：归一化差值（备选）。',
+    qcaVariant: 'fsQCA：模糊集分析（连续隶属度）。csQCA：清晰集分析（二分隶属度）。',
+    prototypeText: '代表该条件的"典型示例"文本。BERT 将测量此原型与您的数据之间的语义相似度。',
+    weight: '该原型对条件分数的贡献程度。较高权值增加影响力。',
+    consistency: '条件-结果关系在案例间的一致性程度。通常认为高于0.8的值具有意义。',
+    coverage: '该条件路径解释的结果比例。越高越好。',
+    robustness: '在校准参数扰动下 QCA 解的稳定程度。',
+  },
   performance: {
     title: 'BERT 性能',
     noData: '尚未执行推理',
@@ -1353,6 +1368,18 @@ const en: TranslationDict = {
     reset: 'Reset',
   },
 
+  help: {
+    temperatureTau: 'Controls how sharply similarity scores are separated. Higher values (e.g., 10.0) create more binary-like distinctions; lower values (e.g., 1.0) produce softer boundaries.',
+    calibrationMethod: 'Direct: piecewise linear mapping. Indirect: log-odds transformation. Fuzzy Direct: logistic formula from fsQCA literature.',
+    aggregation: 'Centroid: mean of all prototype embeddings (standard prototype theory). Max: highest similarity to any single prototype (exemplar theory).',
+    scoring: 'Softmax: exponential softmax with temperature. Diff: normalized difference (fallback).',
+    qcaVariant: 'fsQCA: fuzzy-set analysis with continuous membership. csQCA: crisp-set analysis with binary membership.',
+    prototypeText: "A 'typical example' text that represents this condition. BERT will measure semantic similarity between this prototype and your data.",
+    weight: 'How much this prototype contributes to the condition score. Higher weights increase influence.',
+    consistency: 'How consistently the condition-outcome relationship holds across cases. Values above 0.8 are typically considered meaningful.',
+    coverage: 'What proportion of the outcome is explained by this condition path. Higher is better.',
+    robustness: 'How stable the QCA solution is under perturbations of calibration parameters.',
+  },
   performance: {
     title: 'BERT Performance',
     noData: 'No inference performed yet',

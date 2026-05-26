@@ -1,0 +1,483 @@
+{
+  "truth_table": {
+    "rows": [
+      {
+        "config": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "config_label": "~WILLINGNESS_TO_PARTICIPATE*~RESOURCE_CONTRIBUTION_OFFER*~KNOWLEDGE_SHARING*~COLLECTIVE_ACTION_CALL",
+        "frequency": 0.053946263643996906,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "config_label": "~WILLINGNESS_TO_PARTICIPATE*~RESOURCE_CONTRIBUTION_OFFER*~KNOWLEDGE_SHARING*COLLECTIVE_ACTION_CALL",
+        "frequency": 0.08860759493670822,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          0
+        ],
+        "config_label": "~WILLINGNESS_TO_PARTICIPATE*~RESOURCE_CONTRIBUTION_OFFER*KNOWLEDGE_SHARING*~COLLECTIVE_ACTION_CALL",
+        "frequency": 0.14255385858070513,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "config_label": "~WILLINGNESS_TO_PARTICIPATE*~RESOURCE_CONTRIBUTION_OFFER*KNOWLEDGE_SHARING*COLLECTIVE_ACTION_CALL",
+        "frequency": 3.999846914855943,
+        "raw_consistency": 0.9778472534517237,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "config_label": "~WILLINGNESS_TO_PARTICIPATE*RESOURCE_CONTRIBUTION_OFFER*~KNOWLEDGE_SHARING*~COLLECTIVE_ACTION_CALL",
+        "frequency": 0.053946263643996906,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          1
+        ],
+        "config_label": "~WILLINGNESS_TO_PARTICIPATE*RESOURCE_CONTRIBUTION_OFFER*~KNOWLEDGE_SHARING*COLLECTIVE_ACTION_CALL",
+        "frequency": 0.5120772946859908,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          0
+        ],
+        "config_label": "~WILLINGNESS_TO_PARTICIPATE*RESOURCE_CONTRIBUTION_OFFER*KNOWLEDGE_SHARING*~COLLECTIVE_ACTION_CALL",
+        "frequency": 0.5660235583299877,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          1
+        ],
+        "config_label": "~WILLINGNESS_TO_PARTICIPATE*RESOURCE_CONTRIBUTION_OFFER*KNOWLEDGE_SHARING*COLLECTIVE_ACTION_CALL",
+        "frequency": 13.200587018830241,
+        "raw_consistency": 0.9585869089674054,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "config_label": "WILLINGNESS_TO_PARTICIPATE*~RESOURCE_CONTRIBUTION_OFFER*~KNOWLEDGE_SHARING*~COLLECTIVE_ACTION_CALL",
+        "frequency": 0.053946263643996906,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "config_label": "WILLINGNESS_TO_PARTICIPATE*~RESOURCE_CONTRIBUTION_OFFER*~KNOWLEDGE_SHARING*COLLECTIVE_ACTION_CALL",
+        "frequency": 0.08860759493670822,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          0
+        ],
+        "config_label": "WILLINGNESS_TO_PARTICIPATE*~RESOURCE_CONTRIBUTION_OFFER*KNOWLEDGE_SHARING*~COLLECTIVE_ACTION_CALL",
+        "frequency": 0.14255385858070513,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          1
+        ],
+        "config_label": "WILLINGNESS_TO_PARTICIPATE*~RESOURCE_CONTRIBUTION_OFFER*KNOWLEDGE_SHARING*COLLECTIVE_ACTION_CALL",
+        "frequency": 3.0884545097926512,
+        "raw_consistency": 0.9713100534083446,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          0
+        ],
+        "config_label": "WILLINGNESS_TO_PARTICIPATE*RESOURCE_CONTRIBUTION_OFFER*~KNOWLEDGE_SHARING*~COLLECTIVE_ACTION_CALL",
+        "frequency": 0.053946263643996906,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          1
+        ],
+        "config_label": "WILLINGNESS_TO_PARTICIPATE*RESOURCE_CONTRIBUTION_OFFER*~KNOWLEDGE_SHARING*COLLECTIVE_ACTION_CALL",
+        "frequency": 0.4879227053140092,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          0
+        ],
+        "config_label": "WILLINGNESS_TO_PARTICIPATE*RESOURCE_CONTRIBUTION_OFFER*KNOWLEDGE_SHARING*~COLLECTIVE_ACTION_CALL",
+        "frequency": 0.5418689689580061,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "config_label": "WILLINGNESS_TO_PARTICIPATE*RESOURCE_CONTRIBUTION_OFFER*KNOWLEDGE_SHARING*COLLECTIVE_ACTION_CALL",
+        "frequency": 13.710805386233051,
+        "raw_consistency": 0.9636514472263643,
+        "outcome_value": 1,
+        "included": true
+      }
+    ],
+    "condition_names": [
+      "willingness_to_participate",
+      "resource_contribution_offer",
+      "knowledge_sharing",
+      "collective_action_call"
+    ],
+    "outcome_name": "co_production_request",
+    "consistency_threshold": 0.75,
+    "frequency_threshold": 1.0,
+    "n_cases": 30
+  },
+  "solutions": {
+    "complex": {
+      "solution_type": "complex",
+      "terms": [
+        {
+          "term": [
+            "knowledge_sharing",
+            "collective_action_call"
+          ],
+          "label": "knowledge_sharing*collective_action_call",
+          "consistency": 0.0,
+          "raw_coverage": 0.0,
+          "unique_coverage": 0.0
+        }
+      ],
+      "formula": "knowledge_sharing*collective_action_call",
+      "solution_consistency": 0.0,
+      "solution_coverage": 0.0
+    },
+    "parsimonious": null,
+    "intermediate": null
+  },
+  "necessity": {
+    "outcome_name": "co_production_request",
+    "threshold": 0.9,
+    "conditions": [
+      {
+        "condition_name": "willingness_to_participate",
+        "consistency": 0.5013397155678087,
+        "coverage": 0.966270103714247,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "resource_contribution_offer",
+        "consistency": 0.8564319991815932,
+        "coverage": 0.947723242961887,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "knowledge_sharing",
+        "consistency": 0.9648845302119582,
+        "coverage": 0.9474992233612923,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "collective_action_call",
+        "consistency": 0.9610958334296212,
+        "coverage": 0.9473031683839431,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "~willingness_to_participate",
+        "consistency": 0.515427130367022,
+        "coverage": 0.9640928479469244,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "~resource_contribution_offer",
+        "consistency": 0.14667949814139794,
+        "coverage": 0.9792277412047058,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "~knowledge_sharing",
+        "consistency": 0.03511546978804176,
+        "coverage": 1.0,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "~collective_action_call",
+        "consistency": 0.038904166570378776,
+        "coverage": 1.0,
+        "is_necessary": false
+      }
+    ]
+  },
+  "sufficiency": {
+    "outcome_name": "co_production_request",
+    "solutions": {
+      "complex": {
+        "solution_type": "complex",
+        "terms": [
+          {
+            "term": [
+              "knowledge_sharing",
+              "collective_action_call"
+            ],
+            "label": "knowledge_sharing*collective_action_call",
+            "consistency": 0.9455192301250813,
+            "raw_coverage": 0.927874712032748,
+            "unique_coverage": 0.927874712032748
+          }
+        ],
+        "formula": "knowledge_sharing*collective_action_call",
+        "solution_consistency": 0.9455192301250813,
+        "solution_coverage": 0.927874712032748
+      },
+      "parsimonious": null,
+      "intermediate": null
+    }
+  },
+  "condition_set": {
+    "name": "co_production_default",
+    "description": "Default QCA conditions for co_production domain",
+    "conditions": [
+      {
+        "name": "willingness_to_participate",
+        "display_name": "willingness_to_participate",
+        "domain": "co_production",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "我愿意积极参加社区治理工作，配合你们一起把这件事做好",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "这是政府该管的事，跟我们普通老百姓没什么关系",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "resource_contribution_offer",
+        "display_name": "resource_contribution_offer",
+        "domain": "co_production",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "我们愿意出资出力，捐赠物资，提供必要资源来共同解决这个问题",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "你们政府自己想办法解决，我们没钱也没资源",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "knowledge_sharing",
+        "display_name": "knowledge_sharing",
+        "domain": "co_production",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "据我了解和我多年经验，我从专业角度提几点技术建议和信息共享",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "我不太懂这些，你们专业人士看着办就行",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "collective_action_call",
+        "display_name": "collective_action_call",
+        "domain": "co_production",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "大家一起齐心协力，组织起来联合行动，共同把这事办好",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "我一个人来反映一下意见就行了，不需要别人一起",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      }
+    ],
+    "outcome": {
+      "name": "co_production_request",
+      "display_name": "co_production_request",
+      "domain": "co_production",
+      "calibration_type": "direct",
+      "calibration_params": {
+        "threshold_full_in": 0.8,
+        "threshold_full_out": 0.2,
+        "crossover_point": 0.5,
+        "direction": "ascending",
+        "steepness": null
+      },
+      "description": "",
+      "scoring_source": "prototype",
+      "prototypes": [
+        {
+          "prototype_text": "我们希望与政府合作共建，协同推动社区参与治理",
+          "is_member": 1,
+          "weight": 1.0
+        },
+        {
+          "prototype_text": "请帮我查询一下这个文件的具体办理进度",
+          "is_member": 0,
+          "weight": 1.0
+        }
+      ],
+      "prototype_embeddings": null,
+      "embedding_model": null
+    },
+    "domain": "co_production",
+    "scoring_source": "prototype",
+    "qca_variant": "fsqca"
+  },
+  "metadata": {
+    "consistency_threshold": 0.75,
+    "frequency_threshold": 1.0
+  }
+}

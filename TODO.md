@@ -1,6 +1,6 @@
 # TODO — QCA Analysis Tool
 
-> 自动生成于 2026-05-24 | 最后更新：2026-05-26
+> 自动生成于 2026-05-24 | 最后更新：2026-05-27
 > 优先级：P0 = 必须做 | P1 = 应该做 | P2 = 锦上添花
 > **当前焦点**: P0/P1 已清零，剩余 21 个 P2 增强项
 
@@ -95,8 +95,8 @@
 - [ ] **P2-1: 数据预分析和描述统计** — 文本长度分布、关键词命中热力图、条件分布直方图 + 偏度警告。(工作量: M, 来源: 客户#P6)
 - [ ] **P2-2: 全流程步进引导 (Stepper)** — 所有页面顶部统一步进指示器：Upload → Calibrate → Analyze → Review。(工作量: M, 来源: 客户#U3)
 - [ ] **P2-3: DataInput 页面拆分** — 拆为 3 个引导步骤，YAML 编辑器默认折叠，初级用户使用表单模式。(工作量: M, 来源: 客户#U4)
-- [ ] **P2-4: 工具内帮助和术语解释** — 每个设置项旁 `?` 图标，hover 弹出通俗中文解释 + 推荐值。(工作量: S, 来源: 客户#U5)
-- [ ] **P2-5: 导出按钮一致性与反馈** — 统一位置 + toast 通知 + LaTeX 预览 modal。(工作量: S, 来源: 客户#U6)
+- [x] **P2-4: 工具内帮助和术语解释** — 每个设置项旁 `?` 图标，hover 弹出通俗中文解释 + 推荐值。(工作量: S, 来源: 客户#U5)
+- [x] **P2-5: 导出按钮一致性与反馈** — 统一位置 + toast 通知 + LaTeX 预览 modal。(工作量: S, 来源: 客户#U6)
 - [ ] **P2-6: 英文文本支持** — 关键词引擎支持空格分词 + 词干提取，英文预置领域，UI 中英切换。(工作量: L, 来源: 客户#S1)
 - [ ] **P2-7: 政策文件分析场景** — "自定义领域"模式，不绑定 5 个预置领域，提供 1-2 个非公民反馈示例领域。(工作量: L, 来源: 客户#S2)
 - [ ] **P2-8: 外部 QCA 工具互操作** — 导入 R QCA 包格式模糊集数据，导出 fsQCA 兼容真值表。(工作量: M, 来源: 客户#S3)
@@ -108,16 +108,16 @@
 
 ### 架构改进
 
-- [ ] **P2-15: PluginRegistry 单例降级** — Pipeline/PluginLoader 构造函数支持注入 registry 实例，提升测试隔离性。(工作量: S-M, 来源: 技术顾问#9)
+- [x] **P2-15: PluginRegistry 单例降级** — Pipeline/PluginLoader 构造函数支持注入 registry 实例，提升测试隔离性。(工作量: S-M, 来源: 技术顾问#9)
 - [ ] **P2-16: 结构化可观测性** — 引入 structlog，PipelineResult 添加 metrics 字段，Worker 请求添加 request_id。(工作量: M, 来源: 技术顾问#10)
-- [ ] **P2-17: CLI/Python API 一致化** — 将 CLI 命令核心逻辑提取到 api.py，qca run 配置格式改为 QCA 语义 schema。(工作量: M, 来源: 技术顾问#11)
+- [x] **P2-17: CLI/Python API 一致化** — 将 CLI 命令核心逻辑提取到 api.py，qca run 配置格式改为 QCA 语义 schema。(工作量: M, 来源: 技术顾问#11)
 - [ ] **P2-18: 前端自动化测试** — vitest + @testing-library/react，优先测 QCAPipelineContext reducer + useQCAWorkflow hook。(工作量: L, 来源: 技术顾问#12)
-- [ ] **P2-19: prototype weight 字段启用** — `ConceptPrototype.weight` 已定义但 `compute_similarities()` 未使用，加权提升区分度。(来源: 评审者#16)
+- [x] **P2-19: prototype weight 字段启用** — `ConceptPrototype.weight` 已定义但 `compute_similarities()` 未使用，加权提升区分度。(来源: 评审者#16)
 - [x] **P2-20: calibrate_indirect 的 k 可配置化** — k 作为 CalibrationParams 可选字段。
-- [ ] **P2-21: `TextCase.outcome` 字段语义更新** — 当前仅支持 binary 0/1，fsQCA 模式下 outcome 应为 0.0-1.0 连续值，需添加 validator。(工作量: S, 来源: 需求变更)
+- [x] **P2-21: `TextCase.outcome` 字段语义更新** — 当前仅支持 binary 0/1，fsQCA 模式下 outcome 应为 0.0-1.0 连续值，需添加 validator。(工作量: S, 来源: 需求变更)
 - [x] **P2-22: CLI 新增 `--variant fsqca|csqca` 全局参数** — `qca calibrate`/`qca analyze`/`qca run` 等命令支持 `--variant` 选项。
 - [ ] **P2-23: 多结果分析前端 UI 更新** — multi_outcome.py 已实现，前端 UI（P1-12）需适配 raw/prototype 双结果对比。(工作量: M, 来源: 需求变更)
-- [ ] **P2-24: `FuzzySetData` → `MembershipData` 向后兼容别名** — 保留 deprecated alias，给下游代码迁移窗口。(工作量: S, 来源: 需求变更)
+- [x] **P2-24: `FuzzySetData` → `MembershipData` 向后兼容别名** — 保留 deprecated alias，给下游代码迁移窗口。(工作量: S, 来源: 需求变更)
 
 ---
 
@@ -127,9 +127,9 @@
 |--------|------|
 | P0 | **0** |
 | P1 | **0** |
-| P2 | **21** |
-| **合计** | **21** |
+| P2 | **16** |
+| **合计** | **16** |
 
 **推荐推进顺序**：
 1. **P2-1~P2-13 功能增强** — P2-1 (描述统计), P2-2 (步进引导), P2-3 (DataInput 拆分), P2-4 (工具内帮助), P2-5 (导出按钮), P2-6 (英文文本支持), P2-7 (政策文件分析), P2-8 (外部工具互操作), P2-9 (条件间关系检测), P2-10 (增量分析), P2-11 (版本对比), P2-12 (数据密码保护), P2-13 (离线桌面版)
-2. **P2-15~P2-24 架构改进** — P2-15 (PluginRegistry 单例降级), P2-16 (结构化可观测性), P2-17 (CLI/Python API 一致化), P2-18 (前端自动化测试), P2-19 (prototype weight 字段启用), P2-20 (calibrate_indirect k 可配置), P2-21 (TextCase.outcome 语义更新), P2-22 (CLI --variant 参数), P2-23 (多结果 UI), P2-24 (向后兼容别名)
+2. **P2-15~P2-24 架构改进** — P2-15 (PluginRegistry 单例降级), ~~P2-17 (CLI/Python API 一致化)~~, P2-16 (结构化可观测性), P2-18 (前端自动化测试), P2-19 (prototype weight 字段启用), P2-20 (calibrate_indirect k 可配置), P2-21 (TextCase.outcome 语义更新), P2-22 (CLI --variant 参数), P2-23 (多结果 UI), P2-24 (向后兼容别名)

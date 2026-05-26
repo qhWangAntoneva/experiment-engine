@@ -1,0 +1,731 @@
+{
+  "truth_table": {
+    "rows": [
+      {
+        "config": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.03512299330841018,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          0,
+          1
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          1,
+          0
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          0,
+          1
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.9648770066915898,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          0,
+          0
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          1,
+          0
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          1,
+          1
+        ],
+        "config_label": "~INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.03512299330841018,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.23473539640918617,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 1.5379704563758372,
+        "raw_consistency": 0.022837235372632603,
+        "outcome_value": 0,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          0,
+          0
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          1,
+          0
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          1,
+          1
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*~COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          0,
+          1
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.9648770066915898,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.9648770066915898,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          1,
+          1
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*~BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 24.262417140523393,
+        "raw_consistency": 0.03976837926341808,
+        "outcome_value": 0,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          0,
+          0
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          0,
+          1
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*~INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          1,
+          0
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*~POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "config_label": "INSTITUTIONAL_TRUST*COMPETENCE_PERCEPTION*BENEVOLENCE_PERCEPTION*INTEGRITY_PERCEPTION*POSITIVE_EXPERIENCE_SHARE",
+        "frequency": 1.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": true
+      }
+    ],
+    "condition_names": [
+      "institutional_trust",
+      "competence_perception",
+      "benevolence_perception",
+      "integrity_perception",
+      "positive_experience_share"
+    ],
+    "outcome_name": "high_trust",
+    "consistency_threshold": 0.75,
+    "frequency_threshold": 1.0,
+    "n_cases": 30
+  },
+  "solutions": {
+    "complex": null,
+    "parsimonious": null,
+    "intermediate": null
+  },
+  "necessity": {
+    "outcome_name": "high_trust",
+    "threshold": 0.9,
+    "conditions": [
+      {
+        "condition_name": "institutional_trust",
+        "consistency": 1.0,
+        "coverage": 0.034482758620689655,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "competence_perception",
+        "consistency": 0.9648770066915898,
+        "coverage": 0.03426769031996045,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "benevolence_perception",
+        "consistency": 0.0,
+        "coverage": 0.0,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "integrity_perception",
+        "consistency": 1.0,
+        "coverage": 0.034482758620689655,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "positive_experience_share",
+        "consistency": 1.0,
+        "coverage": 0.034721754929008815,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "~institutional_trust",
+        "consistency": 0.0,
+        "coverage": 0.0,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "~competence_perception",
+        "consistency": 0.03512299330841018,
+        "coverage": 0.019058009307399943,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "~benevolence_perception",
+        "consistency": 1.0,
+        "coverage": 0.034482758620689655,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "~integrity_perception",
+        "consistency": 0.0,
+        "coverage": 0.0,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "~positive_experience_share",
+        "consistency": 0.0,
+        "coverage": 0.0,
+        "is_necessary": false
+      }
+    ]
+  },
+  "sufficiency": {
+    "outcome_name": "high_trust",
+    "solutions": {
+      "complex": null,
+      "parsimonious": null,
+      "intermediate": null
+    }
+  },
+  "condition_set": {
+    "name": "trust_default",
+    "description": "Default QCA conditions for trust domain",
+    "conditions": [
+      {
+        "name": "institutional_trust",
+        "display_name": "institutional_trust",
+        "domain": "trust",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "我相信政府一定能把这件事处理好，政府办事越来越可靠值得信赖",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "政府没什么公信力，我不相信他们能解决好这个问题",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "competence_perception",
+        "display_name": "competence_perception",
+        "domain": "trust",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "工作人员非常专业能力强，办事效率高，解决得特别好很得力",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "办事人员不专业，连基本政策都解释不清楚",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "benevolence_perception",
+        "display_name": "benevolence_perception",
+        "domain": "trust",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "政府真心为老百姓着想，关心群众生活，政策很贴心很人性化",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "政府根本不关心我们的实际困难，只顾自己方便",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "integrity_perception",
+        "display_name": "integrity_perception",
+        "domain": "trust",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "工作人员按规定办事，公正透明，廉洁高效，全程公开",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "这里面肯定有猫腻，不按规矩来，关系户优先",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "positive_experience_share",
+        "display_name": "positive_experience_share",
+        "domain": "trust",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "我要表扬他们，服务态度很好，值得点赞，非常满意，值得肯定",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "服务太差了，我一点都不满意，必须给你们差评",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      }
+    ],
+    "outcome": {
+      "name": "high_trust",
+      "display_name": "high_trust",
+      "domain": "trust",
+      "calibration_type": "direct",
+      "calibration_params": {
+        "threshold_full_in": 0.8,
+        "threshold_full_out": 0.2,
+        "crossover_point": 0.5,
+        "direction": "ascending",
+        "steepness": null
+      },
+      "description": "",
+      "scoring_source": "prototype",
+      "prototypes": [
+        {
+          "prototype_text": "我对政府很信任，办事很放心，相信他们会公正处理",
+          "is_member": 1,
+          "weight": 1.0
+        },
+        {
+          "prototype_text": "我对政府完全不信任，每次办事都不放心",
+          "is_member": 0,
+          "weight": 1.0
+        }
+      ],
+      "prototype_embeddings": null,
+      "embedding_model": null
+    },
+    "domain": "trust",
+    "scoring_source": "prototype",
+    "qca_variant": "fsqca"
+  },
+  "metadata": {
+    "consistency_threshold": 0.75,
+    "frequency_threshold": 1.0
+  }
+}

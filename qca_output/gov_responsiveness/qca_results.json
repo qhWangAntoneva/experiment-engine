@@ -1,0 +1,789 @@
+{
+  "truth_table": {
+    "rows": [
+      {
+        "config": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 1.5294379251700678,
+        "raw_consistency": 0.286441986879933,
+        "outcome_value": 0,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 10.975843173349094,
+        "raw_consistency": 0.8546543572686122,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.03809523809523796,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 0.863945578231293,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.7349206349206328,
+        "raw_consistency": 0.5701943844492438,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          0,
+          1
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 3.8034110799443455,
+        "raw_consistency": 0.8904492157411598,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          1,
+          0
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.03809523809523796,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 0.2777777777777772,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.6127152988855105,
+        "raw_consistency": 0.7150062009094655,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          0,
+          1
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 3.3170647683700896,
+        "raw_consistency": 0.9176833542734107,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.03809523809523796,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 0.273049645390072,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          0,
+          0
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.5936676798378915,
+        "raw_consistency": 0.7058622749381335,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 3.3170647683700896,
+        "raw_consistency": 0.9176833542734107,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          1,
+          0
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.03809523809523796,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          1,
+          1
+        ],
+        "config_label": "~RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 0.273049645390072,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "config_label": "RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.801419217687072,
+        "raw_consistency": 0.5228819197236195,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "config_label": "RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 14.060769792660203,
+        "raw_consistency": 0.8532168182393826,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        "config_label": "RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.03809523809523796,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        "config_label": "RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 1.136054421768707,
+        "raw_consistency": 0.993090741593736,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          0,
+          0
+        ],
+        "config_label": "RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.7349206349206328,
+        "raw_consistency": 0.5701943844492438,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "config_label": "RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 4.036393375426639,
+        "raw_consistency": 0.8958002170925672,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          1,
+          0
+        ],
+        "config_label": "RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.03809523809523796,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          1,
+          1
+        ],
+        "config_label": "RESPONSE_TIMELINESS*~SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 0.2777777777777772,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        "config_label": "RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.5936676798378915,
+        "raw_consistency": 0.7058622749381335,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          0,
+          1
+        ],
+        "config_label": "RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 4.136214864305899,
+        "raw_consistency": 0.8328301332527629,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "config_label": "RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.03809523809523796,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          1,
+          1
+        ],
+        "config_label": "RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*~PROCESS_TRANSPARENCY*INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 0.273049645390072,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          0,
+          0
+        ],
+        "config_label": "RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.5936676798378915,
+        "raw_consistency": 0.7058622749381335,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          0,
+          1
+        ],
+        "config_label": "RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*~INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 3.5505174647787117,
+        "raw_consistency": 0.9230958168495899,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          1,
+          0
+        ],
+        "config_label": "RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*INTERACTION_QUALITY*~FOLLOW_UP_MECHANISM",
+        "frequency": 0.03809523809523796,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "config_label": "RESPONSE_TIMELINESS*SOLUTION_EFFECTIVENESS*PROCESS_TRANSPARENCY*INTERACTION_QUALITY*FOLLOW_UP_MECHANISM",
+        "frequency": 0.273049645390072,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      }
+    ],
+    "condition_names": [
+      "response_timeliness",
+      "solution_effectiveness",
+      "process_transparency",
+      "interaction_quality",
+      "follow_up_mechanism"
+    ],
+    "outcome_name": "high_responsiveness",
+    "consistency_threshold": 0.75,
+    "frequency_threshold": 1.0,
+    "n_cases": 30
+  },
+  "solutions": {
+    "complex": {
+      "solution_type": "complex",
+      "terms": [
+        {
+          "term": [
+            "response_timeliness",
+            "~solution_effectiveness",
+            "~process_transparency",
+            "follow_up_mechanism"
+          ],
+          "label": "response_timeliness*~solution_effectiveness*~process_transparency*follow_up_mechanism",
+          "consistency": 0.0,
+          "raw_coverage": 0.0,
+          "unique_coverage": 0.0
+        },
+        {
+          "term": [
+            "~interaction_quality",
+            "follow_up_mechanism"
+          ],
+          "label": "~interaction_quality*follow_up_mechanism",
+          "consistency": 0.0,
+          "raw_coverage": 0.0,
+          "unique_coverage": 0.0
+        }
+      ],
+      "formula": "response_timeliness*~solution_effectiveness*~process_transparency*follow_up_mechanism + ~interaction_quality*follow_up_mechanism",
+      "solution_consistency": 0.0,
+      "solution_coverage": 0.0
+    },
+    "parsimonious": null,
+    "intermediate": null
+  },
+  "necessity": {
+    "outcome_name": "high_responsiveness",
+    "threshold": 0.9,
+    "conditions": [
+      {
+        "condition_name": "response_timeliness",
+        "consistency": 0.8592907581283462,
+        "coverage": 0.829578825135859,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "solution_effectiveness",
+        "consistency": 0.23671575924278054,
+        "coverage": 0.7995178645594249,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "process_transparency",
+        "consistency": 0.23926996197718584,
+        "coverage": 0.7972027972027972,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "interaction_quality",
+        "consistency": 0.06926235741444867,
+        "coverage": 0.6049463749737126,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "follow_up_mechanism",
+        "consistency": 0.9953225420966866,
+        "coverage": 0.5727645601201369,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "~response_timeliness",
+        "consistency": 0.6471560972297667,
+        "coverage": 0.802989583171138,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "~solution_effectiveness",
+        "consistency": 0.939295364452714,
+        "coverage": 0.607692307692308,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "~process_transparency",
+        "consistency": 0.9312623574144487,
+        "coverage": 0.6040834245913121,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "~interaction_quality",
+        "consistency": 0.9390275288695811,
+        "coverage": 0.5436528867664252,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "~follow_up_mechanism",
+        "consistency": 0.028064747419880402,
+        "coverage": 0.2698600101197497,
+        "is_necessary": false
+      }
+    ]
+  },
+  "sufficiency": {
+    "outcome_name": "high_responsiveness",
+    "solutions": {
+      "complex": {
+        "solution_type": "complex",
+        "terms": [
+          {
+            "term": [
+              "response_timeliness",
+              "~solution_effectiveness",
+              "~process_transparency",
+              "follow_up_mechanism"
+            ],
+            "label": "response_timeliness*~solution_effectiveness*~process_transparency*follow_up_mechanism",
+            "consistency": 0.8624510346065543,
+            "raw_coverage": 0.7974808721967873,
+            "unique_coverage": 0.06121341161307573
+          },
+          {
+            "term": [
+              "~interaction_quality",
+              "follow_up_mechanism"
+            ],
+            "label": "~interaction_quality*follow_up_mechanism",
+            "consistency": 0.574773508475438,
+            "raw_coverage": 0.9343500709662677,
+            "unique_coverage": 0.6108013424381162
+          }
+        ],
+        "formula": "response_timeliness*~solution_effectiveness*~process_transparency*follow_up_mechanism + ~interaction_quality*follow_up_mechanism",
+        "solution_consistency": 0.5899776325614402,
+        "solution_coverage": 0.9953225420966866
+      },
+      "parsimonious": null,
+      "intermediate": null
+    }
+  },
+  "condition_set": {
+    "name": "gov_responsiveness_default",
+    "description": "Default QCA conditions for gov_responsiveness domain",
+    "conditions": [
+      {
+        "name": "response_timeliness",
+        "display_name": "response_timeliness",
+        "domain": "gov_responsiveness",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "当天就回复了，处理速度很快，三个工作日内就全部办完了",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "等了好几天也没个回复，到现在都不知道进展怎么样了",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "solution_effectiveness",
+        "display_name": "solution_effectiveness",
+        "domain": "gov_responsiveness",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "问题已经解决了，办好了，处理非常到位，落实得很好很彻底",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "虽然回复了但是问题根本没解决，敷衍了事",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "process_transparency",
+        "display_name": "process_transparency",
+        "domain": "gov_responsiveness",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "整个过程都公开公示了，每一步都告知我们，解释得很清楚有结果反馈",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "什么信息都不公开，问了好几次也不告诉我们进展",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "interaction_quality",
+        "display_name": "interaction_quality",
+        "domain": "gov_responsiveness",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "工作人员态度好很有耐心，认真细致，热情周到，服务非常贴心",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "工作人员态度冷漠，问三句答一句，一副不耐烦的样子",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "follow_up_mechanism",
+        "display_name": "follow_up_mechanism",
+        "domain": "gov_responsiveness",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "办理后还有回访电话，后续跟进做得很到位，持续关注我们的情况",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "办完就完了，没有任何后续跟进，出了问题也不知道找谁",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      }
+    ],
+    "outcome": {
+      "name": "high_responsiveness",
+      "display_name": "high_responsiveness",
+      "domain": "gov_responsiveness",
+      "calibration_type": "direct",
+      "calibration_params": {
+        "threshold_full_in": 0.8,
+        "threshold_full_out": 0.2,
+        "crossover_point": 0.5,
+        "direction": "ascending",
+        "steepness": null
+      },
+      "description": "",
+      "scoring_source": "prototype",
+      "prototypes": [
+        {
+          "prototype_text": "政府非常负责，响应非常及时，处理效率很高，我们很满意",
+          "is_member": 1,
+          "weight": 1.0
+        },
+        {
+          "prototype_text": "投诉了也没用，根本没人管，效率太低了",
+          "is_member": 0,
+          "weight": 1.0
+        }
+      ],
+      "prototype_embeddings": null,
+      "embedding_model": null
+    },
+    "domain": "gov_responsiveness",
+    "scoring_source": "prototype",
+    "qca_variant": "fsqca"
+  },
+  "metadata": {
+    "consistency_threshold": 0.75,
+    "frequency_threshold": 1.0
+  }
+}

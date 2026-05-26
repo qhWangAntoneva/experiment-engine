@@ -18,11 +18,11 @@
         1.0
       ],
       "coverage_stability": [
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "passed": true
     },
@@ -42,10 +42,10 @@
         1.0
       ],
       "coverage_stability": [
-        1.0,
-        1.0,
-        1.0,
-        1.0
+        0.0,
+        0.0,
+        0.0,
+        0.0
       ],
       "passed": true
     },
@@ -207,7 +207,7 @@
         1.0,
         1.0,
         1.0,
-        1.0,
+        0.0,
         1.0,
         1.0,
         1.0,
@@ -277,11 +277,11 @@
         1.0
       ],
       "coverage_stability": [
-        1.0
+        0.0
       ],
       "passed": true
     }
   ],
-  "overall_robustness": 1.0,
+  "overall_robustness": 0.9975,
   "summary": "High robustness — QCA solution is stable under sensitivity tests."
 }

@@ -28,6 +28,7 @@ import { loadSnapshot, saveSnapshot } from '../utils/snapshotStorage';
 import { useQCAPipeline } from '../store/QCAPipelineContext';
 import { useQCAWorkflow } from '../hooks/useQCAWorkflow';
 import { useT } from '../i18n/I18nContext';
+import HelpTooltip from '../components/HelpTooltip';
 import type {
   QCAAnalysisResultJSON,
   ConditionSet,
@@ -55,6 +56,10 @@ export default function Results() {
   const [exportError, setExportError] = useState<string | null>(null);
   const [exportSuccess, setExportSuccess] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('raw');
+  const [latexPreviewContent, setLatexPreviewContent] = useState<string | null>(null);
+
+  // Toast notification state
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   // Snapshot state (P1-7)
   const [snapshotMsg, setSnapshotMsg] = useState<string | null>(null);
@@ -115,6 +120,14 @@ export default function Results() {
       setExportSuccess(null);
       try {
         const blob = await runExport(format);
+
+        // For LaTeX: show preview modal before download
+        if (format === 'latex') {
+          const content = await blob.text();
+          setLatexPreviewContent(content);
+          return;
+        }
+
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -128,14 +141,42 @@ export default function Results() {
         a.click();
         URL.revokeObjectURL(url);
         setExportSuccess(t('results.exportedAs', format.toUpperCase()));
+        setToast({ message: t('results.exportedAs', format.toUpperCase()), type: 'success' });
+        setTimeout(() => setToast(null), 3000);
       } catch (err: any) {
         setExportError(t('results.exportFailed') + err.message);
+        setToast({ message: t('results.exportFailed') + err.message, type: 'error' });
+        setTimeout(() => setToast(null), 3000);
       } finally {
         setExporting(false);
       }
     },
     [runExport, t]
   );
+
+  const handleLatexDownload = useCallback(async () => {
+    if (!latexPreviewContent) return;
+    setExporting(true);
+    try {
+      const blob = await runExport('latex');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'qca-analysis.tex';
+      a.click();
+      URL.revokeObjectURL(url);
+      setLatexPreviewContent(null);
+      setExportSuccess(t('results.exportedAs', 'LATEX'));
+      setToast({ message: t('results.exportedAs', 'LATEX'), type: 'success' });
+      setTimeout(() => setToast(null), 3000);
+    } catch (err: any) {
+      setExportError(t('results.exportFailed') + err.message);
+      setToast({ message: t('results.exportFailed') + err.message, type: 'error' });
+      setTimeout(() => setToast(null), 3000);
+    } finally {
+      setExporting(false);
+    }
+  }, [latexPreviewContent, runExport, t]);
 
   // ── Empty state ──────────────────────────────────────────────────────────
   if (!hasResults) {
@@ -307,14 +348,17 @@ export default function Results() {
               <MetricChip
                 label={t('results.consistency')}
                 value={activeResult.solutions?.complex?.solution_consistency?.toFixed(3) ?? '-'}
+                helpText={t('help.consistency')}
               />
               <MetricChip
                 label={t('results.coverage')}
                 value={activeResult.solutions?.complex?.solution_coverage?.toFixed(3) ?? '-'}
+                helpText={t('help.coverage')}
               />
               <MetricChip
                 label={t('results.robustness')}
                 value={robustnessReport ? robustnessReport.overall_robustness.toFixed(2) : t('results.nA')}
+                helpText={t('help.robustness')}
               />
             </div>
           )}
@@ -467,6 +511,95 @@ export default function Results() {
           </div>
         </>
       )}
+
+      {/* ── LaTeX Preview Modal ── */}
+      {latexPreviewContent && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 2000,
+            padding: '20px',
+          }}
+          onClick={() => setLatexPreviewContent(null)}
+        >
+          <div
+            style={{
+              background: 'var(--color-bg-primary)',
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+              width: '100%',
+              maxWidth: '720px',
+              maxHeight: '80vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid var(--color-border)' }}>
+              <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, margin: 0 }}>LaTeX Preview</h3>
+              <button className="btn btn-secondary" onClick={() => setLatexPreviewContent(null)} style={{ fontSize: '0.75rem', padding: '4px 10px' }}>x</button>
+            </div>
+            <div style={{ flex: 1, overflow: 'auto', padding: '20px' }}>
+              <textarea
+                readOnly
+                value={latexPreviewContent}
+                style={{
+                  width: '100%',
+                  minHeight: '300px',
+                  fontFamily: 'var(--font-mono, monospace)',
+                  fontSize: '0.75rem',
+                  lineHeight: 1.6,
+                  padding: '12px',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-sm)',
+                  background: 'var(--color-bg-input)',
+                  color: 'var(--color-text-primary)',
+                  resize: 'vertical',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                }}
+                spellCheck={false}
+                onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+              />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', padding: '12px 20px', borderTop: '1px solid var(--color-border)' }}>
+              <button className="btn btn-secondary" onClick={() => setLatexPreviewContent(null)} style={{ fontSize: '0.8125rem' }} disabled={exporting}>Cancel</button>
+              <button className="btn btn-primary" onClick={handleLatexDownload} style={{ fontSize: '0.8125rem' }} disabled={exporting}>
+                {exporting ? 'Downloading...' : 'Download .tex'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Toast Notification ── */}
+      {toast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            padding: '12px 20px',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '0.8125rem',
+            fontWeight: 500,
+            color: '#fff',
+            background: toast.type === 'error' ? 'var(--color-error, #e74c3c)' : 'var(--color-success, #27ae60)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+            zIndex: 3000,
+            animation: 'fadeIn 0.2s ease',
+            maxWidth: '400px',
+          }}
+        >
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }
@@ -474,7 +607,7 @@ export default function Results() {
 
 // ─── Mini Metric Chip ──────────────────────────────────────────────────────
 
-function MetricChip({ label, value }: { label: string; value: string | number }) {
+function MetricChip({ label, value, helpText }: { label: string; value: string | number; helpText?: string }) {
   return (
     <div
       className="card"
@@ -486,8 +619,9 @@ function MetricChip({ label, value }: { label: string; value: string | number })
         gap: '4px',
       }}
     >
-      <span style={{ fontSize: '0.7rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+      <span style={{ fontSize: '0.7rem', color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'inline-flex', alignItems: 'center' }}>
         {label}
+        {helpText && <HelpTooltip text={helpText} />}
       </span>
       <span className="mono" style={{ fontSize: '1.25rem', fontWeight: 700 }}>
         {value}

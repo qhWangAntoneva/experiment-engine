@@ -5087,6 +5087,266 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-26T15:33:24.730Z"
+    },
+    {
+      "id": "bug-311",
+      "timestamp": "2026-05-26T17:48:05.602Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/text_calibration/cosine_similarity.py",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 23→42 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T17:48:05.602Z"
+    },
+    {
+      "id": "bug-312",
+      "timestamp": "2026-05-26T17:48:10.430Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/plugins.py",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 18→35 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T17:48:10.430Z"
+    },
+    {
+      "id": "bug-313",
+      "timestamp": "2026-05-26T17:48:58.174Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/cli.py",
+      "root_cause": "14 lines replaced/restructured",
+      "fix": "Rewrote 34→19 lines (14 removed) | Also: from experiment_engine.qca_engine import QCAnalyze; from experiment_engine.qca_engine.advanced import  | Also: default=\"counterfactual_report.json\",; help=\"Output path for counterfactual report\",",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-05-26T17:49:34.915Z"
+    },
+    {
+      "id": "bug-314",
+      "timestamp": "2026-05-26T17:49:58.687Z",
+      "error_message": "Type error",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T17:49:58.687Z"
+    },
+    {
+      "id": "bug-315",
+      "timestamp": "2026-05-26T17:50:25.523Z",
+      "error_message": "Missing guard clause",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "No early return/throw for edge case: format === 'latex'",
+      "fix": "Added guard clause: if (format === 'latex')",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T17:50:25.523Z"
+    },
+    {
+      "id": "bug-316",
+      "timestamp": "2026-05-26T17:50:46.605Z",
+      "error_message": "Type error",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T17:50:46.605Z"
+    },
+    {
+      "id": "bug-317",
+      "timestamp": "2026-05-27T10:00:00.000Z",
+      "error_message": "All 5 domains produce membership values of exactly 0.5 (zero variance/zero stddev) across all 30 cases, resulting in meaningless QCA results",
+      "file": "src/experiment_engine/text_calibration/calibrator.py",
+      "root_cause": "TextCalibrationStage.process() is called without text_embeddings and prototype_embeddings (CLI/api path has no BERT model). _precompute_scores() returns np.zeros() when embeddings are None. DirectCalibration maps all-identical zero scores to all-0.5 via min-max normalization degeneracy (score_min==score_max -> normalized=0.5, then 0.5 falls at crossover_point -> 0.5).",
+      "fix": "Added _fallback_text_scores() static method using character trigram Jaccard similarity between input texts and prototype texts, with positive/negative prototype aggregation. _precompute_scores() now calls this fallback instead of returning zeros when embeddings are absent. Added _char_trigrams() and _jaccard() helper methods.",
+      "tags": [
+        "calibration",
+        "embedding-missing",
+        "all-0.5",
+        "pipeline-bug",
+        "critical"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T10:00:00.000Z"
+    },
+    {
+      "id": "bug-318",
+      "timestamp": "2026-05-26T18:50:26.666Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/cli.py",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 14→29 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T18:50:26.666Z"
+    },
+    {
+      "id": "bug-319",
+      "timestamp": "2026-05-26T18:51:57.373Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/api.py",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 36→75 lines (5 removed) | Also: # Create InputData from filtered texts; index=df_filtered.index.tolist(),",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T18:52:59.828Z"
+    },
+    {
+      "id": "bug-131",
+      "timestamp": "2026-05-27T02:51:00.000Z",
+      "error_message": "LaTeX reporter renders empty formula for vacuous QCA solutions (all outcome=1 or all outcome=0)",
+      "file": "src/experiment_engine/report/qca_reporter.py",
+      "root_cause": "_solutions_section() only checked `if sol and sol.terms` but did not check for empty formula. Vacuous solutions have sol.terms == [] and formula == ''. The code rendered `Formula: $\\displaystyle $` - empty content.",
+      "fix": "Added is_vacuous detection: empty/whitespace formula, or <=1 terms with zero consistency/coverage. Renders `\\top` (always-true) with an explanatory note instead of empty formula.",
+      "tags": [
+        "latex",
+        "report",
+        "vacuous-solution",
+        "edge-case"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27"
+    },
+    {
+      "id": "bug-132",
+      "timestamp": "2026-05-27T02:51:00.000Z",
+      "error_message": "DOCX reporter crashes with ValueError: invalid literal for int() with base 10: 'SimHei'",
+      "file": "src/experiment_engine/report/docx_reporter.py",
+      "root_cause": "Line 42 `run.font.size = font_name` assigned a string ('SimHei') to an EMU integer field as a dummy before the real size was set on line 43. python-docx 1.2.0 validates the value immediately instead of allowing overwrite.",
+      "fix": "Removed the dummy assignment that set font.size to a string. The real size is set on the next line correctly.",
+      "tags": [
+        "docx",
+        "report",
+        "crash",
+        "font-size"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27"
+    },
+    {
+      "id": "bug-133",
+      "timestamp": "2026-05-27T02:51:00.000Z",
+      "error_message": "Unknown format code 'f' for object of type 'str' in validate_qca_output.py",
+      "file": "validate_qca_output.py",
+      "root_cause": "All arrays were formatted with `:.4f` format specifier, but condition_names, outcome_name, and case_ids are string arrays. Numeric formatting fails on string dtype arrays.",
+      "fix": "Added fmt_arr() helper that checks `np.issubdtype(arr.dtype, np.number)` before applying numeric formatting. String arrays are printed without min/max/mean/std.",
+      "tags": [
+        "validation",
+        "format-code",
+        "numpy"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27"
+    },
+    {
+      "id": "bug-323",
+      "timestamp": "2026-05-26T18:53:45.784Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/viz/viz_bridge.py",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 5→7 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T18:53:45.784Z"
+    },
+    {
+      "id": "bug-324",
+      "timestamp": "2026-05-26T18:57:56.161Z",
+      "error_message": "Incorrect value in code",
+      "file": "validate_qca_output.py",
+      "root_cause": "Had \"C:\\Users\\lenovos\\QCA Analysis Tool\\qca_output\"",
+      "fix": "Changed to \"qca_output\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T19:00:08.003Z"
+    },
+    {
+      "id": "bug-325",
+      "timestamp": "2026-05-26T18:59:16.545Z",
+      "error_message": "Wrong reference: result should be return",
+      "file": "src/experiment_engine/api.py",
+      "root_cause": "Used \"result\" instead of \"return\"",
+      "fix": "Changed result → return",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T18:59:16.545Z"
+    },
+    {
+      "id": "bug-326",
+      "timestamp": "2026-05-26T18:59:16.928Z",
+      "error_message": "Wrong reference: sol_type_name should be _sol_type_name",
+      "file": "src/experiment_engine/viz/viz_bridge.py",
+      "root_cause": "Used \"sol_type_name\" instead of \"_sol_type_name\"",
+      "fix": "Changed sol_type_name → _sol_type_name",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T18:59:16.928Z"
     }
   ]
 }

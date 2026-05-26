@@ -188,14 +188,38 @@ Thresholds: consistency $\geq$ {tt.consistency_threshold}, frequency $\geq$ {tt.
         parts: list[str] = [r"\section{QCA Solutions}"]
         for sol_type in ("complex", "parsimonious", "intermediate"):
             sol = getattr(result.solutions, sol_type, None)
-            if sol and sol.terms:
-                parts.append(rf"\subsection{{{sol_type.title()} Solution}}")
+            if sol is None:
+                continue
+
+            # Detect vacuous solution: empty formula with no meaningful terms.
+            # This happens when ALL truth table rows share the same outcome
+            # (all 1 or all 0), so the minimizer produces an empty formula.
+            is_vacuous = (
+                not sol.formula
+                or not sol.formula.strip()
+                or (
+                    len(sol.terms) <= 1
+                    and sol.solution_consistency == 0.0
+                    and sol.solution_coverage == 0.0
+                )
+            )
+
+            parts.append(rf"\subsection{{{sol_type.title()} Solution}}")
+
+            if is_vacuous:
+                parts.append(r"Formula: $\displaystyle \top$")
+                parts.append(
+                    r"\emph{Note: This is a vacuous solution -- all truth table "
+                    r"rows have the same outcome value, so the Boolean "
+                    r"minimizer produced an empty formula ($\top$ = always-true).}"
+                )
+            else:
                 parts.append(
                     rf"Formula: $\displaystyle {QCALaTeXReporter._escape_latex_formula(sol.formula)}$"
                 )
                 parts.append(rf"Solution Consistency: {sol.solution_consistency:.3f}")
                 parts.append(rf"Solution Coverage: {sol.solution_coverage:.3f}")
-                parts.append("")
+            parts.append("")
         return "\n\n".join(parts)
 
     @staticmethod

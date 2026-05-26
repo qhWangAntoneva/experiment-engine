@@ -16,6 +16,7 @@ import { useQCAPipeline } from '../store/QCAPipelineContext';
 import { useT } from '../i18n/I18nContext';
 import { AVAILABLE_MODELS, DEFAULT_MODEL } from '../services/bert-engine';
 import CalibrationPreview from '../components/CalibrationPreview';
+import HelpTooltip from '../components/HelpTooltip';
 import './Settings.css';
 
 interface SettingField {
@@ -361,6 +362,34 @@ export default function Settings() {
           <CalibrationPreview {...calibrationPreviewParams} />
         </div>
 
+        {/* Scoring Engine Info */}
+        <div className="settings-section card">
+          <h3 className="section-title">Scoring Engine Parameters</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.8125rem' }}>
+              <span style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>Temperature / Tau</span>
+              <HelpTooltip text={t('help.temperatureTau')} placement="top" />
+              <span style={{ color: 'var(--color-text-secondary)' }}>
+                — {t('help.temperatureTau')}
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.8125rem' }}>
+              <span style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>Aggregation</span>
+              <HelpTooltip text={t('help.aggregation')} placement="top" />
+              <span style={{ color: 'var(--color-text-secondary)' }}>
+                — {t('help.aggregation')}
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.8125rem' }}>
+              <span style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>Scoring</span>
+              <HelpTooltip text={t('help.scoring')} placement="top" />
+              <span style={{ color: 'var(--color-text-secondary)' }}>
+                — {t('help.scoring')}
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Analysis Section */}
         <div className="settings-section card">
           <h3 className="section-title">{t('settings.analysisThresholds')}</h3>
@@ -563,11 +592,26 @@ function SettingRow({
   onChange: (key: string, value: string | number | boolean) => void;
 }) {
   const t = useT();
+  const helpKey =
+    field.key === 'calibration_type' ? 'help.calibrationMethod' :
+    field.key === 'qca_variant' ? 'help.qcaVariant' :
+    field.key === 'calibration_direction' ? null :
+    field.key === 'export_default_format' ? null :
+    field.key === 'include_raw_data' ? null :
+    field.key === 'pretty_print_json' ? null :
+    field.key === 'threshold_full_in' ? null :
+    field.key === 'threshold_full_out' ? null :
+    field.key === 'crossover_point' ? null :
+    field.key === 'consistency_threshold' ? null :
+    field.key === 'frequency_threshold' ? null :
+    field.key === 'necessity_threshold' ? null :
+    field.key === 'n_cut' ? null : null;
   return (
     <div className="setting-row">
       <div className="setting-info">
         <label className="setting-label" htmlFor={field.key}>
           {t(`settings.fields.${field.key}.label`)}
+          {helpKey && <HelpTooltip text={t(helpKey)} />}
         </label>
         <p className="setting-desc">{t(`settings.fields.${field.key}.description`)}</p>
       </div>

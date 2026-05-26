@@ -183,18 +183,19 @@ class ConditionSet(BaseModel):
 
 
 class TextCase(BaseModel):
-    """A text with a binary outcome for prototype-based QCA analysis.
+    """A text with an outcome membership score for prototype-based QCA analysis.
 
     Attributes:
         text_id: Unique identifier.
         text: Raw Chinese text content.
-        outcome: Binary outcome (0 or 1) used directly as crisp-set membership.
+        outcome: Outcome membership score (0.0-1.0); use 0/1 for crisp-set,
+            continuous 0.0-1.0 for fuzzy-set.
         metadata: Arbitrary additional metadata.
     """
 
     text_id: str
     text: str
-    outcome: int = Field(0, ge=0, le=1)
+    outcome: float = Field(0.0, ge=0.0, le=1.0)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 

@@ -1,0 +1,765 @@
+{
+  "truth_table": {
+    "rows": [
+      {
+        "config": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*~GROUP_REPRESENTATION*~EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 1.407009694258011,
+        "raw_consistency": 0.9445009896468765,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*~GROUP_REPRESENTATION*~EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 1.3625652498135667,
+        "raw_consistency": 0.9426907110692461,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*~GROUP_REPRESENTATION*EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*~GROUP_REPRESENTATION*EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 0.04444444444444429,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*GROUP_REPRESENTATION*~EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 0.08888888888888857,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          0,
+          1
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*GROUP_REPRESENTATION*~EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 0.08888888888888857,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          1,
+          0
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*GROUP_REPRESENTATION*EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*GROUP_REPRESENTATION*EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*~GROUP_REPRESENTATION*~EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 1.9205406356494872,
+        "raw_consistency": 0.8005013797105103,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          0,
+          1
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*~GROUP_REPRESENTATION*~EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 1.741053456162307,
+        "raw_consistency": 0.8830259767073996,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*~GROUP_REPRESENTATION*EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*~GROUP_REPRESENTATION*EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 0.04444444444444429,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          0,
+          0
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*GROUP_REPRESENTATION*~EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 0.08888888888888857,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*GROUP_REPRESENTATION*~EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 0.08888888888888857,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          1,
+          0
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*GROUP_REPRESENTATION*EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          1,
+          1
+        ],
+        "config_label": "~SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*GROUP_REPRESENTATION*EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*~GROUP_REPRESENTATION*~EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 5.777961337692863,
+        "raw_consistency": 0.8594683415985854,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*~GROUP_REPRESENTATION*~EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 4.642918602650128,
+        "raw_consistency": 0.9513157656838949,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*~GROUP_REPRESENTATION*EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*~GROUP_REPRESENTATION*EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 0.19239373601789622,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          0,
+          0
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*GROUP_REPRESENTATION*~EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 0.4648575041338423,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*GROUP_REPRESENTATION*~EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 0.4648575041338423,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          1,
+          0
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*GROUP_REPRESENTATION*EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          1,
+          1
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*~RESOURCE_REQUEST*GROUP_REPRESENTATION*EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*~GROUP_REPRESENTATION*~EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 14.785136563660057,
+        "raw_consistency": 0.7671817182279046,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          0,
+          1
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*~GROUP_REPRESENTATION*~EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 10.297957076480559,
+        "raw_consistency": 0.9357384886415534,
+        "outcome_value": 1,
+        "included": true
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*~GROUP_REPRESENTATION*EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          1,
+          1
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*~GROUP_REPRESENTATION*EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 0.8076062639821038,
+        "raw_consistency": 0.5939463549760139,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          0,
+          0
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*GROUP_REPRESENTATION*~EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 0.8622073578595362,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          0,
+          1
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*GROUP_REPRESENTATION*~EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 0.682720178372356,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          1,
+          0
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*GROUP_REPRESENTATION*EVIDENCE_CITATION*~FEASIBILITY_ARGUMENT",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "config_label": "SPECIFIC_POLICY_PROPOSAL*RESOURCE_REQUEST*GROUP_REPRESENTATION*EVIDENCE_CITATION*FEASIBILITY_ARGUMENT",
+        "frequency": 0.0,
+        "raw_consistency": 0.0,
+        "outcome_value": 0,
+        "included": false
+      }
+    ],
+    "condition_names": [
+      "specific_policy_proposal",
+      "resource_request",
+      "group_representation",
+      "evidence_citation",
+      "feasibility_argument"
+    ],
+    "outcome_name": "strong_policy_demand",
+    "consistency_threshold": 0.75,
+    "frequency_threshold": 1.0,
+    "n_cases": 30
+  },
+  "solutions": {
+    "complex": {
+      "solution_type": "complex",
+      "terms": [
+        {
+          "term": [
+            "~group_representation",
+            "~evidence_citation"
+          ],
+          "label": "~group_representation*~evidence_citation",
+          "consistency": 0.0,
+          "raw_coverage": 0.0,
+          "unique_coverage": 0.0
+        }
+      ],
+      "formula": "~group_representation*~evidence_citation",
+      "solution_consistency": 0.0,
+      "solution_coverage": 0.0
+    },
+    "parsimonious": null,
+    "intermediate": null
+  },
+  "necessity": {
+    "outcome_name": "strong_policy_demand",
+    "threshold": 0.9,
+    "conditions": [
+      {
+        "condition_name": "specific_policy_proposal",
+        "consistency": 0.9776051964760368,
+        "coverage": 0.4984275303709777,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "resource_request",
+        "consistency": 0.921039887350524,
+        "coverage": 0.5574289013045315,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "group_representation",
+        "consistency": 0.09050098934572724,
+        "coverage": 1.0,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "evidence_citation",
+        "consistency": 0.03411574046951257,
+        "coverage": 0.479674796747967,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "feasibility_argument",
+        "consistency": 0.7972643315859125,
+        "coverage": 0.8976976306781009,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "~specific_policy_proposal",
+        "consistency": 0.1158717295216943,
+        "coverage": 0.6724977290151499,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "~resource_request",
+        "consistency": 0.3942439225434657,
+        "coverage": 0.8189883511978843,
+        "is_necessary": false
+      },
+      {
+        "condition_name": "~group_representation",
+        "consistency": 0.9288773546144059,
+        "coverage": 0.45462372118014777,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "~evidence_citation",
+        "consistency": 0.9658842595304873,
+        "coverage": 0.4682946422527131,
+        "is_necessary": true
+      },
+      {
+        "condition_name": "~feasibility_argument",
+        "consistency": 0.9363515811923863,
+        "coverage": 0.751752619067586,
+        "is_necessary": true
+      }
+    ]
+  },
+  "sufficiency": {
+    "outcome_name": "strong_policy_demand",
+    "solutions": {
+      "complex": {
+        "solution_type": "complex",
+        "terms": [
+          {
+            "term": [
+              "~group_representation",
+              "~evidence_citation"
+            ],
+            "label": "~group_representation*~evidence_citation",
+            "consistency": 0.45372024835233066,
+            "raw_coverage": 0.8947616141448933,
+            "unique_coverage": 0.8947616141448933
+          }
+        ],
+        "formula": "~group_representation*~evidence_citation",
+        "solution_consistency": 0.45372024835233066,
+        "solution_coverage": 0.8947616141448933
+      },
+      "parsimonious": null,
+      "intermediate": null
+    }
+  },
+  "condition_set": {
+    "name": "policy_demand_default",
+    "description": "Default QCA conditions for policy_demand domain",
+    "conditions": [
+      {
+        "name": "specific_policy_proposal",
+        "display_name": "specific_policy_proposal",
+        "domain": "policy_demand",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "建议政府制定相关惠民政策，完善城市管理制度，修改不合理的旧规定",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "我就想问一下现在这个政策具体是怎么执行的",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "resource_request",
+        "display_name": "resource_request",
+        "domain": "policy_demand",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "我们需要政府增加资金投入和财政支持，给老百姓发放更多补贴",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "这个政策很好，希望能够尽快落实到位",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "group_representation",
+        "display_name": "group_representation",
+        "domain": "policy_demand",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "我们全体居民代表大家反映这个问题，这是广大群众的共同心声",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "我个人觉得这个政策对我们家影响挺大的",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "evidence_citation",
+        "display_name": "evidence_citation",
+        "domain": "policy_demand",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "据统计数据显示，研究表明这种做法在其他城市已有成功先例可以参考",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "我觉得这个做法应该能行，大家都会支持的",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      },
+      {
+        "name": "feasibility_argument",
+        "display_name": "feasibility_argument",
+        "domain": "policy_demand",
+        "calibration_type": "direct",
+        "calibration_params": {
+          "threshold_full_in": 0.8,
+          "threshold_full_out": 0.2,
+          "crossover_point": 0.5,
+          "direction": "ascending",
+          "steepness": null
+        },
+        "description": "",
+        "scoring_source": "prototype",
+        "prototypes": [
+          {
+            "prototype_text": "这个方案是可以做到的，其他城市已有先例，条件完全具备，难度不大",
+            "is_member": 1,
+            "weight": 1.0
+          },
+          {
+            "prototype_text": "这个事情太难了，我觉得根本不可能实现",
+            "is_member": 0,
+            "weight": 1.0
+          }
+        ],
+        "prototype_embeddings": null,
+        "embedding_model": null
+      }
+    ],
+    "outcome": {
+      "name": "strong_policy_demand",
+      "display_name": "strong_policy_demand",
+      "domain": "policy_demand",
+      "calibration_type": "direct",
+      "calibration_params": {
+        "threshold_full_in": 0.8,
+        "threshold_full_out": 0.2,
+        "crossover_point": 0.5,
+        "direction": "ascending",
+        "steepness": null
+      },
+      "description": "",
+      "scoring_source": "prototype",
+      "prototypes": [
+        {
+          "prototype_text": "我们强烈要求政府尽快出台相关政策，迫切需要解决这个问题",
+          "is_member": 1,
+          "weight": 1.0
+        },
+        {
+          "prototype_text": "随便了解一下这个政策的具体内容是什么",
+          "is_member": 0,
+          "weight": 1.0
+        }
+      ],
+      "prototype_embeddings": null,
+      "embedding_model": null
+    },
+    "domain": "policy_demand",
+    "scoring_source": "prototype",
+    "qca_variant": "fsqca"
+  },
+  "metadata": {
+    "consistency_threshold": 0.75,
+    "frequency_threshold": 1.0
+  }
+}

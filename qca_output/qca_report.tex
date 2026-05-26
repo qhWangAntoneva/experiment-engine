@@ -32,10 +32,10 @@ Outcome: citizen\_dissatisfaction
 \toprule
 Configuration & Frequency & Consistency & Outcome \\
 \midrule
-    \textasciitilde{}NEGATIVE\_AFFECT*\textasciitilde{}STRONG\_DEMAND & 2.5 & 1.000 & 1 \\
-    \textasciitilde{}NEGATIVE\_AFFECT*STRONG\_DEMAND & 2.5 & 1.000 & 1 \\
-    NEGATIVE\_AFFECT*\textasciitilde{}STRONG\_DEMAND & 2.5 & 1.000 & 1 \\
-    NEGATIVE\_AFFECT*STRONG\_DEMAND & 2.5 & 1.000 & 1 \\
+    \textasciitilde{}NEGATIVE\_AFFECT*\textasciitilde{}STRONG\_DEMAND & 2.5 & 0.200 & 0 \\
+    \textasciitilde{}NEGATIVE\_AFFECT*STRONG\_DEMAND & 2.5 & 0.200 & 0 \\
+    NEGATIVE\_AFFECT*\textasciitilde{}STRONG\_DEMAND & 2.5 & 0.200 & 0 \\
+    NEGATIVE\_AFFECT*STRONG\_DEMAND & 2.5 & 0.200 & 0 \\
 \bottomrule
 \end{longtable}
 
@@ -44,26 +44,16 @@ Thresholds: consistency $\geq$ 0.75, frequency $\geq$ 1.0.
 
 \section{QCA Solutions}
 
-\subsection{Complex Solution}
-
-Formula: $\displaystyle $
-
-Solution Consistency: 0.000
-
-Solution Coverage: 0.000
-
-
-
 
 \section{Necessity Analysis}
 \begin{tabular}{lrrl}
 \toprule
 Condition & Consistency & Coverage & Necessary? \\
 \midrule
-    negative\_affect & 1.000 & 1.000 & \checkmark \\
-    strong\_demand & 1.000 & 1.000 & \checkmark \\
-    \textasciitilde{}negative\_affect & 1.000 & 1.000 & \checkmark \\
-    \textasciitilde{}strong\_demand & 1.000 & 1.000 & \checkmark \\
+    negative\_affect & 0.500 & 0.200 &  \\
+    strong\_demand & 0.500 & 0.200 &  \\
+    \textasciitilde{}negative\_affect & 0.500 & 0.200 &  \\
+    \textasciitilde{}strong\_demand & 0.500 & 0.200 &  \\
 \bottomrule
 \end{tabular}
 
@@ -71,18 +61,6 @@ Threshold: Consistency $\geq$ 0.9
 
 
 \section{Sufficiency Analysis}
-
-\subsection{Complex Solution}
-
-\begin{tabular}{lrrr}
-\toprule
-Term & Consistency & Raw Coverage & Unique Coverage \\
-\midrule
-
-     & 0.500 & 1.000 & 1.000 \\
-
-\bottomrule
-\end{tabular}
 
 
 \section{Robustness Tests}

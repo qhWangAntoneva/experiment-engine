@@ -1,0 +1,396 @@
+{
+  "counterfactual_report": {
+    "classifications": [
+      {
+        "config": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          1,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          0,
+          1
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          1,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          0,
+          1,
+          1,
+          1
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          0,
+          1
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          0,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          0,
+          1
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          1,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          0,
+          1,
+          1,
+          1,
+          1
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          0,
+          1
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          1,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          0,
+          0,
+          1,
+          1
+        ],
+        "is_observed": true,
+        "counterfactual_type": null,
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          0,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          1,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          0,
+          1,
+          1,
+          1
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          0,
+          1
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          1,
+          0,
+          1,
+          1
+        ],
+        "is_observed": true,
+        "counterfactual_type": null,
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          0,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          0,
+          1
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          1,
+          0
+        ],
+        "is_observed": false,
+        "counterfactual_type": "easy",
+        "theoretical_expectation": null
+      },
+      {
+        "config": [
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "is_observed": true,
+        "counterfactual_type": null,
+        "theoretical_expectation": null
+      }
+    ],
+    "n_easy_counterfactuals": 29,
+    "n_hard_counterfactuals": 0,
+    "n_logical_remainders": 29
+  },
+  "complex_terms": [],
+  "parsimonious_terms": [],
+  "intermediate_terms": []
+}
