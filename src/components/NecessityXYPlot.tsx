@@ -107,7 +107,16 @@ export default function NecessityXYPlot({ necessity, height = 400 }: Props) {
         },
         margin: { l: 60, r: 20, t: 40, b: 60 },
       },
-      config: { responsive: true, displayModeBar: false },
+      config: {
+        responsive: true,
+        displayModeBar: 'hover',
+        toImageButtonOptions: {
+          format: 'png',
+          filename: 'qca-necessity-xy-plot',
+          height: 600,
+          width: 900,
+        },
+      },
     };
   }, [necessity]);
 

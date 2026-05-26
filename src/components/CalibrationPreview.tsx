@@ -276,7 +276,16 @@ export default function CalibrationPreview(props: Props) {
         font: { family: 'var(--font-mono), monospace', size: 11 },
         legend: { orientation: 'h' as const, y: 1.12 },
       },
-      config: { responsive: true, displayModeBar: false },
+      config: {
+        responsive: true,
+        displayModeBar: 'hover',
+        toImageButtonOptions: {
+          format: 'png',
+          filename: 'qca-calibration-preview',
+          height: 600,
+          width: 900,
+        },
+      },
     };
   }, [rawScores, debouncedCalibrated, effectiveType, props.direction]);
 

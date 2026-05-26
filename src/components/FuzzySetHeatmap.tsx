@@ -75,7 +75,13 @@ export default function FuzzySetHeatmap({ truthTable, height = 400, colorScale }
       },
       config: {
         responsive: true,
-        displayModeBar: false,
+        displayModeBar: 'hover',
+        toImageButtonOptions: {
+          format: 'png',
+          filename: 'qca-fuzzy-heatmap',
+          height: 600,
+          width: 900,
+        },
       },
     };
   }, [includedRows, truthTable.outcome_name, height, colorScale]);

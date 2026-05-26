@@ -61,7 +61,16 @@ export default function DistributionPlot({ fuzzyData, height = 400 }: Props) {
         },
         margin: { l: 60, r: 20, t: 40, b: 60 },
       },
-      config: { responsive: true, displayModeBar: false },
+      config: {
+        responsive: true,
+        displayModeBar: 'hover',
+        toImageButtonOptions: {
+          format: 'png',
+          filename: 'qca-distribution-plot',
+          height: 600,
+          width: 900,
+        },
+      },
     };
   }, [fuzzyData, selectedCondition, allNames, height]);
 
