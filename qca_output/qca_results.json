@@ -143,6 +143,7 @@
         },
         "description": "",
         "scoring_source": "prototype",
+        "keywords": [],
         "prototypes": [
           {
             "prototype_text": "不满 差劲 服务差",
@@ -171,6 +172,7 @@
         },
         "description": "",
         "scoring_source": "prototype",
+        "keywords": [],
         "prototypes": [
           {
             "prototype_text": "要求 举报 投诉",
@@ -200,6 +202,7 @@
       },
       "description": "",
       "scoring_source": "prototype",
+      "keywords": [],
       "prototypes": [
         {
           "prototype_text": "很差 不满意 愤怒",

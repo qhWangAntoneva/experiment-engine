@@ -3995,10 +3995,37 @@
       "file": ".github/workflows/deploy.yml",
       "root_cause": "GitHub Pages legacy build system (build_type: 'legacy') rejects pushes from github-actions[bot] (GITHUB_TOKEN). The successful build was pushed by user qhWangAntoneva; all GITHUB_TOKEN pushes fail immediately (duration: 0). This is a known GitHub limitation — the legacy Jekyll-based build system does not properly process bot-triggered branch pushes.",
       "fix": "Switched from peaceiris/actions-gh-pages (branch-based legacy deployment) to the official GitHub Actions Pages deployment pipeline: actions/configure-pages@v4 + actions/upload-pages-artifact@v3 + actions/deploy-pages@v4. This replaces the peaceiris step with three official steps, changes permissions from 'contents: write' to 'contents: read, pages: write, id-token: write', and transitions Pages source from 'legacy' (branch-based) to 'workflow' (Actions-based). The gh-pages branch is no longer needed.",
-      "tags": ["github-pages", "deploy", "CI/CD", "peaceiris", "GITHUB_TOKEN", "legacy-build"],
+      "tags": [
+        "github-pages",
+        "deploy",
+        "CI/CD",
+        "peaceiris",
+        "GITHUB_TOKEN",
+        "legacy-build"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-26T05:00:00.000Z"
+    },
+    {
+      "id": "bug-005",
+      "timestamp": "2026-05-26T06:55:48.000Z",
+      "error_message": "HTTP 422: Invalid Argument - failed to parse workflow: (Line: 42, Col: 3): Unexpected value administration. Push-triggered deploy workflow runs failed with 0 jobs.",
+      "file": ".github/workflows/deploy.yml",
+      "root_cause": "Line 42 had administration: write which is not a valid GitHub Actions permission scope. The YAML parser rejected the workflow at evaluation time, before any job could be created.",
+      "fix": "Removed the invalid administration: write line from the permissions block. Valid permissions are contents: read, pages: write, id-token: write.",
+      "tags": [
+        "deploy",
+        "github-actions",
+        "yaml",
+        "permissions",
+        "pages"
+      ],
+      "related_bugs": [
+        "bug-004"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T06:55:48.000Z"
     }
   ]
 }

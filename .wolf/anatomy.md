@@ -1,17 +1,28 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T06:54:47.949Z
-> Files: 45 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T08:16:43.267Z
+> Files: 50 tracked | Anatomy hits: 0 | Misses: 0
+
+## ../.claude/
+
+- `CLAUDE.md` — Claude Code — 通用规则 (~198 tok)
 
 ## ../.claude/plans/
 
+
+## ../National-Policy-Database/
+
+- `CLAUDE.md` — National-Policy-Database — 项目规则 (~2972 tok)
 
 ## ./
 
 - `.gitignore` — Git ignore rules (~177 tok)
 - `DEPLOY-CHECKLIST.md` — Deployment Verification Checklist -- QCA Analysis Tool (~5095 tok)
+- `FIXME.md` — FIXME — QCA Analysis Tool (~2800 tok, re-synced 2026-05-26)
+- `HACK.md` — HACK — QCA Analysis Tool (re-synced 2026-05-26, ~1600 tok)
 - `index.html` — QCA Simulation Tool (~563 tok)
 - `package.json` — Node.js package manifest (~194 tok)
+- `TODO.md` — TODO — QCA Analysis Tool (~3300 tok, updated 2026-05-26)
 - `vite.config.ts` — ============================================================================= (~344 tok)
 
 ## .claude/
@@ -33,6 +44,7 @@
 ## .wolf/
 
 - `e2e-test-plan.md` — UX-focused E2E test plan: 45 tests across 6 phases, with PASS/FAIL criteria and execution order (~1200 tok)
+- `memory-archive.md` — Archived session logs (pre-2026-05-25) — moved here to reduce context consumption (~27000 tok)
 
 ## public/
 

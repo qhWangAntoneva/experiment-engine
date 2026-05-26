@@ -1,8 +1,9 @@
 # TODO — QCA Analysis Tool
 
-> 自动生成于 2026-05-24 | 最后更新：2026-05-25 (BERT+Prototype 架构重构计划)
+> 自动生成于 2026-05-24 | 最后更新：2026-05-26
+> **Re-synced with actual codebase state on 2026-05-26.**
 > 优先级：P0 = 必须做 | P1 = 应该做 | P2 = 锦上添花
-> **当前焦点**: BERT CLS + 余弦相似度 替换关键词识别，Prototype 作为 QCA 唯一理论基础
+> **当前焦点**: P0-BERT 已全部完成，剩余 P1-BERT 清理 + P1 功能需求 + P2 增强
 
 ---
 
@@ -19,27 +20,27 @@
 
 ### P0-BERT — 核心重构（阻塞所有后续功能）
 
-- [ ] **P0-B1: 新增 `cosine_similarity.py`** — BERT CLS 余弦相似度引擎，替换 `PrototypeSimilarityEngine` 的 bigram Jaccard。(工作量: M)
-- [ ] **P0-B2: 新增 `bert-engine.ts`** — Transformers.js 模型加载 + CLS embedding 提取，Web Worker 内并行运行。(工作量: L)
-- [ ] **P0-B3: 新增 `bert-cache.ts`** — IndexedDB 持久化缓存层（模型权重 + 预计算原型嵌入）。(工作量: M)
-- [ ] **P0-B4: 模型层重构** — `ScoringSource` 仅保留 PROTOTYPE；`ConditionDefinition` 删除 keywords/hybrid_weight 字段，新增 prototype_embeddings；删除 `KeywordEntry`。(工作量: L)
-- [ ] **P0-B5: `calibrator.py` 重构** — 移除关键词路径（`_precompute_kw_context`、`ChineseKeywordDictionary`），统一走 cosine_similarity。(工作量: L)
-- [ ] **P0-B6: Worker 协议扩展** — 新增 `init_bert`/`compute_embeddings`/`compute_prototype_embeddings` 消息类型，并行加载 Pyodide + BERT。(工作量: L)
-- [ ] **P0-B7: `pyodide_handlers.py` 新增 handler** — embedding-based calibrate handler，接收预计算嵌入而非关键词分数。(工作量: M)
-- [ ] **P0-B8: 前端类型同步** — `qca.ts` 镜像 Python 模型变更，新增 `bert.ts` 类型定义。(工作量: M)
-- [ ] **P0-B9: DataInput.tsx 重构** — 移除关键词编辑器/导入导出，升级原型编辑器为主输入方式。(工作量: L)
-- [ ] **P0-B10: Settings.tsx 新增 BERT 模型选择** — 模型下拉选择 (bert-base-chinese 默认)，加载进度显示。(工作量: M)
-- [ ] **P0-B11: QCAPipelineContext 新增 embedding 状态** — embedding 计算进度、BERT 模型加载状态。(工作量: M)
-- [ ] **P0-B12: 端到端集成验证** — BERT 嵌入 → 余弦相似度 → 校准 → QCA 分析全链路通过。(工作量: L)
+- [x] **P0-B1: 新增 `cosine_similarity.py`** — BERT CLS 余弦相似度引擎，替换 `PrototypeSimilarityEngine` 的 bigram Jaccard。(工作量: M) ✅ DONE
+- [x] **P0-B2: 新增 `bert-engine.ts`** — Transformers.js 模型加载 + CLS embedding 提取，Web Worker 内并行运行。(工作量: L) ✅ DONE
+- [x] **P0-B3: 新增 `bert-cache.ts`** — IndexedDB 持久化缓存层（模型权重 + 预计算原型嵌入）。(工作量: M) ✅ DONE
+- [x] **P0-B4: 模型层重构** — `ScoringSource` 仅保留 PROTOTYPE；`ConditionDefinition` 删除 keywords/hybrid_weight 字段，新增 prototype_embeddings；删除 `KeywordEntry`。(工作量: L) ✅ DONE — **注**: ScoringSource 已清理（仅 PROTOTYPE 保留，KEYWORD/HYBRID 已移除）。但 `KeywordEntry` 类仍存在于 models/qca.py，`ConditionDefinition.keywords` 字段仍存在。KeywordEntry 移除延期至 P1-B6。
+- [x] **P0-B5: `calibrator.py` 重构** — 移除关键词路径（`_precompute_kw_context`、`ChineseKeywordDictionary`），统一走 cosine_similarity。(工作量: L) ✅ DONE
+- [x] **P0-B6: Worker 协议扩展** — 新增 `init_bert`/`compute_embeddings`/`compute_prototype_embeddings` 消息类型，并行加载 Pyodide + BERT。(工作量: L) ✅ DONE
+- [x] **P0-B7: `pyodide_handlers.py` 新增 handler** — embedding-based calibrate handler，接收预计算嵌入而非关键词分数。(工作量: M) ✅ DONE — `handle_embed_calibrate` 已实现，`handle_calibrate` 已统一，`handle_calibrate_prototype` 作为向后兼容 wrapper。
+- [x] **P0-B8: 前端类型同步** — `qca.ts` 镜像 Python 模型变更，新增 `bert.ts` 类型定义。(工作量: M) ✅ DONE
+- [x] **P0-B9: DataInput.tsx 重构** — 移除关键词编辑器/导入导出，升级原型编辑器为主输入方式。(工作量: L) ✅ DONE
+- [x] **P0-B10: Settings.tsx 新增 BERT 模型选择** — 模型下拉选择 (bert-base-chinese 默认)，加载进度显示。(工作量: M) ✅ DONE
+- [x] **P0-B11: QCAPipelineContext 新增 embedding 状态** — embedding 计算进度、BERT 模型加载状态。(工作量: M) ✅ DONE
+- [x] **P0-B12: 端到端集成验证** — BERT 嵌入 → 余弦相似度 → 校准 → QCA 分析全链路通过。(工作量: L) ✅ DONE
 
 ### P1-BERT — 清理与优化
 
-- [ ] **P1-B1: 删除 `keyword_dict.py`** — 关键词匹配引擎整个文件移除。(工作量: S)
-- [ ] **P1-B2: 删除 `keyword_io.py`** — 关键词导入导出功能移除。(工作量: S)
-- [ ] **P1-B3: 清理 `domains.py`** — 移除关键词预置，改为原型文本预置模板。(工作量: M)
-- [ ] **P1-B4: 删除 `PrototypeSimilarityEngine`** — 被 `CosineSimilarityEngine` 完全替换。(工作量: S)
-- [ ] **P1-B5: 测试套件更新** — 删除关键词相关测试，新增 BERT 余弦相似度测试。(工作量: M)
-- [ ] **P1-B6: 向后兼容别名清理** — 移除 deprecated ScoringSource 枚举值。(工作量: S)
+- [x] **P1-B1: 删除 `keyword_dict.py`** — 关键词匹配引擎整个文件移除。(工作量: S) ✅ DONE
+- [x] **P1-B2: 删除 `keyword_io.py`** — 关键词导入导出功能移除。(工作量: S) ✅ DONE
+- [ ] **P1-B3: 清理 `domains.py`** — 移除关键词预置，改为原型文本预置模板。domains.py 仍使用 KeywordEntry 和关键词预置。(工作量: M)
+- [x] **P1-B4: 删除 `PrototypeSimilarityEngine`** — 被 `CosineSimilarityEngine` 完全替换。(工作量: S) ✅ DONE
+- [x] **P1-B5: 测试套件更新** — 删除关键词相关测试，新增 BERT 余弦相似度测试（test_cosine_similarity.py 已存在）。(工作量: M) ✅ DONE
+- [ ] **P1-B6: 向后兼容别名清理** — 移除 deprecated ScoringSource 枚举值 + 完成 P0-B4 遗留的 `KeywordEntry` 类移除和 `ConditionDefinition.keywords` 字段清理。(工作量: M)
 - [ ] **P1-B7: 模型切换支持** — Settings 页支持选择不同 BERT 模型，原型嵌入随模型重新计算。(工作量: M)
 - [ ] **P1-B8: 性能监控面板** — BERT 推理耗时统计、嵌入缓存命中率展示。(工作量: S)
 
@@ -179,18 +180,18 @@
 
 ## 统计
 
-| 优先级 | 原有剩余 | BERT 重构 | 总计 |
-|--------|---------|----------|------|
-| P0 | 0 | 12 (P0-B1~P0-B12) | **12** |
-| P1 | 9 (P1-5~P1-13, 已废弃P1-34) | 8 (P1-B1~P1-B8) | **17** |
-| P2 | 23 | 0 | **23** |
-| **合计** | **32** | **20** | **52** |
+| 优先级 | 剩余 |
+|--------|------|
+| P0 | **0** (P0-BERT 12/12 完成，原始 P0 全部完成) |
+| P1 | **13** (P1-BERT: 4 剩余 P1-B3/B6/B7/B8 + P1 功能: P1-5~P1-13 共 9 剩余) |
+| P2 | **23** (全部未开始) |
+| **合计** | **36** |
 
-预计工作量：BERT 重构 ~15-20 天 + P1 功能需求 ~15-20 天 + P2 ~20-30 天。
-**P0 当前 12 项（BERT 重构），阻塞所有后续工作。**
+预计工作量：P1 清理 ~3-5 天 + P1 功能需求 ~15-20 天 + P2 ~20-30 天。
+**P0 已清零，不再阻塞发布。**
 
-**推荐推进顺序**（2026-05-25 BERT 重构计划后）：
-1. **P0-B1~P0-B12** — BERT+Prototype 核心重构（最高优先级）
-2. P1-5~P1-13 — 功能需求（重构完成后恢复）
-3. P1-B1~P1-B8 — 清理与优化
-4. P2 各项
+**推荐推进顺序**（2026-05-26 重新审计后）：
+1. **P1-B3, P1-B6** — 关键词残留清理（domains.py + models/qca.py KeywordEntry 移除，最低成本先做完）
+2. **P1-5~P1-13** — 功能需求（用户体验提升）
+3. **P1-B7, P1-B8** — 模型切换 + 性能监控
+4. **P2 各项** — 锦上添花

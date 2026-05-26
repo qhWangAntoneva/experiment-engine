@@ -1,6 +1,6 @@
-# Handover — 2026-05-26 Session (i18n English default + GitHub Pages 部署链路修复)
+# Handover — 2026-05-26 Session (部署链路修复完成)
 
-> 下次 session 打开后：读此文件 → 继续解决部署链路阻塞问题
+> 部署链路已全部修复。下次 session 无需处理部署问题。
 
 ---
 
@@ -9,125 +9,81 @@
 | 指标 | 值 |
 |------|-----|
 | 分支 | `master` |
-| HEAD | `b8fc27e` — fix: switch to Actions-based Pages deployment + add .nojekyll |
+| HEAD | `de01621` — fix: remove invalid administration:write permission from deploy.yml |
 | 远程 | `origin/master` (已推送) |
-| 测试 | 538 collected, 0 failures |
-| TypeScript build | `npm run build` clean |
-| Dev server | `http://127.0.0.1:3000` (必须用 127.0.0.1，不用 localhost) |
-| Worker 类型 | ES 模块 Worker (`{ type: 'module' }`) |
-| 生产部署 | 当前未上线 (部署链路中断) |
+| Python 测试 | 531 passed, 1 skipped, 6 xfailed |
+| 前端测试 | 无 vitest 文件（项目用 Python 测试为主） |
+| TypeScript build | `npm run build` clean (18.97s) |
+| Dev server | `http://127.0.0.1:3000`（必须用 127.0.0.1，不用 localhost） |
+| 生产部署 | ✅ 上线 — HTTP 200 |
+| Pages 状态 | `"built"` (workflow-based) |
 
 ## 2. 本 Session 完成的工作
 
-### 2.1 功能：默认英文 + 首页项目描述 (已完成 ✅)
+### 2.1 部署链路修复 ✅
 
-| 文件 | 改动 |
-|------|------|
-| `src/i18n/translations.ts` | `detectLanguage()` fallback `zh` → `en`；新增 `dashboard.description` 中英文 |
-| `src/pages/Dashboard.tsx` | page-header 下方新增描述 `<p>` |
-| `src/pages/Dashboard.css` | 新增 `.page-desc` 样式 |
-| `index.html` | `<html lang="zh-CN">` → `<html lang="en">` |
+**问题**: push 触发的 deploy workflow 全部失败（0-2s，0 jobs），但手动 `workflow_dispatch` 成功。
 
-设计决策：3 agent team (UI 设计师 + 功能设计师 + 评委) — 采纳方案 B (静态描述，最小改动)。
+**诊断过程**:
+| Commit | 部署结果 | 原因 |
+|--------|---------|------|
+| `cf897a3` | 失败 (2s) | 环境配置未就绪（transient） |
+| `fd09005` | 失败 (2s) | 同上 |
+| 手动触发 | 成功 (54s) | workflow_dispatch 绕过部分保护 |
+| `2d68bac` | 成功 (45s) | 环境已就绪，push 触发正常 |
+| `b8fc27e` | 失败 (0s) | **引入了 `administration: write` 非法权限** |
 
-### 2.2 GitHub Pages 部署链路修复 (未完成 ❌)
+**根因**: `b8fc27e` 在 `.github/workflows/deploy.yml` 的 permissions 块中加入了 `administration: write`，这不是合法的 GitHub Actions 权限 scope。YAML 解析器在 workflow 评估阶段直接拒绝（HTTP 422: `Unexpected value 'administration'`），导致 0 jobs 被创建。
 
-#### 发现的三层故障
+**修复** (`de01621`): 移除 `administration: write`，只保留 3 个合法权限：
+- `contents: read`
+- `pages: write`
+- `id-token: write`
 
-| 层 | 问题 | 修复 | 状态 |
-|----|------|------|------|
-| **1. Environment branch_policy** | 只允许 `gh-pages` 分支，workflow 在 `master` 运行被拒 | 删旧策略→新增 `master` 策略 (ID: 50278139) | ✅ |
-| **2. Pages build_type** | 是 `"legacy"` (Jekyll 构建 gh-pages 分支)，但 workflow 已迁到 Actions API | `gh api --method PUT ... -f build_type="workflow"` | ✅ |
-| **3. 最新 workflow 仍被拒绝** | `b8fc27e` 推送后 workflow 0 jobs, 2 秒内失败 | **未解决** | ❌ |
+**验证**: push 触发 workflow 50s 内完成，14/14 step 全部通过。Pages status `"built"`，线上 HTTP 200。
 
-#### 当前 deploy.yml 配置 (b8fc27e)
+### 2.2 Wolf 文件更新
 
-```
-# 已从 peaceiris/actions-gh-pages@v4 切换到官方 Actions 管道:
-# configure-pages@v4 → upload-pages-artifact@v3 → deploy-pages@v4
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-  administration: write  # configure-pages needs this to enable/configure Pages
-
-environment:
-  name: github-pages
-  url: ${{ steps.deployment.outputs.page_url }}
-```
-
-#### 当前 Environment 配置 (API 实测)
-
-```json
-{
-  "can_admins_bypass": true,
-  "protection_rules": [{"id": 55590232, "type": "branch_policy"}],
-  "deployment_branch_policy": {
-    "custom_branch_policies": true,
-    "protected_branches": false
-  }
-}
-```
-
-Branch policy: 仅 `master` (ID: 50278139) — 已确认正确。
-
-```json
-{
-  "build_type": "workflow",
-  "status": "errored",
-  "source": {"branch": "gh-pages", "path": "/"}
-}
-```
+- `buglog.json` — 新增 bug-005
+- `cerebrum.md` — Do-Not-Repeat 新增条目（非法 GitHub Actions 权限）
+- `memory.md` — 追加 session 记录
+- `handover.md` — 本文件
 
 ## 3. 关键 Commit 记录
 
 ```
-b8fc27e fix: switch to Actions-based Pages deployment + add .nojekyll    ← 部署失败
+de01621 fix: remove invalid administration:write permission from deploy.yml  ← 部署修复（本次）
+b8fc27e fix: switch to Actions-based Pages deployment + add .nojekyll        ← 引入 bug
 2d68bac fix: update index.html lang attribute to en for default English locale
 fd09005 feat: default English locale + project description on dashboard
 cf897a3 chore: update .gitignore + add E2E test plan and deploy checklist
 b5bc8ca fix: security hardening + dead code removal + algorithm bug fixes
 ```
 
-## 4. 待解决：为什么 workflow 仍被拒绝？
+## 4. 当前工作树状态
 
-### 已知事实
-
-- **Workflow `b8fc27e`**: conclusion=failure, jobs=[], 无任何 step 执行
-- **Workflow `2d68bac`**: conclusion=success (同环境、同 workflow、同 branch_policy)
-- `2d68bac` 是通过 `gh workflow run deploy.yml --ref master` 手动触发的
-- `b8fc27e` 是通过 `git push` 自动触发的
-
-### 可能的原因
-
-1. **`gh` CLI 触发 vs `git push` 触发有不同权限上下文**：`gh workflow run` 可能以不同身份运行
-2. **`can_admins_bypass: true`**：如果 push 的用户不是 repo admin，branch_policy 仍然生效
-3. **Pages `status: "errored"`**：Pages 处于错误状态可能导致新的 deployment 被排入队列但无法执行
-4. **环境保护规则可能需要额外配置**：GitHub 有时需要手动在 UI 中审批首次 Actions-based deployment
-
-### 建议排查顺序
-
-1. 检查 GitHub Actions 页面 UI 中 `b8fc27e` 的详细拒绝原因（可能有 UI 专用信息）
-2. 尝试 `gh workflow run deploy.yml --ref master` 手动触发（看是否和 `2d68bac` 一样成功）
-3. 如果手动触发也失败，考虑彻底移除 `environment` 块
-4. 检查 https://github.com/qhWangAntoneva/experiment-engine/settings/environments 是否需要额外配置
+```
+M .wolf/buglog.json      — bug-005 已追加，待 commit
+M .wolf/cerebrum.md      — Do-Not-Repeat 新增，待 commit
+M .wolf/handover.md      — 本文件，待 commit
+M .wolf/memory.md        — session 记录已追加，待 commit
+M .wolf/token-ledger.json — pre-commit hook 自动修复的 EOF
+?? experiment-engine/    — 空目录，可能是旧 worktree 残留
+```
 
 ## 5. 快速验证命令
 
 ```bash
-# 确认环境配置
-gh api repos/qhWangAntoneva/experiment-engine/environments/github-pages/deployment-branch-policies
-
-# 确认 Pages 状态
-gh api repos/qhWangAntoneva/experiment-engine/pages --jq '{build_type, status}'
-
-# 手动触发 workflow
-gh workflow run deploy.yml --ref master
-
-# 查看最新 workflow
-gh run list --branch master --limit 3 --workflow deploy.yml
-
-# 本地构建
-npm run build
+npm run build              # TypeScript + Vite 构建
+uv run pytest --tb=no -q   # Python 测试 (531 passed)
+npm run dev                # 启动 dev server (127.0.0.1:3000)
+gh run list -b master -l 3 --workflow deploy.yml  # 查看部署状态
+gh api repos/qhWangAntoneva/experiment-engine/pages --jq '{status,html_url}'  # Pages 状态
 ```
+
+## 6. 已知注意事项
+
+- **Dev server**: 必须用 `http://127.0.0.1:3000`，不能用 `localhost`（Pyodide worker 跨域问题）
+- **Worker 类型**: ES 模块 Worker (`{ type: 'module' }`)
+- **Pyodide**: CDN 加载 (v0.26.4)，不 self-host
+- **GitHub Actions 权限**: 只有 `contents/pages/id-token` 三个合法 scope。`administration` 不存在——不要在 deploy.yml 中添加
