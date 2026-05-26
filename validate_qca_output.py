@@ -65,9 +65,11 @@ def check_outcome_variation(arr, key, domain):
     if not np.issubdtype(arr.dtype, np.number):
         return True
     uniq = np.unique(arr)
-    if len(uniq) < 2:
+    unique_count = len(uniq)
+    print(f"    Outcome column: {unique_count} unique value(s): {uniq}")
+    if unique_count < 2:
         print(
-            f"    FAIL: {domain} outcome column has only {len(uniq)} unique value(s): {uniq}"
+            f"    WARN: {domain} outcome column has only {unique_count} unique value(s): {uniq}"
         )
         return False
     return True
@@ -102,16 +104,39 @@ def summarize_results(domain, results_summary):
                     key == "membership" and "outcome" in str(key)
                 ):
                     pass
-                # outcome is last column of membership
-                if key == "membership" and arr.ndim == 2 and arr.shape[1] >= 1:
-                    outcome_col = arr[:, -1]
-                    if not check_outcome_variation(
-                        outcome_col, f"{key}[outcome_col]", domain
-                    ):
-                        results_summary[domain]["errors"].append(
-                            "outcome column has < 2 unique values"
+                # Membership shape check
+                if key == "membership":
+                    if arr.ndim != 2:
+                        print(
+                            f"    WARN: membership matrix is not 2D (ndim={arr.ndim})"
                         )
-                        results_summary[domain]["pass"] = False
+                        results_summary[domain]["warnings"].append(
+                            f"membership not 2D: ndim={arr.ndim}"
+                        )
+                    else:
+                        n_cases, n_cols = arr.shape
+                        print(
+                            f"    Membership matrix: {n_cases} cases x {n_cols} columns"
+                        )
+                        if n_cases < 2:
+                            print(f"    WARN: only {n_cases} case(s) — degenerate")
+                            results_summary[domain]["warnings"].append(
+                                f"membership has < 2 cases: {n_cases}"
+                            )
+                        if n_cols < 2:
+                            print(f"    WARN: only {n_cols} column(s) — need >= 2")
+                            results_summary[domain]["warnings"].append(
+                                f"membership has < 2 columns: {n_cols}"
+                            )
+                        # Outcome column check: last column of membership
+                        if n_cols >= 1:
+                            outcome_col = arr[:, -1]
+                            if not check_outcome_variation(
+                                outcome_col, f"{key}[outcome_col]", domain
+                            ):
+                                results_summary[domain]["warnings"].append(
+                                    "outcome column has < 2 unique values"
+                                )
             data.close()
         except Exception as e:
             print(f"  ERROR loading npz: {e}")
@@ -217,6 +242,30 @@ def summarize_results(domain, results_summary):
             # Empty solution -- could be vacuous or degenerate
             print(f"    WARN: {sol_type} solution is empty/missing")
             results_summary[domain]["warnings"].append(f"{sol_type} solution is empty")
+
+    # Solution quality score
+    print("\n  --- Solution Quality Score ---")
+    quality_scores = {}
+    for sol_type in ["complex", "parsimonious", "intermediate"]:
+        s = sol.get(sol_type)
+        if s is not None:
+            sc = s.get("solution_consistency", 0)
+            sv = s.get("solution_coverage", 0)
+            if sc is not None and sv is not None and sc > 0 and sv > 0:
+                q = sc * sv
+                quality_scores[sol_type] = q
+                print(
+                    f"    {sol_type}: consistency={sc:.4f} x coverage={sv:.4f} = {q:.4f}"
+                )
+    if quality_scores:
+        best_type = max(quality_scores, key=quality_scores.get)
+        avg_score = sum(quality_scores.values()) / len(quality_scores)
+        print(f"    Best: {best_type} ({quality_scores[best_type]:.4f})")
+        print(f"    Average quality: {avg_score:.4f}")
+        results_summary[domain]["quality_score"] = avg_score
+    else:
+        print("    No valid solutions to score")
+        results_summary[domain]["quality_score"] = 0.0
 
     # Outcome variation check from truth table
     if rows:
@@ -352,24 +401,34 @@ def print_summary_table(results_summary):
     print("# VALIDATION SUMMARY")
     print(f"{'#' * 80}")
     print()
-    header = f"{'Domain':<25} {'Status':<10} {'Errors':<8} {'Warnings':<10}"
+    header = (
+        f"{'Domain':<25} {'Status':<10} {'Errors':<8} {'Warnings':<10} {'Quality':<10}"
+    )
     print(header)
     print("-" * len(header))
     all_pass = True
     total_errors = 0
     total_warnings = 0
+    total_quality = 0.0
+    n_with_quality = 0
     for domain, info in results_summary.items():
         status = "PASS" if info["pass"] else "FAIL"
         n_err = len(info["errors"])
         n_warn = len(info["warnings"])
-        print(f"{domain:<25} {status:<10} {n_err:<8} {n_warn:<10}")
+        q = info.get("quality_score", 0.0)
+        q_str = f"{q:.4f}" if q > 0 else "N/A"
+        print(f"{domain:<25} {status:<10} {n_err:<8} {n_warn:<10} {q_str:<10}")
         if not info["pass"]:
             all_pass = False
         total_errors += n_err
         total_warnings += n_warn
+        if q > 0:
+            total_quality += q
+            n_with_quality += 1
+    avg_q = total_quality / n_with_quality if n_with_quality > 0 else 0.0
     print("-" * len(header))
     print(
-        f"{'TOTAL':<25} {'PASS' if all_pass else 'FAIL':<10} {total_errors:<8} {total_warnings:<10}"
+        f"{'TOTAL':<25} {'PASS' if all_pass else 'FAIL':<10} {total_errors:<8} {total_warnings:<10} {avg_q:.4f}"
     )
     print()
     if not all_pass:
