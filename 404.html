@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>QCA Analysis Tool</title>
+  <script>
+    // GitHub Pages SPA fallback for client-side routing.
+    //
+    // When a user navigates directly to a sub-route (e.g. /experiment-engine/dashboard)
+    // or refreshes the page on a sub-route, GitHub Pages returns a 404 because no
+    // static file exists at that path. This page is served as the custom 404 response.
+    //
+    // Strategy:
+    //   1. Capture the full path the user attempted to reach.
+    //   2. Store it in sessionStorage so the SPA can recover it after reload.
+    //   3. Redirect to the app root (/experiment-engine/).
+    //   4. The SPA reads sessionStorage and navigates back to the intended route.
+    var attemptedUrl = window.location.pathname + window.location.search + window.location.hash;
+    sessionStorage.setItem('spa-redirect', attemptedUrl);
+    window.location.replace('/experiment-engine/');
+  </script>
+</head>
+<body>
+  <p>Redirecting to QCA Analysis Tool...</p>
+</body>
+</html>

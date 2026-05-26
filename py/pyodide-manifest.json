@@ -1,0 +1,6 @@
+{
+  "pyodide_version": "0.26.4",
+  "packages": ["numpy", "pydantic", "pyyaml"],
+  "python_module": "experiment_engine.tar.gz",
+  "excluded": ["viz", "report", "cli.py", "__main__.py", "io/db.py", "core/parallel.py"]
+}
