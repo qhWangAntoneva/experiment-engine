@@ -1,6 +1,6 @@
-# Handover — 2026-05-26 Session (安全修复 + 架构清理 + 核心算法验证)
+# Handover — 2026-05-26 Session (i18n English default + GitHub Pages 部署链路修复)
 
-> 交接给下一 session 的 agent。6 项已知问题已修复，3 项细节修复，4 项算法 Bug 修复，全部经 reviewer 验收通过。
+> 下次 session 打开后：读此文件 → 继续解决部署链路阻塞问题
 
 ---
 
@@ -9,116 +9,125 @@
 | 指标 | 值 |
 |------|-----|
 | 分支 | `master` |
-| HEAD | `3544606` — fix: Pyodide worker engine load + GitHub Pages deploy readiness |
+| HEAD | `b8fc27e` — fix: switch to Actions-based Pages deployment + add .nojekyll |
 | 远程 | `origin/master` (已推送) |
-| 测试 | **538 collected, 0 failures** (+16 new robustness tests) |
-| TypeScript build | `npx tsc --noEmit` clean, `npm run build` clean |
-| Dev server | `http://127.0.0.1:3000` (⚠️ 必须用 127.0.0.1，不用 localhost) |
-| Worker 类型 | **ES 模块 Worker** (`{ type: 'module' }`) |
-| **生产部署** | **https://qhWangAntoneva.github.io/experiment-engine/** |
-
----
+| 测试 | 538 collected, 0 failures |
+| TypeScript build | `npm run build` clean |
+| Dev server | `http://127.0.0.1:3000` (必须用 127.0.0.1，不用 localhost) |
+| Worker 类型 | ES 模块 Worker (`{ type: 'module' }`) |
+| 生产部署 | 当前未上线 (部署链路中断) |
 
 ## 2. 本 Session 完成的工作
 
-### 2.1 安全修复 (3 项)
+### 2.1 功能：默认英文 + 首页项目描述 (已完成 ✅)
 
-| # | 文件 | 修复 |
-|---|------|------|
-| SEC-1 | `package.json` | 添加 `overrides: {"protobufjs": "7.5.9"}` 解决 9 个 CVE |
-| SEC-2 | `pyodide.worker.ts`, `bert-engine.ts` | 添加 CDN SRI 不可行的 SECURITY NOTE + Pyodide 运行时版本检查 |
-| SEC-3 | `index.html` | 添加 CSP meta 标签（含开发模式 HMR 警告注释） |
-
-### 2.2 架构清理 (3 项)
-
-| # | 文件 | 修复 |
-|---|------|------|
-| ARCH-1 | `src/pyodide/engine.ts` | **删除** — 340 行死代码，零引用 |
-| ARCH-2 | `core/__init__.py` | parallel.py 导入用 try/except ImportError 保护 + `__getattr__` 提供清晰错误 |
-| ARCH-3 | `pyodide_handlers.py` | QCALaTeXReporter 导入改为惰性加载 + 浏览器端 LaTeX 导出返回清晰错误 |
-
-### 2.3 核心算法验证 (3-Role Agent Team)
-
-| 角色 | 产出 |
+| 文件 | 改动 |
 |------|------|
-| **文本设计师** | 4 个测试数据文件: 标准 15 条、边缘 10 条、小N 5 条、自定义条件集 YAML |
-| **运算观察者** | 563 项测试验证: 校准/QM/真值表/数值稳定性全部通过，**发现 1 个 Bug** (keywords 字段缺失) |
-| **严厉评委** | 6 项方法论合规审计: 全部合规，**发现 2 个 Bug** (robustness 静默损坏、校准归一化)，1 个缺陷 (无单元测试) |
+| `src/i18n/translations.ts` | `detectLanguage()` fallback `zh` → `en`；新增 `dashboard.description` 中英文 |
+| `src/pages/Dashboard.tsx` | page-header 下方新增描述 `<p>` |
+| `src/pages/Dashboard.css` | 新增 `.page-desc` 样式 |
+| `index.html` | `<html lang="zh-CN">` → `<html lang="en">` |
 
-### 2.4 算法 Bug 修复 (4 项)
+设计决策：3 agent team (UI 设计师 + 功能设计师 + 评委) — 采纳方案 B (静态描述，最小改动)。
 
-| # | 严重性 | 文件 | 修复 |
-|---|--------|------|------|
-| Bug-1 | **CRITICAL** | `models/qca.py:151` | 添加 `keywords: list[KeywordEntry]` 字段 — 200+ 领域关键词不再被 Pydantic 静默丢弃 |
-| Bug-2 | **HIGH** | `robustness.py:33-71` | `_compute_term_membership` 条件名不匹配时添加 `warnings.warn()`（匹配 sufficiency.py FIXME-13） |
-| Bug-3 | MEDIUM | `strategies.py:59-72` | min-max 归一化行为添加详细方法论文档 |
-| Bug-4 | MEDIUM | `tests/test_robustness.py` | **新建** 16 个单元测试覆盖全部稳健性方法 |
+### 2.2 GitHub Pages 部署链路修复 (未完成 ❌)
 
----
+#### 发现的三层故障
 
-## 3. 未提交的变更文件清单
+| 层 | 问题 | 修复 | 状态 |
+|----|------|------|------|
+| **1. Environment branch_policy** | 只允许 `gh-pages` 分支，workflow 在 `master` 运行被拒 | 删旧策略→新增 `master` 策略 (ID: 50278139) | ✅ |
+| **2. Pages build_type** | 是 `"legacy"` (Jekyll 构建 gh-pages 分支)，但 workflow 已迁到 Actions API | `gh api --method PUT ... -f build_type="workflow"` | ✅ |
+| **3. 最新 workflow 仍被拒绝** | `b8fc27e` 推送后 workflow 0 jobs, 2 秒内失败 | **未解决** | ❌ |
 
-| 文件 | 变更 |
-|------|------|
-| `package.json` | +overrides: protobufjs@7.5.9 |
-| `package-lock.json` | 同步 override |
-| `index.html` | CSP meta 标签 + 开发模式 HMR 警告注释 |
-| `src/pyodide/engine.ts` | **删除** (ARCH-1) |
-| `src/pyodide/types.ts` | 移除死重导出，替换为解释性注释 |
-| `src/services/pyodide.worker.ts` | SECURITY NOTE + 运行时 Pyodide 版本检查 |
-| `src/services/bert-engine.ts` | SECURITY NOTE |
-| `src/experiment_engine/core/__init__.py` | ImportError guard + `__getattr__` |
-| `src/experiment_engine/pyodide_handlers.py` | LaTeX 导出惰性导入 + 死代码行移除 |
-| `src/experiment_engine/models/qca.py` | +keywords: list[KeywordEntry] 字段 |
-| `src/experiment_engine/qca_engine/advanced/robustness.py` | +import warnings + 条件名不匹配警告 |
-| `src/experiment_engine/text_calibration/strategies.py` | min-max 归一化方法论文档 |
-| `tests/test_robustness.py` | **新建** — 16 个稳健性单元测试 |
-| `tmp/test_dataset_*` | 文本设计师产出 — 30 条测试数据 |
-| `tmp/test_condition_set.yaml` | 自定义条件集 |
-| `.wolf/*` | anatomy, buglog, cerebrum, memory, handover, token-ledger |
+#### 当前 deploy.yml 配置 (b8fc27e)
 
----
+```
+# 已从 peaceiris/actions-gh-pages@v4 切换到官方 Actions 管道:
+# configure-pages@v4 → upload-pages-artifact@v3 → deploy-pages@v4
 
-## 4. 关键教训 (本 session)
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  administration: write  # configure-pages needs this to enable/configure Pages
 
-### 新教训
+environment:
+  name: github-pages
+  url: ${{ steps.deployment.outputs.page_url }}
+```
 
-- **3-role agent team 对算法审计极其有效**: 文本设计师模拟真实用户、运算观察者逐步追踪计算管道、严厉评委对照方法论标准审计——三者互补，发现了一个 CRITICAL bug（200+ 关键词被静默丢弃）和一个 HIGH bug（robustness 静默数据损坏），这些是代码审查遗漏的。
-- **新测试文件必须适配现有 API 约定**: `QCAnalyzerStage` 需要 `setup()` 后才能调用 `analyze()`，测试中直接 new 不 setup 会导致 `NoneType` 错误。写测试前先读现有测试代码了解 API 约定。
-- **Pydantic 静默丢弃多余字段是常见陷阱**: `ConditionDefinition(**data)` 当 data 含未定义字段时，Pydantic 默认静默忽略（无 warning）。`build_default_conditions` 传了 `keywords=keywords` 但模型没有这个字段 → 所有关键词丢失。Pydantic v2 的 `model_config = ConfigDict(extra='forbid')` 可以防止此类问题。
-- **`__getattr__` 在 Python 模块中仅在属性完全不存在时触发**: 如果 except 块把名字绑定到 `None`（进入 `__dict__`），则 `__getattr__` 永远不会被调用。正确做法是 except 块不绑定名字，让 `__getattr__` 拦截访问。
+#### 当前 Environment 配置 (API 实测)
 
-### 前期（仍然有效）
+```json
+{
+  "can_admins_bypass": true,
+  "protection_rules": [{"id": 55590232, "type": "branch_policy"}],
+  "deployment_branch_policy": {
+    "custom_branch_policies": true,
+    "protected_branches": false
+  }
+}
+```
 
-- Subagent 虚构完成不可信 — 必须 `git diff --stat` 验证
-- FIXER 完成后等待 5-10 秒再启动 REVIEWER（文件系统 race condition）
-- 并行 agent 修改共享文件导致变更丢失
-- 模块 Worker 不支持 `importScripts()`
-- Pyodide 中严禁 JS 模板字面量注入 Python 代码
-- localhost vs 127.0.0.1 代理陷阱
-- UI 掩盖错误比错误本身更糟糕
+Branch policy: 仅 `master` (ID: 50278139) — 已确认正确。
 
----
+```json
+{
+  "build_type": "workflow",
+  "status": "errored",
+  "source": {"branch": "gh-pages", "path": "/"}
+}
+```
 
-## 5. 环境快速检查
+## 3. 关键 Commit 记录
+
+```
+b8fc27e fix: switch to Actions-based Pages deployment + add .nojekyll    ← 部署失败
+2d68bac fix: update index.html lang attribute to en for default English locale
+fd09005 feat: default English locale + project description on dashboard
+cf897a3 chore: update .gitignore + add E2E test plan and deploy checklist
+b5bc8ca fix: security hardening + dead code removal + algorithm bug fixes
+```
+
+## 4. 待解决：为什么 workflow 仍被拒绝？
+
+### 已知事实
+
+- **Workflow `b8fc27e`**: conclusion=failure, jobs=[], 无任何 step 执行
+- **Workflow `2d68bac`**: conclusion=success (同环境、同 workflow、同 branch_policy)
+- `2d68bac` 是通过 `gh workflow run deploy.yml --ref master` 手动触发的
+- `b8fc27e` 是通过 `git push` 自动触发的
+
+### 可能的原因
+
+1. **`gh` CLI 触发 vs `git push` 触发有不同权限上下文**：`gh workflow run` 可能以不同身份运行
+2. **`can_admins_bypass: true`**：如果 push 的用户不是 repo admin，branch_policy 仍然生效
+3. **Pages `status: "errored"`**：Pages 处于错误状态可能导致新的 deployment 被排入队列但无法执行
+4. **环境保护规则可能需要额外配置**：GitHub 有时需要手动在 UI 中审批首次 Actions-based deployment
+
+### 建议排查顺序
+
+1. 检查 GitHub Actions 页面 UI 中 `b8fc27e` 的详细拒绝原因（可能有 UI 专用信息）
+2. 尝试 `gh workflow run deploy.yml --ref master` 手动触发（看是否和 `2d68bac` 一样成功）
+3. 如果手动触发也失败，考虑彻底移除 `environment` 块
+4. 检查 https://github.com/qhWangAntoneva/experiment-engine/settings/environments 是否需要额外配置
+
+## 5. 快速验证命令
 
 ```bash
-# 确认在 master 分支
-git branch && git log --oneline -1
+# 确认环境配置
+gh api repos/qhWangAntoneva/experiment-engine/environments/github-pages/deployment-branch-policies
 
-# 构建验证
-npm run build 2>&1 | tail -3
-npx tsc --noEmit
+# 确认 Pages 状态
+gh api repos/qhWangAntoneva/experiment-engine/pages --jq '{build_type, status}'
 
-# 测试验证 (538 collected)
-uv run pytest --co -q 2>&1 | tail -3
+# 手动触发 workflow
+gh workflow run deploy.yml --ref master
 
-# 新稳健性测试
-uv run pytest tests/test_robustness.py -v
+# 查看最新 workflow
+gh run list --branch master --limit 3 --workflow deploy.yml
 
-# 启动 dev server（必须 127.0.0.1！）
-npx vite --port 3000 --host 127.0.0.1
-
-# 生产部署
-# URL: https://qhWangAntoneva.github.io/experiment-engine/
+# 本地构建
+npm run build
 ```
