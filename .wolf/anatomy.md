@@ -115,3 +115,4 @@
 ## tmp/
 
 - `src/components/CalibrationPreview.tsx` — JS-side calibration preview (direct/indirect/ragin/crisp) with Plotly histogram + synthetic data (~230 tok)
+- `src/components/CaseMembershipTable.tsx` — Interactive case-level membership table with sort/filter/expand + color-coded scores (~360 tok)

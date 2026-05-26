@@ -1,7 +1,7 @@
-# Handover — 2026-05-26 Session (P1-8/9 + P2-20/22 + end-of-file-fixer fix)
+# Handover — 2026-05-26 Session #2 (P1-10 + P1-5)
 
-> 本轮完成 4 项轻量级 TODO + end-of-file-fixer 根因修复。CI 确认为稳定状态。
-> 下一次 session 继续 P1 功能需求或 P1-B7/B8。
+> 本轮完成 2 项 P1 功能需求 + subagent 并行工作流验证。Phase 3 (P1-B7/B8) 方案已设计，待下一 session 实现。
+> 工作模式：主 session 仅做汇总/commit，规划→Plan agent，执行→Fixer agent，审查→Reviewer agent。
 
 ---
 
@@ -10,51 +10,58 @@
 | 指标 | 值 |
 |------|-----|
 | 分支 | `master` |
-| HEAD | `271d45b` — feat: P2-20 + P2-22 — k configurable + --variant for train/robustness |
+| HEAD | `1379154` — feat: P1-5 — case-level calibration display with interactive table |
 | 远程 | `origin/master` (已推送) |
 | Python 测试 | 532 passed, 1 skipped, 6 xfailed |
 | TypeScript build | `npm run build` clean |
 | Dev server | `http://127.0.0.1:3000`（必须用 127.0.0.1，不用 localhost） |
-| 生产部署 | ✅ 上线 — HTTP 200 |
-| CI | ✅ 稳定 — administration:write 问题已在 de01621 修复 |
 
 ## 2. 本 Session 完成的工作
 
-### 2.1 end-of-file-fixer 根因修复 (ba36d86)
+### 2.1 P1-10 — 校准参数即时预览 (98afe2d)
 
-`JSON.stringify()` 不会在末尾追加换行符。Wolf hook 的 `writeJSON()` 写出的 JSON 文件缺少 trailing newline，导致 pre-commit 的 end-of-file-fixer 每次提交均报错。
+**新建** `src/components/CalibrationPreview.tsx`：JS 端校准公式（direct/indirect/ragin/crisp）完全镜像 Python `strategies.py`。3 种合成样本分布（正态/均匀/双峰）供预览。Plotly 双直方图（原始分数 + 校准后隶属度）80ms 防抖。汇总统计条（平均隶属度、%完全不属于、%完全属于、%交叉点）。
 
-**修复**: `.wolf/hooks/shared.js` 中 `writeJSON()` 的两处 `JSON.stringify()` 调用均追加 `+ '\n'`（原子写入路径 + 回退路径）。
+**修改** `src/pages/Settings.tsx`：Calibration Defaults 区域下方插入 CalibrationPreview 卡片。参数变化实时反映。
 
-### 2.2 CI 失败邮件分析
+**额外修复**：TODO.md 补打 P1-8/P1-9 完成勾（上轮遗漏），更新统计 P1 11→8。
 
-确认 CI 已稳定：历史失败根因（`administration: write` 非法权限 + 旧版 Pages 部署）均已在前序 commit 中修复。最近 4 次 CI 全部成功。无需改动。
+### 2.2 P1-5 — 个案级校准结果展示 (1379154)
 
-### 2.3 P1-8（隐私声明）+ P1-9（Recent Runs 真实数据） (1186356)
+**新建** `src/components/CaseMembershipTable.tsx`：排序/筛选/展开功能完整的案例隶属度表格。列：Case ID + 文本预览(80字符省略) + 各条件隶属度分数(颜色渐变红→黄→绿) + 结果分数。文本搜索 + 条件范围筛选（min/max inputs）。点击行展开显示完整原文。
 
-**P1-8**: Dashboard 底部新增隐私声明区块 + "清除所有本地数据"按钮。清除 `qca-settings`、`qca-params`、`qca-bert-model`、`qca-recent-runs`（保留 `qca-language`）。含中英双语 i18n。
+**修改** `src/pages/Results.tsx`：新增 "Cases" 标签页（位置 #2，Solutions 和 Truth Table 之间）。数据来自 `state.fuzzyData`/`state.prototypeFuzzyData`，无需 QCA 分析完成即可看到案例数据。viewMode 切换自动切换数据源。
 
-**P1-9**: Dashboard Recent Runs 现在从 localStorage (`qca-recent-runs`) 读取真实数据。`QCAPipelineContext` 在 `finishAnalysis`/`finishPrototypeAnalysis` 时写入新记录（最多 20 条）。通过 `recent-runs-updated` 自定义事件实时刷新。
+**Reviewer 发现并修复的 Bug**：
+- 颜色渐变蓝通道在 score=0.5 处不连续（修正为 const b=80）
+- 3 处硬编码 "(no text)" 改为 i18n `t('results.caseNoText')`
 
-**已知小问题**: `RECENT_RUNS_KEY` 常量在 `Dashboard.tsx` 和 `QCAPipelineContext.tsx` 中重复定义，应提取到共享常量文件。
+### 2.3 Phase 3 (P1-B7/B8) 方案设计
 
-### 2.4 P2-20（steepness 可配置）+ P2-22（CLI --variant 补全） (271d45b)
+Plan agent 已完成完整设计（未实现）。概要：
 
-**P2-20**: `CalibrationParams` 新增可选字段 `steepness: float | None` (0.1-100.0)。`IndirectCalibration.calibrate()` 读取 `params.steepness if params.steepness is not None else 10.0`。向后兼容——不设置时行为不变。TypeScript 接口已同步。新增测试 `test_calibrate_indirect_custom_steepness`。
+**P1-B7 模型切换支持**：
+- 修复 `useQCAWorkflow.ts:184` 的 `embedding_model` 硬编码为 `'Xenova/bert-base-chinese'` 的 bug
+- 模型切换时自动清除旧的 `prototype_embeddings`（标记为 null）
+- `QCAPipelineContext` 新增 `bertModelName` 状态追踪
+- Settings 页显示 "嵌入已失效" 警告
 
-**P2-22**: `qca train` 和 `qca robustness` CLI 命令新增 `--variant fsqca|csqca` 选项。`calibrate`/`analyze`/`run` 在更早前已完成。全部 9 个命令中 5 个现支持 --variant。
+**P1-B8 性能监控面板**：
+- `BertEngine` 新增 6 个性能计数器（`performance.now()` 打点）
+- Worker 新增 `get_bert_stats` 消息处理
+- Settings 页新增可折叠性能面板（模型加载耗时、平均推理耗时、缓存命中率等 7 项指标）
+- `PyodideBridge` 新增 `getBertStats()` 方法
+
+涉及约 10 个文件，详见下轮 session 的 Plan agent 输出。
 
 ## 3. 关键提交记录
 
 ```
-271d45b feat: P2-20 + P2-22 — k configurable + --variant for train/robustness  ← 本次
-1186356 feat: P1-8 + P1-9 — Privacy section + Recent Runs from localStorage     ← 本次
-ba36d86 fix: add trailing newline to writeJSON output in shared.js              ← 本次
-63c9fce chore: update handover + wolf files for session handoff
-7ac38d8 feat: P1-B3 + P1-B6 — remove KeywordEntry, refactor domains.py to prototypes
-4c0461a chore: re-sync planning docs with actual codebase state (2026-05-26)
-de01621 fix: remove invalid administration:write permission from deploy.yml
-b8fc27e fix: switch to Actions-based Pages deployment + add .nojekyll
+1379154 feat: P1-5 — case-level calibration display with interactive table  ← 本次
+98afe2d feat: P1-10 — calibration parameter instant preview with Plotly    ← 本次
+271d45b feat: P2-20 + P2-22 — k configurable + --variant for train/robustness
+1186356 feat: P1-8 + P1-9 — Privacy section + Recent Runs from localStorage
+ba36d86 fix: add trailing newline to writeJSON output in shared.js
 ```
 
 ## 4. 当前 TODO 状态
@@ -62,18 +69,32 @@ b8fc27e fix: switch to Actions-based Pages deployment + add .nojekyll
 | 优先级 | 剩余 | 备注 |
 |--------|------|------|
 | P0 | **0** | 全部完成 |
-| P1 | **9** | P1-BERT 清理 2 项（P1-B7/B8）+ 功能需求 7 项（P1-5/6/7/10/11/12/13） |
-| P2 | **21** | 全部未开始 |
-| **合计** | **32** | ↓ 从 34 |
+| P1 | **7** | P1-B7/B8 (模型切换+性能) + P1-6/7/11/12/13 (功能需求) |
+| P2 | **21** | 全部未开始 (P2-20, P2-22 除外) |
+| **合计** | **28** | ↓ 从 34 |
 
-**下一步推荐**:
-- P1-10（校准参数即时预览，M）— UX 影响大，投入适中
-- P1-5（个案级校准结果展示，M）— 用户可查看每条文本的隶属度分数
-- P1-B7+B8（模型切换支持 + 性能监控面板）
+**下一步推荐**（按优先级）：
+1. **P1-B7 + P1-B8** — 模型切换支持 + 性能监控面板（方案已完成，约 10 文件，可直接实现）
+2. **P1-6** — 项目保存与恢复（L，一键保存/加载 .qca JSON + localStorage）
+3. **P1-13** — 条件集共享与团队模板（M，分享链接 + 模板库）
+4. **P1-11** — 中文 Word 报告导出（M，.docx 含图表）
+5. **P1-7** — 参数对比 / A/B 分析（L，两组参数并排对比）
+6. **P1-12** — 多结果变量分析（L，Web 界面多 outcome 支持）
 
-## 5. 需要了解的重要架构状态
+## 5. 架构变更摘要
 
-### 评分管道（当前）
+### 新增文件
+- `src/components/CalibrationPreview.tsx` — JS 校准公式 + Plotly 预览（~230 tok）
+- `src/components/CaseMembershipTable.tsx` — 个案隶属度交互表格（~360 tok）
+
+### 修改文件
+- `src/pages/Settings.tsx` — 校准预览卡片 + useMemo 参数计算
+- `src/pages/Settings.css` — 预览卡片 + 统计条样式
+- `src/pages/Results.tsx` — 新增 Cases 标签页，activeTab 扩展
+- `src/pages/Results.css` — 案例表格全套样式（~120 行）
+- `src/i18n/translations.ts` — 21 个新 i18n 键（preview + cases）
+
+### 评分管道（无变化）
 ```
 文本输入 → BertEngine (Transformers.js) → BERT CLS 嵌入
                                                ↓
@@ -84,24 +105,15 @@ CalibrationStrategyRegistry → 校准 → 模糊隶属度
 QCA 引擎 → 真值表 → QM 最小化 → 解
 ```
 
-### 已删除文件（不再存在）
-- `keyword_dict.py` — 关键字匹配引擎
-- `keyword_io.py` — 关键字导入/导出
-- `prototype_similarity.py` — 旧版 bigram Jaccard 相似度
-- `KeywordEntry` 类 — 已从 models/qca.py 移除
-
-### 现有领域预置
-`domains.py` 包含 5 个领域 × 5 个条件（co_production 为 4 个）的原型文本模板，每个条件 2 个原型（1 正例 + 1 反例），用于 BERT CLS 余弦相似度评分。
-
 ## 6. 活跃问题 / 注意事项
 
 | 项目 | 严重程度 | 备注 |
 |------|----------|------|
-| **CI 稳定性** | Info | deploy.yml 已修复，最近 4 次全部成功 |
-| **end-of-file-fixer** | Info | writeJSON() 现已追加 `\n`，新 JSON 文件应通过 pre-commit |
-| **RECENT_RUNS_KEY 重复** | Minor | 字符串字面量在 Dashboard.tsx 和 QCAPipelineContext.tsx 中重复，应提取到共享常量文件 |
+| **BERT embedding_model 硬编码** | Medium | `useQCAWorkflow.ts:184` 写死 `'Xenova/bert-base-chinese'`，P1-B7 修复 |
+| **RECENT_RUNS_KEY 重复** | Minor | Dashboard.tsx 和 QCAPipelineContext.tsx 中重复定义，应提取到共享常量 |
 | **FIXME-28** | 建议 | `TextCase.outcome` 是 `int`，fsQCA 连续型结果应为 `float` |
-| **FIXME-32** | 建议 | domains.py 原型预置为硬编码，用户可能希望在线编辑并持久化到 localStorage |
+| **FIXME-32** | 建议 | domains.py 原型预置为硬编码，用户可能希望在线编辑并持久化 |
+| **P1-B7/B8 方案就绪** | Info | Plan agent 已设计完整方案，下一 session 可直接实现 |
 
 ## 7. 快速验证命令
 
@@ -110,24 +122,24 @@ npm run build              # TypeScript + Vite 构建
 uv run pytest --tb=no -q   # Python 测试 (532 passed)
 uv run ruff check src/     # 应为干净状态
 npm run dev                # 启动开发服务器 (127.0.0.1:3000)
-gh run list -b master -l 3 --workflow deploy.yml  # 查看部署状态
 ```
 
-## 8. 已知注意事项
+## 8. Subagent 工作流经验
 
-- **Dev server**: 必须使用 `http://127.0.0.1:3000`，不能使用 `localhost`（Pyodide worker 跨域问题）
-- **Worker 类型**: ES 模块 Worker (`{ type: 'module' }`)
-- **Pyodide**: CDN 加载 (v0.26.4)，不自托管
-- **GitHub Actions 权限**: 仅 `contents/pages/id-token`。`administration` 不存在
-- **Python 编码**: 所有 `open()` 调用必须显式指定 `encoding='utf-8'`
-- **Python 运行器**: 始终使用 `uv run python`，不要使用裸 `python`
-- **RUF001 误报**: domains.py 中的中文标点（，）是合法的原型文本
-- **Agent 可靠性**: Agent 声称完成不可信——始终用 `git diff --stat`、Grep、Read 验证变更
-- **共享文件竞争**: 修改共享文件的 Agent 必须串行运行
+本轮验证了 subagent 并行工作流：
+- **Plan agent** 负责设计（P1-5 方案 + P1-B7/B8 方案）
+- **Fixer agent** 负责实现（~4 文件创建/修改，build 验证）
+- **Reviewer agent** 负责审查（发现 2 个需要修复的 bug）
+- **主 session** 仅做汇总、小修复（2 行 bug fix）、commit/push
+
+**经验**：
+- Fixer agent 会创建 untracked 文件但不会 git add → 主 session 需自行 stage
+- Reviewer agent 发现的 bug 可由主 session 快速修复（避免再派 agent 的耗时）
+- 并行 Plan agent + Fixer agent 有效节省时间（Phase 3 方案在 P1-5 实现期间完成）
 
 ## 9. 未跟踪文件
 
 ```
-?? .wolf/memory-archive.md    — 归档的旧 session 日志（2026-05-25 之前）
-?? experiment-engine/          — 嵌套 git 仓库/旧 worktree。不要 touch。
+?? .wolf/memory-archive.md     — 归档的旧 session 日志
+?? experiment-engine/           — 嵌套 git 仓库/旧 worktree。不要 touch。
 ```

@@ -636,3 +636,7 @@
 | 20:05 | Edited src/i18n/translations.ts | 1→2 lines | ~19 |
 | 20:06 | Edited TODO.md | inline fix | ~24 |
 | 20:06 | Edited TODO.md | 3→3 lines | ~34 |
+| 20:06 | Session end: 34 writes across 9 files (elegant-prancing-token.md, CalibrationPreview.tsx, translations.ts, Settings.tsx, Settings.css) | 33 reads | ~50011 tok |
+| 19:00 | P1-5: CaseMembershipTable with sort/filter/expand + Cases tab in Results | 4 files | build+tests pass, reviewer 2 bugs fixed | ~5000 |
+| 19:05 | Phase 3 (P1-B7/B8) plan designed by Plan agent, ready for next session | plan only | no code written | ~0 |
+| 19:10 | Handover updated for next session | .wolf/handover.md | ready | ~200 |
