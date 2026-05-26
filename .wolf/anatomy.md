@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T21:22:26.758Z
-> Files: 4 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T21:45:00.610Z
+> Files: 1 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/
 
@@ -32,6 +32,7 @@
 
 ## .github/workflows/
 
+- `deploy.yml` — ============================================================================== (~1806 tok)
 
 ## .wolf/
 
@@ -50,7 +51,6 @@
 
 ## src/components/
 
-- `TemplateLibrary.tsx` — TemplateLibrary — displays built-in and imported QCA condition set (~1585 tok)
 
 ## src/experiment_engine/
 
@@ -87,14 +87,12 @@
 
 ## src/i18n/
 
-- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~14338 tok)
 
 ## src/layouts/
 
 
 ## src/pages/
 
-- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~15016 tok)
 
 ## src/pyodide/
 
@@ -107,7 +105,6 @@
 
 ## src/types/
 
-- `qca.ts` — QCA-specific TypeScript interfaces mirroring experiment_engine/models.py. (~5168 tok)
 
 ## src/utils/
 

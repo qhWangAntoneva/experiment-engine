@@ -176,8 +176,22 @@
 | 05:18 | Edited src/pages/DataInput.tsx | 9→7 lines | ~56 |
 | 05:19 | Session end: 28 writes across 6 files (translations.ts, DataInput.tsx, conditionSetToYaml.ts, __test_condset_yaml.ts, TemplateLibrary.tsx) | 60 reads | ~26385 tok |
 | 2026-05-27 | removed public/samples/ dead code | public/samples/ | done | ~5 |
+| 2026-05-27 | Updated deploy.yml actions: checkout@v4→v6, setup-node@v4→v6, configure-pages@v4→v6, upload-pages-artifact@v3→v5, deploy-pages@v4→v5 — all now use Node 24 runtime, resolves Node 20 deprecation (2026-06-02) | deploy.yml | done | ~50 |
 | 05:22 | Edited src/i18n/translations.ts | 2→6 lines | ~49 |
 | 05:22 | Edited src/i18n/translations.ts | 2→6 lines | ~66 |
 | 05:22 | Edited src/i18n/translations.ts | 2→6 lines | ~90 |
 | 05:22 | Edited src/pages/DataInput.tsx | 8→9 lines | ~98 |
 | 05:22 | Edited src/pages/DataInput.tsx | "Loaded ${entries.length} " → "dataInput.sampleLoaded" | ~26 |
+| 05:24 | Session end: 33 writes across 6 files (translations.ts, DataInput.tsx, conditionSetToYaml.ts, __test_condset_yaml.ts, TemplateLibrary.tsx) | 60 reads | ~26713 tok |
+| 05:38 | Edited src/types/index.ts | 2→1 lines | ~6 |
+| 05:39 | designqc: captured 6 screenshots (186KB, ~15000 tok) | /, /Compare, /Dashboard, /DataInput, /Results, /Settings | ready for eval | ~0 |
+
+## Session: 2026-05-26 05:40
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 05:44 | Edited .github/workflows/deploy.yml | inline fix | ~10 |
+| 05:44 | Edited .github/workflows/deploy.yml | inline fix | ~10 |
+| 05:44 | Edited .github/workflows/deploy.yml | inline fix | ~12 |
+| 05:45 | Edited .github/workflows/deploy.yml | inline fix | ~14 |
+| 05:45 | Edited .github/workflows/deploy.yml | inline fix | ~11 |
