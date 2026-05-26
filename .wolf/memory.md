@@ -499,6 +499,19 @@
 | 16:06 | Edited ../National-Policy-Database/CLAUDE.md | inline fix | ~15 |
 | 16:07 | Session end: 3 writes across 1 files (CLAUDE.md) | 2 reads | ~427 tok |
 
+## Session: 2026-05-26 16:20 (planning docs re-sync + P1-B3/P1-B6)
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 16:20 | 代码库全量审计：确认 keyword_dict/keyword_io/prototype_similarity 已删除，KeywordEntry 仅在 models/qca.py + domains.py 残留。发现 TODO/FIXME/HACK 与代码库严重不同步 | models/qca.py, domains.py, text_calibration/*, services/* | Audit complete | ~8000 |
+| 16:22 | 并行派发 4 agent 更新 TODO/FIXME/HACK/cerebrum 至实际状态。审查发现 6 项 cerebrum.md 快速入门不一致→已修复 | TODO.md, FIXME.md, HACK.md, cerebrum.md | 4/4 agents + reviewer, 提交 4c0461a | ~5000 |
+| 16:30 | 派遣 Plan agent 设计 P1-B3 + P1-B6 实现方案。确定执行顺序（P1-B3 → P1-B6，串行）、每阶段内部 2 fixer 并行 | Plan output | 详细步骤 1a-1f, 2a-2d + 评估 | ~3000 |
+| 16:32 | Phase 1: 并行派遣 2 fixer——domains.py 重构（关键词预置→原型文本模板）+ cli.py list_conditions 更新 | domains.py, cli.py | 2/2 通过，0 个 KeywordEntry 引用残留 | ~2000 |
+| 16:35 | Phase 2: 并行派遣 2 fixer——models/qca.py（移除 KeywordEntry）+ __init__.py + condition.py 清理 | qca.py, __init__.py, condition.py, test_integration.py | 2/2 通过，531 测试通过 | ~2000 |
+| 16:36 | Reviewer agent: 7 项检查全部通过（git diff, KeywordEntry audit, imports, domains.py 验证, 测试, ruff, 代码质量）。ruff RUF001→已添加 per-file-ignore | 7 checks | 全部通过 — 可以提交 | ~2000 |
+| 16:38 | 提交并推送 7ac38d8：domains.py 重构 + KeywordEntry 移除。更新 TODO.md（P1-B3/P1-B6 已完成，统计 34 项剩余）| 8 files | 已推送至 master | ~1000 |
+| 16:40 | 更新 handover.md + memory.md + cerebrum.md 以进行 session 交接 | handover.md, memory.md, cerebrum.md | 交接文件已更新 | ~2000 |
+
 ## Session: 2026-05-26 16:07
 
 | Time | Action | File(s) | Outcome | ~Tokens |
@@ -541,3 +554,4 @@
 | 16:46 | Edited TODO.md | 36 → 34 | ~6 |
 | 16:46 | Edited TODO.md | 4→3 lines | ~23 |
 | 16:47 | Edited pyproject.toml | "src/experiment_engine/tex" → "src/experiment_engine/tex" | ~26 |
+| 16:48 | Session end: 21 writes across 10 files (HACK.md, FIXME.md, TODO.md, cli.py, domains.py) | 15 reads | ~46555 tok |

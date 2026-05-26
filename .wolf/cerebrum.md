@@ -9,23 +9,23 @@
 ## 0. Quick Start (read first every new session)
 
 **Before any work, read these three files for current status**:
-- `TODO.md` -- 36 items (0 P0 + 13 P1 + 23 P2), P0 all complete
+- `TODO.md` -- 34 items (0 P0 + 11 P1 + 23 P2), P0 all complete, P1-B3/P1-B6 done
 - `FIXME.md` -- 3 remaining defects (0 critical, 0 warnings, 3 suggestions), 19/22 fixed
 - `HACK.md` -- 18 items (8 unresolved, 10 resolved)
 
 **Current baseline**:
-- Tests: 465 passed, 6 xfailed (104 new QCA core unit tests added)
+- Tests: 531 passed, 1 skipped, 6 xfailed
 - TypeScript: build passes
 - Python: ruff all clean
-- Git: master branch, 4 commits pushed (c4c6aa2, 9842e11, 9b58081, d08786c)
+- Git: master branch, HEAD 7ac38d8 (2 new commits this session)
+- KeywordEntry: zero references in entire codebase
 
-**Recommended work order** (current reality):
-1. **P1-B6** -- Remove `KeywordEntry` class from models/qca.py (legacy, keyword matching fully deleted)
-2. **P1-B3** -- Cleanup domains.py: replace keyword-based presets with prototype text templates
-3. **P1-5 ~ P1-13** -- Feature requirements by customer priority
-4. **P1-B7 + P1-B8** -- Model switching support + performance monitoring
+**Recommended work order** (next session):
+1. **P1-5 ~ P1-13** -- Feature requirements by customer priority (P1-5 case-level calibration display, P1-9 Recent Runs real data are quick wins)
+2. **P1-B7 + P1-B8** -- Model switching support + performance monitoring
+3. **P2 items** -- As bandwidth permits
 
-**Planning docs re-synced on 2026-05-26.** TODO.md, FIXME.md, and HACK.md now reflect actual codebase state. P0-BERT is fully complete (12/12), 6 MOOT FIXME items removed, 6 HACK items resolved.
+**Planning docs re-synced on 2026-05-26.** TODO.md, FIXME.md, HACK.md now reflect actual codebase state. P0-BERT fully complete (12/12). P1-B3/P1-B6 completed this session — domains.py now has prototype text templates, KeywordEntry fully removed from codebase.
 
 ---
 
@@ -388,8 +388,8 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 
 ### 2026-05-26
 
-- **Planning docs (TODO/FIXME/HACK) re-synced with actual codebase state.** Significant disconnect found: P0-BERT was 70-80% functionally complete but all 12 P0-B tasks listed as 0% unchecked in TODO.md. P1-B1 (delete keyword_dict.py), P1-B2 (delete keyword_io.py), P1-B4 (delete PrototypeSimilarityEngine) are done but listed as unchecked. This confirms the general rule: planning doc statistics must be independently recomputed, not trusted.
-- **Remaining cleanup identified**: (1) KeywordEntry removal from models/qca.py (P1-B6) -- class still exists despite keyword matching being fully deleted; (2) domains.py prototype presets (P1-B3) -- DOMAIN_PRESETS still uses keyword-based presets, needs migration to prototype-text templates.
+- **Planning docs (TODO/FIXME/HACK) re-synced with actual codebase state.** Significant disconnect found: P0-BERT was 70-80% functionally complete but all 12 P0-B tasks listed as 0% unchecked in TODO.md. Stats corrected from 52→36→34 remaining. 6 MOOT FIXME items removed (deleted files). 6 HACK items resolved. 8 subagents dispatched (1 plan + 4 fixer + 1 reviewer across 2 phases).
+- **P1-B3 + P1-B6 completed**: domains.py refactored from keyword presets to prototype text templates (5 domains, each condition 2 prototypes: 1 positive + 1 negative). KeywordEntry class removed from models/qca.py. ConditionDefinition.keywords field removed. condition.py keyword dead code cleaned (add_keyword, _kw_to_dict, hybrid weights). Zero KeywordEntry references remain in codebase. 531 tests pass.
 
 ### 2026-05-25
 
