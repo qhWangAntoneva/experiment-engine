@@ -1,14 +1,14 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T11:33:15.817Z
-> Files: 7 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T12:06:09.306Z
+> Files: 11 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/
 
 
 ## ../.claude/plans/
 
-- `elegant-prancing-token.md` — P1-10: Calibration Parameter Instant Preview (~1525 tok)
+- `elegant-prancing-token.md` — P1-5: Case-Level Calibration Result Display (~1377 tok)
 
 ## ../National-Policy-Database/
 
@@ -16,7 +16,7 @@
 ## ./
 
 - `HANDOVER.md` — HANDOVER — QCA Analysis Tool (experiment-engine) (~1721 tok)
-- `TODO.md` — TODO — QCA Analysis Tool (~3304 tok)
+- `TODO.md` — TODO — QCA Analysis Tool (~3302 tok)
 
 ## .claude/
 
@@ -48,6 +48,7 @@
 ## src/components/
 
 - `CalibrationPreview.tsx` — CalibrationPreview — live histogram showing how calibration parameters (~3041 tok)
+- `CaseMembershipTable.tsx` — CaseMembershipTable — displays every text case with its membership scores (~3735 tok)
 
 ## src/experiment_engine/
 
@@ -84,13 +85,15 @@
 
 ## src/i18n/
 
-- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~10281 tok)
+- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~10610 tok)
 
 ## src/layouts/
 
 
 ## src/pages/
 
+- `Results.css` — Styles: 38 rules (~1346 tok)
+- `Results.tsx` — Results — displays all QCA analysis output in organized sections: (~11001 tok)
 - `Settings.css` — Styles: 21 rules (~690 tok)
 - `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~6680 tok)
 

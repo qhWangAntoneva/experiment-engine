@@ -4303,6 +4303,70 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-26T11:30:09.636Z"
+    },
+    {
+      "id": "bug-262",
+      "timestamp": "2026-05-26T11:56:40.333Z",
+      "error_message": "CSS fix: font-size",
+      "file": "src/pages/Results.css",
+      "root_cause": "font-size: 0.8125rem → 0.75rem",
+      "fix": "Changed font-size: 0.8125rem → 0.75rem",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "css"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T11:56:40.333Z"
+    },
+    {
+      "id": "bug-263",
+      "timestamp": "2026-05-26T11:57:41.342Z",
+      "error_message": "Type error",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: // Derive fuzzy data for Cases tab based on view mode; const casesFuzzyData = viewMode === 'prototype' ? state.prot",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T11:57:52.321Z"
+    },
+    {
+      "id": "bug-264",
+      "timestamp": "2026-05-26T12:04:43.999Z",
+      "error_message": "Wrong reference: Math should be 80",
+      "file": "src/components/CaseMembershipTable.tsx",
+      "root_cause": "Used \"Math\" instead of \"80\"",
+      "fix": "Changed Math → 80",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T12:04:43.999Z"
+    },
+    {
+      "id": "bug-265",
+      "timestamp": "2026-05-26T12:04:44.803Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/components/CaseMembershipTable.tsx",
+      "root_cause": "Had '(no text)'",
+      "fix": "Changed to 'results.caseNoText'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T12:04:44.803Z"
     }
   ]
 }

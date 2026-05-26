@@ -2,14 +2,14 @@
   "version": 1,
   "created_at": "2026-05-15T12:06:18.944Z",
   "lifetime": {
-    "total_tokens_estimated": 9932300,
-    "total_reads": 4499,
-    "total_writes": 5513,
+    "total_tokens_estimated": 9973822,
+    "total_reads": 4549,
+    "total_writes": 5543,
     "total_sessions": 27,
-    "anatomy_hits": 1465,
-    "anatomy_misses": 2286,
-    "repeated_reads_blocked": 5674,
-    "estimated_savings_vs_bare_cli": 19643592
+    "anatomy_hits": 1467,
+    "anatomy_misses": 2332,
+    "repeated_reads_blocked": 5724,
+    "estimated_savings_vs_bare_cli": 19705678
   },
   "sessions": [
     {
@@ -57851,6 +57851,490 @@
         "writes_count": 0,
         "repeated_reads_blocked": 0,
         "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-05-26-1910",
+      "started": "2026-05-26T11:10:44.858Z",
+      "ended": "2026-05-26T11:51:39.651Z",
+      "reads": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/roadmap/TODO.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/FIXME.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/HACK.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/TODO.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Settings.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/package.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/FuzzySetHeatmap.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/types/qca.ts",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/text_calibration/strategies.py",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/NecessityXYPlot.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/DataInput.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/TruthTableViewer.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/viz/qca_plots.py",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/DistributionPlot.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/store/QCAPipelineContext.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Results.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Results.css",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Settings.css",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/translations.ts",
+          "tokens_estimated": 10281,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/Sidebar.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/index.css",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/SolutionViewer.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/io/readers.py",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/I18nContext.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/CalibrationPreview.tsx",
+          "tokens_estimated": 3041,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "C:/Users/lenovos/.claude/plans/elegant-prancing-token.md",
+          "tokens_estimated": 1743,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/CalibrationPreview.tsx",
+          "tokens_estimated": 3041,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/translations.ts",
+          "tokens_estimated": 115,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/translations.ts",
+          "tokens_estimated": 116,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/translations.ts",
+          "tokens_estimated": 162,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Settings.tsx",
+          "tokens_estimated": 39,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Settings.tsx",
+          "tokens_estimated": 178,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Settings.tsx",
+          "tokens_estimated": 65,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Settings.css",
+          "tokens_estimated": 269,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Settings.tsx",
+          "tokens_estimated": 21,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/TODO.md",
+          "tokens_estimated": 22,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/TODO.md",
+          "tokens_estimated": 31,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/TODO.md",
+          "tokens_estimated": 27,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/TODO.md",
+          "tokens_estimated": 37,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/.claude/plans/elegant-prancing-token.md",
+          "tokens_estimated": 1573,
+          "action": "create"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 13322,
+        "output_tokens_estimated": 7439,
+        "reads_count": 25,
+        "writes_count": 15,
+        "repeated_reads_blocked": 25,
+        "anatomy_lookups": 1
+      }
+    },
+    {
+      "id": "session-2026-05-26-1910",
+      "started": "2026-05-26T11:10:44.858Z",
+      "ended": "2026-05-26T11:53:23.528Z",
+      "reads": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/roadmap/TODO.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/FIXME.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/HACK.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/TODO.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Settings.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/package.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/FuzzySetHeatmap.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/types/qca.ts",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/text_calibration/strategies.py",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/NecessityXYPlot.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/DataInput.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/TruthTableViewer.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/viz/qca_plots.py",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/DistributionPlot.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/store/QCAPipelineContext.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Results.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Results.css",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Settings.css",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/translations.ts",
+          "tokens_estimated": 10281,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/Sidebar.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/index.css",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/SolutionViewer.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/io/readers.py",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/I18nContext.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/CalibrationPreview.tsx",
+          "tokens_estimated": 3041,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "C:/Users/lenovos/.claude/plans/elegant-prancing-token.md",
+          "tokens_estimated": 1743,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/CalibrationPreview.tsx",
+          "tokens_estimated": 3041,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/translations.ts",
+          "tokens_estimated": 115,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/translations.ts",
+          "tokens_estimated": 116,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/translations.ts",
+          "tokens_estimated": 162,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Settings.tsx",
+          "tokens_estimated": 39,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Settings.tsx",
+          "tokens_estimated": 178,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Settings.tsx",
+          "tokens_estimated": 65,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Settings.css",
+          "tokens_estimated": 269,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Settings.tsx",
+          "tokens_estimated": 21,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/TODO.md",
+          "tokens_estimated": 22,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/TODO.md",
+          "tokens_estimated": 31,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/TODO.md",
+          "tokens_estimated": 27,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/TODO.md",
+          "tokens_estimated": 37,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/.claude/plans/elegant-prancing-token.md",
+          "tokens_estimated": 1573,
+          "action": "create"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 13322,
+        "output_tokens_estimated": 7439,
+        "reads_count": 25,
+        "writes_count": 15,
+        "repeated_reads_blocked": 25,
+        "anatomy_lookups": 1
       }
     }
   ],

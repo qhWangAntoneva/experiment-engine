@@ -613,3 +613,26 @@
 | 19:33 | Edited TODO.md | 3→3 lines | ~34 |
 | 18:40 | P1-10: CalibrationPreview with JS calibration, Plotly dual histogram, synthetic data, i18n | 4 files | build+tests pass | ~4500 |
 | 18:40 | Fixed TODO.md: P1-8/P1-9 marked done, stats P1 11→8 | TODO.md | stats corrected | ~50 |
+| 19:43 | Created ../.claude/plans/elegant-prancing-token.md | — | ~1468 |
+| 19:51 | Session end: 15 writes across 6 files (elegant-prancing-token.md, CalibrationPreview.tsx, translations.ts, Settings.tsx, Settings.css) | 25 reads | ~20761 tok |
+| 19:53 | Session end: 15 writes across 6 files (elegant-prancing-token.md, CalibrationPreview.tsx, translations.ts, Settings.tsx, Settings.css) | 25 reads | ~20761 tok |
+| 19:56 | Created src/components/CaseMembershipTable.tsx | — | ~3733 |
+| 19:56 | Edited src/pages/Results.css | expanded (+86 lines) | ~531 |
+| 19:56 | Edited src/i18n/translations.ts | expanded (+12 lines) | ~125 |
+| 19:56 | Edited src/i18n/translations.ts | expanded (+12 lines) | ~146 |
+| 19:57 | Edited src/i18n/translations.ts | expanded (+12 lines) | ~154 |
+| 19:57 | Edited src/pages/Results.tsx | added 1 import(s) | ~90 |
+| 19:57 | Edited src/pages/Results.tsx | 1→5 lines | ~98 |
+| 19:57 | Edited src/pages/Results.tsx | CSS: prototypeFuzzyData | ~69 |
+| 19:58 | Edited src/pages/Results.tsx | 6→7 lines | ~170 |
+| 19:58 | Edited src/pages/Results.tsx | expanded (+6 lines) | ~187 |
+| 19:58 | Edited src/pages/Results.tsx | inline fix | ~28 |
+| 2026-05-26 12:00 | P1-5 CaseMembershipTable: created component with sort/search/filter/expand/color-coded scores, added CSS, i18n keys (zh+en), integrated Cases tab into Results page | CaseMembershipTable.tsx, Results.tsx, Results.css, translations.ts | build passes, zero TS errors | ~2800 |
+| 20:04 | Edited src/components/CaseMembershipTable.tsx | inline fix | ~4 |
+| 20:04 | Edited src/components/CaseMembershipTable.tsx | inline fix | ~38 |
+| 20:04 | Edited src/components/CaseMembershipTable.tsx | "(no text)" → "results.caseNoText" | ~11 |
+| 20:04 | Edited src/i18n/translations.ts | 1→2 lines | ~14 |
+| 20:05 | Edited src/i18n/translations.ts | 1→2 lines | ~14 |
+| 20:05 | Edited src/i18n/translations.ts | 1→2 lines | ~19 |
+| 20:06 | Edited TODO.md | inline fix | ~24 |
+| 20:06 | Edited TODO.md | 3→3 lines | ~34 |

@@ -166,3 +166,89 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+
+/* ── Case Membership Table ─────────────────────────────────────────── */
+
+.case-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.case-search-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.case-search-input {
+  max-width: 360px;
+}
+
+.case-score-cell {
+  text-align: center;
+  font-family: var(--font-mono, 'SF Mono', 'Cascadia Code', monospace);
+  border-radius: var(--radius-sm, 4px);
+  padding: 4px 6px;
+  font-size: 0.75rem;
+}
+
+.case-text-preview {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.case-expanded-row td {
+  background: var(--color-bg-primary);
+  border-bottom: 2px solid var(--color-accent);
+}
+
+.case-expanded-content {
+  padding: 12px 16px;
+}
+
+.case-expanded-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.8;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+}
+
+.case-filter-row th {
+  padding: 6px 4px;
+  vertical-align: middle;
+}
+
+.case-filter-input {
+  width: 52px;
+  font-size: 0.65rem;
+  text-align: center;
+  padding: 2px 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm, 3px);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-mono, 'SF Mono', 'Cascadia Code', monospace);
+}
+
+.case-filter-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.case-no-results {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.case-count-info {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}

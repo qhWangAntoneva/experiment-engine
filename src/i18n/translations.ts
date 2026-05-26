@@ -254,6 +254,19 @@ export interface TranslationDict {
     solutionTypeComplex: string;
     solutionTypeParsimonious: string;
     solutionTypeIntermediate: string;
+    // Cases tab
+    tabCases: string;
+    caseId: string;
+    caseText: string;
+    caseOutcome: string;
+    caseSearch: string;
+    caseFilterToggle: string;
+    caseFilterMin: string;
+    caseFilterMax: string;
+    caseNoMatch: string;
+    caseNoText: string;
+    caseCount: (n: number) => string;
+    caseExpandedLabel: (id: string) => string;
   };
 
   // ── Settings ──
@@ -569,6 +582,19 @@ const zh: TranslationDict = {
     solutionTypeComplex: '复杂解 (Complex Solution)',
     solutionTypeParsimonious: '精简解 (Parsimonious Solution)',
     solutionTypeIntermediate: '中间解 (Intermediate Solution)',
+    // Cases tab
+    tabCases: '案例详情',
+    caseId: '案例ID',
+    caseText: '原文',
+    caseOutcome: '结果',
+    caseSearch: '搜索文本...',
+    caseFilterToggle: '筛选',
+    caseFilterMin: '最小',
+    caseFilterMax: '最大',
+    caseNoMatch: '无匹配案例',
+    caseNoText: '无文本',
+    caseCount: (n: number) => `${n} 条案例`,
+    caseExpandedLabel: (id: string) => `完整文本 (案例: ${id})`,
   },
 
   settings: {
@@ -951,6 +977,19 @@ const en: TranslationDict = {
     solutionTypeComplex: 'Complex Solution',
     solutionTypeParsimonious: 'Parsimonious Solution',
     solutionTypeIntermediate: 'Intermediate Solution',
+    // Cases tab
+    tabCases: 'Cases',
+    caseId: 'Case ID',
+    caseText: 'Text',
+    caseOutcome: 'Outcome',
+    caseSearch: 'Search text...',
+    caseFilterToggle: 'Filters',
+    caseFilterMin: 'Min',
+    caseFilterMax: 'Max',
+    caseNoMatch: 'No matching cases',
+    caseNoText: 'No text',
+    caseCount: (n: number) => `${n} cases`,
+    caseExpandedLabel: (id: string) => `Full Text (Case: ${id})`,
   },
 
   settings: {

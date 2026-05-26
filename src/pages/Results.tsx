@@ -17,6 +17,7 @@ import TruthTableViewer from '../components/TruthTableViewer';
 import SolutionViewer from '../components/SolutionViewer';
 import FuzzySetHeatmap from '../components/FuzzySetHeatmap';
 import NecessityXYPlot from '../components/NecessityXYPlot';
+import CaseMembershipTable from '../components/CaseMembershipTable';
 import { useQCAPipeline } from '../store/QCAPipelineContext';
 import { useQCAWorkflow } from '../hooks/useQCAWorkflow';
 import { useT } from '../i18n/I18nContext';
@@ -36,13 +37,17 @@ export default function Results() {
   const t = useT();
   const { state } = useQCAPipeline();
   const { runExport } = useQCAWorkflow();
-  const [activeTab, setActiveTab] = useState<'truth-table' | 'solutions' | 'necessity' | 'robustness'>('solutions');
+  const [activeTab, setActiveTab] = useState<'truth-table' | 'solutions' | 'necessity' | 'robustness' | 'cases'>(() => {
+    const hasFuzzy = !!(state.fuzzyData || state.prototypeFuzzyData);
+    const hasAnalysis = !!(state.analysisResult || state.prototypeAnalysisResult);
+    return hasFuzzy && !hasAnalysis ? 'cases' : 'solutions';
+  });
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
   const [exportSuccess, setExportSuccess] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('raw');
 
-  const hasResults = !!state.analysisResult;
+  const hasResults = !!state.analysisResult || !!(state.fuzzyData || state.prototypeFuzzyData);
   const hasPrototypeResults = !!state.prototypeAnalysisResult;
   const hasRobustness = !!state.robustnessReport;
 
@@ -52,8 +57,12 @@ export default function Results() {
     return state.analysisResult;
   }, [viewMode, state.analysisResult, state.prototypeAnalysisResult]);
 
+  // Derive fuzzy data for Cases tab based on view mode
+  const casesFuzzyData = viewMode === 'prototype' ? state.prototypeFuzzyData : state.fuzzyData;
+
   const tabs = [
     { key: 'solutions' as const, label: t('results.tabSolutions'), available: !!activeResult?.solutions },
+    { key: 'cases' as const, label: t('results.tabCases'), available: !!(state.fuzzyData || state.prototypeFuzzyData) },
     { key: 'truth-table' as const, label: t('results.tabTruthTable'), available: !!activeResult?.truth_table },
     { key: 'necessity' as const, label: t('results.tabNecessity'), available: !!activeResult?.necessity },
     { key: 'robustness' as const, label: t('results.tabRobustness'), available: hasRobustness && viewMode !== 'prototype' },
@@ -267,6 +276,12 @@ export default function Results() {
                 </div>
                 <AutoInterpretation result={activeResult} />
               </>
+            )}
+
+            {activeTab === 'cases' && casesFuzzyData && (
+              <div className="card" style={{ padding: '16px' }}>
+                <CaseMembershipTable data={casesFuzzyData} />
+              </div>
             )}
 
             {activeTab === 'necessity' && activeResult?.necessity && (
