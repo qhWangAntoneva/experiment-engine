@@ -32,20 +32,11 @@ class ConditionDefinitionBuilder:
         self._name = name
         self._display_name = display_name or name
         self._domain = domain
-        self._keywords: list[dict[str, object]] = []
         self._prototypes: list[dict[str, object]] = []
         self._calibration_type = CalibrationType.DIRECT
         self._calibration_params: CalibrationParams | None = None
         self._description = ""
         self._scoring_source = ScoringSource.PROTOTYPE
-        self._hybrid_kw_weight = 0.5
-        self._hybrid_proto_weight = 0.5
-
-    def add_keyword(
-        self, pattern: str, weight: float = 1.0, scope: str = "bigram"
-    ) -> ConditionDefinitionBuilder:
-        self._keywords.append({"pattern": pattern, "weight": weight, "scope": scope})
-        return self
 
     def add_prototype(
         self, text: str, is_member: int = 1, weight: float = 1.0
@@ -62,12 +53,8 @@ class ConditionDefinitionBuilder:
     def scoring(
         self,
         source: str = "prototype",
-        hybrid_kw_weight: float = 0.5,
-        hybrid_proto_weight: float = 0.5,
     ) -> ConditionDefinitionBuilder:
         self._scoring_source = ScoringSource(source)
-        self._hybrid_kw_weight = hybrid_kw_weight
-        self._hybrid_proto_weight = hybrid_proto_weight
         return self
 
     def calibration(
@@ -168,13 +155,6 @@ def _condition_set_to_dict(cs: ConditionSet) -> dict:
     }
 
 
-def _kw_to_dict(k) -> dict:
-    d = {"pattern": k.pattern, "weight": k.weight, "scope": k.scope}
-    if k.notes:
-        d["notes"] = k.notes
-    return d
-
-
 def _condition_to_dict(cond: ConditionDefinition) -> dict:
     d: dict = {
         "name": cond.name,
@@ -183,9 +163,6 @@ def _condition_to_dict(cond: ConditionDefinition) -> dict:
         "calibration_type": cond.calibration_type.value,
         "description": cond.description,
         "scoring_source": cond.scoring_source.value,
-        "hybrid_keyword_weight": getattr(cond, "hybrid_keyword_weight", 0.5),
-        "hybrid_prototype_weight": getattr(cond, "hybrid_prototype_weight", 0.5),
-        "keywords": [_kw_to_dict(k) for k in getattr(cond, "keywords", [])],
         "prototypes": [
             {
                 "prototype_text": p.prototype_text,

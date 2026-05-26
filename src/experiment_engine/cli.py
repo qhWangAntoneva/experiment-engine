@@ -612,10 +612,14 @@ def list_conditions(domain: str | None) -> None:
     for d in domains:
         preset = DOMAIN_PRESETS.get(d, {})
         console.print(f"\n[bold cyan]{d.value.upper()}[/]")
-        for cond_name, keywords in preset.items():
+        for cond_name, prototypes in preset.items():
             is_outcome = cond_name == list(preset.keys())[-1]
             tag = "[bold yellow](outcome)[/]" if is_outcome else ""
-            console.print(f"  {cond_name} {tag}: {len(keywords)} keywords")
+            n_pos = sum(1 for p in prototypes if p.get("is_member", 1))
+            n_neg = len(prototypes) - n_pos
+            console.print(
+                f"  {cond_name} {tag}: {len(prototypes)} prototypes ({n_pos}+/{n_neg}-)"
+            )
 
 
 # ═══════════════════════════════════════════════════════════════════════════

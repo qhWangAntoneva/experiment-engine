@@ -37,10 +37,10 @@
 
 - [x] **P1-B1: 删除 `keyword_dict.py`** — 关键词匹配引擎整个文件移除。(工作量: S) ✅ DONE
 - [x] **P1-B2: 删除 `keyword_io.py`** — 关键词导入导出功能移除。(工作量: S) ✅ DONE
-- [ ] **P1-B3: 清理 `domains.py`** — 移除关键词预置，改为原型文本预置模板。domains.py 仍使用 KeywordEntry 和关键词预置。(工作量: M)
+- [x] **P1-B3: 清理 `domains.py`** — 移除关键词预置，改为原型文本预置模板。所有 5 个域的关键词预置已替换为原型文本模板（每个条件 2 个原型：1 正例 + 1 反例）。(工作量: M) ✅ DONE [2026-05-26]
 - [x] **P1-B4: 删除 `PrototypeSimilarityEngine`** — 被 `CosineSimilarityEngine` 完全替换。(工作量: S) ✅ DONE
 - [x] **P1-B5: 测试套件更新** — 删除关键词相关测试，新增 BERT 余弦相似度测试（test_cosine_similarity.py 已存在）。(工作量: M) ✅ DONE
-- [ ] **P1-B6: 向后兼容别名清理** — 移除 deprecated ScoringSource 枚举值 + 完成 P0-B4 遗留的 `KeywordEntry` 类移除和 `ConditionDefinition.keywords` 字段清理。(工作量: M)
+- [x] **P1-B6: 向后兼容别名清理** — 移除 deprecated ScoringSource 枚举值 + 完成 P0-B4 遗留的 `KeywordEntry` 类移除和 `ConditionDefinition.keywords` 字段清理。同时清理了 condition.py 中的 add_keyword/_kw_to_dict 死代码。(工作量: M) ✅ DONE [2026-05-26]
 - [ ] **P1-B7: 模型切换支持** — Settings 页支持选择不同 BERT 模型，原型嵌入随模型重新计算。(工作量: M)
 - [ ] **P1-B8: 性能监控面板** — BERT 推理耗时统计、嵌入缓存命中率展示。(工作量: S)
 
@@ -183,15 +183,14 @@
 | 优先级 | 剩余 |
 |--------|------|
 | P0 | **0** (P0-BERT 12/12 完成，原始 P0 全部完成) |
-| P1 | **13** (P1-BERT: 4 剩余 P1-B3/B6/B7/B8 + P1 功能: P1-5~P1-13 共 9 剩余) |
+| P1 | **11** (P1-BERT: 2 剩余 P1-B7/B8 + P1 功能: P1-5~P1-13 共 9 剩余) |
 | P2 | **23** (全部未开始) |
-| **合计** | **36** |
+| **合计** | **34** |
 
 预计工作量：P1 清理 ~3-5 天 + P1 功能需求 ~15-20 天 + P2 ~20-30 天。
 **P0 已清零，不再阻塞发布。**
 
 **推荐推进顺序**（2026-05-26 重新审计后）：
-1. **P1-B3, P1-B6** — 关键词残留清理（domains.py + models/qca.py KeywordEntry 移除，最低成本先做完）
-2. **P1-5~P1-13** — 功能需求（用户体验提升）
-3. **P1-B7, P1-B8** — 模型切换 + 性能监控
-4. **P2 各项** — 锦上添花
+1. **P1-5~P1-13** — 功能需求（用户体验提升）
+2. **P1-B7, P1-B8** — 模型切换 + 性能监控
+3. **P2 各项** — 锦上添花

@@ -35,7 +35,6 @@ from experiment_engine.models.qca import (
     CounterfactualClassification,
     CounterfactualReport,
     FuzzySetData,  # deprecated backward-compat alias
-    KeywordEntry,  # retained for domains.py backward compat
     MembershipData,
     MultiOutcomeReport,
     NecessityConditionResult,
@@ -70,7 +69,6 @@ __all__ = [
     "FuzzySetData",
     "InputConfig",
     "InputData",
-    "KeywordEntry",  # retained for domains.py backward compat
     "MembershipData",
     "MultiOutcomeReport",
     "NecessityConditionResult",

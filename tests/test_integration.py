@@ -282,11 +282,11 @@ class TestCliListConditions:
     def test_list_conditions_with_domain_filter(
         self, runner: CliRunner, registered_stages: None
     ) -> None:
-        """Domain filter shows the correct preset and its keywords."""
+        """Domain filter shows the correct preset and its prototypes."""
         result = runner.invoke(cli, ["list-conditions", "-d", "dissatisfaction"])
         assert result.exit_code == 0
         assert "DISSATISFACTION" in result.output
-        assert "keywords" in result.output.lower()
+        assert "prototypes" in result.output.lower()
 
 
 class TestCliRun:

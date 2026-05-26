@@ -4026,6 +4026,103 @@
       ],
       "occurrences": 1,
       "last_seen": "2026-05-26T06:55:48.000Z"
+    },
+    {
+      "id": "bug-245",
+      "timestamp": "2026-05-26T08:35:12.724Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/cli.py",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→6 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T08:35:12.724Z"
+    },
+    {
+      "id": "bug-246",
+      "timestamp": "2026-05-26T08:39:19.094Z",
+      "error_message": "Wrong reference: _keywords should be _prototypes",
+      "file": "src/experiment_engine/text_calibration/condition.py",
+      "root_cause": "Used \"_keywords\" instead of \"_prototypes\"",
+      "fix": "Changed _keywords → _prototypes",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T08:39:19.094Z"
+    },
+    {
+      "id": "bug-247",
+      "timestamp": "2026-05-26T08:39:20.198Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/text_calibration/condition.py",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 10→6 lines (4 removed) | Also: def _kw_to_dict(k) -> dict:; d = {\"pattern\": k.pattern, \"weight\": k.weight, \"sc",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T08:39:20.594Z"
+    },
+    {
+      "id": "bug-248",
+      "timestamp": "2026-05-26T08:42:18.394434+00:00",
+      "error_message": "ImportError: cannot import name KeywordEntry from experiment_engine.models",
+      "file": "src/experiment_engine/models/__init__.py",
+      "root_cause": "KeywordEntry class was already deleted from models/qca.py but import + __all__ still referenced it in __init__.py, breaking the entire models package import.",
+      "fix": "Removed KeywordEntry from qca.py import block and __all__ list in __init__.py. Also removed all keyword residual code from condition.py: add_keyword() method, _kw_to_dict() function, _hybrid_*_weight fields, and keywords serialization in _condition_to_dict().",
+      "tags": [
+        "P1-B6",
+        "keyword-legacy",
+        "import-error",
+        "cleanup"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T08:42:18.000Z"
+    },
+    {
+      "id": "bug-249",
+      "timestamp": "2026-05-26T08:46:33.588Z",
+      "error_message": "Significant refactor of ",
+      "file": "TODO.md",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 4→3 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T08:46:33.588Z"
+    },
+    {
+      "id": "bug-250",
+      "timestamp": "2026-05-26T08:47:21.743Z",
+      "error_message": "Incorrect value in code",
+      "file": "pyproject.toml",
+      "root_cause": "Had \"src/experiment_engine/text_calibration/keyword_di",
+      "fix": "Changed to \"src/experiment_engine/text_calibration/domains.py",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "toml"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T08:47:21.743Z"
     }
   ]
 }

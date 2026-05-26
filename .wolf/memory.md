@@ -513,3 +513,31 @@
 | 2026-05-26 14:00 | Rewrote cerebrum.md to reflect actual BERT+Prototype codebase state: keyword matching removed, cosine_similarity.py is primary, updated architecture/sections 2-5/9-11, new work order | .wolf/cerebrum.md | complete, 420 lines | ~12K chars |
 | 16:20 | Codebase audit + 4-agent parallel dispatch: coordinated TODO/FIXME/HACK/cerebrum resync. Reviewer launched in background. | TODO.md, FIXME.md, HACK.md, cerebrum.md, memory.md | 4/4 agent writes verified, reviewer pending | ~3000 |
 | 16:22 | Session end: 3 writes across 3 files (HACK.md, FIXME.md, TODO.md) | 4 reads | ~15441 tok |
+| 16:26 | Session end: 3 writes across 3 files (HACK.md, FIXME.md, TODO.md) | 4 reads | ~15441 tok |
+| 16:34 | Session end: 3 writes across 3 files (HACK.md, FIXME.md, TODO.md) | 13 reads | ~37576 tok |
+| 16:35 | Edited src/experiment_engine/cli.py | modified items() | ~114 |
+| 16:35 | Step 1f: Updated CLI list_conditions to display prototype counts (n+/n-) instead of keyword counts | src/experiment_engine/cli.py | success | ~50 |
+| 16:35 | Session end: 4 writes across 4 files (HACK.md, FIXME.md, TODO.md, cli.py) | 13 reads | ~38428 tok |
+| 16:35 | Created src/experiment_engine/text_calibration/domains.py | — | ~4022 |
+| 16:37 | P1-B3: Refactored domains.py from keyword presets to prototype text templates across all 5 domains. Each condition now has 2 ConceptPrototype entries (positive/negative) instead of KeywordEntry lists. | domains.py | OK, all 5 domains verified | ~3500 |
+| 16:37 | Session end: 5 writes across 5 files (HACK.md, FIXME.md, TODO.md, cli.py, domains.py) | 13 reads | ~42450 tok |
+| 16:37 | Edited src/experiment_engine/models/qca.py | removed 16 lines | ~1 |
+| 16:37 | Edited src/experiment_engine/models/qca.py | removed 2 lines | ~1 |
+| 16:38 | Edited src/experiment_engine/models/__init__.py | removed 2 lines | ~1 |
+| 16:38 | Edited src/experiment_engine/models/__init__.py | removed 2 lines | ~1 |
+| 16:38 | P1-B6 steps 2a-2b: Removed KeywordEntry class and keywords field from ConditionDefinition in qca.py, also removed re-exports from __init__.py | src/experiment_engine/models/qca.py, src/experiment_engine/models/__init__.py | Verified — no remaining KeywordEntry references, keywords field returns False | ~50 |
+| 16:39 | Session end: 9 writes across 7 files (HACK.md, FIXME.md, TODO.md, cli.py, domains.py) | 13 reads | ~42419 tok |
+| 16:39 | Edited src/experiment_engine/text_calibration/condition.py | 2→1 lines | ~16 |
+| 16:39 | Edited src/experiment_engine/text_calibration/condition.py | 3→1 lines | ~16 |
+| 16:39 | Edited src/experiment_engine/text_calibration/condition.py | removed 7 lines | ~7 |
+| 16:39 | Edited src/experiment_engine/text_calibration/condition.py | modified scoring() | ~50 |
+| 16:39 | Edited src/experiment_engine/text_calibration/condition.py | modified _condition_to_dict() | ~102 |
+| 16:40 | Edited tests/test_integration.py | 5→5 lines | ~84 |
+| 16:41 | P1-B6 steps 2c-2d: removed KeywordEntry from models/__init__.py (linter already removed import/__all__) + removed all keyword residual code from condition.py (add_keyword, _kw_to_dict, _hybrid_*_weight, keywords serialization) + fixed test_list_conditions assertion (keywords->prototypes) — 531 tests pass | models/__init__.py, condition.py, test_integration.py | success | ~0 |
+| 16:42 | Session end: 15 writes across 9 files (HACK.md, FIXME.md, TODO.md, cli.py, domains.py) | 14 reads | ~42694 tok |
+| 16:46 | Edited TODO.md | inline fix | ~35 |
+| 16:46 | Edited TODO.md | inline fix | ~56 |
+| 16:46 | Edited TODO.md | inline fix | ~18 |
+| 16:46 | Edited TODO.md | 36 → 34 | ~6 |
+| 16:46 | Edited TODO.md | 4→3 lines | ~23 |
+| 16:47 | Edited pyproject.toml | "src/experiment_engine/tex" → "src/experiment_engine/tex" | ~26 |

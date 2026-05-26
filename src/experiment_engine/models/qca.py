@@ -95,21 +95,6 @@ class CalibrationParams(BaseModel):
         return v
 
 
-class KeywordEntry(BaseModel):
-    """A keyword pattern with associated weight for text-to-score matching.
-
-    Attributes:
-        pattern: The keyword string or regex pattern.
-        weight: Contribution weight (0.0-1.0 range typical).
-        scope: Matching granularity: unigram, bigram, trigram, regex, or exact.
-    """
-
-    pattern: str
-    weight: float = 1.0
-    scope: str = Field("bigram", pattern=r"^(unigram|bigram|trigram|regex|exact)$")
-    notes: str = ""
-
-
 class ConceptPrototype(BaseModel):
     """A prototype text labeled for membership in a condition.
 
@@ -148,7 +133,7 @@ class ConditionDefinition(BaseModel):
     calibration_params: CalibrationParams | None = None
     description: str = ""
     scoring_source: ScoringSource = ScoringSource.PROTOTYPE
-    keywords: list[KeywordEntry] = Field(default_factory=list)
+
     prototypes: list[ConceptPrototype] = Field(default_factory=list)
     prototype_embeddings: list[list[float]] | None = None
     embedding_model: str | None = None
