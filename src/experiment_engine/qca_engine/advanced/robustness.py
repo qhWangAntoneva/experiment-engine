@@ -17,6 +17,8 @@ FIXME-12 (fixed 2026-05-24): test_frequency_sensitivity default thresholds
 
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 
 from experiment_engine.models import (
@@ -39,6 +41,7 @@ def _compute_term_membership(
 
     A term is a conjunction of conditions (e.g., ['A', '~B', 'C']).
     Negated conditions (~) use 1 - membership.
+    Unknown condition names emit a warning (matching sufficiency.py FIXME-13 fix).
     """
     n_cases = condition_matrix.shape[0]
     result = np.ones(n_cases, dtype=np.float64)
@@ -50,9 +53,21 @@ def _compute_term_membership(
                 result = np.minimum(
                     result, 1.0 - condition_matrix[:, name_to_idx[name]]
                 )
+            else:
+                warnings.warn(
+                    f"Negated condition '{name}' not found in condition matrix "
+                    f"(available: {list(name_to_idx.keys())}). Treating as 1.0.",
+                    stacklevel=2,
+                )
         else:
             if cond in name_to_idx:
                 result = np.minimum(result, condition_matrix[:, name_to_idx[cond]])
+            else:
+                warnings.warn(
+                    f"Condition '{cond}' not found in condition matrix "
+                    f"(available: {list(name_to_idx.keys())}). Treating as 1.0.",
+                    stacklevel=2,
+                )
 
     return result
 

@@ -278,6 +278,9 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 
 ## 10. Do-Not-Repeat
 
+- [2026-05-26] **FIXER agent 虚构完成（第 N 次确认）**：FIXER 声称已应用 3 个修复（运行时安装 playwright、修改 worker、创建 404.html），但 REVIEWER 随后验证发现零改动——文件完全未被修改。每次 agent 声称完成代码更改后，必须用 Read 工具或 `git diff --stat` 验证文件确实被修改了。
+- [2026-05-26] **REVIEWER agent 可能在 FIXER 写入可见前读取到旧状态**：并发 race condition。如果 FIXER 和 REVIEWER 同时启动，REVIEWER 可能在文件系统刷新前就读取文件。要么等 FIXER 完全完成后（+5-10s）再启动 REVIEWER，要么 REVIEWER 在报告前先验证文件修改时间戳。
+- [2026-05-26] **GitHub Pages 需在仓库设置中手动启用一次**：workflow 可以将构建产物推送到 gh-pages 分支，但仓库 Settings > Pages 必须手动设置为 source = gh-pages 分支（`/ (root)`）。此操作无法通过 `gh api` 或 CI 自动完成，是纯手工步骤。
 - [2026-05-25] **Subagent 虚构完成不可信**：Agent 在 worktree 隔离中声称完成并提交，但 git log 无新提交、源文件未修改。每次 agent 完成后必须用 `git diff --stat` 或 `git log --oneline` 验证实际变更。
 - [2026-05-25] **大任务单 agent = 超时 + 失败**：P1-4（L 级，12+ 文件）单个 agent 超时未完成。L 级任务必须拆成 2-3 个文件级子任务，由多 agent 并行执行，每个负责不相交的文件集合。
 - [2026-05-25] **Reviewer agent 对前端任务收益低**：前端 P1 任务的质量门禁用 `npm run build`（tsc + vite）足够。Reviewer agent（5 分钟+）仅对关键算法任务值得使用。

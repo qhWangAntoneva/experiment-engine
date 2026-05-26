@@ -17,6 +17,18 @@
  *
  * Python logic lives in experiment_engine.pyodide_handlers (testable).
  * This file only handles VFS I/O and message passing.
+ *
+ * SECURITY NOTE — CDN Subresource Integrity (SRI):
+ *   Pyodide is loaded from jsDelivr CDN (~50 MB of .mjs, .data, .whl files).
+ *   SRI hashes are NOT applied to these resources because:
+ *   1. The total download exceeds 50 MB; computing and maintaining per-file
+ *      SRI hashes for 100+ .whl packages is operationally infeasible.
+ *   2. Pyodide's dynamic module loader (loadPyodide) fetches files
+ *      programmatically, which bypasses <script integrity> checks.
+ *   Primary defenses instead:
+ *   - Version pinning (v0.26.4 hardcoded in URLs — verified at runtime below).
+ *   - Browser CORS and CSP headers restrict script-src to jsDelivr.
+ *   - Content-Security-Policy in index.html limits connect-src to jsDelivr.
  */
 
 import type {
@@ -37,6 +49,12 @@ const REQUIRED_PACKAGES = [
   'pyyaml',
   'micropip',
 ];
+
+/** Expected Pyodide version loaded from CDN — must match the hardcoded URL. */
+const EXPECTED_PYODIDE_VERSION = '0.26.4';
+
+/** Minimum version that satisfies basic API contract (for grace-period detection). */
+const MIN_PYODIDE_VERSION = [0, 26, 0];
 
 // ─── Helper: post a typed response back to main thread ────────────────────
 function respond(msg: PyodideWorkerResponse): void {
@@ -209,6 +227,32 @@ async function handleInit(extraPackages: string[] = []): Promise<void> {
     pyodide = await loadPyodide({
       indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/',
     });
+
+    // --- Runtime version check (no SRI, so this is the primary integrity defense) ---
+    try {
+      const loadedVersion: string = pyodide._module?.API?.version || pyodide.version || '';
+      if (loadedVersion && loadedVersion !== EXPECTED_PYODIDE_VERSION) {
+        const parts = loadedVersion.split('.').map(Number);
+        const [minMaj, minMin, minPatch] = MIN_PYODIDE_VERSION;
+        const isBelowMin =
+          (parts[0] || 0) < minMaj ||
+          ((parts[0] || 0) === minMaj && (parts[1] || 0) < minMin) ||
+          ((parts[0] || 0) === minMaj && (parts[1] || 0) === minMin && (parts[2] || 0) < minPatch);
+        const level = isBelowMin ? 'error' : 'warn';
+        respond({
+          type: 'log',
+          message: `Pyodide version mismatch: expected ${EXPECTED_PYODIDE_VERSION}, got ${loadedVersion}${isBelowMin ? ' — below minimum supported version' : ''}. CDN cache may be stale.`,
+          level,
+        });
+        if (isBelowMin) {
+          throw new Error(`Pyodide version ${loadedVersion} is below minimum required ${EXPECTED_PYODIDE_VERSION}`);
+        }
+      }
+    } catch (verr: any) {
+      if (verr.message?.includes('below minimum')) throw verr;
+      // If the version property isn't available, log a warning but don't block init
+      log('warn', `Could not verify Pyodide version at runtime: ${verr.message || String(verr)}`);
+    }
 
     respond({ type: 'init-progress', message: 'Pyodide runtime ready', progress: 30 });
 

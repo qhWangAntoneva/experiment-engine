@@ -55,6 +55,21 @@ class DirectCalibration(CalibrationStrategy):
                 linear interpolation between crossover and thresholds otherwise.
 
     Raw scores are first min-max normalized to [0, 1].
+
+    .. note::
+        Min-max normalization makes calibration thresholds relative to the
+        empirical distribution of raw scores, not absolute values.  When raw
+        scores are already naturally bounded to [0, 1] (e.g. BERT cosine
+        similarities), the normalization is a no-op.  When raw scores come
+        from keyword matching (which can produce values > 1), the
+        normalization maps the observed range onto [0, 1], so the user's
+        ``full_in`` / ``full_out`` / ``crossover`` thresholds refer to
+        percentiles of the sample, not absolute keyword scores.  This
+        follows the *degree of membership* principle of Ragin (2008) where
+        membership is defined relative to the empirical evidence, but users
+        should be aware that absolute thresholds have no fixed meaning
+        across datasets of different score ranges.
+
     Uses numpy vectorized np.select for WASM performance.
     """
 

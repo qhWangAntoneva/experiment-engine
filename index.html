@@ -5,6 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QCA Simulation Tool</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+    <!--
+      Content-Security-Policy via meta tag.
+      The app loads Pyodide (~50 MB) from jsDelivr CDN and BERT models
+      (~100 MB) from HuggingFace CDN.  Subresource Integrity (SRI) is not
+      feasible for these large remote resources, so we rely on version
+      pinning, CDN integrity, and this CSP as defense-in-depth.
+
+      - script-src: 'self' for bundled code, jsDelivr for Pyodide mjs modules.
+        unsafe-inline is NOT allowed for scripts.
+      - connect-src: self + jsDelivr (Pyodide runtime files) + HuggingFace
+        (BERT model weights / tokenizers / configs).
+      - worker-src: 'self' blob: for Vite-bundled Web Workers (Pyodide, BERT).
+      - style-src: 'self' 'unsafe-inline' because React and Vite inject inline
+        <style> elements at runtime; removing unsafe-inline would break the UI.
+      - img-src: 'self' data: for favicon (inline SVG data URI).
+      - font-src: 'self' — no external font CDNs are used.
+
+      ⚠️ DEVELOPMENT: This CSP meta tag blocks Vite HMR (Hot Module Replacement)
+      because connect-src does not include ws://127.0.0.1:3000.  When running
+      `npm run dev`, comment out the <meta> tag below to restore live reload.
+      The production build always includes the CSP tag.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' https://cdn.jsdelivr.net;
+      connect-src 'self' https://cdn.jsdelivr.net https://huggingface.co https://cdn-lfs.huggingface.co;
+      worker-src 'self' blob:;
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data:;
+      font-src 'self';
+    " />
   </head>
   <body>
     <div id="root"></div>

@@ -25,6 +25,24 @@ const DEFAULT_HIDDEN_DIM = 768
  * followed by L2 normalization. The model is lazily loaded only when
  * `loadModel()` is called, and embeddings are cached by (text, modelName)
  * to avoid redundant inference.
+ *
+ * SECURITY NOTE — CDN Subresource Integrity (SRI):
+ *   BERT model files (~100 MB for bert-base-chinese: model weights,
+ *   tokenizer, and config.json) are fetched from HuggingFace CDN at
+ *   huggingface.co / cdn-lfs.huggingface.co via Transformers.js.  SRI
+ *   cannot be applied because:
+ *   1. Transformers.js dynamically resolves file URLs for each model
+ *      revision; the URL list is not known at build time.
+ *   2. Model files are 100+ MB — SRI hashing and validation at that
+ *      scale introduces unacceptable latency on first load.
+ *   3. HuggingFace does not publish SRI hashes for model files.
+ *   Primary defenses instead:
+ *   - Version pinning (model identifier + Transformers.js semver).
+ *   - Content-Security-Policy in index.html restricts connect-src to
+ *     huggingface.co and cdn-lfs.huggingface.co.
+ *   - Browser CORS enforces that the origin matches the expected CDN.
+ *   - Model loading errors are caught and surfaced to the user (see
+ *     loadModel() catch block).
  */
 export class BertEngine {
   private _status: BertModelStatus = 'unloaded'

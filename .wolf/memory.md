@@ -1,5 +1,10 @@
 # Memory
 
+| 2026-05-26 | 完成部署 + 验收: 修复 3 critical (Python tar.gz 加载, 404 SPA 回退, io/__init__.py ImportError guard), 4-agent expert team 审查部署架构, 推送到 master, 启用 GitHub Pages, Reviewer 验收全部 5 端点 200 PASS。部署至 https://qhWangAntoneva.github.io/experiment-engine/ | pyodide.worker.ts, io/__init__.py, main.tsx, 404.html, vite-env.d.ts, handover.md, memory.md | 部署成功, git push 已触发 workflow, Pages 已启用 | ~32000 |
+| 2026-05-26 | FIXER agent 声称完成但 REVIEWER 发现零改动 (agent 虚构完成再次确认) → 亲自修复 3 critical fixes + npm run build pass + git push | pyodide.worker.ts, io/__init__.py, main.tsx, 404.html | 3 fixes applied and verified | ~18000 |
+| 2026-05-26 | QCA 计算管道全面验证: 运行 515 pytest (全 PASS) + 48 自定义验证 (全 PASS)。覆盖 5 个步骤: 测试套件、端到端 Lipset 黄金标准、校准算法(4 种)、QM 布尔最小化(已知答案对比)、数值稳定性(NaN/Inf/极端值)。发现 1 个 bug: ConditionDefinition 模型缺少 keywords 字段，build_default_conditions() 传入的关键词被 Pydantic 静默丢弃(5 个域 200+ 关键词实际无效)。 | tmp/verify_pipeline.py, test_qca_core.py, calibrator.py, domains.py, qca.py | 48/48 PASS, bug identified | ~16000 |
+| 2026-05-26 | npm run build → tsc -b 报错: Cannot find module CDN URL → 在 vite-env.d.ts 添加 declare module | vite-env.d.ts | build clean, dist 输出已验证 | ~2000 |
+| 2026-05-26 | 浏览器验证: Playwright 12 步通过, "加载引擎" flash-back 已修复, engine 加载至 ready | verify-load-engine.mjs, screenshots | 11/12 PASS, 1 脚本 issue (BERT btn disabled 非 bug) | ~25000 |
 | 2026-05-26 | 创建 DEPLOY-CHECKLIST.md: 全面部署验证清单, 6 章节 76 项检查(预构建/构建/SPA 404/GH Pages 配置/部署后浏览器测试/边缘用例)。关键发现: site/404.html 是 MkDocs 产物,不会被部署; SPA BrowserRouter 需要专属 404.html 处理直接 URL 访问。清单包含快速运行脚本。 | DEPLOY-CHECKLIST.md, anatomy.md, memory.md | 清单已创建,等待部署前验证 | ~6000 |
 | 2026-05-26 | 第二轮修复 + handover 更新: 第一轮经典 worker 方案导致 "Cannot use import statement outside a module" → 正确方案(保持模块 Worker + 动态 import() 加载 pyodide.mjs)。3-agent 验证 26/26 PASS。更新 handover 至最新状态。 | pyodide.worker.ts, pyodide.ts, vite.config.ts, handover.md, memory.md | 2 次要修复 (stale comment + 类型定义 gap), tsc clean | ~80000 |
 | 2026-05-26 | 修复"加载引擎"按钮闪回 bug: 4-agent expert team 诊断 → root cause (module worker + importScripts 不兼容, TypeError) → fix (模块 Worker 保持 + import() 加载 pyodide.mjs + Dashboard error state + resolveOne routing + worker cleanup) → explorer+fixer+reviewer 验证(全部 PASS) → 3 次要问题已清理。Dev server 运行在 127.0.0.1:3000。 | pyodide.ts, Dashboard.tsx, vite.config.ts, translations.ts, Dashboard.css, pyodide.worker.ts | 1 critical bug fixed (bug-214), 3 minor issues cleaned, tsc clean | ~120000 |
@@ -1286,3 +1291,78 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 2026-05-26 | Fix 3 critical deployment blockers: (1) Worker now fetches experiment_engine.tar.gz instead of non-existent /pyodide-modules.json, extracts via tarfile. (2) Created public/404.html + RedirectRestorer component in main.tsx for SPA routing fallback. (3) io/__init__.py db imports wrapped in try/except ImportError. Build passes clean. | pyodide.worker.ts, main.tsx, 404.html, io/__init__.py | tsc + vite build clean, verified tar.gz extraction code and spa-redirect in dist bundles | ~8000 |
 | 01:10 | Session end: 10 writes across 7 files (verify-load-engine.mjs, vite-env.d.ts, DEPLOY-CHECKLIST.md, pyodide.worker.ts, 404.html) | 38 reads | ~51079 tok |
 | 01:11 | Session end: 10 writes across 7 files (verify-load-engine.mjs, vite-env.d.ts, DEPLOY-CHECKLIST.md, pyodide.worker.ts, 404.html) | 38 reads | ~51079 tok |
+| 01:21 | Session end: 10 writes across 7 files (verify-load-engine.mjs, vite-env.d.ts, DEPLOY-CHECKLIST.md, pyodide.worker.ts, 404.html) | 38 reads | ~51079 tok |
+| 01:26 | Session end: 10 writes across 7 files (verify-load-engine.mjs, vite-env.d.ts, DEPLOY-CHECKLIST.md, pyodide.worker.ts, 404.html) | 38 reads | ~51079 tok |
+| 01:32 | Session end: 10 writes across 7 files (verify-load-engine.mjs, vite-env.d.ts, DEPLOY-CHECKLIST.md, pyodide.worker.ts, 404.html) | 38 reads | ~51079 tok |
+| 01:42 | Session end: 10 writes across 7 files (verify-load-engine.mjs, vite-env.d.ts, DEPLOY-CHECKLIST.md, pyodide.worker.ts, 404.html) | 38 reads | ~51079 tok |
+| 01:48 | Session end: 10 writes across 7 files (verify-load-engine.mjs, vite-env.d.ts, DEPLOY-CHECKLIST.md, pyodide.worker.ts, 404.html) | 38 reads | ~51079 tok |
+
+## Session: 2026-05-25 02:00
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 02:05 | Edited src/pyodide/types.ts | 1→4 lines | ~87 |
+| 02:05 | Edited src/experiment_engine/core/__init__.py | expanded (+8 lines) | ~150 |
+| 02:05 | Edited src/experiment_engine/pyodide_handlers.py | expanded (+11 lines) | ~482 |
+| 02:06 | Edited package.json | 27→30 lines | ~193 |
+| 02:07 | Edited index.html | expanded (+26 lines) | ~485 |
+| 02:07 | Edited src/services/pyodide.worker.ts | modified Integrity() | ~479 |
+| 02:07 | Edited src/services/pyodide.worker.ts | expanded (+6 lines) | ~92 |
+| 18:06 | ARCH cleanup: deleted dead src/pyodide/engine.ts, fixed broken re-export in types.ts, wrapped parallel imports in core/__init__.py with ImportError guard, wrapped QCALaTeXReporter import in pyodide_handlers.py | engine.ts, types.ts, core/__init__.py, pyodide_handlers.py | tsc clean, 522 tests passing | ~300 |
+| 02:07 | Edited src/services/pyodide.worker.ts | added error handling | ~449 |
+| 02:07 | Edited src/services/bert-engine.ts | modified Integrity() | ~383 |
+| 02:09 | Session end: 9 writes across 7 files (types.ts, __init__.py, pyodide_handlers.py, package.json, index.html) | 12 reads | ~18989 tok |
+| 02:10 | Edited package.json | inline fix | ~8 |
+| 02:20 | SEC-1/2/3 fixes: protobufjs 6.11.6 → 7.5.9 via overrides (9 CVEs resolved), CSP meta tag added to index.html, CDN SRI comments + Pyodide version check in workers | package.json, package-lock.json, index.html, pyodide.worker.ts, bert-engine.ts | npm audit: 6→2 vulns, build passes | ~1200 |
+| 02:14 | Session end: 10 writes across 7 files (types.ts, __init__.py, pyodide_handlers.py, package.json, index.html) | 13 reads | ~19482 tok |
+| 02:21 | Session end: 10 writes across 7 files (types.ts, __init__.py, pyodide_handlers.py, package.json, index.html) | 13 reads | ~21539 tok |
+| 02:22 | Edited index.html | 17→22 lines | ~335 |
+| 02:22 | Edited src/experiment_engine/core/__init__.py | modified __getattr__() | ~306 |
+| 02:22 | Edited src/experiment_engine/pyodide_handlers.py | 6→5 lines | ~73 |
+| 02:23 | Session end: 13 writes across 7 files (types.ts, __init__.py, pyodide_handlers.py, package.json, index.html) | 13 reads | ~22762 tok |
+| 02:26 | Edited src/experiment_engine/core/__init__.py | modified __getattr__() | ~105 |
+| 02:26 | Created src/experiment_engine/core/__init__.py | — | ~368 |
+| 02:27 | Session end: 15 writes across 7 files (types.ts, __init__.py, pyodide_handlers.py, package.json, index.html) | 13 reads | ~23302 tok |
+| 02:28 | Session end: 15 writes across 7 files (types.ts, __init__.py, pyodide_handlers.py, package.json, index.html) | 13 reads | ~23308 tok |
+| 02:30 | __getattr__ fix verification — code review + build/tsc/pytest (522) all pass | src/experiment_engine/core/__init__.py | PASS | |  |  |  | ~ |
+| 02:30 | __getattr__ fix verification — code review + build/tsc/pytest (522) all pass | src/experiment_engine/core/__init__.py | PASS | ~5 |
+| 02:30 | Session end: 15 writes across 7 files (types.ts, __init__.py, pyodide_handlers.py, package.json, index.html) | 13 reads | ~23308 tok |
+| 02:38 | Session end: 15 writes across 7 files (types.ts, __init__.py, pyodide_handlers.py, package.json, index.html) | 13 reads | ~23308 tok |
+| 02:40 | Created tmp/generate_test_data.py | — | ~4821 |
+| 02:42 | Edited tmp/generate_test_data.py | 4→4 lines | ~48 |
+| 02:42 | Created tmp/verify_pipeline.py | — | ~7631 |
+| 02:42 | Edited tmp/verify_pipeline.py | inline fix | ~7 |
+| 02:43 | Session end: 19 writes across 9 files (types.ts, __init__.py, pyodide_handlers.py, package.json, index.html) | 31 reads | ~51967 tok |
+| 02:43 | Edited tmp/verify_pipeline.py | added 1 import(s) | ~177 |
+| 02:43 | Edited tmp/verify_pipeline.py | 3→4 lines | ~52 |
+| 02:43 | Created 4 test data files for QCA text analysis tool (3 CSVs + 1 YAML condition set) | tmp/test_dataset_1_standard.csv, tmp/test_dataset_2_edge_cases.csv, tmp/test_dataset_3_small_n.csv, tmp/test_condition_set.yaml | All files verified: correct row counts, UTF-8 encoding, YAML loads via project module | ~500 |
+| 02:44 | Edited tmp/verify_pipeline.py | added 1 import(s) | ~62 |
+| 02:44 | Session end: 22 writes across 9 files (types.ts, __init__.py, pyodide_handlers.py, package.json, index.html) | 31 reads | ~52258 tok |
+| 02:44 | Edited tmp/verify_pipeline.py | inline fix | ~19 |
+| 02:44 | Edited tmp/verify_pipeline.py | 20→21 lines | ~243 |
+| 02:47 | Edited tmp/verify_pipeline.py | modified catch_warnings() | ~742 |
+| 02:47 | Edited tmp/verify_pipeline.py | modified term() | ~193 |
+| 02:49 | Session end: 26 writes across 9 files (types.ts, __init__.py, pyodide_handlers.py, package.json, index.html) | 31 reads | ~53455 tok |
+| 02:57 | Edited src/experiment_engine/models/qca.py | 2→3 lines | ~55 |
+| 02:57 | Edited src/experiment_engine/qca_engine/advanced/robustness.py | modified startswith() | ~365 |
+| 02:57 | Edited src/experiment_engine/qca_engine/advanced/robustness.py | added 1 import(s) | ~21 |
+| 02:57 | Edited src/experiment_engine/text_calibration/strategies.py | expanded (+15 lines) | ~281 |
+| 02:58 | Created tests/test_robustness.py | — | ~2353 |
+| 02:59 | Created tests/test_robustness.py | — | ~2150 |
+| 03:00 | Edited tests/test_robustness.py | modified _make_fuzzy() | ~616 |
+| 03:01 | Created tests/test_robustness.py | — | ~2586 |
+| 03:01 | Edited tests/test_robustness.py | modified test_calibration_sensitivity_backward_compat() | ~44 |
+| 03:02 | Session end: 35 writes across 13 files (types.ts, __init__.py, pyodide_handlers.py, package.json, index.html) | 31 reads | ~61926 tok |
+| 03:06 | Session end: 35 writes across 13 files (types.ts, __init__.py, pyodide_handlers.py, package.json, index.html) | 31 reads | ~65573 tok |
+| 10:54 | session wrap-up: 安全修复(3)+架构清理(3)+算法验证(3-agent team)+算法bug修复(4). 538 tests. HANDOVER updated. | 21 files changed | all fixes verified by reviewer | ~80000 |
+| 10:54 | Session end: 35 writes across 13 files (types.ts, __init__.py, pyodide_handlers.py, package.json, index.html) | 31 reads | ~65573 tok |
+
+## Session: 2026-05-26 10:55
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 11:04 | Edited src/experiment_engine/core/__init__.py | added 1 import(s) | ~132 |
+| 11:04 | Edited src/experiment_engine/pyodide_handlers.py | 5→5 lines | ~62 |
+| 11:04 | Edited tests/test_robustness.py | 3→2 lines | ~16 |
+| 11:04 | Edited tests/test_robustness.py | inline fix | ~15 |
+| 11:04 | Edited tests/test_robustness.py | inline fix | ~16 |

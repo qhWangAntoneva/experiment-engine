@@ -380,7 +380,10 @@ def handle_export(result_path, config_path, output_path):
     import io
 
     from experiment_engine.models import QCAAnalysisResult
-    from experiment_engine.report.qca_reporter import QCALaTeXReporter
+
+    # qca_reporter is excluded from Pyodide deployments (the report/ package
+    # is not included in the tar.gz archive). The import is deferred to the
+    # 'latex' branch below, where it is wrapped in try/except ImportError.
 
     with open(result_path, encoding="utf-8") as f:
         _ar_dict = json.load(f)
@@ -412,6 +415,13 @@ def handle_export(result_path, config_path, output_path):
         out = buf.getvalue()
         mime = "text/csv"
     elif fmt == "latex":
+        try:
+            from experiment_engine.report.qca_reporter import QCALaTeXReporter
+        except ImportError as err:
+            raise ImportError(
+                "LaTeX export is not available in the browser environment. "
+                "Use CSV or JSON export instead."
+            ) from err
         _reporter = QCALaTeXReporter()
         out = _reporter.generate(_result)
         mime = "application/x-latex"

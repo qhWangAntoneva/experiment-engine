@@ -148,6 +148,7 @@ class ConditionDefinition(BaseModel):
     calibration_params: CalibrationParams | None = None
     description: str = ""
     scoring_source: ScoringSource = ScoringSource.PROTOTYPE
+    keywords: list[KeywordEntry] = Field(default_factory=list)
     prototypes: list[ConceptPrototype] = Field(default_factory=list)
     prototype_embeddings: list[list[float]] | None = None
     embedding_model: str | None = None

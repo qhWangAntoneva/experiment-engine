@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-25T17:05:46.248Z
-> Files: 30 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T03:04:41.002Z
+> Files: 42 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -9,6 +9,8 @@
 ## ./
 
 - `DEPLOY-CHECKLIST.md` — Deployment Verification Checklist -- QCA Analysis Tool (~5095 tok)
+- `index.html` — QCA Simulation Tool (~563 tok)
+- `package.json` — Node.js package manifest (~194 tok)
 - `vite.config.ts` — ============================================================================= (~344 tok)
 
 ## .claude/
@@ -47,13 +49,14 @@
 
 ## src/experiment_engine/
 
-- `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~6266 tok)
+- `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~6402 tok)
 
 ## src/experiment_engine/algorithms/
 
 
 ## src/experiment_engine/core/
 
+- `__init__.py` — Core pipeline orchestration — re-exports from the existing pipeline module. (~375 tok)
 
 ## src/experiment_engine/io/
 
@@ -62,13 +65,14 @@
 ## src/experiment_engine/models/
 
 - `__init__.py` — QCA Text Analysis Tool — data models. (~738 tok)
-- `qca.py` — QCA domain models — text analysis, calibration, truth tables, solutions, etc. (~5368 tok)
+- `qca.py` — QCA domain models — text analysis, calibration, truth tables, solutions, etc. (~5386 tok)
 
 ## src/experiment_engine/qca_engine/
 
 
 ## src/experiment_engine/qca_engine/advanced/
 
+- `robustness.py` — Robustness and sensitivity tests for QCA results. (~4823 tok)
 
 ## src/experiment_engine/report/
 
@@ -77,6 +81,7 @@
 
 - `__init__.py` — Text calibration layer: raw text → fuzzy-set membership scores. (~368 tok)
 - `condition.py` — Condition set I/O helpers — YAML serialization for QCA condition definitions. (~2415 tok)
+- `strategies.py` — Calibration strategy pattern — pluggable membership calibration algorithms. (~3647 tok)
 - `training.py` — Training engine for fitting calibration parameters from labeled samples. (~2411 tok)
 
 ## src/experiment_engine/viz/
@@ -103,14 +108,14 @@
 
 ## src/pyodide/
 
-- `engine.ts` — jsdelivr CDN URL for Pyodide full build (stdlib + numpy + common pkgs). (~3669 tok)
+- `types.ts` — Raw Chinese text strings to calibrate. Dead code — no external consumers; kept as documentation. (~750 tok)
 
 ## src/services/
 
 - `bert-cache.ts` — BERT embedding cache service — IndexedDB persistence. (~288 tok)
-- `bert-engine.ts` — BertEngine class — Transformers.js feature extraction. (~2432 tok)
+- `bert-engine.ts` — Default BERT model for Chinese text feature extraction. (~2722 tok)
 - `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~4448 tok)
-- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~6177 tok)
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~6864 tok)
 
 ## src/store/
 
@@ -124,7 +129,14 @@
 
 ## tests/
 
+- `test_robustness.py` — Unit tests for robustness testing module (qca_engine/advanced/robustness.py). (~2661 tok)
 
 ## tmp/
 
+- `generate_test_data.py` — Generate QCA test datasets and verify them. (~4823 tok)
+- `test_condition_set.yaml` — Custom QCA condition set YAML with modified keywords/calibration for testing custom conditions (~500 tok)
+- `test_dataset_1_standard.csv` — 15 realistic citizen feedback texts across all 5 QCA domains (~400 tok)
+- `test_dataset_2_edge_cases.csv` — 10 edge-case texts testing algorithmic boundaries (~300 tok)
+- `test_dataset_3_small_n.csv` — 5 precision validation texts with predictable keyword coverage (~200 tok)
+- `verify_pipeline.py` — record (~8086 tok)
 - `verify-load-engine.mjs` — BASE: snap, check (~2089 tok)

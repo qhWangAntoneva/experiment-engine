@@ -73,4 +73,7 @@ export interface AnalysisOutput {
 
 // ── Engine API ──────────────────────────────────────────────────────────────
 
-export type { EngineState, EngineStatus, StatusCallback } from "./engine"
+/* ARCH-1 cleanup: EngineState, EngineStatus, StatusCallback were re-exported
+   from the now-deleted engine.ts. These types are unused in the current
+   architecture — the actual Pyodide engine lives in src/services/pyodide.*.
+   If these type names are needed again, define them inline in this file. */
