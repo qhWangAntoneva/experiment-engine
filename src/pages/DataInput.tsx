@@ -707,6 +707,7 @@ export default function DataInput() {
     }
   }, [
     textCases, texts, yamlContent,
+    importedConditionSet,
     runCalibrateOnly, t,
   ]);
 
@@ -738,6 +739,7 @@ export default function DataInput() {
     }
   }, [
     textCases, texts, yamlContent,
+    importedConditionSet,
     runFullPipeline,
     navigate, t,
   ]);

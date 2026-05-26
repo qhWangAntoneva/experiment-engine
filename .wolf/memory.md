@@ -3,6 +3,7 @@
 > Active sessions: most recent 2. Older sessions archived to `memory-archive.md`.
 
 | 2026-05-27 | P2-37: Unified report CLI path via api.run_report(). Removed redundant file load, console-only fallback. 532 tests pass. | cli.py | done | ~50 |
+| 2026-05-27 | Fix stale closure: added importedConditionSet to handleCalibrate and handleRunPipeline dependency arrays | DataInput.tsx | done | ~2 |
 | 2026-05-27 | P2-28: Added 3 validation checks to validate_qca_output.py: membership shape (N_cases x N_cols), outcome column unique count (WARN if < 2), solution quality score (avg of best consistency*coverage). Updated summary table with Quality column. | validate_qca_output.py | done | ~600 |
 
 | 2026-05-27 | Fixed Use Template bug (DataInput.tsx ignored state.conditionSet). Added useEffect hydration. TS build clean. | DataInput.tsx | fixed | ~200 |
@@ -139,3 +140,14 @@
 | 03:45 | Edited validate_qca_output.py | modified check_outcome_variation() | ~538 |
 | 03:45 | Edited validate_qca_output.py | expanded (+26 lines) | ~348 |
 | 03:45 | Edited validate_qca_output.py | modified items() | ~295 |
+| 03:49 | Session end: 34 writes across 24 files (DataInput.tsx, TODO.md, qca_reporter.py, cli.py, api.py) | 48 reads | ~11908 tok |
+
+## Session: 2026-05-26 03:50
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 04:03 | Edited src/pages/DataInput.tsx | added 1 import(s) | ~36 |
+| 04:03 | Edited src/pages/DataInput.tsx | added 1 import(s) | ~32 |
+| 04:03 | Edited src/components/TemplateLibrary.tsx | inline fix | ~20 |
+| 04:03 | Edited src/components/TemplateLibrary.tsx | CSS: CSQCA, qca_variant | ~192 |
+| 04:04 | Session end: 4 writes across 2 files (DataInput.tsx, TemplateLibrary.tsx) | 11 reads | ~16471 tok |

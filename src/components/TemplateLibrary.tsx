@@ -12,7 +12,7 @@ import {
   getImportedTemplates,
   removeImportedTemplate,
 } from '../services/templateService';
-import type { ConditionSetTemplate } from '../types/qca';
+import { QCAVariant, type ConditionSetTemplate } from '../types/qca';
 import './TemplateLibrary.css';
 
 const DOMAIN_COLORS: Record<string, string> = {
@@ -55,6 +55,9 @@ export default function TemplateLibrary() {
 
   const handleUseTemplate = useCallback(
     (template: ConditionSetTemplate) => {
+      const raw = localStorage.getItem('qca-settings');
+      const settings = raw ? JSON.parse(raw) : {};
+      const qcaVariant = settings.qca_variant === 'csqca' ? QCAVariant.CSQCA : QCAVariant.FSQCA;
       const cs = {
         name: template.name,
         description: template.description,
@@ -62,6 +65,7 @@ export default function TemplateLibrary() {
         conditions: template.conditions,
         outcome: template.outcome,
         scoring_source: 'prototype' as const,
+        qca_variant: qcaVariant,
       };
       setConditionSet(cs);
       navigate('/input');

@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T19:45:29.178Z
-> Files: 1 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T20:03:54.427Z
+> Files: 2 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/
 
@@ -17,7 +17,6 @@
 
 ## ./
 
-- `validate_qca_output.py` — Validate all 5 domain QCA outputs and print summary. (~5398 tok)
 
 ## .claude/
 
@@ -51,6 +50,7 @@
 
 ## src/components/
 
+- `TemplateLibrary.tsx` — TemplateLibrary — displays built-in and imported QCA condition set (~1561 tok)
 
 ## src/experiment_engine/
 
@@ -93,6 +93,7 @@
 
 ## src/pages/
 
+- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~14630 tok)
 
 ## src/pyodide/
 
