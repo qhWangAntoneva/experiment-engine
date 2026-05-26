@@ -2,14 +2,14 @@
   "version": 1,
   "created_at": "2026-05-15T12:06:18.944Z",
   "lifetime": {
-    "total_tokens_estimated": 9419115,
-    "total_reads": 4180,
-    "total_writes": 5289,
+    "total_tokens_estimated": 9460335,
+    "total_reads": 4205,
+    "total_writes": 5305,
     "total_sessions": 22,
-    "anatomy_hits": 1380,
-    "anatomy_misses": 2102,
-    "repeated_reads_blocked": 5279,
-    "estimated_savings_vs_bare_cli": 18787493
+    "anatomy_hits": 1393,
+    "anatomy_misses": 2111,
+    "repeated_reads_blocked": 5325,
+    "estimated_savings_vs_bare_cli": 18968034
   },
   "sessions": [
     {
@@ -54414,6 +54414,253 @@
         "writes_count": 13,
         "repeated_reads_blocked": 32,
         "anatomy_lookups": 7
+      }
+    },
+    {
+      "id": "session-2026-05-26-1055",
+      "started": "2026-05-26T02:55:41.696Z",
+      "ended": "2026-05-26T04:45:59.003Z",
+      "reads": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/__init__.py",
+          "tokens_estimated": 368,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pyodide_handlers.py",
+          "tokens_estimated": 6397,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tests/test_robustness.py",
+          "tokens_estimated": 2657,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/.gitignore",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/DEPLOY-CHECKLIST.md",
+          "tokens_estimated": 5095,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/translations.ts",
+          "tokens_estimated": 9360,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/main.tsx",
+          "tokens_estimated": 725,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Dashboard.tsx",
+          "tokens_estimated": 3040,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/I18nContext.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/Sidebar.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Dashboard.css",
+          "tokens_estimated": 592,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/App.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/Sidebar.css",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/layouts/MainLayout.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/layouts/MainLayout.css",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/index.css",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/.github/workflows/deploy.yml",
+          "tokens_estimated": 1800,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/.claude/projects/C--Users-lenovos-QCA-Analysis-Tool/904bbdea-e24b-4150-850e-ede5e07e7fd1/tool-results/bpmu12tmd.txt",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/index.html",
+          "tokens_estimated": 563,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/vite.config.ts",
+          "tokens_estimated": 344,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/public/404.html",
+          "tokens_estimated": 278,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/package.json",
+          "tokens_estimated": 194,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/services/pyodide.worker.ts",
+          "tokens_estimated": 6864,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/dist/index.html",
+          "tokens_estimated": 563,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/AppData/Local/Temp/claude/C--Users-lenovos-QCA-Analysis-Tool/6f413b23-5f66-47b3-bce4-69af374e4820/tasks/b6kvb8ds0.output",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/core/__init__.py",
+          "tokens_estimated": 132,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pyodide_handlers.py",
+          "tokens_estimated": 62,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tests/test_robustness.py",
+          "tokens_estimated": 16,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tests/test_robustness.py",
+          "tokens_estimated": 15,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tests/test_robustness.py",
+          "tokens_estimated": 16,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/.gitignore",
+          "tokens_estimated": 48,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/translations.ts",
+          "tokens_estimated": 22,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/translations.ts",
+          "tokens_estimated": 11,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/translations.ts",
+          "tokens_estimated": 21,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/translations.ts",
+          "tokens_estimated": 38,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/i18n/translations.ts",
+          "tokens_estimated": 78,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Dashboard.tsx",
+          "tokens_estimated": 42,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/Dashboard.css",
+          "tokens_estimated": 68,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/index.html",
+          "tokens_estimated": 5,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/.github/workflows/deploy.yml",
+          "tokens_estimated": 1806,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/public/.nojekyll",
+          "tokens_estimated": 0,
+          "action": "create"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 38840,
+        "output_tokens_estimated": 2380,
+        "reads_count": 25,
+        "writes_count": 16,
+        "repeated_reads_blocked": 46,
+        "anatomy_lookups": 13
       }
     }
   ],

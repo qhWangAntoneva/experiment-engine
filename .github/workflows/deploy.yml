@@ -1,18 +1,14 @@
 # ==============================================================================
 # deploy.yml — Pyodide QCA Text Analysis Tool → GitHub Pages
 # ==============================================================================
-# Strategy: Option B — single-repo gh-pages branch deployment.
+# Strategy: GitHub Actions-based Pages deployment (official API).
 #   URL: https://qhWangAntoneva.github.io/experiment-engine/
 #
-#   Rationale over Option A (separate qca-web repo):
-#     - One repo to manage (no cross-repo token/secrets dance).
-#     - `peaceiris/actions-gh-pages@v4` handles the branch isolation cleanly.
-#     - Switch to cross-repo later by adding `external_repository` to the deploy
-#       step and a PAT secret — no workflow restructure needed.
-#
-#   Rationale over Option C (<username>.github.io repo):
-#     - Would occupy the root domain, blocking other project pages.
-#     - Only justified if custom domain + apex deployment is required (not yet).
+#   Switched from peaceiris/actions-gh-pages (legacy branch-based deployment)
+#   to the official actions/deploy-pages pipeline because GitHub Pages' legacy
+#   build system (build_type: "legacy") rejects pushes from github-actions[bot]
+#   (GITHUB_TOKEN), causing "Page build failed." with 0ms duration.  See
+#   buglog bug-004 for the full diagnosis.
 #
 # Pyodide asset strategy: CDN (cdn.jsdelivr.net/pyodide/v0.26.4/full/)
 #   - GitHub Pages has a 1 GB soft limit; self-hosting 50 MB of Pyodide assets
@@ -36,13 +32,16 @@ on:
         default: '0.26.4'
 
 # ── Permissions ─────────────────────────────────────────────────────────────
-# `contents: write` is required for peaceiris/actions-gh-pages to push the
-# gh-pages branch. `pages: write` + `id-token: write` are for the official
-# GitHub Pages deployment API (optional fallback).
+# `contents: read` for checkout.
+# `pages: write` + `id-token: write` are required by actions/deploy-pages
+# (the official GitHub Pages deployment API via OIDC).
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+  administration: write  # configure-pages needs this to enable/configure Pages
 
-# Prevent parallel deploys from racing on the gh-pages branch.
+# Prevent parallel deploys from racing on Pages artifact upload.
 concurrency:
   group: "pages"
   cancel-in-progress: true
@@ -52,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       # ── 1. Checkout ─────────────────────────────────────────────────────
@@ -103,7 +102,7 @@ jobs:
           echo "::notice::Module listing:"
           tar tzf dist/py/experiment_engine.tar.gz | head -30
 
-      # ── 5. Copy Pyodide version manifest (optional; for runtime checks) ──
+      # ── 5. Write Pyodide version manifest (optional; for runtime checks) ──
       - name: Write Pyodide version manifest
         run: |
           cat > dist/py/pyodide-manifest.json << 'MANIFEST'
@@ -115,24 +114,23 @@ jobs:
           }
           MANIFEST
 
-      # ── 6. Deploy to gh-pages branch ───────────────────────────────────
-      #    `force_orphan: true` ensures a single-commit gh-pages branch
-      #    (no history bloat from CI commits).
-      #    `publish_dir: ./dist` — Vite's default output directory.
-      #    `destination_dir: .` — deploys to repo root of gh-pages so assets
-      #    are at /experiment-engine/ not /experiment-engine/dist/.
-      #    To switch to cross-repo Option A later, add:
-      #      external_repository: qhWangAntoneva/qca-web
-      #      personal_token: ${{ secrets.CROSS_REPO_PAT }}
-      - name: Deploy to GitHub Pages
-        id: deploy
-        uses: peaceiris/actions-gh-pages@v4
+      # ── 6. GitHub Pages deployment (official API) ──────────────────────
+      #    Uses the Actions-based Pages pipeline instead of branch-based
+      #    (legacy) deployment.  This avoids the known issue where GitHub's
+      #    legacy Pages build system rejects pushes from github-actions[bot].
+      #    On the first run, configure-pages will automatically switch the
+      #    repo's Pages source from "Deploy from a branch" to "GitHub Actions".
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          publish_branch: gh-pages
-          force_orphan: true
-          commit_message: "deploy: ${{ github.sha }} [skip ci]"
+          path: ./dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
       # ── 7. Post-deploy summary ──────────────────────────────────────────
       - name: Deployment summary

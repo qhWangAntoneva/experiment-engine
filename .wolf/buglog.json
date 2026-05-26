@@ -3987,6 +3987,18 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-26T04:17:49.600Z"
+    },
+    {
+      "id": "bug-004",
+      "timestamp": "2026-05-26T05:00:00.000Z",
+      "error_message": "GitHub Pages build failed: \"Page build failed.\" with 0ms duration",
+      "file": ".github/workflows/deploy.yml",
+      "root_cause": "GitHub Pages legacy build system (build_type: 'legacy') rejects pushes from github-actions[bot] (GITHUB_TOKEN). The successful build was pushed by user qhWangAntoneva; all GITHUB_TOKEN pushes fail immediately (duration: 0). This is a known GitHub limitation — the legacy Jekyll-based build system does not properly process bot-triggered branch pushes.",
+      "fix": "Switched from peaceiris/actions-gh-pages (branch-based legacy deployment) to the official GitHub Actions Pages deployment pipeline: actions/configure-pages@v4 + actions/upload-pages-artifact@v3 + actions/deploy-pages@v4. This replaces the peaceiris step with three official steps, changes permissions from 'contents: write' to 'contents: read, pages: write, id-token: write', and transitions Pages source from 'legacy' (branch-based) to 'workflow' (Actions-based). The gh-pages branch is no longer needed.",
+      "tags": ["github-pages", "deploy", "CI/CD", "peaceiris", "GITHUB_TOKEN", "legacy-build"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T05:00:00.000Z"
     }
   ]
 }

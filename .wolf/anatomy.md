@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T04:17:49.578Z
-> Files: 43 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T06:16:10.915Z
+> Files: 45 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -28,6 +28,7 @@
 
 ## .github/workflows/
 
+- `deploy.yml` — ============================================================================== (~1829 tok)
 
 ## .wolf/
 
@@ -35,6 +36,7 @@
 
 ## public/
 
+- `.nojekyll` (~0 tok)
 - `404.html` — QCA Analysis Tool (~278 tok)
 
 ## roadmap/

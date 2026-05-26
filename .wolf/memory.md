@@ -1385,3 +1385,7 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 12:10 | Session end: 13 writes across 7 files (__init__.py, pyodide_handlers.py, test_robustness.py, .gitignore, translations.ts) | 18 reads | ~28078 tok |
 | 12:16 | Session end: 13 writes across 7 files (__init__.py, pyodide_handlers.py, test_robustness.py, .gitignore, translations.ts) | 18 reads | ~28078 tok |
 | 12:17 | Edited index.html | "zh-CN" → "en" | ~5 |
+| 12:37 | Edited .github/workflows/deploy.yml | 146→143 lines | ~1806 |
+| 12:39 | Created public/.nojekyll | — | ~0 |
+| 12:45 | Session end: 16 writes across 10 files (__init__.py, pyodide_handlers.py, test_robustness.py, .gitignore, translations.ts) | 25 reads | ~41220 tok |
+| 14:16 | Edited .github/workflows/deploy.yml | 4→5 lines | ~41 |
