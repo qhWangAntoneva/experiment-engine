@@ -6,13 +6,12 @@
 
 | 指标 | 值 |
 |------|-----|
-| HEAD | `c183c6b` — P2-28 validate.py enhanced, 5 S级P2全部完成 |
+| HEAD | `df7f301` — Template Use Bug 彻底修复 |
 | 分支 | `master` (已推送) |
-| 后续提交 | `c0bdc0a` (P2-33) `72d9fd4` (P2-37) `8c88ad8` (P2-26+UseTemplate) `94d0f2d` (P2-31) |
+| 后续提交 | `df7f301` (Template Bug修复) |
 | 测试 | 532 passed, 1 skipped, 6 xfailed |
-| TS | `npm run build` clean |
-| P2 完成 | 5/27 (P2-33/37/26/31/28) |
-| P2 剩余 | 22 项 |
+| TS | pre-existing dup MembershipDataJSON issue（与本修复无关） |
+| 基线提交 | `c183c6b` + 5 S级P2已完成 |
 
 ## 2. 本轮已完成 (2026-05-27 Session)
 

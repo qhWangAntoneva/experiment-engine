@@ -67,7 +67,7 @@
 
 ### Critical (still active)
 
-- [2026-05-27] **TemplateLibrary's setConditionSet is invisible to DataInput**: DataInput reads `importedConditionSet` (local state from file import) and `yamlContent` (textarea), NOT `state.conditionSet`. Any code path that sets `conditionSet` in pipeline context before navigating to `/input` must also hydrate DataInput's local state. Fix: add a `useEffect` that reads `state.conditionSet` on mount and dispatches a clear + sets `importedConditionSet`.
+- [2026-05-27 → 2026-05-27 **FIXED**] **TemplateLibrary's `setConditionSet` fails because `handleCalibrate`/`handleRunPipeline` have stale closures**: The hydration `useEffect` (DataInput.tsx:359-365) correctly sets `importedConditionSet`, but `handleCalibrate` and `handleRunPipeline` useCallback dependency arrays **lacked `importedConditionSet`**, so the memoized callbacks captured the old `null` value and fell back to `yamlContent`. Root cause confirmed by 3-agent analysis (functional analyst, code technical advisor, investigator), reviewed and ACCEPTED. Fix: add `importedConditionSet` to both dependency arrays. Also added `qca_variant` to TemplateLibrary's constructed ConditionSet object. **The useEffect hydration + dispatch null pattern is correct** — React 18 StrictMode does NOT cause this bug because useState values persist across StrictMode double-mounts.
 
 - [2026-05-26] **memory.md growth**: archive sessions >2 days to memory-archive.md periodically
 - [2026-05-25/26] **Agent completion claims not trustworthy** — after any agent claims completion, MUST verify with Read/Grep/`git diff --stat`. Fabricated modifications common.
