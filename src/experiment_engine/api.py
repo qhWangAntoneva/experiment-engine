@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from experiment_engine.models import (
-    FuzzySetData,
+    MembershipData,
     QCAAnalysisResult,
     QCAVariant,
     RobustnessReport,
@@ -27,7 +27,7 @@ def run_calibrate(
     data_path: str,
     variant: str = "fsqca",
     text_column: str = "text",
-) -> FuzzySetData:
+) -> MembershipData:
     """Calibrate raw texts to fuzzy-set membership scores.
 
     Uses ground-truth outcomes from the CSV ``expected_outcome`` column
@@ -41,7 +41,7 @@ def run_calibrate(
         text_column: Column name containing text content.
 
     Returns:
-        FuzzySetData with calibrated membership scores.
+        MembershipData with calibrated membership scores.
 
     Raises:
         ValueError: If the CSV does not contain an ``expected_outcome`` column.
@@ -98,7 +98,7 @@ def run_calibrate(
         outcome_vector=outcome_vector,
     )
 
-    fuzzy: FuzzySetData = result.processed  # type: ignore[assignment]
+    fuzzy: MembershipData = result.processed  # type: ignore[assignment]
     return fuzzy
 
 
@@ -392,7 +392,7 @@ def run_docx_report(
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def _load_fuzzy_data(path: str, cs: Any) -> FuzzySetData:
+def _load_fuzzy_data(path: str, cs: Any) -> MembershipData:
     """Load fuzzy-set data from ``.npz``, ``.json``, or ``.csv`` file.
 
     Shared between :mod:`api` and :mod:`cli`.
@@ -401,7 +401,7 @@ def _load_fuzzy_data(path: str, cs: Any) -> FuzzySetData:
 
     if path.endswith(".npz"):
         data = np.load(path, allow_pickle=True)
-        return FuzzySetData(
+        return MembershipData(
             membership=data["membership"],
             condition_names=data.get("condition_names", cs.condition_names).tolist(),
             outcome_name=str(
@@ -414,7 +414,7 @@ def _load_fuzzy_data(path: str, cs: Any) -> FuzzySetData:
     if path.endswith(".json"):
         with open(path, encoding="utf-8") as fh:
             raw = json.load(fh)
-        return FuzzySetData(
+        return MembershipData(
             membership=np.array(raw["membership"]),
             condition_names=raw.get("condition_names", []),
             outcome_name=raw.get("outcome_name", ""),
@@ -428,7 +428,7 @@ def _load_fuzzy_data(path: str, cs: Any) -> FuzzySetData:
     all_names = [*condition_names, outcome_name]
     available = [c for c in all_names if c in df.columns]
     membership = df[available].to_numpy(dtype=np.float64)
-    return FuzzySetData(
+    return MembershipData(
         membership=membership,
         condition_names=[c for c in available if c != outcome_name],
         outcome_name=outcome_name,

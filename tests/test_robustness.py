@@ -6,7 +6,7 @@ import warnings
 
 import numpy as np
 
-from experiment_engine.models import ConditionSet, FuzzySetData, QCAAnalysisResult
+from experiment_engine.models import ConditionSet, MembershipData, QCAAnalysisResult
 from experiment_engine.qca_engine.advanced.robustness import (
     RobustnessTester,
     RobustnessTestResult,
@@ -17,12 +17,12 @@ from experiment_engine.qca_engine.analyzer import QCAnalyzerStage
 # ── helpers ──────────────────────────────────────────────────────────────────
 
 
-def _make_fuzzy(n: int, k: int, seed: int = 42) -> FuzzySetData:
-    """Create synthetic FuzzySetData with n cases and k conditions."""
+def _make_fuzzy(n: int, k: int, seed: int = 42) -> MembershipData:
+    """Create synthetic MembershipData with n cases and k conditions."""
     rng = np.random.RandomState(seed)
     membership = rng.uniform(0, 1, (n, k + 1))
     condition_names = [f"cond_{i}" for i in range(k)]
-    return FuzzySetData(
+    return MembershipData(
         membership=membership,
         condition_names=condition_names,
         outcome_name="outcome",
@@ -63,7 +63,7 @@ def _make_condition_set(k: int) -> ConditionSet:
     )
 
 
-def _run_analyzer(fuzzy: FuzzySetData) -> QCAAnalysisResult:
+def _run_analyzer(fuzzy: MembershipData) -> QCAAnalysisResult:
     """Run QCAnalyzerStage on fuzzy data and return the result."""
     cs = _make_condition_set(fuzzy.membership.shape[1] - 1)
     analyzer = QCAnalyzerStage(

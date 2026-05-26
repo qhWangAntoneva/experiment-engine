@@ -12,7 +12,7 @@ import warnings
 import numpy as np
 
 from experiment_engine.models import (
-    FuzzySetData,
+    MembershipData,
     QCASolution,
     QCASolutions,
     SolutionTerm,
@@ -31,7 +31,7 @@ class SufficiencyAnalyzer:
 
     def analyze(
         self,
-        fuzzy_data: FuzzySetData,
+        fuzzy_data: MembershipData,
         solutions: QCASolutions,
     ) -> SufficiencyResults:
         """Compute consistency and coverage for all solution terms.

@@ -20,7 +20,7 @@ import numpy as np
 
 
 def _serialize_fuzzy(fuzzy):
-    """Serialize a MembershipData / FuzzySetData object to a JSON-compatible dict.
+    """Serialize a MembershipData / MembershipData object to a JSON-compatible dict.
 
     Returns an empty-skeleton dict when ``fuzzy`` is None.
     """
@@ -69,7 +69,7 @@ def handle_calibrate(
     Returns:
         Nothing — writes JSON to *output_path*.
     """
-    from experiment_engine.models import FuzzySetData, InputData, TrainingSample
+    from experiment_engine.models import InputData, MembershipData, TrainingSample
     from experiment_engine.text_calibration.calibrator import TextCalibrationStage
     from experiment_engine.text_calibration.condition import _condition_set_from_dict
 
@@ -99,7 +99,7 @@ def handle_calibrate(
         if _raw_fuzzy is None:
             _raw_fuzzy = _result
         else:
-            _raw_fuzzy = FuzzySetData(
+            _raw_fuzzy = MembershipData(
                 membership=np.vstack([_raw_fuzzy.membership, _result.membership]),
                 case_ids=_raw_fuzzy.case_ids + _result.case_ids,
                 condition_names=_raw_fuzzy.condition_names,
@@ -205,7 +205,7 @@ def handle_analyze(fuzzy_data_path, params_path, output_path):
                      ({consistency_threshold, frequency_threshold}).
         output_path: VFS path to write the QCA analysis result JSON.
     """
-    from experiment_engine.models import FuzzySetData
+    from experiment_engine.models import MembershipData
     from experiment_engine.qca_engine.analyzer import QCAnalyzerStage
 
     with open(fuzzy_data_path, encoding="utf-8") as f:
@@ -213,7 +213,7 @@ def handle_analyze(fuzzy_data_path, params_path, output_path):
     with open(params_path, encoding="utf-8") as f:
         _params = json.load(f)
 
-    _fuzzy = FuzzySetData(
+    _fuzzy = MembershipData(
         membership=np.array(_fd_dict["membership"]),
         case_ids=_fd_dict.get("case_ids"),
         condition_names=_fd_dict.get("condition_names", []),
@@ -246,7 +246,7 @@ def handle_robustness(fuzzy_data_path, analysis_result_path, output_path):
         analysis_result_path: VFS path to JSON dict of QCAAnalysisResult.
         output_path: VFS path to write the robustness report JSON.
     """
-    from experiment_engine.models import FuzzySetData, QCAAnalysisResult
+    from experiment_engine.models import MembershipData, QCAAnalysisResult
     from experiment_engine.qca_engine.advanced.robustness import RobustnessTester
 
     with open(fuzzy_data_path, encoding="utf-8") as f:
@@ -254,7 +254,7 @@ def handle_robustness(fuzzy_data_path, analysis_result_path, output_path):
     with open(analysis_result_path, encoding="utf-8") as f:
         _ar_dict = json.load(f)
 
-    _fuzzy = FuzzySetData(
+    _fuzzy = MembershipData(
         membership=np.array(_fd_dict["membership"]),
         case_ids=_fd_dict.get("case_ids"),
         condition_names=_fd_dict.get("condition_names", []),
@@ -281,7 +281,7 @@ def handle_counterfactuals(fuzzy_data_path, analysis_result_path, output_path):
         analysis_result_path: VFS path to JSON dict of QCAAnalysisResult.
         output_path: VFS path to write the counterfactual report JSON.
     """
-    from experiment_engine.models import FuzzySetData, QCAAnalysisResult
+    from experiment_engine.models import MembershipData, QCAAnalysisResult
     from experiment_engine.qca_engine.advanced.counterfactual import (
         CounterfactualAnalyzer,
     )
@@ -291,7 +291,7 @@ def handle_counterfactuals(fuzzy_data_path, analysis_result_path, output_path):
     with open(analysis_result_path, encoding="utf-8") as f:
         _ar_dict = json.load(f)
 
-    _fuzzy = FuzzySetData(
+    _fuzzy = MembershipData(
         membership=np.array(_fd_dict["membership"]),
         case_ids=_fd_dict.get("case_ids"),
         condition_names=_fd_dict.get("condition_names", []),

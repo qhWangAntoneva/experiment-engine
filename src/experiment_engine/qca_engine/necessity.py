@@ -9,7 +9,7 @@ from __future__ import annotations
 import numpy as np
 
 from experiment_engine.models import (
-    FuzzySetData,
+    MembershipData,
     NecessityConditionResult,
     NecessityResults,
 )
@@ -31,7 +31,7 @@ class NecessityAnalyzer:
         """
         self.threshold = threshold
 
-    def analyze(self, fuzzy_data: FuzzySetData) -> NecessityResults:
+    def analyze(self, fuzzy_data: MembershipData) -> NecessityResults:
         """Analyze necessity for all conditions against the outcome.
 
         Args:

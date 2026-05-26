@@ -18,7 +18,7 @@ from experiment_engine.models import (
     CalibrationType,
     ConditionDefinition,
     ConditionSet,
-    FuzzySetData,
+    MembershipData,
     QCASolution,
     QCASolutions,
     SolutionTerm,
@@ -74,9 +74,9 @@ LIPSET_OUTCOME_NAME = "survived_democracy"
 # Consistency ~0.903, Coverage ~0.829
 
 
-def make_lipset_fuzzy_data() -> FuzzySetData:
-    """Create a FuzzySetData from the Lipset membership matrix."""
-    return FuzzySetData(
+def make_lipset_fuzzy_data() -> MembershipData:
+    """Create a MembershipData from the Lipset membership matrix."""
+    return MembershipData(
         membership=LIPSET_MEMBERSHIP.copy(),
         condition_names=list(LIPSET_CONDITION_NAMES),
         outcome_name=LIPSET_OUTCOME_NAME,
@@ -88,10 +88,10 @@ def make_lipset_fuzzy_data() -> FuzzySetData:
 
 def make_simple_fuzzy(
     cond: np.ndarray, outcome: np.ndarray, name: str = "C1", out_name: str = "Y"
-) -> FuzzySetData:
-    """Create FuzzySetData from 1-D condition and outcome vectors."""
+) -> MembershipData:
+    """Create MembershipData from 1-D condition and outcome vectors."""
     membership = np.column_stack([cond, outcome])
-    return FuzzySetData(
+    return MembershipData(
         membership=membership,
         condition_names=[name],
         outcome_name=out_name,
@@ -103,12 +103,12 @@ def make_fuzzy_data(
     outcome: np.ndarray,
     names: list[str] | None = None,
     out_name: str = "Y",
-) -> FuzzySetData:
-    """Create FuzzySetData from condition matrix and outcome vector."""
+) -> MembershipData:
+    """Create MembershipData from condition matrix and outcome vector."""
     if names is None:
         names = [f"C{i}" for i in range(cond_matrix.shape[1])]
     membership = np.column_stack([cond_matrix, outcome])
-    return FuzzySetData(
+    return MembershipData(
         membership=membership, condition_names=names, outcome_name=out_name
     )
 
@@ -1202,8 +1202,6 @@ class TestCSQCAIntegration:
         stage.setup()
         result = stage.process(input_data)
 
-        from experiment_engine.models import MembershipData
-
         fuzzy: MembershipData = result.processed  # type: ignore[assignment]
 
         # With csQCA, all membership values should be exactly 0 or 1
@@ -1215,7 +1213,7 @@ class TestCSQCAIntegration:
 
     def test_csqca_truth_table_with_crisp_data(self):
         """Truth table built from crisp-set data produces correct config frequencies."""
-        from experiment_engine.models import FuzzySetData
+        from experiment_engine.models import MembershipData
 
         # Synthetic crisp-set membership: 4 cases, 2 conditions + 1 outcome
         # Cases: A=1,B=1→Y=1; A=1,B=0→Y=0; A=0,B=1→Y=1; A=0,B=0→Y=0
@@ -1229,7 +1227,7 @@ class TestCSQCAIntegration:
             dtype=np.float64,
         )
 
-        fuzzy = FuzzySetData(
+        fuzzy = MembershipData(
             membership=membership,
             condition_names=["A", "B"],
             outcome_name="Y",
@@ -1260,7 +1258,7 @@ class TestCSQCAIntegration:
 
     def test_csqca_analyzer_with_crisp_data(self):
         """Full QCAnalyzerStage works with crisp-set data."""
-        from experiment_engine.models import FuzzySetData, QCAVariant
+        from experiment_engine.models import MembershipData, QCAVariant
 
         # Synthetic crisp-set data: 8 cases, 3 conditions + 1 outcome
         # Outcome=1 for rows with A=1 OR (B=1 AND C=1)
@@ -1278,7 +1276,7 @@ class TestCSQCAIntegration:
             dtype=np.float64,
         )
 
-        fuzzy = FuzzySetData(
+        fuzzy = MembershipData(
             membership=membership,
             condition_names=["A", "B", "C"],
             outcome_name="Y",

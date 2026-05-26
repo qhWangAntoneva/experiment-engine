@@ -112,9 +112,6 @@ export interface MembershipDataJSON {
   metadata: Record<string, unknown>;
 }
 
-/** Backward-compatibility alias */
-export type FuzzySetDataJSON = MembershipDataJSON;
-
 // ─── Truth Table ───────────────────────────────────────────────────────────
 
 export interface TruthTableRow {

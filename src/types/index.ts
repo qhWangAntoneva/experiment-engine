@@ -42,7 +42,7 @@ export type {
   ConditionDefinition,
   ConditionSet,
   MembershipDataJSON,
-  FuzzySetDataJSON,
+  MembershipDataJSON,
   TruthTableRow,
   TruthTableJSON,
   SolutionTerm,

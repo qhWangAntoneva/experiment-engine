@@ -5,8 +5,7 @@ This package provides all Pydantic v2 data models used across the pipeline:
   - qca.py        — QCA domain models (conditions, truth tables, solutions, etc.)
   - training.py   — training-related models (labeled samples, datasets)
 
-All symbols are re-exported from this __init__ so that existing imports
-like ``from experiment_engine.models import FuzzySetData`` continue to work.
+All symbols are re-exported from this __init__ for convenient access.
 """
 
 from experiment_engine.models.framework import (
@@ -34,7 +33,6 @@ from experiment_engine.models.qca import (
     ConditionSet,
     CounterfactualClassification,
     CounterfactualReport,
-    FuzzySetData,  # deprecated backward-compat alias
     MembershipData,
     MultiOutcomeReport,
     NecessityConditionResult,
@@ -66,7 +64,6 @@ __all__ = [
     "CounterfactualReport",
     "ExperimentConfig",
     "ExportConfig",
-    "FuzzySetData",
     "InputConfig",
     "InputData",
     "MembershipData",

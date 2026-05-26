@@ -5347,6 +5347,292 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-26T18:59:16.928Z"
+    },
+    {
+      "id": "bug-327",
+      "timestamp": "2026-05-26T19:24:44.856Z",
+      "error_message": "Type error",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:24:44.856Z"
+    },
+    {
+      "id": "bug-328",
+      "timestamp": "2026-05-27T18:30:00.000Z",
+      "error_message": "Use Template button navigates to /input but condition set is invisible — DataInput never reads state.conditionSet",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "TemplateLibrary stores conditionSet in pipeline context via setConditionSet(), then navigates to /input. But DataInput only reads yamlContent (textarea) and importedConditionSet (file import) — never state.conditionSet. Template's condition set is silently lost.",
+      "fix": "Added useEffect in DataInput that reads state.conditionSet on mount and populates importedConditionSet + clears the context state via dispatch.",
+      "tags": [
+        "use-template",
+        "data-flow",
+        "frontend-bug",
+        "tsx"
+      ]
+    },
+    {
+      "id": "bug-329",
+      "timestamp": "2026-05-26T19:35:24.785Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "src/experiment_engine/api.py",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:24.785Z"
+    },
+    {
+      "id": "bug-330",
+      "timestamp": "2026-05-26T19:35:26.306Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "src/experiment_engine/cli.py",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:26.306Z"
+    },
+    {
+      "id": "bug-331",
+      "timestamp": "2026-05-26T19:35:27.669Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "src/experiment_engine/pyodide_handlers.py",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:27.669Z"
+    },
+    {
+      "id": "bug-332",
+      "timestamp": "2026-05-26T19:35:29.091Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "src/experiment_engine/qca_engine/advanced/robustness.py",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:29.091Z"
+    },
+    {
+      "id": "bug-333",
+      "timestamp": "2026-05-26T19:35:30.632Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "src/experiment_engine/qca_engine/analyzer.py",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:30.632Z"
+    },
+    {
+      "id": "bug-334",
+      "timestamp": "2026-05-26T19:35:31.951Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "src/experiment_engine/qca_engine/necessity.py",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:31.951Z"
+    },
+    {
+      "id": "bug-335",
+      "timestamp": "2026-05-26T19:35:33.373Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "src/experiment_engine/qca_engine/sufficiency.py",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:33.373Z"
+    },
+    {
+      "id": "bug-336",
+      "timestamp": "2026-05-26T19:35:35.030Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "src/experiment_engine/qca_engine/truth_table.py",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:35.030Z"
+    },
+    {
+      "id": "bug-337",
+      "timestamp": "2026-05-26T19:35:36.332Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "src/experiment_engine/viz/qca_plots.py",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:36.332Z"
+    },
+    {
+      "id": "bug-338",
+      "timestamp": "2026-05-26T19:35:37.610Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "src/experiment_engine/viz/viz_bridge.py",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:37.610Z"
+    },
+    {
+      "id": "bug-339",
+      "timestamp": "2026-05-26T19:35:38.901Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "tests/test_qca_core.py",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:38.901Z"
+    },
+    {
+      "id": "bug-340",
+      "timestamp": "2026-05-26T19:35:40.324Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "tests/test_robustness.py",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:40.324Z"
+    },
+    {
+      "id": "bug-341",
+      "timestamp": "2026-05-26T19:35:50.542Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/models/qca.py",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→3 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:50.542Z"
+    },
+    {
+      "id": "bug-342",
+      "timestamp": "2026-05-26T19:35:53.212Z",
+      "error_message": "Wrong reference: FuzzySetData should be MembershipData",
+      "file": "src/experiment_engine/models/__init__.py",
+      "root_cause": "Used \"FuzzySetData\" instead of \"MembershipData\"",
+      "fix": "Changed FuzzySetData → MembershipData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:53.212Z"
+    },
+    {
+      "id": "bug-343",
+      "timestamp": "2026-05-26T19:35:54.638Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/experiment_engine/models/__init__.py",
+      "root_cause": "Had \"FuzzySetData\"",
+      "fix": "Changed to \"InputConfig\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T19:35:57.304Z"
+    },
+    {
+      "id": "bug-344",
+      "timestamp": "2026-05-26T19:35:59.933Z",
+      "error_message": "Wrong reference: FuzzySetDataJSON should be MembershipDataJSON",
+      "file": "src/types/index.ts",
+      "root_cause": "Used \"FuzzySetDataJSON\" instead of \"MembershipDataJSON\"",
+      "fix": "Changed FuzzySetDataJSON → MembershipDataJSON",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:35:59.933Z"
     }
   ]
 }

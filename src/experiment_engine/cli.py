@@ -13,7 +13,7 @@ from rich.table import Table
 
 # Shared helpers from the public API layer
 from experiment_engine.api import _load_fuzzy_data as _load_fuzzy_data
-from experiment_engine.models import FuzzySetData, QCAVariant, TrainingDataset
+from experiment_engine.models import MembershipData, QCAVariant, TrainingDataset
 
 console = Console()
 
@@ -465,7 +465,7 @@ def run(config: str, output_dir: str, variant: str, verbose: bool) -> None:
     stage.setup()
     cal_result = stage.process(input_data)
 
-    fuzzy: FuzzySetData = cal_result.processed  # type: ignore[assignment]
+    fuzzy: MembershipData = cal_result.processed  # type: ignore[assignment]
     fuzzy_path = out_dir / "fuzzy_data.npz"
     _save_fuzzy_data(fuzzy, str(fuzzy_path))
     console.print(f"  [green]✓[/] {fuzzy.n_cases} cases x{fuzzy.n_conditions + 1} sets")
@@ -605,7 +605,7 @@ def list_conditions(domain: str | None) -> None:
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def _save_fuzzy_data(fuzzy: FuzzySetData, path: str) -> None:
+def _save_fuzzy_data(fuzzy: MembershipData, path: str) -> None:
     if path.endswith(".npz"):
         np.savez_compressed(
             path,

@@ -9,7 +9,7 @@ from __future__ import annotations
 import numpy as np
 
 from experiment_engine.models import (
-    FuzzySetData,
+    MembershipData,
     QCAAnalysisResult,
     QCASolution,
     TruthTable,
@@ -98,7 +98,7 @@ class QCAPlotBuilder:
         }
 
     @staticmethod
-    def fuzzy_distribution_plot(fuzzy_data: FuzzySetData) -> dict:
+    def fuzzy_distribution_plot(fuzzy_data: MembershipData) -> dict:
         """Build histogram data for fuzzy-set score distributions.
 
         Returns binned counts per condition.

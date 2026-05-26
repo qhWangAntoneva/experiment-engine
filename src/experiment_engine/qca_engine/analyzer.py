@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from experiment_engine.models import (
     ConditionSet,
-    FuzzySetData,
     InputData,
+    MembershipData,
     OutputData,
     QCAAnalysisResult,
 )
@@ -83,7 +83,7 @@ class QCAnalyzerStage(BasePlugin):
             },
         )
 
-    def analyze(self, fuzzy_data: FuzzySetData) -> QCAAnalysisResult:
+    def analyze(self, fuzzy_data: MembershipData) -> QCAAnalysisResult:
         """Run the full QCA analysis on fuzzy-set data.
 
         Args:
@@ -137,18 +137,18 @@ class QCAnalyzerStage(BasePlugin):
         )
 
     @staticmethod
-    def _extract_fuzzy_data(data: InputData) -> FuzzySetData:
+    def _extract_fuzzy_data(data: InputData) -> MembershipData:
         raw = data.data
-        if isinstance(raw, FuzzySetData):
+        if isinstance(raw, MembershipData):
             return raw
         if isinstance(raw, OutputData):
             inner = raw.processed
-            if isinstance(inner, FuzzySetData):
+            if isinstance(inner, MembershipData):
                 return inner
             # Try data attribute
             if hasattr(inner, "membership"):
-                return FuzzySetData(**inner.model_dump())
+                return MembershipData(**inner.model_dump())
         raise TypeError(
-            f"Expected FuzzySetData, got {type(raw).__name__}. "
+            f"Expected MembershipData, got {type(raw).__name__}. "
             "Run TextCalibrationStage first."
         )

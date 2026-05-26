@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from experiment_engine.models import FuzzySetData, TruthTable, TruthTableRow
+from experiment_engine.models import MembershipData, TruthTable, TruthTableRow
 
 
 class TruthTableBuilder:
@@ -19,7 +19,7 @@ class TruthTableBuilder:
 
     def build(
         self,
-        fuzzy_data: FuzzySetData,
+        fuzzy_data: MembershipData,
         frequency_threshold: float = 1.0,
         consistency_threshold: float = 0.75,
     ) -> TruthTable:

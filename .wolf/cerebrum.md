@@ -67,6 +67,8 @@
 
 ### Critical (still active)
 
+- [2026-05-27] **TemplateLibrary's setConditionSet is invisible to DataInput**: DataInput reads `importedConditionSet` (local state from file import) and `yamlContent` (textarea), NOT `state.conditionSet`. Any code path that sets `conditionSet` in pipeline context before navigating to `/input` must also hydrate DataInput's local state. Fix: add a `useEffect` that reads `state.conditionSet` on mount and dispatches a clear + sets `importedConditionSet`.
+
 - [2026-05-26] **memory.md growth**: archive sessions >2 days to memory-archive.md periodically
 - [2026-05-25/26] **Agent completion claims not trustworthy** — after any agent claims completion, MUST verify with Read/Grep/`git diff --stat`. Fabricated modifications common.
 - [2026-05-25] **Large task single agent = timeout + failure**: L-level tasks MUST be split into 2-3 file-level subtasks, executed by multiple agents in parallel.

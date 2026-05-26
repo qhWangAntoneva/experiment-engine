@@ -22,7 +22,7 @@ import warnings
 import numpy as np
 
 from experiment_engine.models import (
-    FuzzySetData,
+    MembershipData,
     QCAAnalysisResult,
     RobustnessReport,
     RobustnessTestResult,
@@ -82,7 +82,7 @@ class RobustnessTester:
         self._analyzer = analyzer
 
     def run_all(
-        self, fuzzy_data: FuzzySetData, baseline: QCAAnalysisResult
+        self, fuzzy_data: MembershipData, baseline: QCAAnalysisResult
     ) -> RobustnessReport:
         """Run the full battery of robustness tests.
 
@@ -124,7 +124,7 @@ class RobustnessTester:
 
     def test_consistency_sensitivity(
         self,
-        fuzzy_data: FuzzySetData,
+        fuzzy_data: MembershipData,
         baseline: QCAAnalysisResult,
         thresholds: list[float] | None = None,
     ) -> RobustnessTestResult:
@@ -162,7 +162,7 @@ class RobustnessTester:
 
     def test_frequency_sensitivity(
         self,
-        fuzzy_data: FuzzySetData,
+        fuzzy_data: MembershipData,
         baseline: QCAAnalysisResult,
         thresholds: list[float] | None = None,
     ) -> RobustnessTestResult:
@@ -211,7 +211,7 @@ class RobustnessTester:
 
     def test_membership_perturbation(
         self,
-        fuzzy_data: FuzzySetData,
+        fuzzy_data: MembershipData,
         baseline: QCAAnalysisResult,
         delta: float = 0.1,
     ) -> RobustnessTestResult:
@@ -244,7 +244,7 @@ class RobustnessTester:
             # Perturb condition columns only (NOT the outcome column)
             perturbed = membership.copy()
             perturbed[:, :-1] = np.clip(perturbed[:, :-1] + d, 0.0, 1.0)
-            perturbed_fd = FuzzySetData(
+            perturbed_fd = MembershipData(
                 membership=perturbed,
                 condition_names=fuzzy_data.condition_names,
                 outcome_name=fuzzy_data.outcome_name,
@@ -268,7 +268,7 @@ class RobustnessTester:
 
     def test_calibration_sensitivity(
         self,
-        fuzzy_data: FuzzySetData,
+        fuzzy_data: MembershipData,
         baseline: QCAAnalysisResult,
         delta: float = 0.1,
     ) -> RobustnessTestResult:
@@ -295,7 +295,7 @@ class RobustnessTester:
 
     def test_bootstrap(
         self,
-        fuzzy_data: FuzzySetData,
+        fuzzy_data: MembershipData,
         baseline: QCAAnalysisResult,
         n_iterations: int = 100,
         sample_fraction: float = 1.0,
@@ -335,7 +335,7 @@ class RobustnessTester:
             # Case resampling with replacement
             indices = np.random.choice(n_cases, size=sample_size, replace=True)
             bootstrap_membership = fuzzy_data.membership[indices, :].copy()
-            bootstrap_fd = FuzzySetData(
+            bootstrap_fd = MembershipData(
                 membership=bootstrap_membership,
                 condition_names=fuzzy_data.condition_names,
                 outcome_name=fuzzy_data.outcome_name,
@@ -379,7 +379,7 @@ class RobustnessTester:
 
     @staticmethod
     def _compute_solution_coverage(
-        terms: list[list[str]], fuzzy_data: FuzzySetData
+        terms: list[list[str]], fuzzy_data: MembershipData
     ) -> float:
         """Compute overall solution coverage for a set of minimized terms.
 

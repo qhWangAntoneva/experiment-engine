@@ -258,10 +258,6 @@ class MembershipData(BaseModel):
         return self.membership[:, self.n_conditions]
 
 
-# Deprecated backward-compatibility alias — use MembershipData instead.
-FuzzySetData = MembershipData
-
-
 # ── Truth Table ─────────────────────────────────────────────────────────
 
 

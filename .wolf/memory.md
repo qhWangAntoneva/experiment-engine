@@ -2,6 +2,10 @@
 
 > Active sessions: most recent 2. Older sessions archived to `memory-archive.md`.
 
+| 2026-05-27 | P2-37: Unified report CLI path via api.run_report(). Removed redundant file load, console-only fallback. 532 tests pass. | cli.py | done | ~50 |
+
+| 2026-05-27 | Fixed Use Template bug (DataInput.tsx ignored state.conditionSet). Added useEffect hydration. TS build clean. | DataInput.tsx | fixed | ~200 |
+| 2026-05-27 | Launched 3 profession-agents for optimization analysis (Backend/Algorithm, Frontend/Viz, DevOps/Report). All delivered reports. | handover.md | analysis complete | ~500 |
 | 2026-05-27 | P2-15/19/21: PluginRegistry DI, weighted max similarity, TextCase.outcome float. 532 tests pass. | plugins.py, cosine_similarity.py, qca.py | all done | ~500 |
 | 2026-05-27 | Package optimization plan: investigated all viz/report/pipeline modules, identified impedance mismatch between QCAPlotBuilder dicts and Renderer InputData, documented current output quality issues, wrote plan in .wolf/plans/package_optimization_plan.md | viz/*.py, report/*.py, api.py, pipeline.py, run_pipeline.py, TODO.md, validate_qca_output.py, configs/config.yaml | plan written | ~500 |
 | 2026-05-27 | FIX: All-0.5 membership bug. Added trigram fallback to _precompute_scores for CLI/api path without BERT embeddings. | calibrator.py | fixed | ~150 |
@@ -17,7 +21,7 @@
 | 01:50 | Session end: 29 writes across 13 files (TODO.md, qca.py, cosine_similarity.py, HelpTooltip.tsx, plugins.py) | 23 reads | ~12994 tok |
 | 01:50 | Edited src/pages/Results.tsx | CSS: message, type | ~136 |
 | 01:50 | Edited src/experiment_engine/cli.py | removed 42 lines | ~1 |
-| 01:50 | Edited src/pages/Results.tsx | added 2 condition(s) | ~645 |
+| 2026-05-27 | 3 Reviewers confirmed: all 3 algorithm bugs fixed, 30-case samples generated, pre-commit root cause found. Push notes recorded in persistent memory. Commit 737c3c4 pushed. | all files | completed | ~500 |
 | 01:50 | Edited src/experiment_engine/cli.py | 7→7 lines | ~38 |
 | 01:50 | Edited src/pages/Results.tsx | expanded (+89 lines) | ~1045 |
 | 01:50 | Edited src/pages/Results.tsx | modified MetricChip() | ~226 |
@@ -91,3 +95,36 @@
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
 | 03:15 | Created ../.claude/projects/C--Users-lenovos-QCA-Analysis-Tool/memory/push_notes.md | — | ~264 |
+| 03:17 | Session end: 1 writes across 1 files (push_notes.md) | 8 reads | ~4401 tok |
+
+## Session: 2026-05-26 03:17
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 03:24 | Edited src/pages/DataInput.tsx | inline fix | ~21 |
+| 03:24 | Edited src/pages/DataInput.tsx | 7→8 lines | ~60 |
+| 03:24 | Edited src/pages/DataInput.tsx | CSS: type, conditionSet | ~132 |
+| 03:25 | Session end: 3 writes across 1 files (DataInput.tsx) | 34 reads | ~213 tok |
+| 03:27 | Created TODO.md | — | ~1144 |
+| 03:28 | Edited src/experiment_engine/report/qca_reporter.py | 3→4 lines | ~37 |
+| 03:31 | Edited src/experiment_engine/cli.py | modified report() | ~152 |
+| 03:35 | Edited src/experiment_engine/api.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/cli.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/pyodide_handlers.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/qca_engine/advanced/robustness.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/qca_engine/analyzer.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/qca_engine/necessity.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/qca_engine/sufficiency.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/qca_engine/truth_table.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/viz/qca_plots.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/viz/viz_bridge.py | inline fix | ~4 |
+| 03:35 | Edited tests/test_qca_core.py | inline fix | ~4 |
+| 03:35 | Edited tests/test_robustness.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/models/qca.py | removed 5 lines | ~1 |
+| 03:35 | Edited src/experiment_engine/models/__init__.py | 2→1 lines | ~20 |
+| 03:35 | Edited src/experiment_engine/models/__init__.py | 2→1 lines | ~6 |
+| 03:35 | Edited src/experiment_engine/models/__init__.py | 2→1 lines | ~6 |
+| 03:35 | Edited src/experiment_engine/__init__.py | 27→26 lines | ~142 |
+| 03:35 | Edited src/experiment_engine/__init__.py | 3→2 lines | ~11 |
+| 03:35 | Edited src/types/qca.ts | removed 5 lines | ~1 |
+| 03:35 | Edited src/types/index.ts | inline fix | ~6 |

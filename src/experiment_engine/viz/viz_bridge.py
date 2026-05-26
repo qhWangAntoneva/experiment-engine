@@ -25,7 +25,7 @@ from typing import Any
 import numpy as np
 
 from experiment_engine.models import (
-    FuzzySetData,
+    MembershipData,
     QCAAnalysisResult,
     QCASolution,
     QCASolutions,
@@ -303,18 +303,18 @@ def _load_qca_result(qca_results_path: str) -> QCAAnalysisResult:
     return QCAAnalysisResult(**data)
 
 
-def _load_fuzzy_data(fuzzy_data_path: str) -> FuzzySetData | None:
+def _load_fuzzy_data(fuzzy_data_path: str) -> MembershipData | None:
     """Load fuzzy-set data from .npz file.
 
     Args:
         fuzzy_data_path: Path to fuzzy_data.npz.
 
     Returns:
-        FuzzySetData or None if the file cannot be loaded.
+        MembershipData or None if the file cannot be loaded.
     """
     try:
         npz = np.load(fuzzy_data_path, allow_pickle=True)
-        return FuzzySetData(
+        return MembershipData(
             membership=npz["membership"],
             condition_names=list(npz.get("condition_names", [])),
             outcome_name=str(npz.get("outcome_name", "")),

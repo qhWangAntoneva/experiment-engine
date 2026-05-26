@@ -10,7 +10,7 @@
  *   - Prototype calibration mode: structured text input + prototype editor table
  */
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQCAPipeline } from '../store/QCAPipelineContext';
 import { useQCAWorkflow } from '../hooks/useQCAWorkflow';
@@ -295,6 +295,7 @@ export default function DataInput() {
 
   const {
     state,
+    dispatch,
     setTextCorpus,
     setTextCases: setTextCasesContext,
     setYamlContent: setYamlContentContext,
@@ -354,6 +355,14 @@ export default function DataInput() {
 
   const [importedConditionSet, setImportedConditionSet] = useState<ConditionSet | null>(null);
   const dictFileInputRef = useRef<HTMLInputElement>(null);
+
+  // ─── Hydrate from template selected via TemplateLibrary ───────────────────────
+  useEffect(() => {
+    if (state.conditionSet) {
+      setImportedConditionSet(state.conditionSet);
+      (dispatch as any)({ type: 'SET_CONDITION_SET', conditionSet: null });
+    }
+  }, [state.conditionSet, dispatch]);
 
   // ─── Export state ─────────────────────────────────────────────────────
   const [isExporting, setIsExporting] = useState(false);

@@ -6,7 +6,7 @@
 
 | 指标 | 值 |
 |------|-----|
-| HEAD | `594505d` — 30-case pipeline bugs fixed + viz bridge + P2 items |
+| HEAD | `737c3c4` — reviewer confirmed fixes + push notes + wolf tracking |
 | 分支 | `master` (已推送) |
 | 测试 | 532 passed, 1 skipped, 6 xfailed |
 | TS | `npm run build` clean |
