@@ -1123,11 +1123,7 @@ const en: TranslationDict = {
 
 export const translations: Record<Language, TranslationDict> = { zh, en };
 
-/** Get the preferred language from browser locale, fallback to English. */
+/** Always return English as the default language. */
 export function detectLanguage(): Language {
-  try {
-    const locale = navigator.language || (navigator as any).userLanguage || '';
-    if (locale.toLowerCase().startsWith('zh')) return 'zh';
-  } catch {}
-  return 'en'; // default to English
+  return 'en';
 }

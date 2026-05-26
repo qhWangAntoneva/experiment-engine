@@ -4367,6 +4367,70 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-26T12:04:44.803Z"
+    },
+    {
+      "id": "bug-266",
+      "timestamp": "2026-05-26T12:17:36.861Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "Had 'en'",
+      "fix": "Changed to 'zh'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T12:17:36.861Z"
+    },
+    {
+      "id": "bug-267",
+      "timestamp": "2026-05-26T12:17:43.658Z",
+      "error_message": "Incorrect value in code",
+      "file": "index.html",
+      "root_cause": "Had \"en\"",
+      "fix": "Changed to \"zh\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T12:17:43.658Z"
+    },
+    {
+      "id": "bug-268",
+      "timestamp": "2026-05-26T12:23:02.104Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 8→4 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T12:23:02.104Z"
+    },
+    {
+      "id": "bug-269",
+      "timestamp": "2026-05-26T12:23:02.448Z",
+      "error_message": "Incorrect value in code",
+      "file": "index.html",
+      "root_cause": "Had \"zh\"",
+      "fix": "Changed to \"en\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T12:23:02.448Z"
     }
   ]
 }

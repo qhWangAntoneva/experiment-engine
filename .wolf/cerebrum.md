@@ -11,7 +11,7 @@
 **Before any work, read these three files for current status**:
 - `TODO.md` -- 34 items (0 P0 + 11 P1 + 23 P2), P0 all complete, P1-B3/P1-B6 done
 - `FIXME.md` -- 3 remaining defects (0 critical, 0 warnings, 3 suggestions), 19/22 fixed
-- `HACK.md` -- 18 items (8 unresolved, 10 resolved)
+- `HACK.md` -- 8 items (all unresolved, 10 resolved entries removed 2026-05-26)
 
 **Current baseline**:
 - Tests: 531 passed, 1 skipped, 6 xfailed
@@ -308,6 +308,7 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 - CLI defaults to Rich-formatted output
 - All Python files explicitly use `encoding='utf-8'`
 - Use `uv run python`, never bare `python`
+- **Default UI language is English**, regardless of browser locale. `detectLanguage()` always returns `'en'`. Users can switch to Chinese via the sidebar language switcher (persisted to localStorage).
 
 ---
 

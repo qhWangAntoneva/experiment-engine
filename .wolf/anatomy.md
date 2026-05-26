@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T12:06:09.306Z
-> Files: 11 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T12:30:40.988Z
+> Files: 14 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/
 
@@ -15,8 +15,10 @@
 
 ## ./
 
+- `FIXME.md` — FIXME — QCA Analysis Tool (~389 tok)
 - `HANDOVER.md` — HANDOVER — QCA Analysis Tool (experiment-engine) (~1721 tok)
-- `TODO.md` — TODO — QCA Analysis Tool (~3302 tok)
+- `index.html` — QCA Simulation Tool (~563 tok)
+- `TODO.md` — TODO — QCA Analysis Tool (~1647 tok)
 
 ## .claude/
 
@@ -34,6 +36,9 @@
 
 
 ## .wolf/
+
+- `memory.md` — Active session log (last 2 sessions; older in memory-archive.md) (~1.2k tok, 34 lines)
+- `memory-archive.md` — Historical session log (pre-2026-05-26 19:10 archived sessions) (~30k tok, 929 lines)
 
 
 ## public/
@@ -85,7 +90,7 @@
 
 ## src/i18n/
 
-- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~10610 tok)
+- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~10550 tok)
 
 ## src/layouts/
 

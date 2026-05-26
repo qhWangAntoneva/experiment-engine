@@ -1,151 +1,94 @@
 # TODO — QCA Analysis Tool
 
 > 自动生成于 2026-05-24 | 最后更新：2026-05-26
-> **Re-synced with actual codebase state on 2026-05-26.**
 > 优先级：P0 = 必须做 | P1 = 应该做 | P2 = 锦上添花
-> **当前焦点**: P0-BERT 已全部完成，剩余 P1-BERT 清理 + P1 功能需求 + P2 增强
+> **当前焦点**: P0 已清零，剩余 7 个 P1 项 + 21 个 P2 增强项
 
 ---
 
-## BERT+Prototype 架构重构（2026-05-25 新需求）
+## BERT+Prototype 架构重构
 
 ### 核心决策
 
-- **废弃关键词识别方案**，Prototype 理论是 QCA 的唯一理论基础
+- 废弃关键词识别方案，Prototype 理论是 QCA 的唯一理论基础
 - BERT CLS embedding + 余弦相似度 → 模糊集隶属度
-- 架构方案：**Hybrid Transformers.js + Pyodide**（Option D）
+- 架构方案：Hybrid Transformers.js + Pyodide
 - 模型：`bert-base-chinese`（ONNX int8 量化，~100MB），后续支持模型切换
 - 算法：Mean Pooling + Centroid Aggregation + Softmax(τ=5.0)
-- 详细规范：`.wolf/bert-prototype-algorithm-spec.md`（640 行完整算法设计）
+- 详细规范：`.wolf/bert-prototype-algorithm-spec.md`
 
-### P0-BERT — 核心重构（阻塞所有后续功能）
+### P0-BERT — 全部完成
 
-- [x] **P0-B1: 新增 `cosine_similarity.py`** — BERT CLS 余弦相似度引擎，替换 `PrototypeSimilarityEngine` 的 bigram Jaccard。(工作量: M) ✅ DONE
-- [x] **P0-B2: 新增 `bert-engine.ts`** — Transformers.js 模型加载 + CLS embedding 提取，Web Worker 内并行运行。(工作量: L) ✅ DONE
-- [x] **P0-B3: 新增 `bert-cache.ts`** — IndexedDB 持久化缓存层（模型权重 + 预计算原型嵌入）。(工作量: M) ✅ DONE
-- [x] **P0-B4: 模型层重构** — `ScoringSource` 仅保留 PROTOTYPE；`ConditionDefinition` 删除 keywords/hybrid_weight 字段，新增 prototype_embeddings；删除 `KeywordEntry`。(工作量: L) ✅ DONE — **注**: ScoringSource 已清理（仅 PROTOTYPE 保留，KEYWORD/HYBRID 已移除）。但 `KeywordEntry` 类仍存在于 models/qca.py，`ConditionDefinition.keywords` 字段仍存在。KeywordEntry 移除延期至 P1-B6。
-- [x] **P0-B5: `calibrator.py` 重构** — 移除关键词路径（`_precompute_kw_context`、`ChineseKeywordDictionary`），统一走 cosine_similarity。(工作量: L) ✅ DONE
-- [x] **P0-B6: Worker 协议扩展** — 新增 `init_bert`/`compute_embeddings`/`compute_prototype_embeddings` 消息类型，并行加载 Pyodide + BERT。(工作量: L) ✅ DONE
-- [x] **P0-B7: `pyodide_handlers.py` 新增 handler** — embedding-based calibrate handler，接收预计算嵌入而非关键词分数。(工作量: M) ✅ DONE — `handle_embed_calibrate` 已实现，`handle_calibrate` 已统一，`handle_calibrate_prototype` 作为向后兼容 wrapper。
-- [x] **P0-B8: 前端类型同步** — `qca.ts` 镜像 Python 模型变更，新增 `bert.ts` 类型定义。(工作量: M) ✅ DONE
-- [x] **P0-B9: DataInput.tsx 重构** — 移除关键词编辑器/导入导出，升级原型编辑器为主输入方式。(工作量: L) ✅ DONE
-- [x] **P0-B10: Settings.tsx 新增 BERT 模型选择** — 模型下拉选择 (bert-base-chinese 默认)，加载进度显示。(工作量: M) ✅ DONE
-- [x] **P0-B11: QCAPipelineContext 新增 embedding 状态** — embedding 计算进度、BERT 模型加载状态。(工作量: M) ✅ DONE
-- [x] **P0-B12: 端到端集成验证** — BERT 嵌入 → 余弦相似度 → 校准 → QCA 分析全链路通过。(工作量: L) ✅ DONE
+12/12 完成：cosine_similarity 引擎、bert-engine.ts 模型加载 + CLS embedding、bert-cache.ts IndexedDB 持久化缓存、模型层重构（仅保留 PROTOTYPE 评分源）、calibrator.py 移除关键词路径、Worker 协议扩展（init_bert/compute_embeddings）、pyodide handler（handle_embed_calibrate）、前端类型同步（qca.ts + bert.ts）、DataInput.tsx 重构（移除关键词编辑器）、Settings BERT 模型选择、QCAPipelineContext embedding 状态、端到端集成验证。
 
 ### P1-BERT — 清理与优化
 
-- [x] **P1-B1: 删除 `keyword_dict.py`** — 关键词匹配引擎整个文件移除。(工作量: S) ✅ DONE
-- [x] **P1-B2: 删除 `keyword_io.py`** — 关键词导入导出功能移除。(工作量: S) ✅ DONE
-- [x] **P1-B3: 清理 `domains.py`** — 移除关键词预置，改为原型文本预置模板。所有 5 个域的关键词预置已替换为原型文本模板（每个条件 2 个原型：1 正例 + 1 反例）。(工作量: M) ✅ DONE [2026-05-26]
-- [x] **P1-B4: 删除 `PrototypeSimilarityEngine`** — 被 `CosineSimilarityEngine` 完全替换。(工作量: S) ✅ DONE
-- [x] **P1-B5: 测试套件更新** — 删除关键词相关测试，新增 BERT 余弦相似度测试（test_cosine_similarity.py 已存在）。(工作量: M) ✅ DONE
-- [x] **P1-B6: 向后兼容别名清理** — 移除 deprecated ScoringSource 枚举值 + 完成 P0-B4 遗留的 `KeywordEntry` 类移除和 `ConditionDefinition.keywords` 字段清理。同时清理了 condition.py 中的 add_keyword/_kw_to_dict 死代码。(工作量: M) ✅ DONE [2026-05-26]
+- [x] **P1-B1~B6: 关键词遗留清理** — 删除 keyword_dict.py/keyword_io.py/PrototypeSimilarityEngine，domains.py 关键词预置替换为原型文本模板，测试套件更新，向后兼容别名 + KeywordEntry 类移除。
 - [ ] **P1-B7: 模型切换支持** — Settings 页支持选择不同 BERT 模型，原型嵌入随模型重新计算。(工作量: M)
 - [ ] **P1-B8: 性能监控面板** — BERT 推理耗时统计、嵌入缓存命中率展示。(工作量: S)
 
 ---
 
-## 需求背景（客户代表分析，2026-05-24）
+## 需求背景
 
-### 用户工作流的重新理解
+### 用户工作流（重新理解后）
 
-**之前的错误认知**：将"prototype text"视为独立于"raw text"的输入模式，要求用户在 DataInput 页面二选一（keyword 模式 或 prototype 模式）。
-
-**正确的用户场景**：
-1. 研究者首先定义条件集（condition set），每个条件配置关键词词典（用于关键词匹配）和/或原型文本（用于语义相似度匹配）。
-2. 研究者上传两批文本：(a) **raw text**（公民反馈原文，来自问卷调查/社交媒体/投诉平台）和 (b) **prototype text**（为每个条件手动撰写的"典型范例"文本，如"不满"条件的一段代表性投诉文字）。
-3. 两批文本通过**相同的处理管道**（关键词提取 → 原始分数计算 → 校准 → 隶属度矩阵）各自生成一组 CLI。
-4. 在最后阶段，分别对两组 CLI 运行 QCA 分析（真值表 → 布尔最小化 → 解），产出的结果并排对比展示。
+1. 研究者首先定义条件集（condition set），每个条件配置原型文本（用于语义相似度匹配）。
+2. 研究者上传两批文本：(a) **raw text**（公民反馈原文，来自问卷调查/社交媒体/投诉平台）和 (b) **prototype text**（为每个条件手动撰写的"典型范例"文本）。
+3. 两批文本通过**相同的处理管道**（embedding → 余弦相似度 → 校准 → 隶属度矩阵）各自生成一组隶属度数据。
+4. 在最后阶段，分别对两组数据运行 QCA 分析（真值表 → 布尔最小化 → 解），产出的结果并排对比展示。
 
 **核心用户价值**：研究者想知道——"基于原型文本校准的 QCA 解"与"基于真实公民反馈文本校准的 QCA 解"之间是否有系统性差异？如果差异显著，意味着实际数据中的条件组合模式与理论期望不同，这本身就是一项重要发现。
 
-### fsQCA vs csQCA 的用户选择场景
+---
 
-| 场景 | 推荐方法 | 典型使用情况 |
-|------|---------|------------|
-| 公民情感分析 | fsQCA | "不满"不是有/无的二分，而是从轻微不满到极度愤怒的连续谱 |
-| 政策需求强度分析 | fsQCA | 需求从"随口一提"到"强烈呼吁"是连续变化的 |
-| 合产意愿 | csQCA | 愿意/不愿意参与是清晰的二分 |
-| 政府回应结果 | csQCA | 回应了/没回应是二分 |
-| 定性比较研究（小 N，如 10-30 个案例） | csQCA | 手工编码每个案例在每个条件上的 0/1 |
-| 大样本文本挖掘（N > 100） | fsQCA | 自动关键词匹配产生连续分数，模糊集更自然 |
+## P0 — 已完成
 
-用户应该能**一键切换** fsQCA/csQCA，而非重新配置所有校准参数——切换时系统应自动调整校准阈值界面（csQCA 隐藏 full_in/full_out/crossover）。
-
-
-## P0 — 必须修复（阻塞发布）
-
-### 需求变更导致的阻塞项（2026-05-24 评审者审查）
-
-- [x] **P0-9: 消除 "原型模式" 独立管道** ✅ [DONE 2026-05-25, 提交 9696999] — raw text 和 prototype text 统一为同一管道双输入批次。(工作量: L, 来源: 需求变更, @see FIXME-23)
-- [x] **P0-10: csQCA（清晰集）校准全链路实现** ✅ [DONE 2026-05-25, 提交 6bf170d] — 全链路支持 CRISP_SET + QCAVariant。(工作量: L, 来源: 需求变更, @see FIXME-24)
-- [x] **P0-11: `FuzzySetData` 重命名为 `MembershipData`** ✅ [DONE 2026-05-25, 提交 f8f2d22] — 类名 + 向后兼容别名。(工作量: M, 来源: 需求变更, @see FIXME-25)
-- [x] **P0-12: `CalibrationType` 重命名为 `CalibrationMethod` + `QCAVariant` 枚举** ✅ [DONE 2026-05-25, 提交 f8f2d22] — 类型系统重构 + CRISP_SET。(工作量: M, 来源: 需求变更, @see FIXME-26)
-
-### 已完成的 P0
-
-- [x] **P0-1: QM 指数复杂度保护** — minimize() 添加 k<=12 检查，超限抛 ValueError。前端 Settings 页 >=10 条件黄色警告。(Phase 3, 提交 9b58081)
-- [x] **P0-2: pyodide.worker.ts 去重抽象** — 提取 7 个 Python handler 到 `pyodide_handlers.py`，worker 简化为 `runHandler()` 通用模板。659→464 行 (-30%)。同步修复 2 个隐蔽运行时 bug。(Phase 4, 提交 d08786c)
-- [x] **P0-3: QCA 核心算法单元测试** — 新增 `tests/test_qca_core.py` 104 个测试覆盖 7 个模块，使用 Ragin 2008 Lipset 数据集作为黄金标准。测试套件 361→465。(Phase 4, 提交 d08786c)
-- [x] **P0-4: counterfactual.py `produce_parsimonious_solution` 算法错误** — 全部逻辑余项作为 don't-care；QM 扩展支持 don't-care minterm。(Phase 1, 提交 c4c6aa2) @see FIXME-1, HACK-5
-- [x] **P0-5: calibrator.py 混合 scoring_source 列索引偏移** — `_precompute_kw_context()` 建立 col_idx→kw_col_idx 映射。(Phase 1, 提交 c4c6aa2) @see FIXME-2
-- [x] **P0-6: calibrator.py `calibrate_ragin` 实现错误** — 分段线性→logistic 公式重写。(Phase 1, 提交 c4c6aa2) @see FIXME-3
-- [x] **P0-7: calibrator.py `match_corpus()` 重复调用** — `_precompute_kw_context()` 缓存一次。(Phase 1, 提交 c4c6aa2) @see FIXME-4
-- [x] **P0-8: pipeline.py 错误处理导致静默数据损坏** — fail_fast=True 默认，失败时立即中止。(Phase 2, 提交 9842e11) @see FIXME-5
+- [x] **P0-1: QM 指数复杂度保护** — minimize() k<=12 检查，前端 >=10 条件黄色警告。
+- [x] **P0-2: pyodide.worker.ts 去重抽象** — 提取 handler 到 pyodide_handlers.py，worker 简化 30%，修复 2 个隐蔽运行时 bug。
+- [x] **P0-3: QCA 核心算法单元测试** — 104 个测试覆盖 7 个模块，使用 Lipset 黄金标准数据集。
+- [x] **P0-4: counterfactual.py produce_parsimonious_solution 算法错误** — 全部逻辑余项作为 don't-care，QM 扩展支持 don't-care minterm。
+- [x] **P0-5: calibrator.py 混合 scoring_source 列索引偏移修复**
+- [x] **P0-6: calibrator.py calibrate_ragin 实现错误修复** — 分段线性→logistic 公式重写。
+- [x] **P0-7: calibrator.py match_corpus() 重复调用修复** — 预计算缓存。
+- [x] **P0-8: pipeline.py 错误处理导致静默数据损坏** — fail_fast=True 默认。
+- [x] **P0-9: 消除"原型模式"独立管道** — raw/prototype 统一为同一管道双输入批次。
+- [x] **P0-10: csQCA 校准全链路实现** — 支持 CRISP_SET + QCAVariant。
+- [x] **P0-11: FuzzySetData 重命名为 MembershipData**
+- [x] **P0-12: CalibrationType 重命名为 CalibrationMethod + QCAVariant 枚举**
 
 ---
 
-## P1 — 应该做（下一个版本）
+## P1 — 应该做
 
-### 功能需求
+### 已完成
 
-- [x] **P1-1: 关键词词典导入/导出** ✅ [DONE 2026-05-25, 7b102f9] — 支持 CSV/JSON 批量导入自定义关键词，预置词典可"另存为"修改，词典可导出复用。(工作量: M, 来源: 客户#P1)
-- [x] **P1-2: Excel 文件支持** ✅ [DONE 2026-05-25, 7b102f9] — 直接上传 .xlsx/.xls，自动识别文本列，支持多 sheet 切换。(工作量: S, 来源: 客户#P2)
-- [x] **P1-3: QCA 结果自然语言解读** ✅ [DONE 2026-05-25, 41e81d2] — 解公式旁自动生成中文自然语言解读，覆盖度和一致度通俗解释。(工作量: L, 来源: 客户#P3)
-- [x] **P1-4: 中文界面** ✅ [DONE 2026-05-25, 81cc862~200f0a9] — 完整简体中文界面（至少作为可切换语言），方法学术语保留中英双语。(工作量: L, 来源: 客户#P4)
-- [x] **P1-5: 个案级校准结果展示** — 校准完成后展示交互表格：每行文本 + 各条件隶属度分数，可排序筛选，点击展开原文。(工作量: M, 来源: 客户#P5)
+- [x] **P1-1: 关键词词典导入/导出** — CSV/JSON 批量导入自定义关键词，预置词典可另存为修改。
+- [x] **P1-2: Excel 文件支持** — .xlsx/.xls 上传，自动识别文本列，支持多 sheet 切换。
+- [x] **P1-3: QCA 结果自然语言解读** — 解公式旁自动生成中文解读，覆盖度和一致度通俗解释。
+- [x] **P1-4: 中文界面** — 完整简体中文界面，方法学术语保留中英双语。
+- [x] **P1-5: 个案级校准结果展示** — 交互表格：每行文本 + 各条件隶属度分数，可排序筛选，点击展开原文。
+- [x] **P1-8: 隐私声明** — 首页/上传页添加隐私与数据安全声明，一键清除所有本地数据按钮。
+- [x] **P1-9: Recent Runs 真实数据** — Dashboard 从 localStorage 读取历史记录，空状态引导文案。
+- [x] **P1-10: 校准参数即时预览** — Settings/DataInput 页面参数效果预览：Plotly 直方图 + 阈值拖动实时更新隶属度分布。
+- [x] **P1-14: models.py 拆分为 models/ 子包** — framework.py + qca.py + training.py。
+- [x] **P1-15: 校准器策略模式重构** — CalibrationStrategy ABC + 注册表，支持新校准方法无需改源码。
+- [x] **P1-16: 前端解析逻辑归一到 Pyodide Worker** — 前端仅做轻量预检，解析逻辑统一在 Worker 内。
+- [x] **P1-17: 校准器 for-loop → numpy 向量化** — np.where/np.select 替换 Python 循环，WASM 下快 20-50 倍。
+- [x] **P1-18~P1-23: 鲁棒性 + 报告修复** — coverage_stability 修复、perturbation 重命名、LaTeX 转义、IndexError 守卫、bootstrap 检验、theoretical_expectation 构建。
+- [x] **P1-24~P1-31: 原型管道统一 + csQCA 全链路** — 删除 PROTOTYPE 独立分支、统一 calibrate handler、移除前端 mode selector、QCAVariant 枚举、CrispCalibration 策略、TruthTable 适配、去除 prototype 专用 stage、raw-prototype 对比视图。
+
+### 剩余
+
 - [ ] **P1-6: 项目保存与恢复** — 一键"保存项目"(.qca JSON 下载)，一键"加载项目"恢复会话，localStorage 自动保存。(工作量: L, 来源: 客户#F1)
 - [ ] **P1-7: 参数对比 / A/B 分析** — 两组参数配置并排对比，差异高亮，对比报告可导出。(工作量: L, 来源: 客户#F2)
-- [x] **P1-8: 隐私声明** — 首页/上传页添加隐私与数据安全声明，"一键清除所有本地数据"按钮。(工作量: S, 来源: 客户#D1)
-- [x] **P1-9: Recent Runs 真实数据** — Dashboard 的 Recent Runs 从 localStorage 读取历史记录，空状态引导文案。(工作量: S, 来源: 客户#U1)
-- [x] **P1-10: 校准参数即时预览** — Settings/DataInput 页面添加参数效果预览：拖动阈值竖线，实时更新隶属度分布。(工作量: M, 来源: 客户#U2)
 - [ ] **P1-11: 中文 Word 报告导出** — 除 LaTeX 外增加 .docx 导出，含中文自然语言解读 + 图表嵌入。(工作量: M, 来源: 客户#F4)
 - [ ] **P1-12: 多结果变量分析** — Web 界面支持多结果模式，并排展示两个 outcome 的解和异同。(工作量: L, 来源: 客户#F5)
 - [ ] **P1-13: 条件集共享与团队模板** — 条件集导出为分享链接(base64 URL 参数)，Dashboard 展示模板库。(工作量: M, 来源: 客户#C1)
 
-### 需求变更相关（原型管道统一 + csQCA）
-
-- [x] **P1-24: 删除 `ScoringSource.PROTOTYPE` 独立分支** ✅ [DONE 2026-05-25, 提交 9696999] — PROTOTYPE 分支已标记弃用，向后兼容保留。(工作量: L, 来源: 需求变更, @see FIXME-23)
-- [x] **P1-25: 统一 `handle_calibrate` 和 `handle_calibrate_prototype`** ✅ [DONE 2026-05-25, 提交 9696999] — 统一 handler + 旧 handler 转为 wrapper。(工作量: M, 来源: 需求变更)
-- [x] **P1-26: 前端去除 prototype/keyword mode selector** ✅ [DONE 2026-05-25, 提交 9696999] — 模式切换器已移除，双输入同时可见。(工作量: L, 来源: 需求变更)
-- [x] **P1-27: 新增 `QCAVariant` 枚举（fsQCA vs csQCA）** ✅ [DONE 2026-05-25, 提交 f8f2d22] — 枚举 + ConditionSet 字段 + Settings 开关。(工作量: M, 来源: 需求变更, @see FIXME-26)
-- [x] **P1-28: 新增 `CrispCalibration` 策略** ✅ [DONE 2026-05-25, 提交 6bf170d] — 策略 + 注册 + direction 支持。(工作量: S, 来源: 需求变更, @see FIXME-24)
-- [x] **P1-29: TruthTableBuilder 支持 crisp-set 配置隶属度计算** ✅ [DONE 2026-05-25, 提交 6bf170d] — min AND 天然兼容 0/1 数据，已文档化。(工作量: S, 来源: 需求变更)
-- [x] **P1-30: 前端 QCAPipelineContext 去除 prototype 专用 stage** ✅ [DONE 2026-05-25, 提交 9696999] — 已移除 calibrating-prototype/calibrated-prototype stage。(工作量: S, 来源: 需求变更)
-- [x] **P1-31: Result 页新增 raw-prototype 对比视图** ✅ [DONE 2026-05-25, d61d96e~b597547] — 两侧并排展示 raw text 的 QCA result 和 prototype text 的 QCA result，差异高亮。(工作量: M, 来源: 需求变更)
-
-- [ ] **P1-34: 预置词典在线编辑器** [已废弃 — BERT+Prototype 架构重构后关键词功能移除]
-
-### 架构重构
-
-- [x] **P1-14: models.py 拆分为 models/framework.py + models/qca.py + models/training.py** — 框架层模型和 QCA 领域模型耦合在 9500 token 单文件中。(工作量: M, 来源: 技术顾问#4) @see FIXME-16 [DONE 2026-05-24]
-- [x] **P1-15: 校准器策略模式重构** — 硬编码 if/elif 分支 → CalibrationStrategy ABC + 注册表，支持新校准方法无需改源码。(工作量: M, 来源: 技术顾问#5) [DONE 2026-05-24, 提交 10dbed0] @see HACK-6
-- [x] **P1-16: 前端解析逻辑归一到 Pyodide Worker** — DataInput.tsx 的 parseTextContent() 与 TextCorpusReader 功能重复，前端应仅做轻量预检。(工作量: M, 来源: 技术顾问#7) [DONE 2026-05-24, 提交 b9b1687] @see HACK-7, HACK-10
-- [x] **P1-17: 校准器 for-loop → numpy 向量化** — calibrate_direct/indirect/ragin 用 np.where/np.select 替换 Python 循环，WASM 下快 20-50 倍。(工作量: S-M, 来源: 技术顾问#8) [DONE 2026-05-24, 提交 b9b1687]
-
-### 算法 / 报告修复 [部分已完成]
-
-- [x] **P1-18: robustness.py coverage_stability 始终为 0** — 已 run minimization + sufficiency 计算真实 coverage。(Phase 3, 提交 9b58081) @see FIXME-6
-- [x] **P1-19: robustness.py test_calibration_sensitivity 实际是 membership perturbation** — 已重命名为 test_membership_perturbation，排除 outcome 列，保留向后兼容别名。(Phase 3, 提交 9b58081) @see FIXME-7
-- [x] **P1-20: qca_reporter.py LaTeX 特殊字符转义** — 已添加 _escape_latex() + _escape_latex_formula() 应用于全部用户文本插入点。(Phase 3, 提交 9b58081) @see FIXME-10
-- [x] **P1-21: qca_reporter.py `_robustness_section` 空列表 IndexError** — 已添加 if t.solution_stability: 守卫。(Phase 3, 提交 9b58081) @see FIXME-11
-- [x] **P1-22: robustness.py 缺失 bootstrap 鲁棒性检验** — 已添加 test_bootstrap(n_iterations=100)。(Phase 3, 提交 9b58081) @see FIXME-8
-- [x] **P1-23: counterfactual.py theoretical_expectation 字段始终为 None** — 已从 directional_expectations 构建 theo_exp。(Phase 2, 提交 9842e11) @see FIXME-9
-
 ---
 
-## P2 — 锦上添花（未来版本）
+## P2 — 锦上添花
 
 ### 功能增强
 
@@ -169,12 +112,12 @@
 - [ ] **P2-16: 结构化可观测性** — 引入 structlog，PipelineResult 添加 metrics 字段，Worker 请求添加 request_id。(工作量: M, 来源: 技术顾问#10)
 - [ ] **P2-17: CLI/Python API 一致化** — 将 CLI 命令核心逻辑提取到 api.py，qca run 配置格式改为 QCA 语义 schema。(工作量: M, 来源: 技术顾问#11)
 - [ ] **P2-18: 前端自动化测试** — vitest + @testing-library/react，优先测 QCAPipelineContext reducer + useQCAWorkflow hook。(工作量: L, 来源: 技术顾问#12)
-- [ ] **P2-19: prototype weight 字段启用** — `ConceptPrototype.weight` 已定义但 `compute_similarities()` 未使用。需求变更后该字段仍有意义（prototype 相似度作为 scoring 选项，加权提升区分度）。(来源: 评审者#16) @see FIXME-19
-- [x] **P2-20: calibrate_indirect 的 k=10 可配置化** — P0-6/Phase 1 的 calibrate_ragin 修复解决了 logistic 变换正确性问题，但 calibrate_indirect 的 steepness factor k=10 仍硬编码不可配置。需将 k 作为 CalibrationParams 可选字段。(见 FIXME-22)
-- [ ] **P2-21: `TextCase.outcome` 字段语义更新** — 当前字段描述为 "Binary outcome (0 or 1) used directly as crisp-set membership"，但 fsQCA 模式下 outcome 应为连续值。需支持 0.0-1.0 连续值并添加 validator。(工作量: S, 来源: 需求变更)
-- [x] **P2-22: CLI 新增 `--variant fsqca|csqca` 全局参数** — `qca calibrate`、`qca analyze`、`qca run` 等命令添加 `--variant` 选项，控制是否使用 crisp-set 校准和真值表构建。(工作量: S, 来源: 需求变更)
-- [ ] **P2-23: 多结果分析前端 UI 更新** — multi_outcome.py 已实现，但前端 UI（P1-12）需适配需求变更后的 raw/prototype 双结果对比。(工作量: M, 来源: 需求变更)
-- [ ] **P2-24: `FuzzySetData` → `MembershipData` 迁移向后兼容别名** — 重命名后保留 `FuzzySetData` 作为 deprecated alias（或反向：新增 `MembershipData` alias），内部使用新名称，给下游代码迁移窗口。(工作量: S, 来源: 需求变更, @see FIXME-25)
+- [ ] **P2-19: prototype weight 字段启用** — `ConceptPrototype.weight` 已定义但 `compute_similarities()` 未使用，加权提升区分度。(来源: 评审者#16)
+- [x] **P2-20: calibrate_indirect 的 k 可配置化** — k 作为 CalibrationParams 可选字段。
+- [ ] **P2-21: `TextCase.outcome` 字段语义更新** — 当前仅支持 binary 0/1，fsQCA 模式下 outcome 应为 0.0-1.0 连续值，需添加 validator。(工作量: S, 来源: 需求变更)
+- [x] **P2-22: CLI 新增 `--variant fsqca|csqca` 全局参数** — `qca calibrate`/`qca analyze`/`qca run` 等命令支持 `--variant` 选项。
+- [ ] **P2-23: 多结果分析前端 UI 更新** — multi_outcome.py 已实现，前端 UI（P1-12）需适配 raw/prototype 双结果对比。(工作量: M, 来源: 需求变更)
+- [ ] **P2-24: `FuzzySetData` → `MembershipData` 向后兼容别名** — 保留 deprecated alias，给下游代码迁移窗口。(工作量: S, 来源: 需求变更)
 
 ---
 
@@ -182,15 +125,12 @@
 
 | 优先级 | 剩余 |
 |--------|------|
-| P0 | **0** (P0-BERT 12/12 完成，原始 P0 全部完成) |
-| P1 | **7** (P1-BERT: 2 剩余 P1-B7/B8 + P1 功能: P1-6/7/11/12/13 共 5 剩余) |
-| P2 | **21** (P2-20, P2-22 完成) |
+| P0 | **0** |
+| P1 | **7** (P1-B7/B8 + P1-6/7/11/12/13) |
+| P2 | **21** |
 | **合计** | **28** |
 
-预计工作量：P1 清理 ~3-5 天 + P1 功能需求 ~15-20 天 + P2 ~20-30 天。
-**P0 已清零，不再阻塞发布。**
-
-**推荐推进顺序**（2026-05-26 重新审计后）：
-1. **P1-5~P1-13** — 功能需求（用户体验提升）
-2. **P1-B7, P1-B8** — 模型切换 + 性能监控
+**推荐推进顺序**：
+1. **P1-B7, P1-B8** — 模型切换 + 性能监控（BERT 架构收尾）
+2. **P1-6, P1-7, P1-11, P1-12, P1-13** — 剩余 P1 功能需求
 3. **P2 各项** — 锦上添花
