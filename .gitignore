@@ -44,6 +44,15 @@ site/
 .wolf/hooks/_session.json
 .wolf/**/*.tmp
 
+# Claude Code agent worktrees
+.claude/worktrees/
+
+# OpenWolf design QC captures
+.wolf/designqc-captures/
+
+# Temporary test files
+tmp/
+
 # Log files
 *.log
 *.tsbuildinfo

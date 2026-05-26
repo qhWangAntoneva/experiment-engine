@@ -1366,3 +1366,6 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 11:04 | Edited tests/test_robustness.py | 3→2 lines | ~16 |
 | 11:04 | Edited tests/test_robustness.py | inline fix | ~15 |
 | 11:04 | Edited tests/test_robustness.py | inline fix | ~16 |
+| 11:05 | Session end: 5 writes across 3 files (__init__.py, pyodide_handlers.py, test_robustness.py) | 3 reads | ~9663 tok |
+| 11:15 | Session end: 5 writes across 3 files (__init__.py, pyodide_handlers.py, test_robustness.py) | 5 reads | ~14758 tok |
+| 11:17 | Edited .gitignore | expanded (+9 lines) | ~45 |

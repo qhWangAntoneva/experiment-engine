@@ -1,13 +1,14 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T03:04:41.002Z
-> Files: 42 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T03:17:14.044Z
+> Files: 43 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
 
 ## ./
 
+- `.gitignore` — Git ignore rules (~177 tok)
 - `DEPLOY-CHECKLIST.md` — Deployment Verification Checklist -- QCA Analysis Tool (~5095 tok)
 - `index.html` — QCA Simulation Tool (~563 tok)
 - `package.json` — Node.js package manifest (~194 tok)
