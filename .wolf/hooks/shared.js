@@ -30,14 +30,14 @@ export function writeJSON(filePath, data) {
         fs.mkdirSync(dir, { recursive: true });
     const tmp = filePath + "." + crypto.randomBytes(4).toString("hex") + ".tmp";
     try {
-        fs.writeFileSync(tmp, JSON.stringify(data, null, 2), "utf-8");
+        fs.writeFileSync(tmp, JSON.stringify(data, null, 2) + '\n', "utf-8");
         fs.renameSync(tmp, filePath);
     }
     catch {
         // On Windows, rename can fail if another process holds a handle.
         // Fall back to direct write and clean up the tmp file.
         try {
-            fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
+            fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', "utf-8");
         }
         catch { }
         try {
