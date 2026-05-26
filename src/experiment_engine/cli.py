@@ -128,8 +128,16 @@ def calibrate(
     default="conditions_fitted.yaml",
     help="Output path for fitted condition set YAML",
 )
+@click.option(
+    "--variant",
+    type=click.Choice(["fsqca", "csqca"]),
+    default="fsqca",
+    help="QCA variant: fsqca (fuzzy-set) or csqca (crisp-set)",
+)
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
-def train(condition_set: str, samples: str, output: str, verbose: bool) -> None:
+def train(
+    condition_set: str, samples: str, output: str, variant: str, verbose: bool
+) -> None:
     """Train calibration parameters from labeled concept prototypes."""
     from experiment_engine.text_calibration import (
         TrainingEngine,
@@ -138,6 +146,8 @@ def train(condition_set: str, samples: str, output: str, verbose: bool) -> None:
     )
 
     cs = load_condition_set(condition_set)
+    if variant == "csqca":
+        cs.qca_variant = QCAVariant.CSQCA
     console.print(f"[green]✓[/] Loaded condition set: {cs.name}")
 
     # Load training samples
@@ -275,14 +285,24 @@ def analyze(
     default="robustness_report.json",
     help="Output path for robustness report",
 )
+@click.option(
+    "--variant",
+    type=click.Choice(["fsqca", "csqca"]),
+    default="fsqca",
+    help="QCA variant: fsqca (fuzzy-set) or csqca (crisp-set)",
+)
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
-def robustness(condition_set: str, fuzzy_data: str, output: str, verbose: bool) -> None:
+def robustness(
+    condition_set: str, fuzzy_data: str, output: str, variant: str, verbose: bool
+) -> None:
     """Run robustness and sensitivity tests on QCA results."""
     from experiment_engine.qca_engine import QCAnalyzerStage
     from experiment_engine.qca_engine.advanced import RobustnessTester
     from experiment_engine.text_calibration import load_condition_set
 
     cs = load_condition_set(condition_set)
+    if variant == "csqca":
+        cs.qca_variant = QCAVariant.CSQCA
     fuzzy = _load_fuzzy_data(fuzzy_data, cs)
 
     stage = QCAnalyzerStage(condition_set=cs)

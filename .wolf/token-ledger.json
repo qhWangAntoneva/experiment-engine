@@ -3,12 +3,12 @@
   "created_at": "2026-05-15T12:06:18.944Z",
   "lifetime": {
     "total_tokens_estimated": 9915716,
-    "total_reads": 4394,
+    "total_reads": 4410,
     "total_writes": 5445,
     "total_sessions": 26,
     "anatomy_hits": 1464,
-    "anatomy_misses": 2199,
-    "repeated_reads_blocked": 5594,
+    "anatomy_misses": 2211,
+    "repeated_reads_blocked": 5598,
     "estimated_savings_vs_bare_cli": 19643392
   },
   "sessions": [
@@ -56782,6 +56782,134 @@
         "writes_count": 21,
         "repeated_reads_blocked": 23,
         "anatomy_lookups": 4
+      }
+    },
+    {
+      "id": "session-2026-05-26-1653",
+      "started": "2026-05-26T08:53:04.730Z",
+      "ended": "2026-05-26T09:18:50.586Z",
+      "reads": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/.github/workflows/deploy.yml",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/.git/hooks/pre-commit",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/package.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tsconfig.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/.pre-commit-config.yaml",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/vite.config.ts",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tsconfig.node.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tsconfig.app.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 8,
+        "writes_count": 0,
+        "repeated_reads_blocked": 2,
+        "anatomy_lookups": 0
+      }
+    },
+    {
+      "id": "session-2026-05-26-1653",
+      "started": "2026-05-26T08:53:04.730Z",
+      "ended": "2026-05-26T10:09:38.540Z",
+      "reads": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/.github/workflows/deploy.yml",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/.git/hooks/pre-commit",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/package.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tsconfig.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/.pre-commit-config.yaml",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/vite.config.ts",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tsconfig.node.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tsconfig.app.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 8,
+        "writes_count": 0,
+        "repeated_reads_blocked": 2,
+        "anatomy_lookups": 0
       }
     }
   ],

@@ -169,12 +169,13 @@
 **修复**: 用 `itertools.count()` 顺序 ID 替换 `hash()`。数据结构从 (pattern, coverage) 改为 (id, pattern, coverage)。
 **提交**: 9b58081
 
-### FIXME-22: calibrator.py:369 — k=10 硬编码
+### FIXME-22: ~~calibrator.py:369 — k=10 硬编码~~ **[已修复]**
 
-**文件**: `src/experiment_engine/text_calibration/calibrator.py`
+**文件**: `src/experiment_engine/text_calibration/strategies.py`
 **严重程度**: 🟢 建议
 **问题**: `calibrate_indirect` logistic 变换 steepness factor k=10 硬编码，不可配置。
-**修复**: 将 k 作为 `CalibrationParams` 可选字段。（见 TODO P2-20）
+**修复**: 将 k 作为 `CalibrationParams` 可选字段 `steepness`，`IndirectCalibration.calibrate()` 使用 `params.steepness if params.steepness is not None else 10.0`。（TODO P2-20 完成）
+**提交**: (pending)
 **来源**: 评审者#19
 
 ### FIXME-28: models/qca.py:173-186 — `TextCase.outcome` 字段语义过窄
@@ -222,11 +223,10 @@
 |----------|------|--------|----------------------|-------------|------|
 | 🔴 严重 | 5 (FIXME-1~5) | 5 | 2 (FIXME-23, 24) | 0 | **0** |
 | 🟡 警告 | 11 (FIXME-6~16) | 10 (FIXME-6~13, 15, 16) | 8 (FIXME-25, 26, 27, 29, 30, 31, 34, 35) | 3 (FIXME-14, 34, 35) | **0** |
-| 🟢 建议 | 6 (FIXME-17~22) | 5 (FIXME-17, 18, 20, 21, 33) | 2 (FIXME-28, 32) | 2 (FIXME-19, 36) | **3** (FIXME-22, 28, 32) |
-| **合计** | **22** | **20** | **12** | **5** | **3** |
+| 🟢 建议 | 6 (FIXME-17~22) | 5 (FIXME-17, 18, 20, 21, 33) | 2 (FIXME-28, 32) | 2 (FIXME-19, 36) | **2** (FIXME-28, 32) |
+| **合计** | **22** | **20** | **12** | **5** | **2** |
 
 下一次 session 建议优先处理（均为 🟢 建议级别，无阻塞项）：
 
-1. 🟢 FIXME-22 → `calibrate_indirect` k=10 硬编码（代码质量改进）
-2. 🟢 FIXME-28 → `TextCase.outcome` 字段类型从 int 改为 float 以支持 fsQCA 连续 outcome
-3. 🟢 FIXME-32 → domains.py 原型预置数据支持在线编辑和 localStorage 持久化
+1. 🟢 FIXME-28 → `TextCase.outcome` 字段类型从 int 改为 float 以支持 fsQCA 连续 outcome
+2. 🟢 FIXME-32 → domains.py 原型预置数据支持在线编辑和 localStorage 持久化

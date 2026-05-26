@@ -561,3 +561,29 @@
 
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
+| 09:16 | Fix Issue 2: end-of-file-fixer — add trailing newline to writeJSON in shared.js (both atomic-write + fallback paths), verify pre-commit passes, commit ba36d86 | .wolf/hooks/shared.js, .wolf/buglog.json | commit created, pre-commit passes | ~200 |
+| 18:18 | Edited src/i18n/translations.ts | 3→8 lines | ~54 |
+| 18:18 | Edited src/i18n/translations.ts | expanded (+6 lines) | ~94 |
+| 18:18 | Edited src/i18n/translations.ts | expanded (+6 lines) | ~186 |
+| 18:19 | Edited src/experiment_engine/models/qca.py | expanded (+6 lines) | ~125 |
+| 18:19 | Edited src/pages/Dashboard.tsx | added error handling | ~398 |
+| 18:19 | Edited src/experiment_engine/text_calibration/strategies.py | inline fix | ~20 |
+| 18:19 | Edited src/pages/Dashboard.tsx | added error handling | ~138 |
+| 18:19 | Edited src/types/qca.ts | 6→7 lines | ~92 |
+| 18:19 | Edited tests/test_qca_core.py | modified test_calibrate_indirect_custom_steepness() | ~559 |
+| 18:19 | Edited src/pages/Dashboard.tsx | expanded (+9 lines) | ~223 |
+| 18:19 | Edited src/pages/Dashboard.css | expanded (+24 lines) | ~174 |
+| 18:19 | Edited src/experiment_engine/cli.py | modified train() | ~248 |
+| 18:20 | Edited src/experiment_engine/cli.py | modified robustness() | ~244 |
+| 18:20 | Edited src/store/QCAPipelineContext.tsx | added error handling | ~288 |
+| 18:20 | Edited src/store/QCAPipelineContext.tsx | added optional chaining | ~230 |
+| 18:20 | Edited TODO.md | inline fix | ~54 |
+| 18:20 | Edited src/store/QCAPipelineContext.tsx | added optional chaining | ~244 |
+| 18:20 | Edited TODO.md | inline fix | ~43 |
+| 18:20 | Edited TODO.md | 2→2 lines | ~15 |
+| 18:22 | Edited FIXME.md | 7→8 lines | ~109 |
+| 18:22 | Edited FIXME.md | 2→2 lines | ~47 |
+| 18:23 | Edited FIXME.md | 3→2 lines | ~36 |
+| 18:23 | P2-20: Added steepness field to CalibrationParams, updated IndirectCalibration, TS interface, added test | models/qca.py, strategies.py, qca.ts, test_qca_core.py | All 532 tests pass | ~200 |
+| 18:23 | P2-22: Added --variant to train and robustness CLI commands | cli.py | Verified --help output, ruff clean | ~50 |
+| 18:27 | P1-8 + P1-9: privacy section + Clear Data button, recent runs from localStorage, run persistence in QCAPipelineContext | translations.ts, Dashboard.tsx, Dashboard.css, QCAPipelineContext.tsx | commit 1186356, 4 files, build passes | ~1500 |

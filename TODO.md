@@ -170,9 +170,9 @@
 - [ ] **P2-17: CLI/Python API 一致化** — 将 CLI 命令核心逻辑提取到 api.py，qca run 配置格式改为 QCA 语义 schema。(工作量: M, 来源: 技术顾问#11)
 - [ ] **P2-18: 前端自动化测试** — vitest + @testing-library/react，优先测 QCAPipelineContext reducer + useQCAWorkflow hook。(工作量: L, 来源: 技术顾问#12)
 - [ ] **P2-19: prototype weight 字段启用** — `ConceptPrototype.weight` 已定义但 `compute_similarities()` 未使用。需求变更后该字段仍有意义（prototype 相似度作为 scoring 选项，加权提升区分度）。(来源: 评审者#16) @see FIXME-19
-- [ ] **P2-20: calibrate_indirect 的 k=10 可配置化** — P0-6/Phase 1 的 calibrate_ragin 修复解决了 logistic 变换正确性问题，但 calibrate_indirect 的 steepness factor k=10 仍硬编码不可配置。需将 k 作为 CalibrationParams 可选字段。(见 FIXME-22)
+- [x] **P2-20: calibrate_indirect 的 k=10 可配置化** — P0-6/Phase 1 的 calibrate_ragin 修复解决了 logistic 变换正确性问题，但 calibrate_indirect 的 steepness factor k=10 仍硬编码不可配置。需将 k 作为 CalibrationParams 可选字段。(见 FIXME-22)
 - [ ] **P2-21: `TextCase.outcome` 字段语义更新** — 当前字段描述为 "Binary outcome (0 or 1) used directly as crisp-set membership"，但 fsQCA 模式下 outcome 应为连续值。需支持 0.0-1.0 连续值并添加 validator。(工作量: S, 来源: 需求变更)
-- [ ] **P2-22: CLI 新增 `--variant fsqca|csqca` 全局参数** — `qca calibrate`、`qca analyze`、`qca run` 等命令添加 `--variant` 选项，控制是否使用 crisp-set 校准和真值表构建。(工作量: S, 来源: 需求变更)
+- [x] **P2-22: CLI 新增 `--variant fsqca|csqca` 全局参数** — `qca calibrate`、`qca analyze`、`qca run` 等命令添加 `--variant` 选项，控制是否使用 crisp-set 校准和真值表构建。(工作量: S, 来源: 需求变更)
 - [ ] **P2-23: 多结果分析前端 UI 更新** — multi_outcome.py 已实现，但前端 UI（P1-12）需适配需求变更后的 raw/prototype 双结果对比。(工作量: M, 来源: 需求变更)
 - [ ] **P2-24: `FuzzySetData` → `MembershipData` 迁移向后兼容别名** — 重命名后保留 `FuzzySetData` 作为 deprecated alias（或反向：新增 `MembershipData` alias），内部使用新名称，给下游代码迁移窗口。(工作量: S, 来源: 需求变更, @see FIXME-25)
 
@@ -184,8 +184,8 @@
 |--------|------|
 | P0 | **0** (P0-BERT 12/12 完成，原始 P0 全部完成) |
 | P1 | **11** (P1-BERT: 2 剩余 P1-B7/B8 + P1 功能: P1-5~P1-13 共 9 剩余) |
-| P2 | **23** (全部未开始) |
-| **合计** | **34** |
+| P2 | **21** (P2-20, P2-22 完成) |
+| **合计** | **32** |
 
 预计工作量：P1 清理 ~3-5 天 + P1 功能需求 ~15-20 天 + P2 ~20-30 天。
 **P0 已清零，不再阻塞发布。**

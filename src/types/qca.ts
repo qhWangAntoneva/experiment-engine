@@ -61,6 +61,7 @@ export interface CalibrationParams {
   threshold_full_out: number;  // <= crossover
   crossover_point: number;     // where membership = 0.5
   direction: 'ascending' | 'descending';
+  steepness?: number;          // steepness factor for indirect calibration (default 10.0)
 }
 
 export interface ConceptPrototype {

@@ -156,7 +156,7 @@ class IndirectCalibration(CalibrationStrategy):
 
         # Logistic: map [0,1] through log-odds centered at crossover
         cross = params.crossover_point
-        k = 10.0  # steepness factor
+        k = params.steepness if params.steepness is not None else 10.0
 
         # Pre-compute crossover log-odds (constant across all elements)
         cross_log_odds = float(np.log(cross / (1.0 - cross))) if 0 < cross < 1 else 0.0

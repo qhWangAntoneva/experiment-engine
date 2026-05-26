@@ -942,6 +942,42 @@ class TestCalibrateFunctions:
         result = TextCalibrationStage.calibrate_indirect(raw, params)
         assert result[0] > result[1]  # lower raw -> higher membership
 
+    def test_calibrate_indirect_custom_steepness(self):
+        """Custom steepness produces a less-steep logistic curve than default k=10."""
+        # default k=10 (high steepness)
+        params_default = CalibrationParams(
+            threshold_full_in=0.80,
+            threshold_full_out=0.20,
+            crossover_point=0.50,
+        )
+        # custom k=5.0 (lower steepness)
+        params_gentle = CalibrationParams(
+            threshold_full_in=0.80,
+            threshold_full_out=0.20,
+            crossover_point=0.50,
+            steepness=5.0,
+        )
+        # Use raw scores that lie in the mid-range where the logistic curve
+        # is most sensitive to steepness differences.
+        raw = np.array([0.2, 0.35, 0.65, 0.8], dtype=np.float64)
+
+        result_default = TextCalibrationStage.calibrate_indirect(raw, params_default)
+        result_gentle = TextCalibrationStage.calibrate_indirect(raw, params_gentle)
+
+        # With lower steepness, mid-range scores should be closer to 0.5
+        # (i.e. less extreme) than with higher steepness.
+        mid_mask = (raw > 0.2) & (raw < 0.8)
+        dist_default = np.abs(result_default[mid_mask] - 0.5)
+        dist_gentle = np.abs(result_gentle[mid_mask] - 0.5)
+        # Gentle curve should have smaller deviation from 0.5 (less steep)
+        assert np.all(dist_gentle < dist_default), (
+            f"Custom k=5 should be less steep: default_dist={dist_default}, "
+            f"gentle_dist={dist_gentle}"
+        )
+        # Both still produce values in [0, 1]
+        assert np.all(result_gentle >= 0.0)
+        assert np.all(result_gentle <= 1.0)
+
     def test_calibrate_fuzzy_direct_logistic_formula(self):
         """Ragin calibration uses logistic transformation (not piecewise linear)."""
         params = CalibrationParams(

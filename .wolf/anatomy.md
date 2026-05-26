@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T08:47:21.728Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T10:23:13.306Z
 > Files: 1 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/
@@ -14,7 +14,7 @@
 
 ## ./
 
-- `pyproject.toml` — QCA Text Analysis Tool: citizen feedback text to fuzzy-set QCA analysis (~1323 tok)
+- `FIXME.md` — FIXME — QCA Analysis Tool (~3007 tok)
 
 ## .claude/
 

@@ -4123,6 +4123,138 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-26T08:47:21.743Z"
+    },
+    {
+      "id": "bug-251",
+      "timestamp": "2026-05-26T09:14:48.000Z",
+      "error_message": "writeJSON() in .wolf/hooks/shared.js produces files without trailing newlines, causing pre-commit end-of-file-fixer to fail on every git commit/push",
+      "file": ".wolf/hooks/shared.js",
+      "root_cause": "JSON.stringify(data, null, 2) does NOT append a trailing newline. Every wolf hook that calls writeJSON() (post-write.js, post-read.js, session-start.js, stop.js, etc.) writes .wolf/token-ledger.json and similar files without trailing newlines, violating pre-commit's end-of-file-fixer.",
+      "fix": "Changed both JSON.stringify() calls in writeJSON() (atomic-write path line 33 and fallback path line 40) from JSON.stringify(data, null, 2) to JSON.stringify(data, null, 2) + '\\n'.",
+      "tags": [
+        "pre-commit",
+        "end-of-file-fixer",
+        "newline",
+        "wolf-hook",
+        "json"
+      ],
+      "related_bugs": [
+        "bug-30"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T09:14:48.000Z"
+    },
+    {
+      "id": "bug-252",
+      "timestamp": "2026-05-26T10:19:07.587Z",
+      "error_message": "Missing error handling in Dashboard",
+      "file": "src/pages/Dashboard.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block | Also: const handleClearData = useCallback(() => {; if (!window.confirm(t('dashboard.clearDataConfirm'))) return",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T10:19:14.211Z"
+    },
+    {
+      "id": "bug-253",
+      "timestamp": "2026-05-26T10:19:44.276Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/pages/Dashboard.tsx",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 10→19 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T10:19:44.276Z"
+    },
+    {
+      "id": "bug-254",
+      "timestamp": "2026-05-26T10:19:51.048Z",
+      "error_message": "CSS fix: font-size, color",
+      "file": "src/pages/Dashboard.css",
+      "root_cause": "font-size: 1rem → 0.75rem; color: var(--color-text-primary) → var(--color-text-secondary)",
+      "fix": "Changed font-size: 1rem → 0.75rem; color: var(--color-text-primary) → var(--color-text-secondary)",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "css"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T10:19:51.048Z"
+    },
+    {
+      "id": "bug-255",
+      "timestamp": "2026-05-26T10:20:08.209Z",
+      "error_message": "Missing error handling in persistRecentRun",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T10:20:08.209Z"
+    },
+    {
+      "id": "bug-256",
+      "timestamp": "2026-05-26T10:20:19.149Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: // Persist to recent runs; _runIdCounter += 1;",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T10:20:29.971Z"
+    },
+    {
+      "id": "bug-257",
+      "timestamp": "2026-05-26T10:22:38.391Z",
+      "error_message": "Significant refactor of ",
+      "file": "FIXME.md",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 7→8 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T10:22:38.392Z"
+    },
+    {
+      "id": "bug-258",
+      "timestamp": "2026-05-26T10:23:13.325Z",
+      "error_message": "Incorrect value in code",
+      "file": "FIXME.md",
+      "root_cause": "Had `calibrate_indirect`",
+      "fix": "Changed to `TextCase.outcome`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T10:23:13.325Z"
     }
   ]
 }

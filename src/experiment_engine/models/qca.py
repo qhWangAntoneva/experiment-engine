@@ -77,6 +77,12 @@ class CalibrationParams(BaseModel):
     threshold_full_out: float = Field(..., ge=0.0, le=1.0)
     crossover_point: float = Field(..., ge=0.0, le=1.0)
     direction: str = Field("ascending", pattern=r"^(ascending|descending)$")
+    steepness: float | None = Field(
+        None,
+        ge=0.1,
+        le=100.0,
+        description="Steepness factor for indirect calibration. Defaults to 10.0 if not set.",
+    )
 
     @field_validator("threshold_full_in")
     @classmethod
