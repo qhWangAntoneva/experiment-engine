@@ -299,6 +299,74 @@ export interface QCAPipelineState {
   performanceMetrics: import('../services/bert-engine').PerformanceMetrics | null;
 }
 
+export const DEFAULT_CONDITION_SET_YAML = `# QCA Condition Set Definition
+# Define causal conditions and the outcome for fuzzy-set analysis.
+name: "citizen-feedback-qca"
+description: "QCA model of citizen feedback text"
+domain: dissatisfaction
+
+# Outcome condition
+outcome:
+  name: gov_response_effective
+  display_name: "政府回应有效"
+  domain: dissatisfaction
+  calibration_type: direct
+  calibration_params:
+    threshold_full_in: 0.85
+    threshold_full_out: 0.25
+    crossover_point: 0.50
+    direction: ascending
+  keywords:
+    - pattern: "已解决"
+      weight: 1.0
+      scope: bigram
+    - pattern: "满意"
+      weight: 0.8
+      scope: bigram
+    - pattern: "效率高"
+      weight: 0.7
+      scope: bigram
+
+# Causal conditions
+conditions:
+  - name: strong_negative_affect
+    display_name: "强烈负面情感"
+    domain: dissatisfaction
+    calibration_type: direct
+    calibration_params:
+      threshold_full_in: 0.80
+      threshold_full_out: 0.20
+      crossover_point: 0.50
+      direction: ascending
+    keywords:
+      - pattern: "严重"
+        weight: 1.0
+        scope: unigram
+      - pattern: "非常差"
+        weight: 0.9
+        scope: trigram
+      - pattern: "难以忍受"
+        weight: 0.8
+        scope: exact
+
+  - name: policy_clarity
+    display_name: "政策诉求明确性"
+    domain: policy_demand
+    calibration_type: direct
+    calibration_params:
+      threshold_full_in: 0.80
+      threshold_full_out: 0.20
+      crossover_point: 0.50
+      direction: ascending
+    keywords:
+      - pattern: "建议"
+        weight: 0.9
+        scope: unigram
+      - pattern: "要求"
+        weight: 0.7
+        scope: unigram
+`;
+
 export const INITIAL_PIPELINE_STATE: QCAPipelineState = {
   stage: 'idle',
   progress: 0,
@@ -321,7 +389,7 @@ export const INITIAL_PIPELINE_STATE: QCAPipelineState = {
   bertEmbeddingsReady: false,
   textCorpusEntries: [],
   textCases: [],
-  yamlContent: '',
+  yamlContent: DEFAULT_CONDITION_SET_YAML,
   protoConditions: [],
   performanceMetrics: null,
 };

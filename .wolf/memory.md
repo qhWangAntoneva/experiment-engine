@@ -8,6 +8,8 @@
 
 | 2026-05-27 | Fixed Use Template bug (DataInput.tsx ignored state.conditionSet). Added useEffect hydration. TS build clean. | DataInput.tsx | fixed | ~200 |
 | 2026-05-27 | Launched 3 profession-agents for optimization analysis (Backend/Algorithm, Frontend/Viz, DevOps/Report). All delivered reports. | handover.md | analysis complete | ~500 |
+| 2026-05-27 | i18n for "Load 30 Sample Cases": added sampleDataBtn/sampleDataTooltip/sampleLoaded to translations.ts (zh+en) and updated DataInput.tsx. TS build clean. | DataInput.tsx, translations.ts | done | ~100 |
+| 2026-05-27 | Track A Steps 2-4: TemplateLibrary uses setYamlContent directly instead of setConditionSet + hydration useEffect. Removed DataInput hydration useEffect. Fixed handleLoadSampleData. TS build clean. | TemplateLibrary.tsx, DataInput.tsx | done | ~250 |
 | 2026-05-27 | P2-15/19/21: PluginRegistry DI, weighted max similarity, TextCase.outcome float. 532 tests pass. | plugins.py, cosine_similarity.py, qca.py | all done | ~500 |
 | 2026-05-27 | Package optimization plan: investigated all viz/report/pipeline modules, identified impedance mismatch between QCAPlotBuilder dicts and Renderer InputData, documented current output quality issues, wrote plan in .wolf/plans/package_optimization_plan.md | viz/*.py, report/*.py, api.py, pipeline.py, run_pipeline.py, TODO.md, validate_qca_output.py, configs/config.yaml | plan written | ~500 |
 | 2026-05-27 | P2-31: Changed displayModeBar: false to displayModeBar: 'hover' in 4 Plotly components, added toImageButtonOptions for PNG download | DistributionPlot.tsx, FuzzySetHeatmap.tsx, NecessityXYPlot.tsx, CalibrationPreview.tsx | done | ~100 |
@@ -152,3 +154,30 @@
 | 04:03 | Edited src/components/TemplateLibrary.tsx | CSS: CSQCA, qca_variant | ~192 |
 | 04:04 | Session end: 4 writes across 2 files (DataInput.tsx, TemplateLibrary.tsx) | 11 reads | ~16471 tok |
 | 04:07 | Session end: 4 writes across 2 files (DataInput.tsx, TemplateLibrary.tsx) | 12 reads | ~16471 tok |
+| 2026-05-27 | Created src/utils/conditionSetToYaml.ts — builds YAML from ConditionSet with 2-space indent, controlled quoting, null safety. Verified round-trip with js-yaml. | conditionSetToYaml.ts | done | ~300 |
+| 05:10 | Edited src/pages/DataInput.tsx | expanded (+35 lines) | ~497 |
+| 05:10 | Edited src/pages/DataInput.tsx | added 1 import(s) | ~38 |
+| 05:10 | Edited src/pages/DataInput.tsx | 8→9 lines | ~66 |
+| 05:10 | Edited src/pages/DataInput.tsx | added error handling | ~316 |
+| 05:10 | Edited src/pages/DataInput.tsx | CSS: marginTop | ~330 |
+| 05:11 | Session end: 16 writes across 4 files (translations.ts, DataInput.tsx, conditionSetToYaml.ts, __test_condset_yaml.ts) | 54 reads | ~20485 tok |
+| 05:17 | Edited src/components/TemplateLibrary.tsx | added 1 import(s) | ~48 |
+| 05:17 | Edited src/components/TemplateLibrary.tsx | inline fix | ~14 |
+| 05:17 | Edited src/components/TemplateLibrary.tsx | 4→4 lines | ~32 |
+| 05:17 | Edited src/types/qca.ts | expanded (+68 lines) | ~474 |
+| 05:17 | Edited src/types/qca.ts | inline fix | ~12 |
+| 05:17 | Edited src/pages/DataInput.tsx | inline fix | ~26 |
+| 05:17 | Edited src/pages/DataInput.tsx | — | ~0 |
+| 27/05 14:10 | Track A Step 1: moved DEFAULT_CONDITION_SET_YAML from DataInput.tsx to types/qca.ts | src/pages/DataInput.tsx src/types/qca.ts | done | ~50 tokens |
+| 05:18 | Edited src/pages/DataInput.tsx | inline fix | ~18 |
+| 05:18 | Edited src/pages/DataInput.tsx | added 1 import(s) | ~42 |
+| 05:18 | Edited src/pages/DataInput.tsx | reduced (-8 lines) | ~44 |
+| 05:18 | Edited src/pages/DataInput.tsx | modified catch() | ~106 |
+| 05:18 | Edited src/pages/DataInput.tsx | 9→7 lines | ~56 |
+| 05:19 | Session end: 28 writes across 6 files (translations.ts, DataInput.tsx, conditionSetToYaml.ts, __test_condset_yaml.ts, TemplateLibrary.tsx) | 60 reads | ~26385 tok |
+| 2026-05-27 | removed public/samples/ dead code | public/samples/ | done | ~5 |
+| 05:22 | Edited src/i18n/translations.ts | 2→6 lines | ~49 |
+| 05:22 | Edited src/i18n/translations.ts | 2→6 lines | ~66 |
+| 05:22 | Edited src/i18n/translations.ts | 2→6 lines | ~90 |
+| 05:22 | Edited src/pages/DataInput.tsx | 8→9 lines | ~98 |
+| 05:22 | Edited src/pages/DataInput.tsx | "Loaded ${entries.length} " → "dataInput.sampleLoaded" | ~26 |

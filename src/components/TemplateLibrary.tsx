@@ -13,6 +13,7 @@ import {
   removeImportedTemplate,
 } from '../services/templateService';
 import { QCAVariant, type ConditionSetTemplate } from '../types/qca';
+import { conditionSetToYaml } from '../utils/conditionSetToYaml';
 import './TemplateLibrary.css';
 
 const DOMAIN_COLORS: Record<string, string> = {
@@ -26,7 +27,7 @@ const DOMAIN_COLORS: Record<string, string> = {
 export default function TemplateLibrary() {
   const navigate = useNavigate();
   const t = useT();
-  const { setConditionSet } = useQCAPipeline();
+  const { setYamlContent } = useQCAPipeline();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,10 +68,10 @@ export default function TemplateLibrary() {
         scoring_source: 'prototype' as const,
         qca_variant: qcaVariant,
       };
-      setConditionSet(cs);
+      setYamlContent(conditionSetToYaml(cs));
       navigate('/input');
     },
-    [setConditionSet, navigate]
+    [setYamlContent, navigate]
   );
 
   const handleRemoveImport = useCallback(

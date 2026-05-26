@@ -10,7 +10,7 @@
  *   - Prototype calibration mode: structured text input + prototype editor table
  */
 
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQCAPipeline } from '../store/QCAPipelineContext';
 import { useQCAWorkflow } from '../hooks/useQCAWorkflow';
@@ -20,6 +20,8 @@ import PipelineStatus from '../components/PipelineStatus';
 import DistributionPlot from '../components/DistributionPlot';
 import ShareLinkButton from '../components/ShareLinkButton';
 import HelpTooltip from '../components/HelpTooltip';
+import { getBuiltinTemplates } from '../services/templateService';
+import { conditionSetToYaml } from '../utils/conditionSetToYaml';
 import type {
   TextCorpusEntry,
   TextCase,
@@ -30,77 +32,43 @@ import type {
   TextDomain,
   QCAProjectProtoConditionRow,
 } from '../types/qca';
-import { CalibrationMethod, QCAVariant } from '../types/qca';
+import { CalibrationMethod, QCAVariant, DEFAULT_CONDITION_SET_YAML } from '../types/qca';
 import './DataInput.css';
 
-// ─── Default condition set YAML template ────────────────────────────────────
 
-const DEFAULT_CONDITION_SET_YAML = `# QCA Condition Set Definition
-# Define causal conditions and the outcome for fuzzy-set analysis.
-name: "citizen-feedback-qca"
-description: "QCA model of citizen feedback text"
-domain: dissatisfaction
+// ─── Sample cases CSV (30 cases, 5 domains, 6 per domain) ──────────────────
 
-# Outcome condition
-outcome:
-  name: gov_response_effective
-  display_name: "政府回应有效"
-  domain: dissatisfaction
-  calibration_type: direct
-  calibration_params:
-    threshold_full_in: 0.85
-    threshold_full_out: 0.25
-    crossover_point: 0.50
-    direction: ascending
-  keywords:
-    - pattern: "已解决"
-      weight: 1.0
-      scope: bigram
-    - pattern: "满意"
-      weight: 0.8
-      scope: bigram
-    - pattern: "效率高"
-      weight: 0.7
-      scope: bigram
-
-# Causal conditions
-conditions:
-  - name: strong_negative_affect
-    display_name: "强烈负面情感"
-    domain: dissatisfaction
-    calibration_type: direct
-    calibration_params:
-      threshold_full_in: 0.80
-      threshold_full_out: 0.20
-      crossover_point: 0.50
-      direction: ascending
-    keywords:
-      - pattern: "严重"
-        weight: 1.0
-        scope: unigram
-      - pattern: "非常差"
-        weight: 0.9
-        scope: trigram
-      - pattern: "难以忍受"
-        weight: 0.8
-        scope: exact
-
-  - name: policy_clarity
-    display_name: "政策诉求明确性"
-    domain: policy_demand
-    calibration_type: direct
-    calibration_params:
-      threshold_full_in: 0.80
-      threshold_full_out: 0.20
-      crossover_point: 0.50
-      direction: ascending
-    keywords:
-      - pattern: "建议"
-        weight: 0.9
-        scope: unigram
-      - pattern: "要求"
-        weight: 0.7
-        scope: unigram
+const SAMPLE_CSV_CONTENT = `text_id,domain,text,expected_outcome
+1,dissatisfaction,"你们这服务太差了，去办证跑了五趟都没办成，窗口人员推诿踢皮球，我要打市长热线投诉你们",1
+2,dissatisfaction,"工作人员态度极其恶劣，效率极低，一个简单的证明拖了一个月，我已经去纪委反映了",1
+3,dissatisfaction,"为什么隔壁区能办我们这就不行？区别对待太不公平了，再不解决我就找媒体曝光",1
+4,dissatisfaction,"今天去办了业务，工作人员态度还可以，虽然等了一会儿但总算办完了",0
+5,dissatisfaction,"请问一下这个证明材料在哪里可以下载，大概需要多久办好",0
+6,dissatisfaction,"整体感觉比以前好一些了，虽然还有提升空间，但已经进步不少",0
+7,policy_demand,"建议政府尽快出台针对老旧小区加装电梯的补贴政策，我们全体居民强烈要求",1
+8,policy_demand,"据统计数据显示其他城市已经实施了共享单车管理办法，我们这应该尽快参照",1
+9,policy_demand,"我们社区老年人多，希望政府增加社区卫生服务站的人员经费投入",1
+10,policy_demand,"我想咨询一下现在执行的购房补贴政策具体是什么条件",0
+11,policy_demand,"随便了解一下，这个新政策什么时候开始实施",0
+12,policy_demand,"目前政策挺好的，希望保持稳定不要频繁变动就行了",0
+13,co_production,"我们社区居民愿意出钱出力，一起把垃圾分类这个事情做好，希望政府能组织协调",1
+14,co_production,"我在环保领域工作多年，可以从专业角度提几点建议，配合你们一起完善方案",1
+15,co_production,"大家齐心协力联合行动，我们楼栋全体住户都愿意参与社区绿化共建",1
+16,co_production,"这是政府的事，我们老百姓管不了那么多，你们自己想办法处理",0
+17,co_production,"我不太懂这些技术问题，你们专业人士看着办就行了",0
+18,co_production,"我一个人来反映一下意见就可以了，不需要组织其他人一起",0
+19,trust,"我对政府很放心，相信他们能公正处理好这件事，现在办事确实越来越透明了",1
+20,trust,"工作人员非常专业，态度好有耐心，整个流程非常规范，我要给他们点赞",1
+21,trust,"政府真心为老百姓着想，政策越来越人性化，办事比以前方便多了",1
+22,trust,"政府没什么公信力，说要解决问题说了半年了也没见动静，完全不靠谱",0
+23,trust,"办事人员连基本政策都解释不清楚，一问三不知，能力太差了",0
+24,trust,"这里面肯定有猫腻，不按规矩办事，有关系的人就优先处理",0
+25,gov_responsiveness,"反映问题后当天就有人联系我，三天内就办好了，效率非常高，处理很到位",1
+26,gov_responsiveness,"整个处理过程都有短信通知，每一步都告知进展，办完还有回访电话",1
+27,gov_responsiveness,"工作人员态度非常好，耐心解答，认真细致，办完后还主动跟进后续情况",1
+28,gov_responsiveness,"反映了好几次问题，等了两个星期也没人回复，石沉大海一样",0
+29,gov_responsiveness,"虽然有回应但都是敷衍，说什么正在处理中，实际上根本没有任何进展",0
+30,gov_responsiveness,"办理后就没人管了，出了问题不知道找谁，没有任何后续跟进机制",0
 `;
 
 const DOMAIN_PRESETS: TextDomain[] = [
@@ -295,7 +263,6 @@ export default function DataInput() {
 
   const {
     state,
-    dispatch,
     setTextCorpus,
     setTextCases: setTextCasesContext,
     setYamlContent: setYamlContentContext,
@@ -355,14 +322,6 @@ export default function DataInput() {
 
   const [importedConditionSet, setImportedConditionSet] = useState<ConditionSet | null>(null);
   const dictFileInputRef = useRef<HTMLInputElement>(null);
-
-  // ─── Hydrate from template selected via TemplateLibrary ───────────────────────
-  useEffect(() => {
-    if (state.conditionSet) {
-      setImportedConditionSet(state.conditionSet);
-      (dispatch as any)({ type: 'SET_CONDITION_SET', conditionSet: null });
-    }
-  }, [state.conditionSet, dispatch]);
 
   // ─── Export state ─────────────────────────────────────────────────────
   const [isExporting, setIsExporting] = useState(false);
@@ -637,7 +596,32 @@ export default function DataInput() {
     handleParsePaste();
   }, [handleParsePaste]);
 
+  const handleLoadSampleData = useCallback(async () => {
+    try {
+      const entries = await loadCorpus('sample_cases.csv', SAMPLE_CSV_CONTENT, 'csv');
+      setTextCorpus(entries);
 
+      // Find matching builtin template for the current domain
+      const template = getBuiltinTemplates().find(t => t.domain === selectedDomain);
+      if (template) {
+        const qcaVariant = getQCAVariantFromSettings();
+        const cs = {
+          name: template.name,
+          description: template.description,
+          domain: template.domain,
+          conditions: template.conditions,
+          outcome: template.outcome,
+          scoring_source: 'prototype' as const,
+          qca_variant: qcaVariant,
+        };
+        setYamlContentContext(conditionSetToYaml(cs));
+      }
+
+      setValidationMessage(t('dataInput.sampleLoaded', entries.length, selectedDomain));
+    } catch (err: any) {
+      setValidationMessage(`${t('common.error')}: ${err.message}`);
+    }
+  }, [loadCorpus, setTextCorpus, selectedDomain, setYamlContentContext, t]);
 
   // ─── BERT handlers ─────────────────────────────────────────────────────
 
@@ -893,6 +877,17 @@ export default function DataInput() {
               style={{ fontSize: '0.8125rem' }}
             >
               {t('dataInput.uploadFile')}
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '4px', marginBottom: '12px' }}>
+            <button
+              className="btn btn-outline"
+              onClick={handleLoadSampleData}
+              disabled={isRunning || isBertLoading}
+              title={t('dataInput.sampleDataTooltip')}
+              style={{ fontSize: '0.8125rem' }}
+            >
+              {t('dataInput.sampleDataBtn')}
             </button>
           </div>
 

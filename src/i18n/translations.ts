@@ -200,6 +200,10 @@ export interface TranslationDict {
     outcomeBDisplayNamePlaceholder: string;
     runMultiOutcomePipelineBtn: string;
     multiOutcomeRunning: string;
+    // Sample data
+    sampleDataBtn: string;
+    sampleDataTooltip: string;
+    sampleLoaded: (n: number, domain: string) => string;
   };
 
   // ── Results ──
@@ -642,6 +646,10 @@ const zh: TranslationDict = {
     outcomeBDisplayNamePlaceholder: '例如: 信任水平',
     runMultiOutcomePipelineBtn: '运行多结局分析管道',
     multiOutcomeRunning: '多结局分析运行中...',
+    // Sample data
+    sampleDataBtn: '加载 30 条样本数据',
+    sampleDataTooltip: '从测试数据中加载 30 条样本（每领域 6 条）',
+    sampleLoaded: (n: number, domain: string) => `已加载 ${n} 条样本数据。条件集：${domain}`,
   },
 
   results: {
@@ -1155,6 +1163,10 @@ const en: TranslationDict = {
     outcomeBDisplayNamePlaceholder: 'e.g. Trust Level',
     runMultiOutcomePipelineBtn: 'Run Multi-Outcome Pipeline',
     multiOutcomeRunning: 'Multi-outcome analysis running...',
+    // Sample data
+    sampleDataBtn: 'Load 30 Sample Cases',
+    sampleDataTooltip: 'Load 30 sample cases from the test fixture (6 per domain)',
+    sampleLoaded: (n: number, domain: string) => `Loaded ${n} sample cases. Condition set: ${domain}`,
   },
 
   results: {
