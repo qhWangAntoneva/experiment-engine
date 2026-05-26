@@ -50,6 +50,8 @@ export type PipelineStage =
   | 'robustness-done'
   | 'running-counterfactuals'
   | 'counterfactuals-done'
+  | 'multi-outcome-comparing'
+  | 'multi-outcome-done'
   | 'exporting'
   | 'done'
   | 'error';
@@ -222,6 +224,15 @@ export interface CounterfactualReport {
   n_logical_remainders: number;
 }
 
+// ─── Multi-Outcome ─────────────────────────────────────────────────────────
+
+export interface MultiOutcomeReport {
+  outcomes: string[];
+  shared_conditions: string[];
+  unique_conditions: Record<string, string[]>;
+  pairwise_similarity: number[][];
+}
+
 // ─── Text Corpus Input ─────────────────────────────────────────────────────
 
 export interface TextCorpusEntry {
@@ -268,14 +279,27 @@ export interface QCAPipelineState {
   analysisResult: QCAAnalysisResultJSON | null;
   /** Prototype-based QCA analysis result (populated when prototype texts are analyzed) */
   prototypeAnalysisResult: QCAAnalysisResultJSON | null;
+  /** Second-outcome QCA analysis result (populated in multi-outcome mode) */
+  analysisResultB: QCAAnalysisResultJSON | null;
   robustnessReport: RobustnessReport | null;
   counterfactualReport: CounterfactualReport | null;
+  /** Multi-outcome comparison report (populated when comparing multiple outcomes) */
+  multiOutcomeReport: MultiOutcomeReport | null;
   exportFormats: string[];        // e.g. ['csv', 'json', 'latex']
 
   // BERT state
   bertStatus: 'unloaded' | 'loading' | 'ready' | 'error';
   bertMessage: string;
   bertEmbeddingsReady: boolean;
+
+  // Text corpus (populated during data input)
+  textCorpusEntries: TextCorpusEntry[];
+  textCases: TextCase[];
+  yamlContent: string;
+  protoConditions: QCAProjectProtoConditionRow[];
+
+  // Performance metrics
+  performanceMetrics: import('../services/bert-engine').PerformanceMetrics | null;
 }
 
 export const INITIAL_PIPELINE_STATE: QCAPipelineState = {
@@ -290,12 +314,19 @@ export const INITIAL_PIPELINE_STATE: QCAPipelineState = {
   prototypeFuzzyData: null,
   analysisResult: null,
   prototypeAnalysisResult: null,
+  analysisResultB: null,
   robustnessReport: null,
   counterfactualReport: null,
+  multiOutcomeReport: null,
   exportFormats: [],
   bertStatus: 'unloaded',
   bertMessage: '',
   bertEmbeddingsReady: false,
+  textCorpusEntries: [],
+  textCases: [],
+  yamlContent: '',
+  protoConditions: [],
+  performanceMetrics: null,
 };
 
 // ─── BERT Embedding Calibration Input ──────────────────────────────────────
@@ -316,14 +347,16 @@ export type PyodideWorkerRequest =
   | { type: 'analyze'; payload: { fuzzyData: MembershipDataJSON; params: QCAAnalysisParams } }
   | { type: 'run_robustness'; payload: { fuzzyData: MembershipDataJSON; analysisResult: QCAAnalysisResultJSON } }
   | { type: 'run_counterfactuals'; payload: { fuzzyData: MembershipDataJSON; analysisResult: QCAAnalysisResultJSON } }
-  | { type: 'export_result'; payload: { format: 'csv' | 'json' | 'latex'; result: QCAAnalysisResultJSON } }
+  | { type: 'export_result'; payload: { format: 'csv' | 'json' | 'latex' | 'docx'; result: QCAAnalysisResultJSON } }
   | { type: 'validate_condition_set'; payload: { conditionSet: ConditionSet } }
   | { type: 'init_bert'; payload: { modelName: string } }
   | { type: 'embed_calibrate'; payload: { texts: EmbedCalibrateTextEntry[]; conditionSet: any } }
   | { type: 'compute_embeddings'; payload: { texts: string[]; batchSize?: number } }
   | { type: 'compute_prototype_embeddings'; payload: { prototypes: Record<string, string[]> } }
   | { type: 'get_bert_status' }
+  | { type: 'get_bert_metrics'; payload: Record<string, never> }
   | { type: 'get_package_status'; payload?: never }
+  | { type: 'multi_outcome'; payload: { analyses: Record<string, QCAAnalysisResultJSON> } }
   | { type: 'terminate'; payload?: never };
 
 export type PyodideWorkerResponse =
@@ -340,7 +373,7 @@ export type PyodideWorkerResponse =
   | { type: 'robustness-error'; error: string }
   | { type: 'counterfactuals-done'; report: CounterfactualReport }
   | { type: 'counterfactuals-error'; error: string }
-  | { type: 'export-done'; data: string; mimeType: string }
+  | { type: 'export-done'; data: string | Uint8Array; mimeType: string }
   | { type: 'export-error'; error: string }
   | { type: 'validate-done'; valid: boolean; warnings: string[] }
   | { type: 'validate-error'; error: string }
@@ -353,7 +386,10 @@ export type PyodideWorkerResponse =
   | { type: 'embed-calibrate-done'; fuzzyData: MembershipDataJSON }
   | { type: 'embed-calibrate-error'; error: string }
   | { type: 'bert-status'; loaded: boolean; modelName: string | null }
+  | { type: 'bert-metrics'; payload: import('../services/bert-engine').PerformanceMetrics }
   | { type: 'package-status'; packages: Record<string, string> }
+  | { type: 'multi-outcome-done'; report: MultiOutcomeReport }
+  | { type: 'multi-outcome-error'; error: string }
   | { type: 'log'; message: string; level: 'debug' | 'info' | 'warn' | 'error' }
   | { type: 'terminated' };
 
@@ -363,6 +399,92 @@ export interface ExportResult {
   data: Blob;
   mimeType: string;
   filename: string;
+}
+
+// ─── Project Save/Load (P1-6) ──────────────────────────────────────────────
+
+export interface QCAProjectFile {
+  version: string;
+  appVersion: string;
+  savedAt: string;
+  pipeline: QCAProjectPipelineSnapshot;
+  settings: Record<string, unknown>;
+  params: QCAAnalysisParams;
+  bertModel?: string;
+  textCorpus: QCAProjectTextCorpusSnapshot;
+  recentRuns: SavedAnalysisRun[];
+}
+
+export interface QCAProjectPipelineSnapshot {
+  stage: PipelineStage;
+  conditionSet: ConditionSet | null;
+  fuzzyData: MembershipDataJSON | null;
+  prototypeFuzzyData: MembershipDataJSON | null;
+  analysisResult: QCAAnalysisResultJSON | null;
+  prototypeAnalysisResult: QCAAnalysisResultJSON | null;
+  analysisResultB: QCAAnalysisResultJSON | null;
+  robustnessReport: RobustnessReport | null;
+  counterfactualReport: CounterfactualReport | null;
+  multiOutcomeReport: MultiOutcomeReport | null;
+}
+
+export interface QCAProjectTextCorpusSnapshot {
+  texts: TextCorpusEntry[];
+  textCases: TextCase[];
+  yamlContent: string;
+  protoConditions: QCAProjectProtoConditionRow[];
+}
+
+export interface QCAProjectProtoConditionRow {
+  id: string;
+  name: string;
+  displayName: string;
+  prototypesText: string;
+}
+
+// ─── Parameter Snapshot (P1-7: Comparison / A/B Analysis) ──────────────────
+
+export interface ParameterSnapshot {
+  id: string;
+  name: string;
+  timestamp: string;
+  conditionSet: ConditionSet;
+  analysisParams: QCAAnalysisParams;
+  result: QCAAnalysisResultJSON;
+}
+
+export interface ParamDiffEntry {
+  paramName: string;
+  group: 'calibration' | 'analysis' | 'variant';
+  valueA: string | number;
+  valueB: string | number;
+  differs: boolean;
+}
+
+export interface ComparisonReport {
+  generatedAt: string;
+  snapshotA: { id: string; name: string; timestamp: string };
+  snapshotB: { id: string; name: string; timestamp: string };
+  paramDiffs: ParamDiffEntry[];
+  resultDiffs: {
+    solutionDiff: { formulaSame: boolean; consistencyDelta: number; coverageDelta: number };
+    necessityDiff: { necessaryConditionsChanged: boolean; conditionChanges: Array<{name: string; necessaryInA: boolean; necessaryInB: boolean}> };
+    truthTableDiff: { rowCountDelta: number; configurationsChanged: boolean };
+  };
+}
+
+// ─── Condition Set Template (P1-13) ──────────────────────────────────────
+
+export interface ConditionSetTemplate {
+  id: string;
+  name: string;
+  description: string;
+  domain: TextDomain;
+  conditions: ConditionDefinition[];
+  outcome: ConditionDefinition | null;
+  conditionCount: number;
+  source: 'builtin' | 'imported';
+  createdAt: string;
 }
 
 // ─── Saved Analysis Run (for recent-runs table) ────────────────────────────

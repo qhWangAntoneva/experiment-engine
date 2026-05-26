@@ -14,6 +14,7 @@ import { usePyodide } from '../hooks/usePyodide';
 import { useQCAWorkflow } from '../hooks/useQCAWorkflow';
 import { useQCAPipeline } from '../store/QCAPipelineContext';
 import { useT } from '../i18n/I18nContext';
+import { AVAILABLE_MODELS, DEFAULT_MODEL } from '../services/bert-engine';
 import CalibrationPreview from '../components/CalibrationPreview';
 import './Settings.css';
 
@@ -198,8 +199,8 @@ export default function Settings() {
   const { state: pipelineState } = useQCAPipeline();
   const [bertModel, setBertModel] = useState(() => {
     try {
-      return localStorage.getItem('qca-bert-model') || 'Xenova/bert-base-chinese';
-    } catch { return 'Xenova/bert-base-chinese'; }
+      return localStorage.getItem('qca-bert-model') || DEFAULT_MODEL;
+    } catch { return DEFAULT_MODEL; }
   });
   const [isBertLoading, setIsBertLoading] = useState(false);
   const { initBert } = useQCAWorkflow();
@@ -412,12 +413,19 @@ export default function Settings() {
                 <select
                   className="input"
                   value={bertModel}
-                  onChange={(e) => setBertModel(e.target.value)}
+                  onChange={(e) => {
+                    setBertModel(e.target.value);
+                    localStorage.setItem('qca-bert-model', e.target.value);
+                  }}
                   style={{ width: 260 }}
                 >
-                  <option value="Xenova/bert-base-chinese">bert-base-chinese (768维, ~400MB)</option>
-                  <option value="Xenova/bert-base-multilingual-cased">bert-base-multilingual-cased (768维, ~700MB)</option>
+                  {AVAILABLE_MODELS.map((m) => (
+                    <option key={m.id} value={m.id}>{m.label}</option>
+                  ))}
                 </select>
+                <p className="field-desc" style={{ marginTop: 8, color: 'var(--color-warning)' }}>
+                  {t('settings.bertModelSwitchWarning')}
+                </p>
               </div>
               <div className="about-item">
                 <span className="about-label">{t('settings.bertStatusLabel')}</span>

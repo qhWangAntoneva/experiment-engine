@@ -62,6 +62,11 @@ export type {
   QCAPipelineState,
   ExportResult,
   SavedAnalysisRun,
+  ConditionSetTemplate,
+  QCAProjectFile,
+  QCAProjectPipelineSnapshot,
+  QCAProjectTextCorpusSnapshot,
+  QCAProjectProtoConditionRow,
 } from './qca'
 
 export {

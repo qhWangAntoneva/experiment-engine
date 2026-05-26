@@ -21,9 +21,8 @@
 - KeywordEntry: zero references in entire codebase
 
 **Recommended work order** (next session):
-1. **P1-5 ~ P1-13** -- Feature requirements by customer priority (P1-5 case-level calibration display, P1-9 Recent Runs real data are quick wins)
-2. **P1-B7 + P1-B8** -- Model switching support + performance monitoring
-3. **P2 items** -- As bandwidth permits
+1. **P1-6, P1-7, P1-11, P1-12, P1-13** -- Remaining P1 feature requirements
+2. **P2 items** -- As bandwidth permits
 
 **Planning docs re-synced on 2026-05-26.** TODO.md, FIXME.md, HACK.md now reflect actual codebase state. P0-BERT fully complete (12/12). P1-B3/P1-B6 completed this session — domains.py now has prototype text templates, KeywordEntry fully removed from codebase.
 
@@ -319,6 +318,8 @@ mkdocs>=1.5, mkdocstrings[python]>=0.24
 - **BERT + Prototype refactoring completed 2026-05-25 across 5 phases (~20 commits).** Keyword matching fully removed. BERT CLS embedding + cosine similarity is now the only scoring method. Files deleted: keyword_dict.py, keyword_io.py, prototype_similarity.py. New files: cosine_similarity.py, bert-engine.ts, bert-cache.ts. calibrator.py refactored to use CosineSimilarityEngine. ScoringSource enum reduced to PROTOTYPE only. Domains.py keyword presets are legacy (P1-B3 cleanup pending). KeywordEntry class in models/qca.py is legacy (P1-B6 cleanup pending).
 - **The BERT-vs-keyword debate is resolved -- BERT won, keywords removed.** The earlier analysis (2026-05-24/25) documented the tension between theoretical operationalization (keywords) and semantic matching (BERT). User made the final decision: concept prototypes are the sole theoretical basis, BERT CLS + cosine similarity is the implementation.
 - **Planning docs were out of sync with codebase (fixed 2026-05-26).** Prior to re-sync, P0-BERT was 70-80% functionally complete but listed as 0% in TODO.md. All 4 planning docs (TODO/FIXME/HACK/cerebrum) have been updated to reflect actual state. Cross-reference with file system when in doubt.
+
+- **P1-7 (Parameter Comparison / A/B Analysis) completed 2026-05-26.** New pages: Compare.tsx + Compare.css (main comparison page at /compare route). New components: CompareView.tsx (extracted from Results.tsx — exports CompareView, NecessityTable, ComparisonMetricChip, ComparisonSummary), ParamDiffTable.tsx (parameter diff table with calibration/analysis/variant groups). New utility: snapshotStorage.ts (localStorage-based snapshot A/B management). Snapshot capture wired through QCAPipelineContext.finishAnalysis (captureAsLabel param) and useQCAWorkflow (captureAsLabel passthrough on runAnalyzeOnly and runFullPipeline). Snapshot save buttons added to Results.tsx toolbar. 34 new i18n keys added (compare section + sidebar.compare + results.saveSnapshotA/B). Types: ParameterSnapshot, ParamDiffEntry, ComparisonReport added to qca.ts.
 
 ### Historical (pre-BERT-refactoring context, retained for reference)
 

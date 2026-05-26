@@ -18,6 +18,7 @@ import type {
   MembershipDataJSON,
   RobustnessReport,
   CounterfactualReport,
+  MultiOutcomeReport,
   ExportResult,
   EmbedCalibrateTextEntry,
   PyodideWorkerRequest as PWReq,
@@ -225,13 +226,13 @@ export class PyodideBridge {
   }
 
   /**
-   * Export results to CSV, JSON, or LaTeX.
+   * Export results to CSV, JSON, LaTeX, or DOCX (Word).
    */
   async exportResult(
-    format: 'csv' | 'json' | 'latex',
+    format: 'csv' | 'json' | 'latex' | 'docx',
     result: QCAAnalysisResultJSON
   ): Promise<ExportResult> {
-    const resp = await this.send<{ data: string; mimeType: string }>(
+    const resp = await this.send<{ data: string | Uint8Array; mimeType: string }>(
       { type: 'export_result', payload: { format, result } },
       'export-done',
       `export-${format}`
@@ -241,10 +242,11 @@ export class PyodideBridge {
       csv: 'csv',
       json: 'json',
       latex: 'tex',
+      docx: 'docx',
     };
 
     return {
-      data: new Blob([resp.data], { type: resp.mimeType }),
+      data: new Blob([resp.data as BlobPart], { type: resp.mimeType }),
       mimeType: resp.mimeType,
       filename: `qca-analysis.${extMap[format]}`,
     };
@@ -333,6 +335,22 @@ export class PyodideBridge {
   }
 
   /**
+   * Run multi-outcome comparison on analyses from different outcomes.
+   *
+   * @param analyses - Record mapping outcome_name → QCAAnalysisResultJSON.
+   * @returns MultiOutcomeReport with shared/unique conditions and pairwise similarity.
+   */
+  async runMultiOutcome(
+    analyses: Record<string, QCAAnalysisResultJSON>
+  ): Promise<MultiOutcomeReport> {
+    return this.send<MultiOutcomeReport>(
+      { type: 'multi_outcome', payload: { analyses } },
+      'multi-outcome-done',
+      'multi-outcome'
+    );
+  }
+
+  /**
    * Query the current BERT model loading status.
    */
   async getBertStatus(): Promise<{ loaded: boolean; modelName: string | null }> {
@@ -340,6 +358,17 @@ export class PyodideBridge {
       { type: 'get_bert_status' },
       'bert-status',
       'bert-status'
+    );
+  }
+
+  /**
+   * Get BERT engine performance metrics from the worker.
+   */
+  async getBertMetrics(): Promise<import('../services/bert-engine').PerformanceMetrics> {
+    return this.send<import('../services/bert-engine').PerformanceMetrics>(
+      { type: 'get_bert_metrics', payload: undefined as any },
+      'bert-metrics',
+      'bert-metrics'
     );
   }
 

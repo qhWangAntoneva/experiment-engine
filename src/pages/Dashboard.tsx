@@ -1,14 +1,28 @@
 /**
  * Dashboard — QCA pipeline overview with pipeline status widget,
- * metric cards, and a quick-start panel.
+ * metric cards, project save/load, and a quick-start panel.
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PipelineStatus from '../components/PipelineStatus';
+import PerformancePanel from '../components/PerformancePanel';
+import TemplateLibrary from '../components/TemplateLibrary';
+import ShareImportModal from '../components/ShareImportModal';
 import { useQCAPipeline } from '../store/QCAPipelineContext';
 import { usePyodide } from '../hooks/usePyodide';
 import { useT } from '../i18n/I18nContext';
+import {
+  serializeProject,
+  downloadProjectFile,
+  readProjectFile,
+  readAutoSave,
+  clearAutoSave,
+  readTextCorpus,
+  clearTextCorpus,
+  sanitizeStageForRestore,
+} from '../services/project-serialization';
+import { useProjectAutoSave } from '../hooks/useProjectAutoSave';
 import type { MetricCardData, SavedAnalysisRun } from '../types/index';
 import './Dashboard.css';
 
@@ -19,8 +33,12 @@ const RECENT_RUNS_EVENT = 'recent-runs-updated';
 export default function Dashboard() {
   const navigate = useNavigate();
   const t = useT();
-  const { state } = useQCAPipeline();
+  const { state, hydrateFromProject } = useQCAPipeline();
   const { initState, init } = usePyodide();
+  const fileLoadRef = useRef<HTMLInputElement>(null);
+
+  // Auto-save project to localStorage
+  useProjectAutoSave(state);
 
   const [recentRuns, setRecentRuns] = useState<SavedAnalysisRun[]>(() => {
     try {
@@ -30,6 +48,39 @@ export default function Dashboard() {
       return [];
     }
   });
+
+  // Project save/load state
+  const [projectMessage, setProjectMessage] = useState<string | null>(null);
+  const [projectMessageType, setProjectMessageType] = useState<'success' | 'error'>('success');
+
+  // Auto-restore banner state
+  const [autoSaveBanner, setAutoSaveBanner] = useState<{
+    project: any;
+    timestamp: string;
+  } | null>(null);
+
+  // Check for auto-save on mount
+  useEffect(() => {
+    try {
+      const saved = readAutoSave();
+      if (saved && state.stage === 'idle' && !state.conditionSet) {
+        setAutoSaveBanner({
+          project: saved,
+          timestamp: (() => {
+            try {
+              // Format the timestamp for display
+              const d = new Date(saved.savedAt);
+              return d.toLocaleString();
+            } catch {
+              return saved.savedAt || t('common.notLoaded');
+            }
+          })(),
+        });
+      }
+    } catch {
+      // No valid auto-save found
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Listen for analysis-completed events from QCAPipelineContext
   useEffect(() => {
@@ -89,12 +140,211 @@ export default function Dashboard() {
   const handleClearData = useCallback(() => {
     if (!window.confirm(t('dashboard.clearDataConfirm'))) return;
     // Keep qca-language (user's language preference)
-    const keysToRemove = ['qca-settings', 'qca-params', 'qca-bert-model', RECENT_RUNS_KEY];
+    const keysToRemove = [
+      'qca-settings',
+      'qca-params',
+      'qca-bert-model',
+      RECENT_RUNS_KEY,
+      'qca-project-autosave',
+      'qca-project-textcorpus',
+    ];
     for (const key of keysToRemove) {
       try { localStorage.removeItem(key); } catch {}
     }
     setRecentRuns([]);
+    setAutoSaveBanner(null);
   }, [t]);
+
+  // ─── Project Save ──────────────────────────────────────────────────────────
+
+  const handleSaveProject = useCallback(() => {
+    if (!state.conditionSet) {
+      setProjectMessage(t('projectSave.saveProjectNoData'));
+      setProjectMessageType('error');
+      return;
+    }
+
+    try {
+      let recentRunsData: SavedAnalysisRun[] = [];
+      const saved = localStorage.getItem(RECENT_RUNS_KEY);
+      if (saved) recentRunsData = JSON.parse(saved);
+
+      const projectData = serializeProject({
+        pipelineState: {
+          stage: state.stage,
+          conditionSet: state.conditionSet,
+          fuzzyData: state.fuzzyData,
+          prototypeFuzzyData: state.prototypeFuzzyData,
+          analysisResult: state.analysisResult,
+          prototypeAnalysisResult: state.prototypeAnalysisResult,
+          analysisResultB: state.analysisResultB,
+          robustnessReport: state.robustnessReport,
+          counterfactualReport: state.counterfactualReport,
+          multiOutcomeReport: state.multiOutcomeReport,
+        },
+        recentRuns: recentRunsData,
+        textCorpusData: {
+          texts: state.textCorpusEntries,
+          textCases: state.textCases,
+          yamlContent: state.yamlContent,
+          protoConditions: state.protoConditions,
+        },
+      });
+
+      downloadProjectFile(projectData);
+
+      const now = new Date();
+      const pad = (n: number) => String(n).padStart(2, '0');
+      const filename = `qca-project-${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}.qca`;
+      setProjectMessage(t('projectSave.saveProjectSuccess', filename));
+      setProjectMessageType('success');
+    } catch (err: any) {
+      setProjectMessage(`${t('projectSave.loadProjectError')}${err.message}`);
+      setProjectMessageType('error');
+    }
+  }, [state, t]);
+
+  // ─── Project Load ──────────────────────────────────────────────────────────
+
+  const handleLoadProjectClick = useCallback(() => {
+    fileLoadRef.current?.click();
+  }, []);
+
+  const handleFileSelected = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      try {
+        const project = await readProjectFile(file);
+
+        // Restore settings, params, BERT model
+        if (project.settings) {
+          try { localStorage.setItem('qca-settings', JSON.stringify(project.settings)); } catch {}
+        }
+        if (project.params) {
+          try { localStorage.setItem('qca-params', JSON.stringify(project.params)); } catch {}
+        }
+        if (project.bertModel) {
+          try { localStorage.setItem('qca-bert-model', JSON.stringify(project.bertModel)); } catch {}
+        }
+
+        // Sanitize stage
+        const safeStage = sanitizeStageForRestore(project.pipeline.stage);
+
+        // Restore recent runs
+        if (project.recentRuns && project.recentRuns.length > 0) {
+          try { localStorage.setItem(RECENT_RUNS_KEY, JSON.stringify(project.recentRuns)); } catch {}
+          window.dispatchEvent(new Event(RECENT_RUNS_EVENT));
+        }
+
+        // Hydrate pipeline state
+        hydrateFromProject(
+          {
+            stage: safeStage,
+            conditionSet: project.pipeline.conditionSet,
+            fuzzyData: project.pipeline.fuzzyData,
+            prototypeFuzzyData: project.pipeline.prototypeFuzzyData,
+            analysisResult: project.pipeline.analysisResult,
+            prototypeAnalysisResult: project.pipeline.prototypeAnalysisResult,
+            analysisResultB: project.pipeline.analysisResultB ?? null,
+            robustnessReport: project.pipeline.robustnessReport,
+            counterfactualReport: project.pipeline.counterfactualReport,
+            multiOutcomeReport: project.pipeline.multiOutcomeReport ?? null,
+          },
+          project.settings,
+          project.params,
+          project.bertModel,
+          project.recentRuns,
+          {
+            texts: project.textCorpus.texts,
+            textCases: project.textCorpus.textCases,
+            yamlContent: project.textCorpus.yamlContent,
+            protoConditions: project.textCorpus.protoConditions,
+          }
+        );
+
+        setProjectMessage(t('projectSave.loadProjectSuccess'));
+        setProjectMessageType('success');
+        setAutoSaveBanner(null);
+
+        // Navigate to appropriate page based on restored stage
+        if (safeStage !== 'idle') {
+          setTimeout(() => navigate('/results'), 500);
+        }
+      } catch (err: any) {
+        setProjectMessage(`${t('projectSave.loadProjectInvalid')}${err.message}`);
+        setProjectMessageType('error');
+      }
+
+      // Reset file input
+      if (fileLoadRef.current) fileLoadRef.current.value = '';
+    },
+    [hydrateFromProject, navigate, t]
+  );
+
+  // ─── Auto-restore ──────────────────────────────────────────────────────────
+
+  const handleAutoRestore = useCallback(() => {
+    if (!autoSaveBanner?.project) return;
+    const project = autoSaveBanner.project;
+
+    // Same logic as handleFileSelected but from auto-save data
+    if (project.settings) {
+      try { localStorage.setItem('qca-settings', JSON.stringify(project.settings)); } catch {}
+    }
+    if (project.params) {
+      try { localStorage.setItem('qca-params', JSON.stringify(project.params)); } catch {}
+    }
+    if (project.bertModel) {
+      try { localStorage.setItem('qca-bert-model', JSON.stringify(project.bertModel)); } catch {}
+    }
+
+    const safeStage = sanitizeStageForRestore(project.pipeline.stage);
+
+    if (project.recentRuns && project.recentRuns.length > 0) {
+      try { localStorage.setItem(RECENT_RUNS_KEY, JSON.stringify(project.recentRuns)); } catch {}
+      window.dispatchEvent(new Event(RECENT_RUNS_EVENT));
+    }
+
+    hydrateFromProject(
+      {
+        stage: safeStage,
+        conditionSet: project.pipeline.conditionSet,
+        fuzzyData: project.pipeline.fuzzyData,
+        prototypeFuzzyData: project.pipeline.prototypeFuzzyData,
+        analysisResult: project.pipeline.analysisResult,
+        prototypeAnalysisResult: project.pipeline.prototypeAnalysisResult,
+        analysisResultB: project.pipeline.analysisResultB ?? null,
+        robustnessReport: project.pipeline.robustnessReport,
+        counterfactualReport: project.pipeline.counterfactualReport,
+        multiOutcomeReport: project.pipeline.multiOutcomeReport ?? null,
+      },
+      project.settings,
+      project.params,
+      project.bertModel,
+      project.recentRuns,
+      {
+        texts: project.textCorpus.texts,
+        textCases: project.textCorpus.textCases,
+        yamlContent: project.textCorpus.yamlContent,
+        protoConditions: project.textCorpus.protoConditions,
+      }
+    );
+
+    setAutoSaveBanner(null);
+    setProjectMessage(t('projectSave.loadProjectSuccess'));
+    setProjectMessageType('success');
+
+    if (safeStage !== 'idle') {
+      setTimeout(() => navigate('/results'), 500);
+    }
+  }, [autoSaveBanner, hydrateFromProject, navigate, t]);
+
+  const handleDismissRestore = useCallback(() => {
+    setAutoSaveBanner(null);
+    clearAutoSave();
+  }, []);
 
   return (
     <div className="dashboard">
@@ -103,6 +353,43 @@ export default function Dashboard() {
         <p className="page-subtitle">{t('dashboard.subtitle')}</p>
         <p className="page-desc">{t('dashboard.description')}</p>
       </div>
+
+      {/* Auto-Restore Banner */}
+      {autoSaveBanner && (
+        <div
+          className="card"
+          style={{
+            padding: '12px 16px',
+            marginBottom: '16px',
+            borderLeft: '4px solid var(--color-accent)',
+            background: 'var(--color-accent-bg, #eff6ff)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+          }}
+        >
+          <span style={{ fontSize: '0.8125rem', flex: 1 }}>
+            {t('projectSave.autoRestoreBanner', autoSaveBanner.timestamp)}
+          </span>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              className="btn btn-primary"
+              onClick={handleAutoRestore}
+              style={{ fontSize: '0.8125rem', padding: '4px 12px' }}
+            >
+              {t('projectSave.autoRestoreBtn')}
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={handleDismissRestore}
+              style={{ fontSize: '0.8125rem', padding: '4px 12px' }}
+            >
+              {t('projectSave.autoRestoreDismiss')}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Pipeline Status Widget */}
       <div style={{ marginBottom: '20px' }}>
@@ -135,6 +422,12 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
+
+      {/* BERT Performance */}
+      <PerformancePanel />
+
+      {/* Share Import Modal (P1-13) */}
+      <ShareImportModal />
 
       {/* Quick-Start Panel */}
       <div className="dashboard-section">
@@ -226,6 +519,53 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Project Save/Load Section */}
+      <div className="dashboard-section">
+        <h3 className="section-title">{t('projectSave.sectionTitle')}</h3>
+        <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', marginBottom: '12px' }}>
+          {t('projectSave.sectionDesc')}
+        </p>
+        <div className="card" style={{ padding: '16px' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button
+              className="btn btn-primary"
+              onClick={handleSaveProject}
+              disabled={!state.conditionSet}
+              title={state.conditionSet ? t('projectSave.saveProjectTooltip') : t('projectSave.saveProjectNoData')}
+              style={{ fontSize: '0.8125rem' }}
+            >
+              {t('projectSave.saveProjectBtn')}
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={handleLoadProjectClick}
+              title={t('projectSave.loadProjectTooltip')}
+              style={{ fontSize: '0.8125rem' }}
+            >
+              {t('projectSave.loadProjectBtn')}
+            </button>
+            <input
+              ref={fileLoadRef}
+              type="file"
+              accept=".qca"
+              onChange={handleFileSelected}
+              style={{ display: 'none' }}
+            />
+            {projectMessage && (
+              <span
+                style={{
+                  fontSize: '0.8125rem',
+                  color: projectMessageType === 'error' ? 'var(--color-error)' : 'var(--color-success)',
+                  fontWeight: 600,
+                }}
+              >
+                {projectMessage}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Recent Runs */}
       {recentRuns.length > 0 && (
         <div className="dashboard-section">
@@ -274,6 +614,9 @@ export default function Dashboard() {
           </p>
         </div>
       )}
+
+      {/* Template Library (P1-13) */}
+      <TemplateLibrary />
 
       {/* Privacy Section */}
       <section className="privacy-section">

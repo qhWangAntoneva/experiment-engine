@@ -44,6 +44,7 @@ export interface TranslationDict {
     dataInput: string;
     results: string;
     settings: string;
+    compare: string;
   };
 
   // ── Dashboard ──
@@ -188,6 +189,17 @@ export interface TranslationDict {
     parsedProtoCases: (total: number, out0: number, out1: number) => string;
     loadedProtoCases: (total: number, out0: number, out1: number, name: string) => string;
     protoCsvParseError: string;
+    // Multi-outcome
+    multiOutcomeTitle: string;
+    multiOutcomeEnable: string;
+    multiOutcomeHelp: string;
+    multiOutcomeDisabled: string;
+    outcomeBName: string;
+    outcomeBDisplayName: string;
+    outcomeBNamePlaceholder: string;
+    outcomeBDisplayNamePlaceholder: string;
+    runMultiOutcomePipelineBtn: string;
+    multiOutcomeRunning: string;
   };
 
   // ── Results ──
@@ -204,6 +216,7 @@ export interface TranslationDict {
     exportCsv: string;
     exportJson: string;
     exportLatex: string;
+    exportDocx: string;
     exportedAs: (format: string) => string;
     exportFailed: string;
     // Tabs
@@ -267,6 +280,8 @@ export interface TranslationDict {
     caseNoText: string;
     caseCount: (n: number) => string;
     caseExpandedLabel: (id: string) => string;
+    saveSnapshotA: string;
+    saveSnapshotB: string;
   };
 
   // ── Settings ──
@@ -344,6 +359,87 @@ export interface TranslationDict {
     activeModel: string;
     ms: string;
   };
+
+  // ── Project Save/Load (P1-6) ──
+  projectSave: {
+    sectionTitle: string;
+    sectionDesc: string;
+    saveProjectBtn: string;
+    saveProjectTooltip: string;
+    saveProjectSuccess: (filename: string) => string;
+    saveProjectNoData: string;
+    loadProjectBtn: string;
+    loadProjectTooltip: string;
+    loadProjectSuccess: string;
+    loadProjectError: string;
+    loadProjectInvalid: string;
+    autoRestoreBanner: (timestamp: string) => string;
+    autoRestoreBtn: string;
+    autoRestoreDismiss: string;
+    validationMissingPipeline: string;
+    validationMissingSettings: string;
+  };
+
+  // ── Compare (P1-7) ──
+  compare: {
+    title: string;
+    subtitle: string;
+    snapshotA: string;
+    snapshotB: string;
+    selectSnapshot: string;
+    noSnapshots: string;
+    noSnapshotsHint: string;
+    swap: string;
+    clear: string;
+    paramDiffs: string;
+    paramName: string;
+    valueA: string;
+    valueB: string;
+    noDifferences: string;
+    tabSolutions: string;
+    tabTruthTable: string;
+    tabNecessity: string;
+    solutionsSame: string;
+    solutionsDifferent: string;
+    consistencyChange: string;
+    coverageChange: string;
+    exportReport: string;
+    selectBothSnapshots: string;
+    changed: string;
+    unchanged: string;
+    snapshotMeta: string;
+    timestamp: string;
+    conditions: string;
+    cases: string;
+  };
+
+  // ── Templates (P1-13) ──
+  templates: {
+    libraryTitle: string;
+    librarySubtitle: string;
+    builtinLabel: string;
+    importedLabel: string;
+    useTemplate: string;
+    viewDetails: string;
+    conditionCount: string;
+    noImportedTemplates: string;
+    importFailed: string;
+    shareLink: string;
+    shareCopied: string;
+    shareFailed: string;
+    shareUrlTooLong: string;
+    copyLink: string;
+    generateShareLink: string;
+    importFromLink: string;
+    importTitle: string;
+    importConfirm: string;
+    importLoadAndGo: string;
+    importDismiss: string;
+    importSuccess: string;
+    importErrorInvalid: string;
+    importErrorIncomplete: string;
+    importErrorVersion: string;
+  };
 }
 
 const zh: TranslationDict = {
@@ -378,6 +474,7 @@ const zh: TranslationDict = {
     dataInput: '数据输入',
     results: '分析结果',
     settings: '设置',
+    compare: '参数比较',
   },
 
   dashboard: {
@@ -531,6 +628,17 @@ const zh: TranslationDict = {
     loadedProtoCases: (total, out0, out1, name) =>
       `已从 ${name} 加载 ${total} 条文本案例（结果=0: ${out0}, 结果=1: ${out1})`,
     protoCsvParseError: '原型 CSV 解析错误：',
+    // Multi-outcome
+    multiOutcomeTitle: '多结局分析',
+    multiOutcomeEnable: '启用多结局比较',
+    multiOutcomeHelp: '在同一条件集上分析两个结局并比较结果。',
+    multiOutcomeDisabled: '需要先校准并运行至少一次分析才能开启多结局功能。',
+    outcomeBName: '结局 B 变量名',
+    outcomeBDisplayName: '结局 B 显示名称',
+    outcomeBNamePlaceholder: '例如: outcome_b',
+    outcomeBDisplayNamePlaceholder: '例如: 信任水平',
+    runMultiOutcomePipelineBtn: '运行多结局分析管道',
+    multiOutcomeRunning: '多结局分析运行中...',
   },
 
   results: {
@@ -546,6 +654,7 @@ const zh: TranslationDict = {
     exportCsv: '导出 CSV',
     exportJson: '导出 JSON',
     exportLatex: '导出 LaTeX',
+    exportDocx: '导出 Word',
     exportedAs: (format: string) => `已导出为 ${format}`,
     exportFailed: '导出失败：',
     // Tabs
@@ -609,6 +718,8 @@ const zh: TranslationDict = {
     caseNoText: '无文本',
     caseCount: (n: number) => `${n} 条案例`,
     caseExpandedLabel: (id: string) => `完整文本 (案例: ${id})`,
+    saveSnapshotA: '保存为快照 A',
+    saveSnapshotB: '保存为快照 B',
   },
 
   settings: {
@@ -751,6 +862,84 @@ const zh: TranslationDict = {
     activeModel: '当前模型',
     ms: 'ms',
   },
+
+  projectSave: {
+    sectionTitle: '项目管理',
+    sectionDesc: '导出项目文件以便稍后恢复分析，或在其他浏览器中继续。',
+    saveProjectBtn: '保存项目',
+    saveProjectTooltip: '将当前管道状态、设置、文本语料和分析结果保存为 .qca 文件',
+    saveProjectSuccess: (filename: string) => `项目已保存为 ${filename}`,
+    saveProjectNoData: '请先定义条件集后再保存项目。',
+    loadProjectBtn: '加载项目',
+    loadProjectTooltip: '从 .qca 文件恢复之前保存的项目',
+    loadProjectSuccess: '项目已成功加载。',
+    loadProjectError: '加载项目文件失败：',
+    loadProjectInvalid: '项目文件无效：',
+    autoRestoreBanner: (timestamp: string) => `检测到 ${timestamp} 的自动保存。要恢复上次会话吗？`,
+    autoRestoreBtn: '恢复',
+    autoRestoreDismiss: '忽略',
+    validationMissingPipeline: '缺少管道数据',
+    validationMissingSettings: '缺少设置',
+  },
+
+  compare: {
+    title: 'A/B 参数比较',
+    subtitle: '比较两组分析参数的解、真值表和必要性差异',
+    snapshotA: '快照 A',
+    snapshotB: '快照 B',
+    selectSnapshot: '选择快照...',
+    noSnapshots: '请先在"分析结果"页面保存两个快照后再进行比较。',
+    noSnapshotsHint: '运行分析后，点击"保存为快照 A/B"按钮来保存当前的参数和结果。',
+    swap: '交换',
+    clear: '清除',
+    paramDiffs: '参数差异',
+    paramName: '参数名称',
+    valueA: '值 A',
+    valueB: '值 B',
+    noDifferences: '无差异 —— 两组参数完全相同',
+    tabSolutions: '解',
+    tabTruthTable: '真值表',
+    tabNecessity: '必要性',
+    solutionsSame: '解公式相同',
+    solutionsDifferent: '解公式不同',
+    consistencyChange: '一致性变化',
+    coverageChange: '覆盖度变化',
+    exportReport: '导出比较报告 (JSON)',
+    selectBothSnapshots: '请选择两组快照进行对比',
+    changed: '已变化',
+    unchanged: '未变化',
+    snapshotMeta: '快照元数据',
+    timestamp: '时间戳',
+    conditions: '个条件',
+    cases: '条案例',
+  },
+
+  templates: {
+    libraryTitle: '条件集模板库',
+    librarySubtitle: '从内置领域模板开始，或导入分享的条件集配置。',
+    builtinLabel: '内置',
+    importedLabel: '已导入',
+    useTemplate: '使用模板',
+    viewDetails: '查看详情',
+    conditionCount: '个条件',
+    noImportedTemplates: '暂无导入的模板',
+    importFailed: '模板加载失败',
+    shareLink: '分享链接',
+    shareCopied: '已复制！',
+    shareFailed: '复制失败',
+    shareUrlTooLong: '链接过长，无法分享',
+    copyLink: '复制链接',
+    generateShareLink: '生成分享链接',
+    importFromLink: '从分享链接导入',
+    importTitle: '导入条件集模板',
+    importConfirm: '导入到库',
+    importLoadAndGo: '导入并直接使用',
+    importDismiss: '取消',
+    importSuccess: '导入成功！',
+    importErrorInvalid: '无效的分享链接',
+    importErrorIncomplete: '分享数据不完整',
+    importErrorVersion: '版本不兼容',
+  },
 };
 
 const en: TranslationDict = {
@@ -785,6 +974,7 @@ const en: TranslationDict = {
     dataInput: 'Data Input',
     results: 'Results',
     settings: 'Settings',
+    compare: 'Compare',
   },
 
   dashboard: {
@@ -939,6 +1129,17 @@ const en: TranslationDict = {
     loadedProtoCases: (total, out0, out1, name) =>
       `Loaded ${total} text cases from ${name} (outcome=0: ${out0}, outcome=1: ${out1})`,
     protoCsvParseError: 'Prototype CSV parse error: ',
+    // Multi-outcome
+    multiOutcomeTitle: 'Multi-Outcome Analysis',
+    multiOutcomeEnable: 'Enable Multi-Outcome Comparison',
+    multiOutcomeHelp: 'Analyze two outcomes on the same condition set and compare results.',
+    multiOutcomeDisabled: 'Calibrate and run at least one analysis before enabling multi-outcome mode.',
+    outcomeBName: 'Outcome B Variable Name',
+    outcomeBDisplayName: 'Outcome B Display Name',
+    outcomeBNamePlaceholder: 'e.g. outcome_b',
+    outcomeBDisplayNamePlaceholder: 'e.g. Trust Level',
+    runMultiOutcomePipelineBtn: 'Run Multi-Outcome Pipeline',
+    multiOutcomeRunning: 'Multi-outcome analysis running...',
   },
 
   results: {
@@ -954,6 +1155,7 @@ const en: TranslationDict = {
     exportCsv: 'Export CSV',
     exportJson: 'Export JSON',
     exportLatex: 'Export LaTeX',
+    exportDocx: 'Export Word',
     exportedAs: (format: string) => `Exported as ${format}`,
     exportFailed: 'Export failed: ',
     // Tabs
@@ -1017,6 +1219,8 @@ const en: TranslationDict = {
     caseNoText: 'No text',
     caseCount: (n: number) => `${n} cases`,
     caseExpandedLabel: (id: string) => `Full Text (Case: ${id})`,
+    saveSnapshotA: 'Save as Snapshot A',
+    saveSnapshotB: 'Save as Snapshot B',
   },
 
   settings: {
@@ -1158,6 +1362,84 @@ const en: TranslationDict = {
     lastBatchMs: 'Last Batch',
     activeModel: 'Active Model',
     ms: 'ms',
+  },
+
+  projectSave: {
+    sectionTitle: 'Project',
+    sectionDesc: 'Export your project file to restore later or continue in another browser.',
+    saveProjectBtn: 'Save Project',
+    saveProjectTooltip: 'Save current pipeline state, settings, text corpus, and analysis results as a .qca file',
+    saveProjectSuccess: (filename: string) => `Project saved as ${filename}`,
+    saveProjectNoData: 'Please define a condition set before saving the project.',
+    loadProjectBtn: 'Load Project',
+    loadProjectTooltip: 'Restore a previously saved project from a .qca file',
+    loadProjectSuccess: 'Project loaded successfully.',
+    loadProjectError: 'Failed to load project file: ',
+    loadProjectInvalid: 'Invalid project file: ',
+    autoRestoreBanner: (timestamp: string) => `An auto-save from ${timestamp} was found. Restore last session?`,
+    autoRestoreBtn: 'Restore',
+    autoRestoreDismiss: 'Dismiss',
+    validationMissingPipeline: 'Missing pipeline data',
+    validationMissingSettings: 'Missing settings',
+  },
+
+  compare: {
+    title: 'Parameter Comparison (A/B)',
+    subtitle: 'Compare solutions, truth tables, and necessity between two analysis parameter sets',
+    snapshotA: 'Snapshot A',
+    snapshotB: 'Snapshot B',
+    selectSnapshot: 'Select a snapshot...',
+    noSnapshots: 'Save two snapshots from the Results page before comparing.',
+    noSnapshotsHint: 'After running an analysis, click "Save as Snapshot A/B" to save the current parameters and results.',
+    swap: 'Swap',
+    clear: 'Clear',
+    paramDiffs: 'Parameter Differences',
+    paramName: 'Parameter',
+    valueA: 'Value A',
+    valueB: 'Value B',
+    noDifferences: 'No differences — both parameter sets are identical',
+    tabSolutions: 'Solutions',
+    tabTruthTable: 'Truth Table',
+    tabNecessity: 'Necessity',
+    solutionsSame: 'Solution formulas are identical',
+    solutionsDifferent: 'Solution formulas differ',
+    consistencyChange: 'Consistency change',
+    coverageChange: 'Coverage change',
+    exportReport: 'Export Comparison Report (JSON)',
+    selectBothSnapshots: 'Please select two snapshots to compare',
+    changed: 'Changed',
+    unchanged: 'Unchanged',
+    snapshotMeta: 'Snapshot Metadata',
+    timestamp: 'Timestamp',
+    conditions: 'conditions',
+    cases: 'cases',
+  },
+
+  templates: {
+    libraryTitle: 'Condition Set Template Library',
+    librarySubtitle: 'Start from a built-in domain template or import a shared condition set configuration.',
+    builtinLabel: 'Built-in',
+    importedLabel: 'Imported',
+    useTemplate: 'Use Template',
+    viewDetails: 'View Details',
+    conditionCount: 'conditions',
+    noImportedTemplates: 'No imported templates yet',
+    importFailed: 'Failed to load templates',
+    shareLink: 'Share Link',
+    shareCopied: 'Copied!',
+    shareFailed: 'Copy failed',
+    shareUrlTooLong: 'URL too long to share',
+    copyLink: 'Copy Link',
+    generateShareLink: 'Generate Share Link',
+    importFromLink: 'Import from shared link',
+    importTitle: 'Import Condition Set Template',
+    importConfirm: 'Import to Library',
+    importLoadAndGo: 'Import & Use Now',
+    importDismiss: 'Dismiss',
+    importSuccess: 'Import successful!',
+    importErrorInvalid: 'Invalid share link',
+    importErrorIncomplete: 'Shared data is incomplete',
+    importErrorVersion: 'Incompatible version',
   },
 };
 

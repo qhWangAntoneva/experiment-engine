@@ -182,6 +182,19 @@ self.onmessage = async (event: MessageEvent<PyodideWorkerRequest>) => {
       case 'get_bert_status':
         handleGetBertStatus();
         break;
+      case 'get_bert_metrics':
+        if (!bertEngine) {
+          respond({
+            type: 'bert-metrics',
+            payload: {
+              totalInferences: 0, totalInferenceMs: 0, totalTextsProcessed: 0,
+              cacheHits: 0, cacheMisses: 0, lastInferenceBatchMs: 0, modelName: null,
+            }
+          })
+        } else {
+          respond({ type: 'bert-metrics', payload: bertEngine.getPerformanceMetrics() })
+        }
+        break;
       case 'get_package_status':
         respond({
           type: 'package-status',
@@ -189,6 +202,9 @@ self.onmessage = async (event: MessageEvent<PyodideWorkerRequest>) => {
             loadedPackages.map((p) => [p, 'loaded']),
           ),
         });
+        break;
+      case 'multi_outcome':
+        await handleMultiOutcome(req.payload.analyses);
         break;
       case 'terminate':
         respond({ type: 'terminated' });
@@ -507,11 +523,26 @@ async function handleCounterfactuals(
 
 // ─── Export ──────────────────────────────────────────────────────────────
 
+async function ensureDocx(): Promise<void> {
+  if (!loadedPackages.includes('python-docx')) {
+    log('info', 'Installing python-docx via micropip...');
+    await pyodide.runPythonAsync(`
+import micropip
+await micropip.install('python-docx')
+    `);
+    loadedPackages.push('python-docx');
+    log('info', 'python-docx installed successfully');
+  }
+}
+
 async function handleExport(
-  format: 'csv' | 'json' | 'latex',
+  format: 'csv' | 'json' | 'latex' | 'docx',
   resultJson: any,
 ): Promise<void> {
   try {
+    if (format === 'docx') {
+      await ensureDocx();
+    }
     const { data, mime: mimeType } = await runHandler(
       "from experiment_engine.pyodide_handlers import handle_export; handle_export('/tmp/export_result.json', '/tmp/export_config.json', '/tmp/export_output.json')",
       [
@@ -520,7 +551,17 @@ async function handleExport(
       ],
       '/tmp/export_output.json',
     );
-    respond({ type: 'export-done', data, mimeType });
+    if (format === 'docx') {
+      // data is base64-encoded binary; decode to Uint8Array for blob construction
+      const binaryStr = atob(data as string);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+      respond({ type: 'export-done', data: bytes, mimeType });
+    } else {
+      respond({ type: 'export-done', data, mimeType });
+    }
   } catch (err: any) {
     const msg = err.message || String(err);
     respond({ type: 'export-error', error: `Export failed: ${msg}` });
@@ -654,6 +695,22 @@ function handleGetBertStatus(): void {
 function ensureReady(): void {
   if (!isReady || !pyodide) {
     throw new Error('Pyodide not initialized. Call init() first.');
+  }
+}
+
+// ─── Multi-Outcome Comparison ─────────────────────────────────────────────
+
+async function handleMultiOutcome(analyses: Record<string, any>): Promise<void> {
+  try {
+    const report = await runHandler(
+      "from experiment_engine.pyodide_handlers import handle_multi_outcome; handle_multi_outcome('/tmp/analyses.json', '/tmp/multi_outcome_output.json')",
+      [['/tmp/analyses.json', analyses]],
+      '/tmp/multi_outcome_output.json',
+    );
+    respond({ type: 'multi-outcome-done', report });
+  } catch (err: any) {
+    const msg = err.message || String(err);
+    respond({ type: 'multi-outcome-error', error: `Multi-outcome comparison failed: ${msg}` });
   }
 }
 

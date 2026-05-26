@@ -4431,6 +4431,662 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-26T12:23:02.448Z"
+    },
+    {
+      "id": "bug-270",
+      "timestamp": "2026-05-26T12:40:00.000Z",
+      "error_message": "end-of-file-fixer pre-commit hook persistently fails during git commit despite .wolf/hooks/pre-commit.js hook",
+      "file": ".wolf/hooks/pre-commit.js",
+      "root_cause": "The .wolf/hooks/pre-commit.js PreToolUse hook only ran ruff format + ruff check --fix + git add -u before git commit. It did NOT cover non-ruff hooks (end-of-file-fixer, trailing-whitespace). When non-Python files (e.g., memory.md, token-ledger.json) lacked trailing newlines or had trailing whitespace, ruff (Python-only) ignored them. git add -u staged broken files. The real git pre-commit hook then modified them via end-of-file-fixer, creating unstaged modifications that conflicted with pre-commit stash/unstash mechanism, causing repeated commit failures.",
+      "fix": "Replaced standalone ruff format + ruff check --fix commands with uv run pre-commit run --all-files, which runs ALL 8 configured pre-commit hooks (end-of-file-fixer, trailing-whitespace, check-yaml, check-toml, check-added-large-files, check-json, ruff, ruff-format). All fixes are applied before git add -u, ensuring the real pre-commit hook encounters clean files.",
+      "tags": [
+        "pre-commit",
+        "end-of-file-fixer",
+        "stash-conflict",
+        "hook",
+        "tooling"
+      ]
+    },
+    {
+      "id": "bug-271",
+      "timestamp": "2026-05-26T13:37:31.350Z",
+      "error_message": "Type error",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T13:37:31.350Z"
+    },
+    {
+      "id": "bug-272",
+      "timestamp": "2026-05-26T13:40:52.262Z",
+      "error_message": "Missing error handling in ensureQCAVariant",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T13:40:52.262Z"
+    },
+    {
+      "id": "bug-273",
+      "timestamp": "2026-05-26T13:40:53.508Z",
+      "error_message": "Wrong reference: Xenova should be getBertModelFromSettings",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Used \"Xenova\" instead of \"getBertModelFromSettings\"",
+      "fix": "Changed Xenova → getBertModelFromSettings",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T13:40:53.508Z"
+    },
+    {
+      "id": "bug-274",
+      "timestamp": "2026-05-26T13:41:03.490Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Had '../components/CalibrationPreview'",
+      "fix": "Changed to '../services/bert-engine'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T13:41:03.490Z"
+    },
+    {
+      "id": "bug-275",
+      "timestamp": "2026-05-26T13:41:11.715Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 9→16 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T13:41:11.715Z"
+    },
+    {
+      "id": "bug-276",
+      "timestamp": "2026-05-26T13:41:46.805Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/types/qca.ts",
+      "root_cause": "Had 'get_package_status'",
+      "fix": "Changed to 'get_bert_metrics'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T13:41:53.855Z"
+    },
+    {
+      "id": "bug-277",
+      "timestamp": "2026-05-26T13:41:48.722Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Had 'TICK_ELAPSED'",
+      "fix": "Changed to 'SET_PERFORMANCE_METRICS'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T13:41:48.722Z"
+    },
+    {
+      "id": "bug-278",
+      "timestamp": "2026-05-26T13:41:49.995Z",
+      "error_message": "Wrong return value",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Was returning: state;",
+      "fix": "Now returns: { ...state, performanceMetrics: action.metrics };",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T13:41:49.995Z"
+    },
+    {
+      "id": "bug-279",
+      "timestamp": "2026-05-26T13:41:52.222Z",
+      "error_message": "Type error",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T13:41:52.222Z"
+    },
+    {
+      "id": "bug-280",
+      "timestamp": "2026-05-26T13:42:03.415Z",
+      "error_message": "Type error",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T13:42:03.415Z"
+    },
+    {
+      "id": "bug-281",
+      "timestamp": "2026-05-26T13:42:05.813Z",
+      "error_message": "Missing import: ../services/bert-engine",
+      "file": "src/types/qca.ts",
+      "root_cause": "Module(s) not imported: ../services/bert-engine",
+      "fix": "Added import(s) for ../services/bert-engine",
+      "tags": [
+        "auto-detected",
+        "missing-import",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T13:42:05.813Z"
+    },
+    {
+      "id": "bug-282",
+      "timestamp": "2026-05-26T14:04:51.435Z",
+      "error_message": "Wrong return value",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Was returning: localStorage.getItem('qca-bert-model') || 'Xenova/",
+      "fix": "Now returns: localStorage.getItem('qca-bert-model') || DEFAULT_",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:04:51.435Z"
+    },
+    {
+      "id": "bug-283",
+      "timestamp": "2026-05-26T15:00:00.000Z",
+      "error_message": "detectLanguage() in I18nContext.tsx always returned 'en' but was being called at runtime inside useState initializer, adding unnecessary indirection.",
+      "file": "src/i18n/I18nContext.tsx, src/i18n/translations.ts",
+      "root_cause": "The detectLanguage() function in translations.ts was a dead wrapper returning 'en', but I18nContext.tsx still imported and called it.",
+      "fix": "Removed detectLanguage() from translations.ts entirely. Inlined DEFAULT_LANGUAGE = 'en' constant in I18nContext.tsx. Removed the detectLanguage import.",
+      "tags": [
+        "i18n",
+        "dead-code",
+        "language-detection",
+        "refactor"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:00:00.000Z"
+    },
+    {
+      "id": "bug-284",
+      "timestamp": "2026-05-26T14:55:32.628Z",
+      "error_message": "Type error",
+      "file": "src/types/qca.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:55:32.628Z"
+    },
+    {
+      "id": "bug-285",
+      "timestamp": "2026-05-26T14:56:18.889Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/report/__init__.py",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 12→15 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:56:18.889Z"
+    },
+    {
+      "id": "bug-286",
+      "timestamp": "2026-05-26T14:56:25.719Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/types/qca.ts",
+      "root_cause": "Had 'terminate'",
+      "fix": "Changed to 'multi_outcome'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:56:25.719Z"
+    },
+    {
+      "id": "bug-287",
+      "timestamp": "2026-05-26T14:56:56.724Z",
+      "error_message": "Missing await",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:56:56.724Z"
+    },
+    {
+      "id": "bug-288",
+      "timestamp": "2026-05-26T14:57:05.546Z",
+      "error_message": "Missing error handling in function",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:57:05.546Z"
+    },
+    {
+      "id": "bug-289",
+      "timestamp": "2026-05-26T14:57:18.011Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:57:18.011Z"
+    },
+    {
+      "id": "bug-290",
+      "timestamp": "2026-05-26T14:58:02.769Z",
+      "error_message": "CSS fix: report",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "report: CounterfactualReport → MultiOutcomeReport",
+      "fix": "Changed report: CounterfactualReport → MultiOutcomeReport",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T14:58:27.455Z"
+    },
+    {
+      "id": "bug-291",
+      "timestamp": "2026-05-26T14:58:33.870Z",
+      "error_message": "Type error",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:58:33.870Z"
+    },
+    {
+      "id": "bug-292",
+      "timestamp": "2026-05-26T14:58:34.134Z",
+      "error_message": "Type error",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:58:34.134Z"
+    },
+    {
+      "id": "bug-293",
+      "timestamp": "2026-05-26T14:59:12.212Z",
+      "error_message": "CSS fix: format",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "format: 'csv' | 'json' | 'latex') => { → 'csv' | 'json' | 'latex' | 'docx') => {",
+      "fix": "Changed format: 'csv' | 'json' | 'latex') => { → 'csv' | 'json' | 'latex' | 'docx') => {",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:59:12.212Z"
+    },
+    {
+      "id": "bug-294",
+      "timestamp": "2026-05-26T15:00:18.618Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:00:18.618Z"
+    },
+    {
+      "id": "bug-295",
+      "timestamp": "2026-05-26T15:00:35.522Z",
+      "error_message": "CSS fix: name",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "name: string = '', displayName: string = '', prototypesText: string = ''): PrototypeConditionRow { → string = '', displayName: string = '', prototypesText: string = ''): QCAProjectProtoConditionRow {",
+      "fix": "Changed name: string = '', displayName: string = '', prototypesText: string = ''): PrototypeConditionRow { → string = '', displayName: string = '', prototypesText: string = ''): QCAProjectProtoConditionRow {",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:00:35.522Z"
+    },
+    {
+      "id": "bug-296",
+      "timestamp": "2026-05-26T15:00:42.273Z",
+      "error_message": "Wrong reference: PrototypeConditionRow should be QCAProjectProtoConditionRow",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Used \"PrototypeConditionRow\" instead of \"QCAProjectProtoConditionRow\"",
+      "fix": "Changed PrototypeConditionRow → QCAProjectProtoConditionRow",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 5,
+      "last_seen": "2026-05-26T15:01:57.506Z"
+    },
+    {
+      "id": "bug-297",
+      "timestamp": "2026-05-26T15:03:07.684Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/report/docx_reporter.py",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 8→4 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:03:07.684Z"
+    },
+    {
+      "id": "bug-298",
+      "timestamp": "2026-05-26T15:05:26.219Z",
+      "error_message": "Type error",
+      "file": "src/types/qca.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: // ─── Condition Set Template (P1-13) ──────────────────────; export interface ConditionSetTemplate {",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T15:07:40.472Z"
+    },
+    {
+      "id": "bug-299",
+      "timestamp": "2026-05-26T15:06:14.213Z",
+      "error_message": "Wrong reference: void should be captureAsLabel",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Used \"void\" instead of \"captureAsLabel\"",
+      "fix": "Changed void → captureAsLabel",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:06:14.213Z"
+    },
+    {
+      "id": "bug-300",
+      "timestamp": "2026-05-26T15:06:36.575Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:06:36.575Z"
+    },
+    {
+      "id": "bug-301",
+      "timestamp": "2026-05-26T15:07:40.980Z",
+      "error_message": "Wrong reference: QCAProjectFile should be ConditionSetTemplate",
+      "file": "src/types/index.ts",
+      "root_cause": "Used \"QCAProjectFile\" instead of \"ConditionSetTemplate\"",
+      "fix": "Changed QCAProjectFile → ConditionSetTemplate",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:07:40.980Z"
+    },
+    {
+      "id": "bug-302",
+      "timestamp": "2026-05-26T15:09:23.101Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:09:23.101Z"
+    },
+    {
+      "id": "bug-303",
+      "timestamp": "2026-05-26T15:09:33.609Z",
+      "error_message": "CSS fix: fontSize",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "fontSize: '0.8125rem' → '0.75rem',",
+      "fix": "Changed fontSize: '0.8125rem' → '0.75rem',",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:09:33.609Z"
+    },
+    {
+      "id": "bug-304",
+      "timestamp": "2026-05-26T15:12:56.994Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/App.tsx",
+      "root_cause": "Had \"/settings\"",
+      "fix": "Changed to \"/compare\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:12:56.994Z"
+    },
+    {
+      "id": "bug-305",
+      "timestamp": "2026-05-26T15:15:17.022Z",
+      "error_message": "Type error",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: compare: {; title: 'Parameter Comparison (A/B)',",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T15:16:31.743Z"
+    },
+    {
+      "id": "bug-306",
+      "timestamp": "2026-05-26T15:21:35.498Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/pages/Dashboard.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: analysisResultB: project.pipeline.analysisResultB ?? null,; multiOutcomeReport: project.pipeline.multiOutcomeReport ?? n",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T15:21:42.577Z"
+    },
+    {
+      "id": "bug-307",
+      "timestamp": "2026-05-26T15:22:36.426Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/services/project-serialization.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:22:36.426Z"
+    },
+    {
+      "id": "bug-308",
+      "timestamp": "2026-05-26T15:22:50.091Z",
+      "error_message": "Type error",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:22:50.091Z"
+    },
+    {
+      "id": "bug-309",
+      "timestamp": "2026-05-26T15:23:35.173Z",
+      "error_message": "Wrong reference: TextCorpusEntry should be MultiOutcomeReport",
+      "file": "src/services/project-serialization.ts",
+      "root_cause": "Used \"TextCorpusEntry\" instead of \"MultiOutcomeReport\"",
+      "fix": "Changed TextCorpusEntry → MultiOutcomeReport",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:23:35.173Z"
+    },
+    {
+      "id": "bug-310",
+      "timestamp": "2026-05-26T15:33:24.730Z",
+      "error_message": "Significant refactor of ",
+      "file": "TODO.md",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 10→10 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "md"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:33:24.730Z"
     }
   ]
 }

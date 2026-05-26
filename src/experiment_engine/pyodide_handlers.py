@@ -425,6 +425,20 @@ def handle_export(result_path, config_path, output_path):
         _reporter = QCALaTeXReporter()
         out = _reporter.generate(_result)
         mime = "application/x-latex"
+    elif fmt == "docx":
+        try:
+            from experiment_engine.report.docx_reporter import QCADocxReporter
+        except ImportError as err:
+            raise ImportError(
+                "DOCX export is not available in the browser environment. "
+                "python-docx must be installed via micropip first."
+            ) from err
+        _reporter = QCADocxReporter()
+        _docx_bytes = _reporter.generate(_result)
+        import base64 as _b64
+
+        out = _b64.b64encode(_docx_bytes).decode("ascii")
+        mime = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     else:
         raise ValueError(f"Unknown export format: {fmt}")
 
@@ -591,3 +605,33 @@ def handle_embed_calibrate(texts_path, condition_set_path, output_path):
     # ── Write output ─────────────────────────────────────────────────
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(_serialize_fuzzy(_fuzzy), f, ensure_ascii=False)
+
+
+# ─── Multi-Outcome Comparison ────────────────────────────────────────────────
+
+
+def handle_multi_outcome(analyses_path, output_path):
+    """Compare QCA results across multiple outcomes.
+
+    Args:
+        analyses_path: VFS path to JSON dict mapping outcome_name →
+                       QCAAnalysisResult (serialized as JSON dict).
+        output_path: VFS path to write the MultiOutcomeReport JSON.
+    """
+    from experiment_engine.models import QCAAnalysisResult
+    from experiment_engine.qca_engine.advanced.multi_outcome import (
+        MultiOutcomeComparison,
+    )
+
+    with open(analyses_path, encoding="utf-8") as f:
+        _analyses_dict = json.load(f)
+
+    _analyses = {}
+    for _name, _result_dict in _analyses_dict.items():
+        _analyses[_name] = QCAAnalysisResult(**_result_dict)
+
+    _comparer = MultiOutcomeComparison()
+    _report = _comparer.compare(_analyses)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(_report.model_dump(mode="json"), f, ensure_ascii=False, default=str)

@@ -28,10 +28,17 @@ import type {
   QCAAnalysisResultJSON,
   RobustnessReport,
   CounterfactualReport,
+  MultiOutcomeReport,
   ConditionSet,
   SavedAnalysisRun,
+  TextCorpusEntry,
+  TextCase,
+  QCAProjectProtoConditionRow,
+  ParameterSnapshot,
 } from '../types/qca';
-import { INITIAL_PIPELINE_STATE } from '../types/qca';
+import { INITIAL_PIPELINE_STATE, DEFAULT_QCA_PARAMS } from '../types/qca';
+import { PerformanceMetrics } from '../services/bert-engine';
+import { saveSnapshot } from '../utils/snapshotStorage';
 
 // ─── Recent Runs Persistence ─────────────────────────────────────────────────
 
@@ -71,9 +78,28 @@ export type PipelineAction =
   | { type: 'SET_PROTOTYPE_ANALYSIS_RESULT'; result: QCAAnalysisResultJSON }
   | { type: 'SET_ROBUSTNESS_REPORT'; report: RobustnessReport }
   | { type: 'SET_COUNTERFACTUAL_REPORT'; report: CounterfactualReport }
+  | { type: 'SET_ANALYSIS_RESULT_B'; result: QCAAnalysisResultJSON }
+  | { type: 'SET_MULTI_OUTCOME_REPORT'; report: MultiOutcomeReport }
   | { type: 'SET_EXPORT_FORMATS'; formats: string[] }
   | { type: 'SET_BERT_STATUS'; status: 'unloaded' | 'loading' | 'ready' | 'error'; message?: string }
   | { type: 'SET_EMBEDDINGS_READY'; embeddings: number[][] }
+  | { type: 'SET_PERFORMANCE_METRICS'; metrics: PerformanceMetrics }
+  | { type: 'SET_TEXT_CORPUS'; entries: TextCorpusEntry[] }
+  | { type: 'SET_TEXT_CASES'; cases: TextCase[] }
+  | { type: 'SET_YAML_CONTENT'; content: string }
+  | { type: 'SET_PROTO_CONDITIONS'; rows: QCAProjectProtoConditionRow[] }
+  | { type: 'HYDRATE_FROM_PROJECT'; snapshot: {
+      stage: PipelineStage;
+      conditionSet: ConditionSet | null;
+      fuzzyData: MembershipDataJSON | null;
+      prototypeFuzzyData: MembershipDataJSON | null;
+      analysisResult: QCAAnalysisResultJSON | null;
+      prototypeAnalysisResult: QCAAnalysisResultJSON | null;
+      analysisResultB: QCAAnalysisResultJSON | null;
+      robustnessReport: RobustnessReport | null;
+      counterfactualReport: CounterfactualReport | null;
+      multiOutcomeReport: MultiOutcomeReport | null;
+  } }
   | { type: 'TICK_ELAPSED' }; // heartbeat for timing
 
 // ─── Reducer ───────────────────────────────────────────────────────────────
@@ -132,6 +158,12 @@ function pipelineReducer(
     case 'SET_COUNTERFACTUAL_REPORT':
       return { ...state, counterfactualReport: action.report };
 
+    case 'SET_ANALYSIS_RESULT_B':
+      return { ...state, analysisResultB: action.result };
+
+    case 'SET_MULTI_OUTCOME_REPORT':
+      return { ...state, multiOutcomeReport: action.report };
+
     case 'SET_EXPORT_FORMATS':
       return { ...state, exportFormats: action.formats };
 
@@ -144,6 +176,38 @@ function pipelineReducer(
 
     case 'SET_EMBEDDINGS_READY':
       return { ...state, bertEmbeddingsReady: true };
+
+    case 'SET_PERFORMANCE_METRICS':
+      return { ...state, performanceMetrics: action.metrics };
+
+    case 'SET_TEXT_CORPUS':
+      return { ...state, textCorpusEntries: action.entries };
+
+    case 'SET_TEXT_CASES':
+      return { ...state, textCases: action.cases };
+
+    case 'SET_YAML_CONTENT':
+      return { ...state, yamlContent: action.content };
+
+    case 'SET_PROTO_CONDITIONS':
+      return { ...state, protoConditions: action.rows };
+
+    case 'HYDRATE_FROM_PROJECT': {
+      const snap = action.snapshot;
+      return {
+        ...INITIAL_PIPELINE_STATE,
+        stage: snap.stage,
+        conditionSet: snap.conditionSet,
+        fuzzyData: snap.fuzzyData,
+        prototypeFuzzyData: snap.prototypeFuzzyData,
+        analysisResult: snap.analysisResult,
+        prototypeAnalysisResult: snap.prototypeAnalysisResult,
+        analysisResultB: snap.analysisResultB,
+        robustnessReport: snap.robustnessReport,
+        counterfactualReport: snap.counterfactualReport,
+        multiOutcomeReport: snap.multiOutcomeReport,
+      };
+    }
 
     case 'TICK_ELAPSED':
       if (state.startTime === null) return state;
@@ -165,13 +229,17 @@ interface QCAPipelineContextValue {
   startCalibration: () => void;
   finishCalibration: (fuzzyData: MembershipDataJSON, prototypeFuzzyData?: MembershipDataJSON) => void;
   startAnalysis: () => void;
-  finishAnalysis: (result: QCAAnalysisResultJSON) => void;
+  finishAnalysis: (result: QCAAnalysisResultJSON, captureAsLabel?: 'a' | 'b') => void;
   startPrototypeAnalysis: () => void;
   finishPrototypeAnalysis: (result: QCAAnalysisResultJSON) => void;
   startRobustness: () => void;
   finishRobustness: (report: RobustnessReport) => void;
   startCounterfactuals: () => void;
   finishCounterfactuals: (report: CounterfactualReport) => void;
+  startSecondOutcomeAnalysis: () => void;
+  finishSecondOutcomeAnalysis: (result: QCAAnalysisResultJSON) => void;
+  startMultiOutcomeComparison: () => void;
+  finishMultiOutcomeComparison: (report: MultiOutcomeReport) => void;
   finishExport: (formats: string[]) => void;
   fail: (error: string) => void;
   setProgress: (progress: number, message?: string) => void;
@@ -181,6 +249,25 @@ interface QCAPipelineContextValue {
   setBertStatus: (status: 'unloaded' | 'loading' | 'ready' | 'error', message?: string) => void;
   startEmbedding: () => void;
   finishEmbedding: () => void;
+  setPerformanceMetrics: (metrics: PerformanceMetrics) => void;
+  // Text corpus mutations
+  setTextCorpus: (entries: TextCorpusEntry[]) => void;
+  setTextCases: (cases: TextCase[]) => void;
+  setYamlContent: (content: string) => void;
+  setProtoConditions: (rows: QCAProjectProtoConditionRow[]) => void;
+  // Project save/restore
+  hydrateFromProject: (projectSnapshot: {
+    stage: PipelineStage;
+    conditionSet: ConditionSet | null;
+    fuzzyData: MembershipDataJSON | null;
+    prototypeFuzzyData: MembershipDataJSON | null;
+    analysisResult: QCAAnalysisResultJSON | null;
+    prototypeAnalysisResult: QCAAnalysisResultJSON | null;
+    analysisResultB: QCAAnalysisResultJSON | null;
+    robustnessReport: RobustnessReport | null;
+    counterfactualReport: CounterfactualReport | null;
+    multiOutcomeReport: MultiOutcomeReport | null;
+  }, settings: Record<string, unknown>, params: unknown, bertModel: string | undefined, recentRuns: SavedAnalysisRun[], textCorpusData: { texts: TextCorpusEntry[]; textCases: TextCase[]; yamlContent: string; protoConditions: QCAProjectProtoConditionRow[] }) => void;
 }
 
 const QCAPipelineContext = createContext<QCAPipelineContextValue | null>(null);
@@ -224,7 +311,7 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_STAGE', stage: 'analyzing', message: 'Running QCA analysis...' });
   }, []);
 
-  const finishAnalysis = useCallback((result: QCAAnalysisResultJSON) => {
+  const finishAnalysis = useCallback((result: QCAAnalysisResultJSON, captureAsLabel?: 'a' | 'b') => {
     dispatch({ type: 'SET_ANALYSIS_RESULT', result });
     dispatch({
       type: 'SET_STAGE',
@@ -244,6 +331,26 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
       solutions: result.solutions,
     };
     persistRecentRun(run);
+
+    // Capture snapshot if requested (P1-7)
+    if (captureAsLabel && result.condition_set) {
+      let params = { ...DEFAULT_QCA_PARAMS };
+      try {
+        const raw = localStorage.getItem('qca-params');
+        if (raw) params = JSON.parse(raw);
+      } catch {
+        // use defaults
+      }
+      const snapshot: ParameterSnapshot = {
+        id: `snap-${Date.now()}`,
+        name: result.metadata?.run_name as string || `Run ${_runIdCounter}`,
+        timestamp: new Date().toISOString(),
+        conditionSet: result.condition_set,
+        analysisParams: params,
+        result,
+      };
+      saveSnapshot(captureAsLabel, snapshot);
+    }
   }, []);
 
   const startPrototypeAnalysis = useCallback(() => {
@@ -306,6 +413,36 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const startSecondOutcomeAnalysis = useCallback(() => {
+    dispatch({ type: 'SET_STAGE', stage: 'analyzing', message: 'Running QCA analysis for Outcome B...' });
+  }, []);
+
+  const finishSecondOutcomeAnalysis = useCallback((result: QCAAnalysisResultJSON) => {
+    dispatch({ type: 'SET_ANALYSIS_RESULT_B', result });
+    dispatch({
+      type: 'SET_STAGE',
+      stage: 'analyzed',
+      message: 'Outcome B QCA analysis complete',
+    });
+  }, []);
+
+  const startMultiOutcomeComparison = useCallback(() => {
+    dispatch({
+      type: 'SET_STAGE',
+      stage: 'multi-outcome-comparing',
+      message: 'Comparing outcomes...',
+    });
+  }, []);
+
+  const finishMultiOutcomeComparison = useCallback((report: MultiOutcomeReport) => {
+    dispatch({ type: 'SET_MULTI_OUTCOME_REPORT', report });
+    dispatch({
+      type: 'SET_STAGE',
+      stage: 'multi-outcome-done',
+      message: 'Multi-outcome comparison complete',
+    });
+  }, []);
+
   const finishExport = useCallback((formats: string[]) => {
     dispatch({ type: 'SET_EXPORT_FORMATS', formats });
     dispatch({ type: 'SET_STAGE', stage: 'done', message: 'Analysis complete' });
@@ -349,6 +486,67 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_STAGE', stage: 'calibrating-embed', message: 'Running embedding-based calibration...' });
   }, []);
 
+  // Text corpus mutations
+  const setTextCorpus = useCallback((entries: TextCorpusEntry[]) => {
+    dispatch({ type: 'SET_TEXT_CORPUS', entries });
+  }, []);
+
+  const setTextCases = useCallback((cases: TextCase[]) => {
+    dispatch({ type: 'SET_TEXT_CASES', cases });
+  }, []);
+
+  const setYamlContent = useCallback((content: string) => {
+    dispatch({ type: 'SET_YAML_CONTENT', content });
+  }, []);
+
+  const setProtoConditions = useCallback((rows: QCAProjectProtoConditionRow[]) => {
+    dispatch({ type: 'SET_PROTO_CONDITIONS', rows });
+  }, []);
+
+  // Project save/restore
+  const hydrateFromProject = useCallback((
+    projectSnapshot: {
+      stage: PipelineStage;
+      conditionSet: ConditionSet | null;
+      fuzzyData: MembershipDataJSON | null;
+      prototypeFuzzyData: MembershipDataJSON | null;
+      analysisResult: QCAAnalysisResultJSON | null;
+      prototypeAnalysisResult: QCAAnalysisResultJSON | null;
+      analysisResultB: QCAAnalysisResultJSON | null;
+      robustnessReport: RobustnessReport | null;
+      counterfactualReport: CounterfactualReport | null;
+      multiOutcomeReport: MultiOutcomeReport | null;
+    },
+    settings: Record<string, unknown>,
+    params: unknown,
+    bertModel: string | undefined,
+    recentRuns: SavedAnalysisRun[],
+    textCorpusData: { texts: TextCorpusEntry[]; textCases: TextCase[]; yamlContent: string; protoConditions: QCAProjectProtoConditionRow[] }
+  ) => {
+    // 1. Restore settings to localStorage
+    try { localStorage.setItem('qca-settings', JSON.stringify(settings)); } catch {}
+    try { localStorage.setItem('qca-params', JSON.stringify(params)); } catch {}
+    if (bertModel) {
+      try { localStorage.setItem('qca-bert-model', JSON.stringify(bertModel)); } catch {}
+    }
+
+    // 2. Restore recentRuns
+    try { localStorage.setItem(RECENT_RUNS_KEY, JSON.stringify(recentRuns)); } catch {}
+    window.dispatchEvent(new Event(RECENT_RUNS_EVENT));
+
+    // 3. Dispatch HYDRATE_FROM_PROJECT
+    dispatch({ type: 'HYDRATE_FROM_PROJECT', snapshot: projectSnapshot });
+
+    // 4. Save textCorpus to localStorage
+    try {
+      localStorage.setItem('qca-project-textcorpus', JSON.stringify(textCorpusData));
+      dispatch({ type: 'SET_TEXT_CORPUS', entries: textCorpusData.texts });
+      dispatch({ type: 'SET_TEXT_CASES', cases: textCorpusData.textCases });
+      dispatch({ type: 'SET_YAML_CONTENT', content: textCorpusData.yamlContent });
+      dispatch({ type: 'SET_PROTO_CONDITIONS', rows: textCorpusData.protoConditions });
+    } catch {}
+  }, []);
+
   const value: QCAPipelineContextValue = {
     state,
     dispatch,
@@ -363,6 +561,10 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
     finishRobustness,
     startCounterfactuals,
     finishCounterfactuals,
+    startSecondOutcomeAnalysis,
+    finishSecondOutcomeAnalysis,
+    startMultiOutcomeComparison,
+    finishMultiOutcomeComparison,
     finishExport,
     fail,
     setProgress,
@@ -372,6 +574,12 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
     setBertStatus: setBertStatusAction,
     startEmbedding,
     finishEmbedding,
+    setPerformanceMetrics: (metrics: PerformanceMetrics) => dispatch({ type: 'SET_PERFORMANCE_METRICS', metrics }),
+    setTextCorpus,
+    setTextCases,
+    setYamlContent,
+    setProtoConditions,
+    hydrateFromProject,
   };
 
   return (

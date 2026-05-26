@@ -18,9 +18,12 @@ import type {
   TextCase,
   EmbedCalibrateTextEntry,
   ConditionSet,
+  ConditionDefinition,
   QCAAnalysisParams,
+  QCAAnalysisResultJSON,
 } from '../types/qca';
-import { DEFAULT_QCA_PARAMS, QCAVariant } from '../types/qca';
+import { DEFAULT_QCA_PARAMS, QCAVariant, CalibrationMethod } from '../types/qca';
+import { DEFAULT_MODEL } from '../services/bert-engine';
 
 /** Read the configured QCA variant from localStorage settings. */
 function getQCAVariantFromSettings(): QCAVariant {
@@ -40,6 +43,15 @@ function ensureQCAVariant(cs: ConditionSet): ConditionSet {
   return { ...cs, qca_variant: getQCAVariantFromSettings() };
 }
 
+/** Read the configured BERT model name from localStorage settings. */
+function getBertModelFromSettings(): string {
+  try {
+    return localStorage.getItem('qca-bert-model') || DEFAULT_MODEL;
+  } catch {
+    return DEFAULT_MODEL;
+  }
+}
+
 interface UseQCAWorkflowReturn {
   /** Run the full pipeline end-to-end */
   runFullPipeline: (opts: {
@@ -49,6 +61,17 @@ interface UseQCAWorkflowReturn {
     runRobustness?: boolean;
     runCounterfactuals?: boolean;
     prototypeTexts?: TextCase[];
+    captureAsLabel?: 'a' | 'b';
+  }) => Promise<void>;
+
+  /** Run full pipeline with multi-outcome comparison */
+  runFullPipelineMultiOutcome: (opts: {
+    texts: TextCorpusEntry[];
+    conditionSet: ConditionSet;
+    outcomeBName: string;
+    outcomeBDisplayName: string;
+    params?: Partial<QCAAnalysisParams>;
+    runRobustness?: boolean;
   }) => Promise<void>;
 
   /** Run only calibration (texts → fuzzy-set data) */
@@ -62,6 +85,7 @@ interface UseQCAWorkflowReturn {
   runAnalyzeOnly: (opts: {
     params?: Partial<QCAAnalysisParams>;
     usePrototype?: boolean;
+    captureAsLabel?: 'a' | 'b';
   }) => Promise<void>;
 
   /** Run QCA analysis on prototype fuzzy data */
@@ -79,7 +103,7 @@ interface UseQCAWorkflowReturn {
   }) => Promise<void>;
 
   /** Export current results */
-  runExport: (format: 'csv' | 'json' | 'latex') => Promise<Blob>;
+  runExport: (format: 'csv' | 'json' | 'latex' | 'docx') => Promise<Blob>;
 
   /** Load a text corpus from raw content via Python TextCorpusReader */
   loadCorpus: (
@@ -106,6 +130,10 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
     finishRobustness,
     startCounterfactuals,
     finishCounterfactuals,
+    startSecondOutcomeAnalysis,
+    finishSecondOutcomeAnalysis,
+    startMultiOutcomeComparison,
+    finishMultiOutcomeComparison,
     finishExport,
     fail,
     setConditionSet,
@@ -127,7 +155,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
       try {
         await ensureReady();
         startBertLoading();
-        await bridge.initBert(modelName || 'Xenova/bert-base-chinese');
+        await bridge.initBert(modelName || getBertModelFromSettings());
         finishBertLoading();
       } catch (err: any) {
         setBertStatus('error', err.message || 'BERT initialization failed');
@@ -181,7 +209,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
           return {
             ...cond,
             prototype_embeddings: embResult ? embResult.embeddings : null,
-            embedding_model: embResult ? 'Xenova/bert-base-chinese' : null,
+            embedding_model: embResult ? getBertModelFromSettings() : null,
           };
         });
 
@@ -251,7 +279,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
 
 
   const runAnalyzeOnly = useCallback(
-    async (opts: { params?: Partial<QCAAnalysisParams>; usePrototype?: boolean }) => {
+    async (opts: { params?: Partial<QCAAnalysisParams>; usePrototype?: boolean; captureAsLabel?: 'a' | 'b' }) => {
       try {
         await ensureReady();
 
@@ -273,7 +301,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
         } else {
           startAnalysis();
           const result = await bridge.analyze(fuzzyData, params);
-          finishAnalysis(result);
+          finishAnalysis(result, opts.captureAsLabel);
         }
       } catch (err: any) {
         fail(err.message || 'Analysis failed');
@@ -298,6 +326,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
       runRobustness?: boolean;
       runCounterfactuals?: boolean;
       prototypeTexts?: TextCase[];
+      captureAsLabel?: 'a' | 'b';
     }) => {
       try {
         await ensureReady();
@@ -325,7 +354,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
         };
         startAnalysis();
         const result = await bridge.analyze(fuzzyData, params);
-        finishAnalysis(result);
+        finishAnalysis(result, opts.captureAsLabel);
 
         // 3b. Analyze (prototype texts) — if prototype data exists
         const protoFuzzy = calResult.prototypeFuzzyData;
@@ -366,8 +395,124 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
     ]
   );
 
+  const runFullPipelineMultiOutcome = useCallback(
+    async (opts: {
+      texts: TextCorpusEntry[];
+      conditionSet: ConditionSet;
+      outcomeBName: string;
+      outcomeBDisplayName: string;
+      params?: Partial<QCAAnalysisParams>;
+      runRobustness?: boolean;
+    }) => {
+      try {
+        await ensureReady();
+
+        const conditionSetA = ensureQCAVariant(opts.conditionSet);
+
+        // 1. Validate
+        const validation = await bridge.validateConditionSet(conditionSetA);
+        if (!validation.valid && validation.warnings.length > 0) {
+          console.warn('Condition set warnings:', validation.warnings);
+        }
+
+        setConditionSet(conditionSetA);
+
+        const params: QCAAnalysisParams = {
+          ...DEFAULT_QCA_PARAMS,
+          ...opts.params,
+        };
+
+        // 2. Calibrate + Analyze for Outcome A
+        startCalibration();
+        const calResult = await bridge.calibrate(opts.texts, conditionSetA);
+        const fuzzyDataA = calResult.fuzzyData;
+        finishCalibration(fuzzyDataA, calResult.prototypeFuzzyData);
+
+        startAnalysis();
+        const resultA = await bridge.analyze(fuzzyDataA, params);
+        finishAnalysis(resultA);
+
+        // 3. Modify condition set for Outcome B
+        const existingOutcome = conditionSetA.outcome;
+        const protoOutcomeB: ConditionDefinition = {
+          name: opts.outcomeBName,
+          display_name: opts.outcomeBDisplayName,
+          domain: existingOutcome?.domain ?? 'dissatisfaction',
+          calibration_type: existingOutcome?.calibration_type ?? CalibrationMethod.DIRECT,
+          calibration_params: existingOutcome?.calibration_params ?? {
+            threshold_full_in: 0.80,
+            threshold_full_out: 0.20,
+            crossover_point: 0.50,
+            direction: 'ascending',
+          },
+          description: '',
+          scoring_source: 'prototype',
+          prototypes: existingOutcome?.prototypes ?? [],
+          prototype_embeddings: existingOutcome?.prototype_embeddings ?? null,
+          embedding_model: existingOutcome?.embedding_model ?? null,
+        };
+
+        const conditionSetB: ConditionSet = {
+          ...conditionSetA,
+          name: `${conditionSetA.name}-outcome-b`,
+          outcome: protoOutcomeB,
+        };
+
+        // 4. Calibrate for Outcome B
+        // Use the same texts but with Outcome B's condition set
+        startCalibration();
+        const calResultB = await bridge.calibrate(opts.texts, conditionSetB);
+        const fuzzyDataB = calResultB.fuzzyData;
+        finishCalibration(fuzzyDataB, calResultB.prototypeFuzzyData);
+
+        // 5. Analyze Outcome B
+        let resultB: QCAAnalysisResultJSON | null = null;
+        try {
+          startSecondOutcomeAnalysis();
+          resultB = await bridge.analyze(fuzzyDataB, params);
+          finishSecondOutcomeAnalysis(resultB);
+        } catch (errB: any) {
+          // If Outcome B analysis fails, preserve Outcome A results
+          console.warn('Outcome B analysis failed, preserving Outcome A:', errB.message);
+        }
+
+        // 6. Robustness (optional, on Outcome A data)
+        if (opts.runRobustness) {
+          startRobustness();
+          const robustnessReport = await bridge.runRobustness(fuzzyDataA, resultA);
+          finishRobustness(robustnessReport);
+        }
+
+        // 7. Multi-outcome comparison (only if both succeeded)
+        if (resultB) {
+          startMultiOutcomeComparison();
+          const analyses: Record<string, QCAAnalysisResultJSON> = {};
+          const outcomeAName = existingOutcome?.display_name || existingOutcome?.name || 'Outcome A';
+          analyses[outcomeAName] = resultA;
+          analyses[opts.outcomeBDisplayName || opts.outcomeBName] = resultB;
+          const moReport = await bridge.runMultiOutcome(analyses);
+          finishMultiOutcomeComparison(moReport);
+        }
+
+        finishExport([]);
+      } catch (err: any) {
+        fail(err.message || 'Multi-outcome pipeline failed');
+        throw err;
+      }
+    },
+    [
+      ensureReady, bridge, setConditionSet,
+      startCalibration, finishCalibration,
+      startAnalysis, finishAnalysis,
+      startSecondOutcomeAnalysis, finishSecondOutcomeAnalysis,
+      startMultiOutcomeComparison, finishMultiOutcomeComparison,
+      startRobustness, finishRobustness,
+      finishExport, fail,
+    ]
+  );
+
   const runExport = useCallback(
-    async (format: 'csv' | 'json' | 'latex'): Promise<Blob> => {
+    async (format: 'csv' | 'json' | 'latex' | 'docx'): Promise<Blob> => {
       if (!state.analysisResult) {
         throw new Error('No analysis result to export');
       }
@@ -397,6 +542,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
 
   return {
     runFullPipeline,
+    runFullPipelineMultiOutcome,
     runCalibrateOnly,
     runAnalyzeOnly,
     runAnalyzeOnlyForPrototype,

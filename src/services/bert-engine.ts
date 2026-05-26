@@ -6,8 +6,15 @@ import type {
   BertProgressCallback
 } from '../types/bert'
 
+/** Available BERT models the user can choose from on the Settings page. */
+export const AVAILABLE_MODELS: { id: string; label: string; dims: number; approxSizeMB: number }[] = [
+  { id: 'Xenova/bert-base-chinese',                    label: 'bert-base-chinese (768-dim, ~400 MB)',      dims: 768, approxSizeMB: 400 },
+  { id: 'Xenova/bert-base-multilingual-cased',          label: 'bert-base-multilingual-cased (768-dim, ~700 MB)', dims: 768, approxSizeMB: 700 },
+  { id: 'Xenova/distilbert-base-multilingual-cased',    label: 'distilbert-base-multilingual-cased (768-dim, ~280 MB)', dims: 768, approxSizeMB: 280 },
+]
+
 /** Default BERT model for Chinese text feature extraction. */
-const DEFAULT_MODEL = 'Xenova/bert-base-chinese'
+export const DEFAULT_MODEL = AVAILABLE_MODELS[0].id
 
 /** Maximum Chinese characters before truncation.
  *  Chinese text averages ~1.5 WordPiece tokens per character for
@@ -17,6 +24,17 @@ const MAX_CHARS = 380
 
 /** Expected hidden dimension for bert-base-chinese (used as zero-vector fallback). */
 const DEFAULT_HIDDEN_DIM = 768
+
+/** Metrics collected during embedding inference for UI display and debugging. */
+export interface PerformanceMetrics {
+  totalInferences: number
+  totalInferenceMs: number
+  totalTextsProcessed: number
+  cacheHits: number
+  cacheMisses: number
+  lastInferenceBatchMs: number
+  modelName: string | null
+}
 
 /**
  * In-browser BERT feature-extraction engine using Transformers.js.
@@ -50,6 +68,15 @@ export class BertEngine {
   private _modelName: string | null = null
   private _progressCallbacks: BertProgressCallback[] = []
   private _cache: Map<string, Float32Array> = new Map()
+  private _metrics: PerformanceMetrics = {
+    totalInferences: 0,
+    totalInferenceMs: 0,
+    totalTextsProcessed: 0,
+    cacheHits: 0,
+    cacheMisses: 0,
+    lastInferenceBatchMs: 0,
+    modelName: null,
+  }
 
   // ---------------------------------------------------------------------------
   // Public API
@@ -76,6 +103,24 @@ export class BertEngine {
   /** The HuggingFace model name currently loaded, or null. */
   getModelName(): string | null {
     return this._modelName
+  }
+
+  /** Return a snapshot of performance metrics collected since load or last reset. */
+  getPerformanceMetrics(): PerformanceMetrics {
+    return { ...this._metrics }
+  }
+
+  /** Reset all performance counters. The current model name is preserved. */
+  resetPerformanceMetrics(): void {
+    this._metrics = {
+      totalInferences: 0,
+      totalInferenceMs: 0,
+      totalTextsProcessed: 0,
+      cacheHits: 0,
+      cacheMisses: 0,
+      lastInferenceBatchMs: 0,
+      modelName: this._metrics.modelName,
+    }
   }
 
   /**
@@ -117,6 +162,7 @@ export class BertEngine {
 
       this._modelName = name
       this._status = 'ready'
+      this._metrics.modelName = name
       this._reportProgress(100, `Model ${name} loaded successfully`)
     } catch (error) {
       this._status = 'error'
@@ -151,6 +197,9 @@ export class BertEngine {
       throw new Error('BERT model not loaded. Call loadModel() first.')
     }
 
+    // --------------- performance metrics ---------------
+    this._metrics.totalInferences++
+
     const embeddings: Float32Array[] = new Array(texts.length)
 
     // --------------- separate cached vs uncached ---------------
@@ -168,9 +217,11 @@ export class BertEngine {
       const cached = this._cache.get(cacheKey)
       if (cached) {
         embeddings[i] = cached
+        this._metrics.cacheHits++
         continue
       }
 
+      this._metrics.cacheMisses++
       uncached.push({ text, index: i })
     }
 
@@ -179,6 +230,8 @@ export class BertEngine {
     }
 
     // --------------- batch-inference loop ---------------
+    const batchStart = performance.now()
+
     for (let i = 0; i < uncached.length; i += batchSize) {
       const slice = uncached.slice(i, i + batchSize)
       const batchTexts = slice.map((s) => this._truncateText(s.text))
@@ -206,6 +259,11 @@ export class BertEngine {
         this._cache.set(this._makeCacheKey(text), normalized)
       }
     }
+
+    const elapsed = performance.now() - batchStart
+    this._metrics.totalInferenceMs += elapsed
+    this._metrics.lastInferenceBatchMs = elapsed
+    this._metrics.totalTextsProcessed += uncached.length
 
     return { embeddings, modelName: this._modelName }
   }

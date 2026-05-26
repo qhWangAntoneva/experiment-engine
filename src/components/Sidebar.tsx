@@ -10,6 +10,7 @@ export default function Sidebar() {
     { label: t('sidebar.dashboard'), path: '/dashboard', icon: '⊞' },
     { label: t('sidebar.dataInput'), path: '/input', icon: '↥' },
     { label: t('sidebar.results'), path: '/results', icon: '≡' },
+    { label: t('sidebar.compare'), path: '/compare', icon: '⇔' },
     { label: t('sidebar.settings'), path: '/settings', icon: '⚙' },
   ]
 

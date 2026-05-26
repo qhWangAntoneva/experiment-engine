@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard'
 import DataInput from './pages/DataInput'
 import Results from './pages/Results'
 import Settings from './pages/Settings'
+import Compare from './pages/Compare'
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/input" element={<DataInput />} />
             <Route path="/results" element={<Results />} />
+            <Route path="/compare" element={<Compare />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
         </Routes>

@@ -18,6 +18,7 @@ import { usePyodide } from '../hooks/usePyodide';
 import { useT } from '../i18n/I18nContext';
 import PipelineStatus from '../components/PipelineStatus';
 import DistributionPlot from '../components/DistributionPlot';
+import ShareLinkButton from '../components/ShareLinkButton';
 import type {
   TextCorpusEntry,
   TextCase,
@@ -26,6 +27,7 @@ import type {
   ConceptPrototype,
   ScoringSource,
   TextDomain,
+  QCAProjectProtoConditionRow,
 } from '../types/qca';
 import { CalibrationMethod, QCAVariant } from '../types/qca';
 import './DataInput.css';
@@ -172,15 +174,8 @@ function checkFileSize(file: File): string | null {
 
 // ─── Prototype mode helpers ────────────────────────────────────────────────
 
-interface PrototypeConditionRow {
-  id: string;
-  name: string;
-  displayName: string;
-  prototypesText: string;
-}
-
 let _protoRowIdCounter = 0;
-function newProtoRow(name: string = '', displayName: string = '', prototypesText: string = ''): PrototypeConditionRow {
+function newProtoRow(name: string = '', displayName: string = '', prototypesText: string = ''): QCAProjectProtoConditionRow {
   _protoRowIdCounter += 1;
   return { id: `pcr_${_protoRowIdCounter}`, name, displayName, prototypesText };
 }
@@ -236,7 +231,7 @@ function parsePrototypeCSV(content: string): TextCase[] {
 
 /** Generate a ConditionSet from prototype editor rows */
 function generatePrototypeConditionSet(
-  rows: PrototypeConditionRow[],
+  rows: QCAProjectProtoConditionRow[],
   domain: TextDomain,
   qcaVariant: QCAVariant = QCAVariant.FSQCA,
 ): ConditionSet {
@@ -297,7 +292,13 @@ export default function DataInput() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useT();
 
-  const { state } = useQCAPipeline();
+  const {
+    state,
+    setTextCorpus,
+    setTextCases: setTextCasesContext,
+    setYamlContent: setYamlContentContext,
+    setProtoConditions: setProtoConditionsContext,
+  } = useQCAPipeline();
   const { initState } = usePyodide();
   const {
     runFullPipeline,
@@ -335,21 +336,20 @@ export default function DataInput() {
 
   // ─── Form state ────────────────────────────────────────────────────
 
-  // Keyword mode form state
-  const [texts, setTexts] = useState<TextCorpusEntry[]>([]);
-  const [yamlContent, setYamlContent] = useState(DEFAULT_CONDITION_SET_YAML);
+  // Text corpus state from pipeline context
+  const texts = state.textCorpusEntries;
+  const yamlContent = state.yamlContent;
+  const textCases = state.textCases;
+  const protoConditions = state.protoConditions;
+
+  // Local UI state
   const [textInputMode, setTextInputMode] = useState<'upload' | 'paste'>('paste');
   const [pasteContent, setPasteContent] = useState('');
   const [pasteFormat, setPasteFormat] = useState<'csv' | 'json' | 'txt'>('csv');
   const [selectedDomain, setSelectedDomain] = useState<TextDomain>('dissatisfaction');
 
-  // Prototype mode form state
-  const [textCases, setTextCases] = useState<TextCase[]>([]);
+  // Prototype mode UI state
   const [protoPasteContent, setProtoPasteContent] = useState('');
-  const [protoConditions, setProtoConditions] = useState<PrototypeConditionRow[]>([
-    newProtoRow('', ''),
-    newProtoRow('', ''),
-  ]);
 
   const [importedConditionSet, setImportedConditionSet] = useState<ConditionSet | null>(null);
   const dictFileInputRef = useRef<HTMLInputElement>(null);
@@ -388,7 +388,7 @@ export default function DataInput() {
             content = e.target?.result as string;
           }
           const entries = await loadCorpus(file.name, content, format);
-          setTexts(entries);
+          setTextCorpus(entries);
           setValidationMessage(t('dataInput.loadedCases', entries.length, file.name));
         } catch (err: any) {
           setValidationMessage(`${t('common.error')}: ${err.message}`);
@@ -415,7 +415,7 @@ export default function DataInput() {
         : pasteFormat === 'json' ? 'pasted.json'
         : 'pasted.txt';
       const entries = await loadCorpus(fileName, pasteContent, pasteFormat);
-      setTexts(entries);
+      setTextCorpus(entries);
       setValidationMessage(t('dataInput.parsedCases', entries.length));
     } catch (err: any) {
       setValidationMessage(`${t('dataInput.parseError')}${err.message}`);
@@ -423,7 +423,7 @@ export default function DataInput() {
   }, [pasteContent, pasteFormat, loadCorpus, t]);
 
   const handleYamlChange = useCallback((value: string) => {
-    setYamlContent(value);
+    setYamlContentContext(value);
   }, []);
 
   // ─── Dictionary Import handler ─────────────────────────────────────────
@@ -525,7 +525,7 @@ export default function DataInput() {
           content = ev.target?.result as string;
         }
         const entries = await loadCorpus(file.name, content, format);
-        setTexts(entries);
+        setTextCorpus(entries);
         setValidationMessage(t('dataInput.loadedCases', entries.length, file.name));
       } catch (err: any) {
         setValidationMessage(`${t('common.error')}: ${err.message}`);
@@ -543,7 +543,7 @@ export default function DataInput() {
   const handleParseProtoCSV = useCallback(() => {
     try {
       const cases = parsePrototypeCSV(protoPasteContent);
-      setTextCases(cases);
+      setTextCasesContext(cases);
       const outcome0 = cases.filter((c) => c.outcome === 0).length;
       const outcome1 = cases.filter((c) => c.outcome === 1).length;
       setValidationMessage(
@@ -564,7 +564,7 @@ export default function DataInput() {
         try {
           const content = e.target?.result as string;
           const cases = parsePrototypeCSV(content);
-          setTextCases(cases);
+          setTextCasesContext(cases);
           const outcome0 = cases.filter((c) => c.outcome === 0).length;
           const outcome1 = cases.filter((c) => c.outcome === 1).length;
           setValidationMessage(
@@ -592,7 +592,7 @@ export default function DataInput() {
       try {
         const content = ev.target?.result as string;
         const cases = parsePrototypeCSV(content);
-        setTextCases(cases);
+        setTextCasesContext(cases);
         const outcome0 = cases.filter((c) => c.outcome === 0).length;
         const outcome1 = cases.filter((c) => c.outcome === 1).length;
         setValidationMessage(
@@ -606,26 +606,22 @@ export default function DataInput() {
   }, [t]);
 
   const updateProtoCondition = useCallback(
-    (index: number, field: keyof PrototypeConditionRow, value: string) => {
-      setProtoConditions((prev) => {
-        const next = [...prev];
-        next[index] = { ...next[index], [field]: value };
-        return next;
-      });
+    (index: number, field: keyof QCAProjectProtoConditionRow, value: string) => {
+      const next = [...state.protoConditions];
+      next[index] = { ...next[index], [field]: value };
+      setProtoConditionsContext(next);
     },
-    []
+    [state.protoConditions]
   );
 
   const addProtoCondition = useCallback(() => {
-    setProtoConditions((prev) => [...prev, newProtoRow('', '')]);
-  }, []);
+    setProtoConditionsContext([...state.protoConditions, newProtoRow('', '')]);
+  }, [state.protoConditions]);
 
   const removeProtoCondition = useCallback((index: number) => {
-    setProtoConditions((prev) => {
-      if (prev.length <= 1) return prev;
-      return prev.filter((_, i) => i !== index);
-    });
-  }, []);
+    if (state.protoConditions.length <= 1) return;
+    setProtoConditionsContext(state.protoConditions.filter((_, i) => i !== index));
+  }, [state.protoConditions]);
 
   const handleReset = useCallback(() => {
     handleParsePaste();
@@ -768,6 +764,7 @@ export default function DataInput() {
             {t('dataInput.importExportTitle')}
           </h3>
           <div style={{ display: 'flex', gap: '8px' }}>
+            <ShareLinkButton conditionSet={importedConditionSet} />
             <button
               className="btn btn-secondary"
               onClick={() => dictFileInputRef.current?.click()}
