@@ -74,6 +74,7 @@
 - [2026-05-24] **Planning doc statistics deviate after multi-agent editing**: Always recalculate counts from scratch, not trusting incremental updates.
 - [2026-05-27] **CLI/api path has no BERT embeddings**: TextCalibrationStage must ALWAYS include a text-level fallback for _precompute_scores. The old all-zeros fallback cascades through DirectCalibration degeneracy (identical scores -> all 0.5). Always add _fallback_text_scores() (trigram Jaccard) when introducing new scoring paths.
 - [2026-05-27] **CSV expected_outcome column is NEVER used**: `api.py` `run_calibrate()` calls `TextCorpusReader.read()` with `text_column="text"` only, silently dropping the `expected_outcome` column. This causes all outcome values to be computed from trigram similarity to outcome prototypes rather than ground-truth labels. The outcome column MUST come from CSV labels. Use `pandas.read_csv()` to get both `text` and `expected_outcome`, filter by domain, then call `TextCalibrationStage.process_with_outcome()`. Without this fix, truth tables are meaningless (all outcome=1 or all outcome=0).
+- [2026-05-27] **Reviewer confirmed**: All 3 algorithm bugs fixed (domain filter, outcome injection, calibration variance). 2 domains (dissatisfaction, trust) have empty solutions — this is a test fixture data quality issue, NOT a code bug. Pre-commit hook root cause: ruff version mismatch (v0.4.0 vs v0.15.12) and running separate commands instead of `pre-commit run --all-files`.
 
 ### Python/CLI
 

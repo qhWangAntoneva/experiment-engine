@@ -1,13 +1,17 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T19:00:44.819Z
-> Files: 5 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T19:15:09.886Z
+> Files: 6 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/
 
 
 ## ../.claude/plans/
 
+
+## ../.claude/projects/C--Users-lenovos-QCA-Analysis-Tool/memory/
+
+- `push_notes.md` — Push Notes — QCA Analysis Tool (~267 tok)
 
 ## ../National-Policy-Database/
 

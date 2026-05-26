@@ -6,7 +6,7 @@
 
 | 指标 | 值 |
 |------|-----|
-| HEAD | `8807e15` — tests/fixtures/ for 5-domain 30-case pipeline |
+| HEAD | `594505d` — 30-case pipeline bugs fixed + viz bridge + P2 items |
 | 分支 | `master` (已推送) |
 | 测试 | 532 passed, 1 skipped, 6 xfailed |
 | TS | `npm run build` clean |
