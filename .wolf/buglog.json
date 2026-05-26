@@ -3971,6 +3971,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-26T03:37:15.674Z"
+    },
+    {
+      "id": "bug-242",
+      "timestamp": "2026-05-26T04:17:49.600Z",
+      "error_message": "Incorrect value in code",
+      "file": "index.html",
+      "root_cause": "Had \"zh-CN\"",
+      "fix": "Changed to \"en\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T04:17:49.600Z"
     }
   ]
 }
