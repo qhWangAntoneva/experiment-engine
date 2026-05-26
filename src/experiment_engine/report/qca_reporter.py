@@ -114,6 +114,7 @@ class QCALaTeXReporter:
 
         sections.append(r"\end{document}")
 
+        sections = [s for s in sections if s]
         content = "\n\n".join(sections)
         with open(output_path, "w", encoding="utf-8") as fh:
             fh.write(content)
