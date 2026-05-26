@@ -393,17 +393,17 @@ def counterfactuals(
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
 def report(results: str, fmt: str, output: str, verbose: bool) -> None:
     """Generate an analysis report (LaTeX or console)."""
-    with open(results, encoding="utf-8") as fh:
-        data = json.load(fh)
-
-    if fmt in ("latex", "docx"):
-        from experiment_engine.api import run_report
-
-        out_file = run_report(results, output, fmt, robustness_path=None)
-        suffix = "LaTeX" if fmt == "latex" else "DOCX"
-        console.print(f"[green]✓[/] {suffix} report saved to {out_file}")
-    else:
+    if fmt == "console":
+        with open(results, encoding="utf-8") as fh:
+            data = json.load(fh)
         _print_console_report(data)
+        return
+
+    from experiment_engine.api import run_report
+
+    out_file = run_report(results, output, fmt, robustness_path=None)
+    suffix = "LaTeX" if fmt == "latex" else "DOCX"
+    console.print(f"[green]✓[/] {suffix} report saved to {out_file}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
