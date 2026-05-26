@@ -1,0 +1,114 @@
+name: gov_responsiveness_default
+description: Default QCA conditions for gov_responsiveness domain
+domain: gov_responsiveness
+scoring_source: prototype
+conditions:
+- name: response_timeliness
+  display_name: response_timeliness
+  domain: gov_responsiveness
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 当天就回复了，处理速度很快，三个工作日内就全部办完了
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 等了好几天也没个回复，到现在都不知道进展怎么样了
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: solution_effectiveness
+  display_name: solution_effectiveness
+  domain: gov_responsiveness
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 问题已经解决了，办好了，处理非常到位，落实得很好很彻底
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 虽然回复了但是问题根本没解决，敷衍了事
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: process_transparency
+  display_name: process_transparency
+  domain: gov_responsiveness
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 整个过程都公开公示了，每一步都告知我们，解释得很清楚有结果反馈
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 什么信息都不公开，问了好几次也不告诉我们进展
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: interaction_quality
+  display_name: interaction_quality
+  domain: gov_responsiveness
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 工作人员态度好很有耐心，认真细致，热情周到，服务非常贴心
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 工作人员态度冷漠，问三句答一句，一副不耐烦的样子
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: follow_up_mechanism
+  display_name: follow_up_mechanism
+  domain: gov_responsiveness
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 办理后还有回访电话，后续跟进做得很到位，持续关注我们的情况
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 办完就完了，没有任何后续跟进，出了问题也不知道找谁
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+outcome:
+  name: high_responsiveness
+  display_name: high_responsiveness
+  domain: gov_responsiveness
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 政府非常负责，响应非常及时，处理效率很高，我们很满意
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 投诉了也没用，根本没人管，效率太低了
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending

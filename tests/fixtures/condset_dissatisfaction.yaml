@@ -1,0 +1,114 @@
+name: dissatisfaction_default
+description: Default QCA conditions for dissatisfaction domain
+domain: dissatisfaction
+scoring_source: prototype
+conditions:
+- name: strong_negative_affect
+  display_name: strong_negative_affect
+  domain: dissatisfaction
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 你们这服务太差了，态度恶劣，办事效率极低，我非常愤怒要投诉你们
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 请帮我查一下这个申请什么时候能办好，谢谢
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: service_failure_mention
+  display_name: service_failure_mention
+  domain: dissatisfaction
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 我去办证跑了好几趟都没办成，窗口人员互相推诿踢皮球，不予办理
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 工作人员态度很好，耐心解答了我的问题，顺利办完了
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: urgency_expression
+  display_name: urgency_expression
+  domain: dissatisfaction
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 这个问题急需解决，迫在眉睫，不能再等了，耽误不起，请立即处理
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 慢慢来吧，等你们有空了再帮我处理一下就行
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: comparative_complaint
+  display_name: comparative_complaint
+  domain: dissatisfaction
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 为什么别的地方能办我们这里就不行？凭什么区别对待，太不公平了
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 我想了解一下这个业务的办理流程是什么
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: escalation_threat
+  display_name: escalation_threat
+  domain: dissatisfaction
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 如果再不解决我就打市长热线，找纪委和媒体曝光你们
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 希望能尽快帮我处理一下，我已经等了一周了
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+outcome:
+  name: high_dissatisfaction
+  display_name: high_dissatisfaction
+  domain: dissatisfaction
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 你们的服务太差了，严重不作为，我对你们彻底失望
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 事情办完了，效率还可以，整体来说比较满意
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending

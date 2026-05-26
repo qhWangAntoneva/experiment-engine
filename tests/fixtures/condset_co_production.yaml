@@ -1,0 +1,96 @@
+name: co_production_default
+description: Default QCA conditions for co_production domain
+domain: co_production
+scoring_source: prototype
+conditions:
+- name: willingness_to_participate
+  display_name: willingness_to_participate
+  domain: co_production
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 我愿意积极参加社区治理工作，配合你们一起把这件事做好
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 这是政府该管的事，跟我们普通老百姓没什么关系
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: resource_contribution_offer
+  display_name: resource_contribution_offer
+  domain: co_production
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 我们愿意出资出力，捐赠物资，提供必要资源来共同解决这个问题
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 你们政府自己想办法解决，我们没钱也没资源
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: knowledge_sharing
+  display_name: knowledge_sharing
+  domain: co_production
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 据我了解和我多年经验，我从专业角度提几点技术建议和信息共享
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 我不太懂这些，你们专业人士看着办就行
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: collective_action_call
+  display_name: collective_action_call
+  domain: co_production
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 大家一起齐心协力，组织起来联合行动，共同把这事办好
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 我一个人来反映一下意见就行了，不需要别人一起
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+outcome:
+  name: co_production_request
+  display_name: co_production_request
+  domain: co_production
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 我们希望与政府合作共建，协同推动社区参与治理
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 请帮我查询一下这个文件的具体办理进度
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending

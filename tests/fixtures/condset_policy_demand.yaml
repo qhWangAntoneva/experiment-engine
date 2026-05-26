@@ -1,0 +1,114 @@
+name: policy_demand_default
+description: Default QCA conditions for policy_demand domain
+domain: policy_demand
+scoring_source: prototype
+conditions:
+- name: specific_policy_proposal
+  display_name: specific_policy_proposal
+  domain: policy_demand
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 建议政府制定相关惠民政策，完善城市管理制度，修改不合理的旧规定
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 我就想问一下现在这个政策具体是怎么执行的
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: resource_request
+  display_name: resource_request
+  domain: policy_demand
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 我们需要政府增加资金投入和财政支持，给老百姓发放更多补贴
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 这个政策很好，希望能够尽快落实到位
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: group_representation
+  display_name: group_representation
+  domain: policy_demand
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 我们全体居民代表大家反映这个问题，这是广大群众的共同心声
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 我个人觉得这个政策对我们家影响挺大的
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: evidence_citation
+  display_name: evidence_citation
+  domain: policy_demand
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 据统计数据显示，研究表明这种做法在其他城市已有成功先例可以参考
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 我觉得这个做法应该能行，大家都会支持的
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: feasibility_argument
+  display_name: feasibility_argument
+  domain: policy_demand
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 这个方案是可以做到的，其他城市已有先例，条件完全具备，难度不大
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 这个事情太难了，我觉得根本不可能实现
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+outcome:
+  name: strong_policy_demand
+  display_name: strong_policy_demand
+  domain: policy_demand
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 我们强烈要求政府尽快出台相关政策，迫切需要解决这个问题
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 随便了解一下这个政策的具体内容是什么
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending

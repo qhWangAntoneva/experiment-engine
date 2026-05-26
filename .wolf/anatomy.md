@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T15:33:24.698Z
-> Files: 28 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T16:18:42.770Z
+> Files: 30 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/
 
@@ -15,6 +15,7 @@
 ## ./
 
 - `TODO.md` — TODO — QCA Analysis Tool (~1764 tok)
+- `validate_qca_output.py` — Validate all 5 domain QCA outputs and print summary. (~2738 tok)
 
 ## .claude/
 
@@ -132,5 +133,9 @@
 
 ## tests/
 
+
+## tests/fixtures/
+
+- `sample_cases.csv` (~423 tok)
 
 ## tmp/

@@ -1,0 +1,114 @@
+name: trust_default
+description: Default QCA conditions for trust domain
+domain: trust
+scoring_source: prototype
+conditions:
+- name: institutional_trust
+  display_name: institutional_trust
+  domain: trust
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 我相信政府一定能把这件事处理好，政府办事越来越可靠值得信赖
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 政府没什么公信力，我不相信他们能解决好这个问题
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: competence_perception
+  display_name: competence_perception
+  domain: trust
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 工作人员非常专业能力强，办事效率高，解决得特别好很得力
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 办事人员不专业，连基本政策都解释不清楚
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: benevolence_perception
+  display_name: benevolence_perception
+  domain: trust
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 政府真心为老百姓着想，关心群众生活，政策很贴心很人性化
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 政府根本不关心我们的实际困难，只顾自己方便
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: integrity_perception
+  display_name: integrity_perception
+  domain: trust
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 工作人员按规定办事，公正透明，廉洁高效，全程公开
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 这里面肯定有猫腻，不按规矩来，关系户优先
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+- name: positive_experience_share
+  display_name: positive_experience_share
+  domain: trust
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 我要表扬他们，服务态度很好，值得点赞，非常满意，值得肯定
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 服务太差了，我一点都不满意，必须给你们差评
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
+outcome:
+  name: high_trust
+  display_name: high_trust
+  domain: trust
+  calibration_type: direct
+  description: ''
+  scoring_source: prototype
+  prototypes:
+  - prototype_text: 我对政府很信任，办事很放心，相信他们会公正处理
+    is_member: 1
+    weight: 1.0
+  - prototype_text: 我对政府完全不信任，每次办事都不放心
+    is_member: 0
+    weight: 1.0
+  calibration_params:
+    threshold_full_in: 0.8
+    threshold_full_out: 0.2
+    crossover_point: 0.5
+    direction: ascending
