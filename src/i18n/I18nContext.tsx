@@ -9,7 +9,7 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import type { Language, TranslationDict } from './translations';
-import { translations, detectLanguage } from './translations';
+import { translations } from './translations';
 
 // ─── Storage key ──────────────────────────────────────────────────────────────
 
@@ -30,13 +30,15 @@ const I18nContext = createContext<I18nContextValue | null>(null);
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
+const DEFAULT_LANGUAGE: Language = 'en';
+
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Language>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored === 'en' || stored === 'zh') return stored;
     } catch {}
-    return detectLanguage();
+    return DEFAULT_LANGUAGE;
   });
 
   const setLang = useCallback((next: Language) => {

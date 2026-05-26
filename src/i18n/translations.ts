@@ -304,6 +304,8 @@ export interface TranslationDict {
     bertDetailLabel: string;
     bertActionLabel: string;
     bertLoadModelBtn: string;
+    bertModelSwitchWarning: string;
+    bertModel: string;
     // Export Dictionary
     exportDictSection: string;
     exportDictHelp: string;
@@ -329,6 +331,18 @@ export interface TranslationDict {
   pipelineStatus: {
     stageLabels: Record<string, string>;
     reset: string;
+  };
+
+  // ── Performance ──
+  performance: {
+    title: string;
+    noData: string;
+    avgInferenceTime: string;
+    cacheHitRate: string;
+    textsProcessed: string;
+    lastBatchMs: string;
+    activeModel: string;
+    ms: string;
   };
 }
 
@@ -683,6 +697,8 @@ const zh: TranslationDict = {
     bertDetailLabel: '详情',
     bertActionLabel: '操作',
     bertLoadModelBtn: '加载模型',
+    bertModelSwitchWarning: '切换模型后需重新计算原型嵌入。',
+    bertModel: 'BERT 模型',
     // Export Dictionary
     exportDictSection: '导出关键词字典',
     exportDictHelp: '将当前条件集的关键词模式导出为文件。',
@@ -723,6 +739,17 @@ const zh: TranslationDict = {
       error: '错误',
     },
     reset: '重置',
+  },
+
+  performance: {
+    title: 'BERT 性能',
+    noData: '尚未执行推理',
+    avgInferenceTime: '平均推理时间',
+    cacheHitRate: '缓存命中率',
+    textsProcessed: '已处理文本',
+    lastBatchMs: '最近批次',
+    activeModel: '当前模型',
+    ms: 'ms',
   },
 };
 
@@ -1078,6 +1105,8 @@ const en: TranslationDict = {
     bertDetailLabel: 'Details',
     bertActionLabel: 'Action',
     bertLoadModelBtn: 'Load Model',
+    bertModelSwitchWarning: 'Switching models will require re-computing prototype embeddings.',
+    bertModel: 'BERT Model',
     // Export Dictionary
     exportDictSection: 'Export Keyword Dictionary',
     exportDictHelp: 'Export keyword patterns from the current condition set to a file.',
@@ -1119,11 +1148,17 @@ const en: TranslationDict = {
     },
     reset: 'Reset',
   },
+
+  performance: {
+    title: 'BERT Performance',
+    noData: 'No inference performed yet',
+    avgInferenceTime: 'Avg. Inference Time',
+    cacheHitRate: 'Cache Hit Rate',
+    textsProcessed: 'Texts Processed',
+    lastBatchMs: 'Last Batch',
+    activeModel: 'Active Model',
+    ms: 'ms',
+  },
 };
 
 export const translations: Record<Language, TranslationDict> = { zh, en };
-
-/** Always return English as the default language. */
-export function detectLanguage(): Language {
-  return 'en';
-}
