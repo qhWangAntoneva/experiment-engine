@@ -139,7 +139,8 @@
           "threshold_full_in": 0.8,
           "threshold_full_out": 0.2,
           "crossover_point": 0.5,
-          "direction": "ascending"
+          "direction": "ascending",
+          "steepness": null
         },
         "description": "",
         "scoring_source": "prototype",
@@ -167,7 +168,8 @@
           "threshold_full_in": 0.8,
           "threshold_full_out": 0.2,
           "crossover_point": 0.5,
-          "direction": "ascending"
+          "direction": "ascending",
+          "steepness": null
         },
         "description": "",
         "scoring_source": "prototype",
@@ -196,7 +198,8 @@
         "threshold_full_in": 0.8,
         "threshold_full_out": 0.2,
         "crossover_point": 0.5,
-        "direction": "ascending"
+        "direction": "ascending",
+        "steepness": null
       },
       "description": "",
       "scoring_source": "prototype",

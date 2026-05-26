@@ -1,20 +1,22 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T10:23:13.306Z
-> Files: 1 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T11:33:15.817Z
+> Files: 7 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/
 
 
 ## ../.claude/plans/
 
+- `elegant-prancing-token.md` — P1-10: Calibration Parameter Instant Preview (~1525 tok)
 
 ## ../National-Policy-Database/
 
 
 ## ./
 
-- `FIXME.md` — FIXME — QCA Analysis Tool (~3007 tok)
+- `HANDOVER.md` — HANDOVER — QCA Analysis Tool (experiment-engine) (~1721 tok)
+- `TODO.md` — TODO — QCA Analysis Tool (~3304 tok)
 
 ## .claude/
 
@@ -45,6 +47,7 @@
 
 ## src/components/
 
+- `CalibrationPreview.tsx` — CalibrationPreview — live histogram showing how calibration parameters (~3041 tok)
 
 ## src/experiment_engine/
 
@@ -81,12 +84,15 @@
 
 ## src/i18n/
 
+- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~10281 tok)
 
 ## src/layouts/
 
 
 ## src/pages/
 
+- `Settings.css` — Styles: 21 rules (~690 tok)
+- `Settings.tsx` — Settings — QCA analysis parameters, calibration defaults, and engine config. (~6680 tok)
 
 ## src/pyodide/
 
@@ -104,3 +110,5 @@
 
 
 ## tmp/
+
+- `src/components/CalibrationPreview.tsx` — JS-side calibration preview (direct/indirect/ragin/crisp) with Plotly histogram + synthetic data (~230 tok)

@@ -94,3 +94,42 @@
   font-size: 0.9375rem;
   color: var(--color-text-primary);
 }
+
+/* Calibration Preview */
+.calibration-preview .preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.calibration-preview .preview-chart {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.calibration-preview .preview-stats {
+  display: flex;
+  gap: 24px;
+  padding: 10px 16px;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.calibration-preview .stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.calibration-preview .stat-value {
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--color-accent);
+}

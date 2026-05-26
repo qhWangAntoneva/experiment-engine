@@ -299,6 +299,17 @@ export interface TranslationDict {
     exportDictNoConditionSet: string;
     exportedDict: (count: number, format: string) => string;
     exportDictError: string;
+    // Calibration Preview
+    calibrationPreview: string;
+    previewDistribution: string;
+    distributionNormal: string;
+    distributionUniform: string;
+    distributionBimodal: string;
+    previewHelp: string;
+    previewMeanMembership: string;
+    previewFullyOut: string;
+    previewFullyIn: string;
+    previewAtCrossover: string;
   };
 
   // ── Pipeline Status ──
@@ -654,6 +665,17 @@ const zh: TranslationDict = {
     exportDictNoConditionSet: '（暂无已定义的条件集）',
     exportedDict: (count: number, format: string) => `已导出 ${count} 个条件为 ${format} 格式`,
     exportDictError: '导出失败：',
+    // Calibration Preview
+    calibrationPreview: '校准预览',
+    previewDistribution: '样本分布',
+    distributionNormal: '正态分布',
+    distributionUniform: '均匀分布',
+    distributionBimodal: '双峰分布',
+    previewHelp: '拖动上方校准参数，实时预览隶属度分布变化。使用合成样本数据展示校准效果。',
+    previewMeanMembership: '平均隶属度',
+    previewFullyOut: '完全不属于',
+    previewFullyIn: '完全属于',
+    previewAtCrossover: '交叉点',
   },
 
   pipelineStatus: {
@@ -1025,6 +1047,17 @@ const en: TranslationDict = {
     exportDictNoConditionSet: ' (no condition set defined yet)',
     exportedDict: (count: number, format: string) => `Exported ${count} conditions as ${format}`,
     exportDictError: 'Export failed: ',
+    // Calibration Preview
+    calibrationPreview: 'Calibration Preview',
+    previewDistribution: 'Sample Distribution',
+    distributionNormal: 'Normal',
+    distributionUniform: 'Uniform',
+    distributionBimodal: 'Bimodal',
+    previewHelp: 'Drag the calibration parameters above to preview membership distribution changes in real time. Uses synthetic sample data.',
+    previewMeanMembership: 'Mean Membership',
+    previewFullyOut: 'Fully Out',
+    previewFullyIn: 'Fully In',
+    previewAtCrossover: 'At Crossover',
   },
 
   pipelineStatus: {

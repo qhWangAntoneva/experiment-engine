@@ -8,12 +8,13 @@
  *   4. About / Version Info
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { DEFAULT_QCA_PARAMS, type QCAAnalysisParams, type ConditionSet, QCAVariant } from '../types/qca';
 import { usePyodide } from '../hooks/usePyodide';
 import { useQCAWorkflow } from '../hooks/useQCAWorkflow';
 import { useQCAPipeline } from '../store/QCAPipelineContext';
 import { useT } from '../i18n/I18nContext';
+import CalibrationPreview from '../components/CalibrationPreview';
 import './Settings.css';
 
 interface SettingField {
@@ -314,6 +315,17 @@ export default function Settings() {
     [values]
   );
 
+  const calibrationPreviewParams = useMemo(() => ({
+    thresholdFullIn: Number(values.threshold_full_in),
+    thresholdFullOut: Number(values.threshold_full_out),
+    crossoverPoint: Number(values.crossover_point),
+    direction: values.calibration_direction as 'ascending' | 'descending',
+    calibrationType: String(values.calibration_type),
+    qcaVariant: String(values.qca_variant),
+    steepness: 10,
+  }), [values.threshold_full_in, values.threshold_full_out, values.crossover_point,
+      values.calibration_direction, values.calibration_type, values.qca_variant]);
+
   const calibrationFields = settings.filter((s) => s.group === 'calibration').map((s) => {
     // Dynamically filter calibration method options based on QCA variant
     if (s.key === 'calibration_type') {
@@ -341,6 +353,11 @@ export default function Settings() {
           {calibrationFields.map((s) => (
             <SettingRow key={s.key} field={s} value={values[s.key]} onChange={updateValue} />
           ))}
+        </div>
+
+        {/* Calibration Preview */}
+        <div className="settings-section card">
+          <CalibrationPreview {...calibrationPreviewParams} />
         </div>
 
         {/* Analysis Section */}

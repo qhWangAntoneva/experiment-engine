@@ -587,3 +587,29 @@
 | 18:23 | P2-20: Added steepness field to CalibrationParams, updated IndirectCalibration, TS interface, added test | models/qca.py, strategies.py, qca.ts, test_qca_core.py | All 532 tests pass | ~200 |
 | 18:23 | P2-22: Added --variant to train and robustness CLI commands | cli.py | Verified --help output, ruff clean | ~50 |
 | 18:27 | P1-8 + P1-9: privacy section + Clear Data button, recent runs from localStorage, run persistence in QCAPipelineContext | translations.ts, Dashboard.tsx, Dashboard.css, QCAPipelineContext.tsx | commit 1186356, 4 files, build passes | ~1500 |
+| 18:35 | Session end: 22 writes across 11 files (translations.ts, qca.py, Dashboard.tsx, strategies.py, qca.ts) | 28 reads | ~3643 tok |
+| 18:45 | Created HANDOVER.md | — | ~1836 |
+| 18:40 | Created HANDOVER.md: comprehensive session handoff covering current state (539 tests, 532 pass), this session's 4 changes (end-of-file-fixer, P1-8/9, P2-20/22, CI investigation), remaining work (11 P1 + 21 P2), active issues, and key file index. | HANDOVER.md | File created, ~120 lines | ~300 |
+| 18:46 | Session end: 23 writes across 12 files (translations.ts, qca.py, Dashboard.tsx, strategies.py, qca.ts) | 28 reads | ~5610 tok |
+| 19:10 | Session end: 23 writes across 12 files (translations.ts, qca.py, Dashboard.tsx, strategies.py, qca.ts) | 29 reads | ~7331 tok |
+
+## Session: 2026-05-26 19:10
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 19:24 | Created ../.claude/plans/elegant-prancing-token.md | — | ~1627 |
+| 19:28 | Created src/components/CalibrationPreview.tsx | — | ~3041 |
+| 19:29 | Edited src/i18n/translations.ts | expanded (+11 lines) | ~115 |
+| 19:29 | Edited src/i18n/translations.ts | expanded (+11 lines) | ~116 |
+| 19:29 | Edited src/i18n/translations.ts | expanded (+11 lines) | ~162 |
+| 19:29 | Edited src/pages/Settings.tsx | added 1 import(s) | ~39 |
+| 19:29 | Edited src/pages/Settings.tsx | expanded (+11 lines) | ~178 |
+| 19:30 | Edited src/pages/Settings.tsx | 4→9 lines | ~65 |
+| 19:30 | Edited src/pages/Settings.css | expanded (+39 lines) | ~269 |
+| 19:31 | Edited src/pages/Settings.tsx | inline fix | ~21 |
+| 19:33 | Edited TODO.md | inline fix | ~20 |
+| 19:33 | Edited TODO.md | inline fix | ~29 |
+| 19:33 | Edited TODO.md | inline fix | ~26 |
+| 19:33 | Edited TODO.md | 3→3 lines | ~34 |
+| 18:40 | P1-10: CalibrationPreview with JS calibration, Plotly dual histogram, synthetic data, i18n | 4 files | build+tests pass | ~4500 |
+| 18:40 | Fixed TODO.md: P1-8/P1-9 marked done, stats P1 11→8 | TODO.md | stats corrected | ~50 |

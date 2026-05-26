@@ -4255,6 +4255,54 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-26T10:23:13.325Z"
+    },
+    {
+      "id": "bug-259",
+      "timestamp": "2026-05-26T11:29:47.236Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Had './Settings.css'",
+      "fix": "Changed to '../components/CalibrationPreview'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T11:29:47.236Z"
+    },
+    {
+      "id": "bug-260",
+      "timestamp": "2026-05-26T11:29:55.450Z",
+      "error_message": "Type error",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T11:29:55.450Z"
+    },
+    {
+      "id": "bug-261",
+      "timestamp": "2026-05-26T11:30:09.636Z",
+      "error_message": "CSS fix: font-size, color",
+      "file": "src/pages/Settings.css",
+      "root_cause": "font-size: 0.9375rem → 0.75rem; color: var(--color-text-primary) → var(--color-accent)",
+      "fix": "Changed font-size: 0.9375rem → 0.75rem; color: var(--color-text-primary) → var(--color-accent)",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "css"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T11:30:09.636Z"
     }
   ]
 }
