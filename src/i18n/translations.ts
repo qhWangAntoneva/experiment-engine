@@ -83,6 +83,11 @@ export interface TranslationDict {
     runDate: string;
     emptyTitle: string;
     emptySubtitle: string;
+    emptyAction: string;
+    privacyTitle: string;
+    privacyDesc: string;
+    clearAllData: string;
+    clearDataConfirm: string;
   };
 
   // ── Data Input ──
@@ -373,6 +378,12 @@ const zh: TranslationDict = {
     runDate: '日期',
     emptyTitle: '暂无分析记录。',
     emptySubtitle: '加载引擎并上传数据，开始您的首次 QCA 分析。',
+    emptyAction: '上传数据并运行分析后，您的分析记录将显示在此处。',
+    privacyTitle: '隐私与数据安全',
+    privacyDesc:
+      '所有分析数据仅在您的浏览器本地处理，不会上传至任何服务器。文本数据、校准结果和配置存储在浏览器 localStorage 中。',
+    clearAllData: '清除所有本地数据',
+    clearDataConfirm: '确认清除？此操作不可撤销，将删除所有本地存储的分析数据和设置。',
   },
 
   dataInput: {
@@ -737,6 +748,12 @@ const en: TranslationDict = {
     runDate: 'Date',
     emptyTitle: 'No analysis runs yet.',
     emptySubtitle: 'Load the engine and upload data to start your first QCA analysis.',
+    emptyAction: 'After uploading data and running an analysis, your recent runs will appear here.',
+    privacyTitle: 'Privacy & Data Security',
+    privacyDesc:
+      'All analysis data is processed locally in your browser. No data is uploaded to any server. Text data, calibration results, and settings are stored in browser localStorage.',
+    clearAllData: 'Clear All Local Data',
+    clearDataConfirm: 'Confirm deletion? This cannot be undone. All locally stored analysis data and settings will be removed.',
   },
 
   dataInput: {

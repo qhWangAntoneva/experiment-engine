@@ -3,7 +3,7 @@
  * metric cards, and a quick-start panel.
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PipelineStatus from '../components/PipelineStatus';
 import { useQCAPipeline } from '../store/QCAPipelineContext';
@@ -12,12 +12,36 @@ import { useT } from '../i18n/I18nContext';
 import type { MetricCardData, SavedAnalysisRun } from '../types/index';
 import './Dashboard.css';
 
+const RECENT_RUNS_KEY = 'qca-recent-runs';
+const RECENT_RUNS_MAX = 20;
+const RECENT_RUNS_EVENT = 'recent-runs-updated';
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const t = useT();
   const { state } = useQCAPipeline();
   const { initState, init } = usePyodide();
-  const [recentRuns] = useState<SavedAnalysisRun[]>([]);
+
+  const [recentRuns, setRecentRuns] = useState<SavedAnalysisRun[]>(() => {
+    try {
+      const saved = localStorage.getItem(RECENT_RUNS_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Listen for analysis-completed events from QCAPipelineContext
+  useEffect(() => {
+    const handleRunsUpdated = () => {
+      try {
+        const saved = localStorage.getItem(RECENT_RUNS_KEY);
+        setRecentRuns(saved ? JSON.parse(saved) : []);
+      } catch {}
+    };
+    window.addEventListener(RECENT_RUNS_EVENT, handleRunsUpdated);
+    return () => window.removeEventListener(RECENT_RUNS_EVENT, handleRunsUpdated);
+  }, []);
 
   // Compute metrics from actual pipeline state
   const metrics: MetricCardData[] = [
@@ -61,6 +85,16 @@ export default function Dashboard() {
   const handleStartAnalysis = useCallback(() => {
     navigate('/input');
   }, [navigate]);
+
+  const handleClearData = useCallback(() => {
+    if (!window.confirm(t('dashboard.clearDataConfirm'))) return;
+    // Keep qca-language (user's language preference)
+    const keysToRemove = ['qca-settings', 'qca-params', 'qca-bert-model', RECENT_RUNS_KEY];
+    for (const key of keysToRemove) {
+      try { localStorage.removeItem(key); } catch {}
+    }
+    setRecentRuns([]);
+  }, [t]);
 
   return (
     <div className="dashboard">
@@ -232,14 +266,23 @@ export default function Dashboard() {
       )}
 
       {/* Empty state */}
-      {recentRuns.length === 0 && state.stage === 'idle' && (
+      {recentRuns.length === 0 && (
         <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-text-secondary)' }}>
           <p style={{ fontSize: '0.875rem' }}>{t('dashboard.emptyTitle')}</p>
           <p style={{ fontSize: '0.8125rem', marginTop: '4px' }}>
-            {t('dashboard.emptySubtitle')}
+            {t('dashboard.emptyAction')}
           </p>
         </div>
       )}
+
+      {/* Privacy Section */}
+      <section className="privacy-section">
+        <h3 className="privacy-section-title">{t('dashboard.privacyTitle')}</h3>
+        <p className="privacy-section-desc">{t('dashboard.privacyDesc')}</p>
+        <button className="btn btn-outline" onClick={handleClearData}>
+          {t('dashboard.clearAllData')}
+        </button>
+      </section>
     </div>
   );
 }

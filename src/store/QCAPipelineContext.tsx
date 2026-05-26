@@ -29,8 +29,34 @@ import type {
   RobustnessReport,
   CounterfactualReport,
   ConditionSet,
+  SavedAnalysisRun,
 } from '../types/qca';
 import { INITIAL_PIPELINE_STATE } from '../types/qca';
+
+// ─── Recent Runs Persistence ─────────────────────────────────────────────────
+
+const RECENT_RUNS_KEY = 'qca-recent-runs';
+const RECENT_RUNS_MAX = 20;
+const RECENT_RUNS_EVENT = 'recent-runs-updated';
+let _runIdCounter = 0;
+
+function persistRecentRun(run: SavedAnalysisRun): void {
+  try {
+    let runs: SavedAnalysisRun[] = [];
+    const saved = localStorage.getItem(RECENT_RUNS_KEY);
+    if (saved) {
+      runs = JSON.parse(saved);
+    }
+    runs.unshift(run);
+    if (runs.length > RECENT_RUNS_MAX) {
+      runs = runs.slice(0, RECENT_RUNS_MAX);
+    }
+    localStorage.setItem(RECENT_RUNS_KEY, JSON.stringify(runs));
+    window.dispatchEvent(new Event(RECENT_RUNS_EVENT));
+  } catch {
+    // localStorage full or unavailable — silently skip
+  }
+}
 
 // ─── Actions ───────────────────────────────────────────────────────────────
 
@@ -205,6 +231,19 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
       stage: 'analyzed',
       message: 'QCA analysis complete',
     });
+    // Persist to recent runs
+    _runIdCounter += 1;
+    const run: SavedAnalysisRun = {
+      id: `run-${Date.now()}-${_runIdCounter}`,
+      name: result.metadata?.run_name as string || `Analysis ${_runIdCounter}`,
+      timestamp: new Date().toISOString(),
+      status: 'success',
+      duration: Date.now() - (startTimeRef.current ?? Date.now()),
+      conditionCount: result.condition_set?.conditions?.length ?? 0,
+      caseCount: result.fuzzy_data?.membership?.length ?? 0,
+      solutions: result.solutions,
+    };
+    persistRecentRun(run);
   }, []);
 
   const startPrototypeAnalysis = useCallback(() => {
@@ -218,6 +257,19 @@ export function QCAPipelineProvider({ children }: { children: ReactNode }) {
       stage: 'prototype-analyzed',
       message: 'Prototype QCA analysis complete',
     });
+    // Persist to recent runs
+    _runIdCounter += 1;
+    const run: SavedAnalysisRun = {
+      id: `run-${Date.now()}-${_runIdCounter}`,
+      name: result.metadata?.run_name as string || `Prototype Analysis ${_runIdCounter}`,
+      timestamp: new Date().toISOString(),
+      status: 'success',
+      duration: Date.now() - (startTimeRef.current ?? Date.now()),
+      conditionCount: result.condition_set?.conditions?.length ?? 0,
+      caseCount: result.fuzzy_data?.membership?.length ?? 0,
+      solutions: result.solutions,
+    };
+    persistRecentRun(run);
   }, []);
 
   const startRobustness = useCallback(() => {
