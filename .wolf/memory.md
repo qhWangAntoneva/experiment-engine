@@ -3,11 +3,13 @@
 > Active sessions: most recent 2. Older sessions archived to `memory-archive.md`.
 
 | 2026-05-27 | P2-37: Unified report CLI path via api.run_report(). Removed redundant file load, console-only fallback. 532 tests pass. | cli.py | done | ~50 |
+| 2026-05-27 | P2-28: Added 3 validation checks to validate_qca_output.py: membership shape (N_cases x N_cols), outcome column unique count (WARN if < 2), solution quality score (avg of best consistency*coverage). Updated summary table with Quality column. | validate_qca_output.py | done | ~600 |
 
 | 2026-05-27 | Fixed Use Template bug (DataInput.tsx ignored state.conditionSet). Added useEffect hydration. TS build clean. | DataInput.tsx | fixed | ~200 |
 | 2026-05-27 | Launched 3 profession-agents for optimization analysis (Backend/Algorithm, Frontend/Viz, DevOps/Report). All delivered reports. | handover.md | analysis complete | ~500 |
 | 2026-05-27 | P2-15/19/21: PluginRegistry DI, weighted max similarity, TextCase.outcome float. 532 tests pass. | plugins.py, cosine_similarity.py, qca.py | all done | ~500 |
 | 2026-05-27 | Package optimization plan: investigated all viz/report/pipeline modules, identified impedance mismatch between QCAPlotBuilder dicts and Renderer InputData, documented current output quality issues, wrote plan in .wolf/plans/package_optimization_plan.md | viz/*.py, report/*.py, api.py, pipeline.py, run_pipeline.py, TODO.md, validate_qca_output.py, configs/config.yaml | plan written | ~500 |
+| 2026-05-27 | P2-31: Changed displayModeBar: false to displayModeBar: 'hover' in 4 Plotly components, added toImageButtonOptions for PNG download | DistributionPlot.tsx, FuzzySetHeatmap.tsx, NecessityXYPlot.tsx, CalibrationPreview.tsx | done | ~100 |
 | 2026-05-27 | FIX: All-0.5 membership bug. Added trigram fallback to _precompute_scores for CLI/api path without BERT embeddings. | calibrator.py | fixed | ~150 |
 | 2026-05-27 | P2-4/P2-5: HelpTooltip component, ExportButton + LaTeXPreviewModal, i18n keys, tooltips on Settings/DataInput/Results, LaTeX preview + toast. Build clean. | HelpTooltip.tsx, ExportButton.tsx, LaTeXPreviewModal.tsx, translations.ts, Settings.tsx, DataInput.tsx, Results.tsx | all done | ~800 |
 | 2026-05-27 | P2-17 + Bug: created api.py with 5 public functions, refactored cli.py to thin wrappers, fixed --output dir convention for robustness/counterfactuals. 532 tests pass. | api.py (new), cli.py | all done | ~300 |
@@ -128,3 +130,12 @@
 | 03:35 | Edited src/experiment_engine/__init__.py | 3→2 lines | ~11 |
 | 03:35 | Edited src/types/qca.ts | removed 5 lines | ~1 |
 | 03:35 | Edited src/types/index.ts | inline fix | ~6 |
+| 03:40 | Edited src/components/DistributionPlot.tsx | expanded (+9 lines) | ~69 |
+| 03:40 | Edited src/components/FuzzySetHeatmap.tsx | expanded (+6 lines) | ~68 |
+| 03:40 | Edited src/components/NecessityXYPlot.tsx | expanded (+9 lines) | ~69 |
+| 03:40 | Edited src/components/CalibrationPreview.tsx | expanded (+9 lines) | ~70 |
+| 03:41 | Session end: 30 writes across 23 files (DataInput.tsx, TODO.md, qca_reporter.py, cli.py, api.py) | 48 reads | ~5171 tok |
+| 03:45 | Edited validate_qca_output.py | modified check_outcome_variation() | ~158 |
+| 03:45 | Edited validate_qca_output.py | modified check_outcome_variation() | ~538 |
+| 03:45 | Edited validate_qca_output.py | expanded (+26 lines) | ~348 |
+| 03:45 | Edited validate_qca_output.py | modified items() | ~295 |
