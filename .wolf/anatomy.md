@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T07:37:30.576Z
-> Files: 27 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T07:38:36.576Z
+> Files: 28 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -12,9 +12,13 @@
 - `index.html` — QCA Simulation Tool (~574 tok)
 - `vite.config.ts` — ============================================================================= (~373 tok)
 
+## .claude/worktrees/agent-a2b06c4818704db03/src/services/
+
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~8890 tok)
+
 ## .claude/worktrees/agent-ab4b8755c75df7a1f/src/services/
 
-- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~8818 tok)
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~8825 tok)
 
 ## .github/workflows/
 
@@ -29,7 +33,7 @@
 - `config.py` — Configuration loading for experiment-engine pipelines. (~3117 tok)
 - `pipeline.py` — Pipeline and Stage abstract base classes. (~5480 tok)
 - `plugins.py` — Plugin system for experiment-engine pipeline stages. (~4227 tok)
-- `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~7360 tok)
+- `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~7548 tok)
 
 ## src/i18n/
 

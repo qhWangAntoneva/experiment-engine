@@ -367,18 +367,17 @@ def handle_load_corpus_direct(config_path, output_path):
 
     Unlike handle_load_corpus(), this function does NOT read config JSON
     containing the full file content — the worker JS already wrote the content
-    to the VFS directly.  ``config_path`` is a JSON with just two keys:
+    to the VFS directly.  ``config_path`` is a JSON with a single key:
 
     - ``vfsFile``: VFS path to the pre-written corpus file (e.g.
       ``/tmp/sample_cases.csv``).
-    - ``format``: one of ``csv``, ``json``, ``txt``.
 
     This avoids potential encoding/truncation issues when large CSV content
     with Chinese text passes through the JSON.stringify → Python json.load →
     f.write chain.
 
     Args:
-        config_path: VFS path to JSON ``{"vfsFile": "...", "format": "csv"}``.
+        config_path: VFS path to JSON ``{"vfsFile": "..."}``.
         output_path: VFS path to write the JSON array of
             ``{text_id, text, metadata}`` entries.
     """
