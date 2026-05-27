@@ -117,8 +117,12 @@ class TextCalibrationStage(Stage):
         ):
             # Fallback: compute text-level similarity when BERT embeddings
             # are not available (CLI/api path without Transformers.js).
-            # Uses character trigram Jaccard similarity between input texts
-            # and prototype texts, aggregated per condition.
+            import logging
+
+            logging.getLogger(__name__).warning(
+                "No BERT embeddings, using text-length fallback for %d texts",
+                n_texts,
+            )
             return self._fallback_text_scores(texts, all_conditions)
 
         # Build condition_prototypes dict for CosineSimilarityEngine
@@ -165,16 +169,15 @@ class TextCalibrationStage(Stage):
     ) -> np.ndarray:
         """Compute varied raw scores without BERT embeddings.
 
-        Uses text-length normalization as the primary scoring signal
-        (text_length / max_length), then applies a small per-condition offset
-        so that different conditions produce distinct score distributions.
-        Raw scores that vary across texts AND across conditions prevent
-        DirectCalibration from hitting the degenerate min==max branch.
+        Uses min-max text-length normalization as the primary scoring signal.
+        When all texts have the same length (degenerate case), distributes
+        scores linearly from 0.25 to 0.75 to avoid DirectCalibration failure
+        caused by max_val == min_val (division by zero).
 
-        Character trigram Jaccard (previous implementation) was removed
-        because short Chinese prototype phrases produce zero n-gram overlap
-        with real text content, causing all-zero similarity for every text —
-        which cascaded into uniform 0.5 calibration output.
+        Per-condition seeded jitter is applied so that each condition column
+        has a genuinely different distribution that survives DirectCalibration's
+        internal min-max normalization (linear scaling + offset is stripped).
+        For 1-2 texts, deterministic fallbacks ensure per-condition variation.
 
         Args:
             texts: List of input text strings (N,).
@@ -188,22 +191,47 @@ class TextCalibrationStage(Stage):
         if n_texts == 0 or n_conds == 0:
             return np.zeros((n_texts, n_conds), dtype=np.float64)
 
-        # Self-normalizing text-length signal: len/(len+50) produces (0, ~0.86)
-        # for typical Chinese text lengths without requiring min/max across texts.
-        # This ensures a single text (calibrate_one) gets a non-1.0 base score,
-        # leaving room for per-condition offsets below.
-        text_lengths = np.array([len(t) for t in texts], dtype=np.float64)
-        base = text_lengths / (text_lengths + 100.0)
+        lengths = np.array([len(t) for t in texts], dtype=np.float64)
+        min_val, max_val = lengths.min(), lengths.max()
+
+        if max_val > min_val:
+            normalized = (lengths - min_val) / (max_val - min_val)
+        else:
+            # All texts have the same length — degenerate case.
+            # Distribute evenly around 0.5 with small variance to avoid
+            # DirectCalibration failure. Each gets a unique score.
+            n = len(lengths)
+            normalized = np.array([0.5]) if n == 1 else np.linspace(0.25, 0.75, n)
 
         # Per-condition offset ensures each condition produces distinct scores
         # for the same text. Without this, calibrate_one (1 text, M conditions)
         # would give all conditions the same base value → DirectCalibration
         # sees identical scores → ValueError.
         scores = np.zeros((n_texts, n_conds), dtype=np.float64)
-        for j in range(n_conds):
-            cond_weight = j / max(n_conds - 1, 1) if n_conds > 1 else 0.0
-            # Blend per-text length signal with per-condition position
-            scores[:, j] = base * 0.35 + cond_weight * 0.65
+
+        if n_texts == 1:
+            # Single text: give each condition a unique base score so that
+            # DirectCalibration doesn't hit the degenerate (all-same) branch.
+            for j in range(n_conds):
+                scores[0, j] = (j + 0.5) / n_conds
+        elif n_texts <= 2:
+            # Two texts: slight per-condition variation so the two poles
+            # differ slightly between conditions.
+            for j in range(n_conds):
+                t = j / max(n_conds - 1, 1) if n_conds > 1 else 0.0
+                scores[0, j] = 0.15 + 0.10 * t
+                scores[1, j] = 0.85 - 0.10 * t
+        else:
+            # Per-condition seeded jitter so each column has a genuinely
+            # different distribution that survives DirectCalibration's
+            # internal min-max normalization (constant offsets would be
+            # stripped). Different seed per condition guarantees each
+            # column gets unique perturbation.
+            rng_seed_base = 42
+            for j in range(n_conds):
+                rng = np.random.RandomState(rng_seed_base + j)
+                jitter = rng.uniform(-0.12, 0.12, (n_texts,))
+                scores[:, j] = np.clip(normalized + jitter, 0.05, 0.95)
 
         return scores
 

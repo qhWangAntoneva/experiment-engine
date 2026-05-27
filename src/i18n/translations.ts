@@ -113,6 +113,7 @@ export interface TranslationDict {
     bertLoadBtn: string;
     bertCalibratingBtn: string;
     bertCalibrateBtn: string;
+    bertAutoCalibrate: string;
     bertNotReady: string;
     bertModelReady: string;
     bertLoadFailed: string;
@@ -183,6 +184,7 @@ export interface TranslationDict {
     calibrationCompleteProto: (n: number) => string;
     calibrationFailed: string;
     analysisComplete: string;
+    pipelineComplete: string;
     pipelineFailed: string;
     loadedCases: (n: number, name: string) => string;
     pasteEmpty: string;
@@ -558,6 +560,7 @@ const zh: TranslationDict = {
     bertLoadBtn: '加载 BERT 模型',
     bertCalibratingBtn: '校准中...',
     bertCalibrateBtn: '使用 BERT 嵌入校准',
+    bertAutoCalibrate: 'BERT 就绪，正在校准...',
     bertNotReady: '请先加载 BERT 模型',
     bertModelReady: 'BERT 模型加载成功。',
     bertLoadFailed: 'BERT 模型加载失败: ',
@@ -633,6 +636,7 @@ const zh: TranslationDict = {
     calibrationCompleteProto: (n: number) => `校准完成（含 ${n} 条原型案例）。前往"分析结果"页面查看。`,
     calibrationFailed: '校准失败：',
     analysisComplete: '分析完成！',
+    pipelineComplete: '管道执行完成！',
     pipelineFailed: '管道执行失败：',
     loadedCases: (n: number, name: string) => `已从 ${name} 加载 ${n} 条案例`,
     pasteEmpty: '请先粘贴文本内容再解析',
@@ -1082,6 +1086,7 @@ const en: TranslationDict = {
     bertLoadBtn: 'Load BERT Model',
     bertCalibratingBtn: 'Calibrating...',
     bertCalibrateBtn: 'Calibrate with BERT Embeddings',
+    bertAutoCalibrate: 'BERT ready. Calibrating...',
     bertNotReady: 'Please load BERT model first',
     bertModelReady: 'BERT model loaded successfully.',
     bertLoadFailed: 'BERT model load failed: ',
@@ -1158,6 +1163,7 @@ const en: TranslationDict = {
     calibrationCompleteProto: (n: number) => `Calibration complete (with ${n} prototype cases). Navigate to Results to analyze.`,
     calibrationFailed: 'Calibration failed: ',
     analysisComplete: 'Analysis complete!',
+    pipelineComplete: 'Pipeline complete!',
     pipelineFailed: 'Pipeline failed: ',
     loadedCases: (n: number, name: string) => `Loaded ${n} cases from ${name}`,
     pasteEmpty: 'Please paste some text before parsing',

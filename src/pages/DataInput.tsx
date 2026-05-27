@@ -716,31 +716,45 @@ export default function DataInput() {
       return;
     }
 
-    setIsRunning(true);
     setValidationMessage(null);
 
     try {
-      await runCalibrateOnly({
+      // Auto-load BERT if not already ready
+      if (state.bertStatus !== 'ready') {
+        setIsBertLoading(true);
+        setValidationMessage('Loading BERT model...');
+        await initBert();
+        setIsBertLoading(false);
+      }
+
+      const cs = importedConditionSet
+        ? { ...importedConditionSet, qca_variant: importedConditionSet.qca_variant ?? getQCAVariantFromSettings() }
+        : yamlToConditionSet(yamlContent);
+
+      setIsEmbedding(true);
+      setValidationMessage(null);
+
+      await runEmbedCalibrate({
         texts,
-        conditionSet: importedConditionSet
-          ? { ...importedConditionSet, qca_variant: importedConditionSet.qca_variant ?? getQCAVariantFromSettings() }
-          : yamlToConditionSet(yamlContent),
+        conditionSet: cs,
         prototypeTexts: textCases.length > 0 ? textCases : undefined,
       });
+
       if (textCases.length > 0) {
         setValidationMessage(t('dataInput.calibrationCompleteProto', textCases.length));
       } else {
         setValidationMessage(t('dataInput.calibrationComplete'));
       }
     } catch (err: any) {
+      setIsBertLoading(false);
+      setIsEmbedding(false);
       setValidationMessage(`${t('dataInput.calibrationFailed')}${err.message}`);
     } finally {
-      setIsRunning(false);
+      setIsEmbedding(false);
     }
   }, [
-    textCases, texts, yamlContent,
-    importedConditionSet,
-    runCalibrateOnly, t,
+    state.bertStatus, textCases, texts, yamlContent,
+    importedConditionSet, initBert, runEmbedCalibrate, t,
   ]);
 
   const handleRunPipeline = useCallback(async () => {
@@ -753,27 +767,32 @@ export default function DataInput() {
     setValidationMessage(null);
 
     try {
+      // Auto-load BERT if not already ready
+      if (state.bertStatus !== 'ready') {
+        setIsBertLoading(true);
+        setValidationMessage('Loading BERT model...');
+        await initBert();
+        setIsBertLoading(false);
+      }
+
       await runFullPipeline({
         texts,
         conditionSet: importedConditionSet
           ? { ...importedConditionSet, qca_variant: importedConditionSet.qca_variant ?? getQCAVariantFromSettings() }
           : yamlToConditionSet(yamlContent),
-        runRobustness: true,
-        runCounterfactuals: false,
         prototypeTexts: textCases.length > 0 ? textCases : undefined,
       });
-      setValidationMessage(t('dataInput.analysisComplete'));
+      setValidationMessage(t('dataInput.pipelineComplete'));
       setTimeout(() => navigate('/results'), 500);
     } catch (err: any) {
       setValidationMessage(`${t('dataInput.pipelineFailed')}${err.message}`);
     } finally {
       setIsRunning(false);
+      setIsBertLoading(false);
     }
   }, [
-    textCases, texts, yamlContent,
-    importedConditionSet,
-    runFullPipeline,
-    navigate, t,
+    state.bertStatus, textCases, texts, yamlContent,
+    importedConditionSet, initBert, runFullPipeline, navigate, t,
   ]);
 
   return (
@@ -1381,7 +1400,11 @@ export default function DataInput() {
           onClick={handleCalibrate}
           disabled={isRunning || isBertLoading || isEmbedding || texts.length === 0}
         >
-          {isRunning ? t('dataInput.calibrating') : t('dataInput.calibrateBtn')}
+          {isBertLoading
+            ? 'Loading BERT...'
+            : isEmbedding
+              ? t('dataInput.calibrating')
+              : t('dataInput.calibrateBtn')}
         </button>
         <button
           type="button"

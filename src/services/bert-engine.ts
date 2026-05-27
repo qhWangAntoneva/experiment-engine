@@ -241,22 +241,57 @@ export class BertEngine {
         normalize: false
       })
 
-      // With pooling='mean', the pipeline returns Tensor[] where each Tensor
-      // has shape [hiddenDim].  A single-item batch returns a bare Tensor.
-      // Transformers.js types data as DataArray, but at runtime it is a
-      // typed array for float model outputs.
-      const tensorList = Array.isArray(output) ? output : [output]
+      // Transformers.js v2.17.x with pooling='mean' returns Tensor[]
+      // (one per input text, each with shape [hiddenDim]) for batched inputs,
+      // or a bare Tensor for a single input.  Future versions may return a
+      // single batched Tensor with shape [batchSize, hiddenDim].
+      // Handle all three cases robustly.
+      const tensors: any[] = Array.isArray(output) ? output : [output]
 
-      for (let j = 0; j < slice.length; j++) {
-        const { text, index } = slice[j]
-        const tensor = tensorList[j]
+      if (tensors.length === 0) {
+        // No usable tensor output — fill with zero vectors
+        for (const { index } of slice) {
+          embeddings[index] = new Float32Array(DEFAULT_HIDDEN_DIM)
+        }
+      } else if (tensors.length === 1 && tensors[0].dims.length >= 2) {
+        // Single batched Tensor with shape [batchSize, hiddenDim] —
+        // slice each row from the data buffer.
+        const batchTensor = tensors[0]
+        const dims = batchTensor.dims
+        const hiddenDim = dims[dims.length - 1]
+        const outputData = batchTensor.data as Float32Array
 
-        // Clone the underlying data so the cache owns its own buffer.
-        const raw = new Float32Array(tensor.data as Float32Array)
-        const normalized = this._l2Normalize(raw)
+        if (!outputData) {
+          throw new Error(
+            `Transformers output tensor has no data (dims=${JSON.stringify(dims)})`
+          )
+        }
 
-        embeddings[index] = normalized
-        this._cache.set(this._makeCacheKey(text), normalized)
+        for (let j = 0; j < slice.length; j++) {
+          const { text, index } = slice[j]
+          const offset = j * hiddenDim
+          const raw = new Float32Array(outputData.slice(offset, offset + hiddenDim))
+          const normalized = this._l2Normalize(raw)
+
+          embeddings[index] = normalized
+          this._cache.set(this._makeCacheKey(text), normalized)
+        }
+      } else {
+        // Array of per-text Tensors (v2.17.x behavior) — each tensor has
+        // shape [hiddenDim].  Handle mismatched slice lengths gracefully.
+        for (let j = 0; j < slice.length; j++) {
+          const { text, index } = slice[j]
+          const tensor = tensors[j]
+          if (!tensor || !tensor.data) {
+            embeddings[index] = new Float32Array(DEFAULT_HIDDEN_DIM)
+            continue
+          }
+          const raw = new Float32Array(tensor.data as Float32Array)
+          const normalized = this._l2Normalize(raw)
+
+          embeddings[index] = normalized
+          this._cache.set(this._makeCacheKey(text), normalized)
+        }
       }
     }
 

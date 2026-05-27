@@ -82,6 +82,11 @@ def handle_calibrate(
 
     with open(condition_set_path, encoding="utf-8") as f:
         _cs_dict = json.load(f)
+    if not isinstance(_cs_dict, dict):
+        raise TypeError(
+            f"condition_set JSON must be a dict, got {type(_cs_dict).__name__}. "
+            "Frontend likely passed raw YAML string instead of parsed ConditionSet object."
+        )
     _condition_set = _condition_set_from_dict(_cs_dict)
 
     # ── Validate condition set has conditions ───────────────────────────
@@ -258,6 +263,12 @@ def handle_analyze(fuzzy_data_path, params_path, output_path, condition_set_path
     _analyzer.setup()
     _result = _analyzer.analyze(_fuzzy)
 
+    # Convert ndarray fields to plain Python lists so model_dump(mode="json")
+    # doesn't choke on numpy types (which pydantic can't serialize in JSON mode).
+    if _result.fuzzy_data is not None and isinstance(
+        _result.fuzzy_data.membership, np.ndarray
+    ):
+        _result.fuzzy_data.membership = _result.fuzzy_data.membership.tolist()
     _out = _result.model_dump(mode="json")
 
     with open(output_path, "w", encoding="utf-8") as f:
@@ -718,6 +729,11 @@ def handle_embed_calibrate(texts_path, condition_set_path, output_path):
     # ── Load condition set ───────────────────────────────────────────
     with open(condition_set_path, encoding="utf-8") as f:
         _cs_dict = json.load(f)
+    if not isinstance(_cs_dict, dict):
+        raise TypeError(
+            f"condition_set JSON must be a dict, got {type(_cs_dict).__name__}. "
+            "Frontend likely passed raw YAML string instead of parsed ConditionSet object."
+        )
     _condition_set = _condition_set_from_dict(_cs_dict)
 
     # ── Load texts with embeddings ───────────────────────────────────
@@ -739,6 +755,18 @@ def handle_embed_calibrate(texts_path, condition_set_path, output_path):
         _raw_conds[_c["name"]] = _c
     if _cs_dict.get("outcome"):
         _raw_conds[_cs_dict["outcome"]["name"]] = _cs_dict["outcome"]
+
+    # ── Validate: all conditions with prototypes must have prototype_embeddings ──
+    for _cond in _all_conditions:
+        if len(_cond.prototypes) > 0:
+            _raw = _raw_conds.get(_cond.name, {})
+            _pe = _raw.get("prototype_embeddings")
+            if not _pe or len(_pe) == 0:
+                raise ValueError(
+                    f"Condition '{_cond.name}' has {len(_cond.prototypes)} prototype(s) "
+                    f"but no prototype_embeddings. Ensure BERT embeddings are computed "
+                    f"before calling handle_embed_calibrate."
+                )
 
     # ── Build condition_prototypes + prototype_embeddings dicts ──────
     _condition_prototypes: dict[str, list[dict]] = {}
@@ -780,6 +808,15 @@ def handle_embed_calibrate(texts_path, condition_set_path, output_path):
         )
     else:
         _raw_scores = np.zeros((_n_texts, 0), dtype=np.float64)
+
+    # Guard: if _condition_prototypes is empty, raw_scores will be all zeros,
+    # which causes DirectCalibration to raise "All raw scores are identical".
+    if not _condition_prototypes:
+        raise ValueError(
+            "No condition prototypes with embeddings found in condition set. "
+            "Missing prototype_embeddings in all conditions. "
+            "Run BERT embedding computation before calling embed_calibrate."
+        )
 
     # ── Apply calibration per condition ──────────────────────────────
     _cond_names_with_embeddings = list(_condition_prototypes.keys())

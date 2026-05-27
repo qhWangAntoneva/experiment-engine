@@ -91,6 +91,18 @@ async function runHandler(
 ): Promise<any> {
   ensureReady();
 
+  // DIAG: log inputSpec structure to help debug condition-set type mismatches
+  // (e.g. raw YAML string passed instead of parsed ConditionSet object).
+  console.log('[runHandler] inputSpec:', inputSpecs.map(([path, data]) => ({
+    path,
+    type: typeof data,
+    isArray: Array.isArray(data),
+    isString: typeof data === 'string',
+    keys: typeof data === 'object' && data !== null ? Object.keys(data) : [],
+    conditionsLen: typeof data === 'object' && data !== null && (data as any).conditions ? (data as any).conditions.length : undefined,
+    hasOutcome: typeof data === 'object' && data !== null && (data as any).outcome !== undefined,
+  })));
+
   for (const [path, data] of inputSpecs) {
     pyodide.FS.writeFile(path, new TextEncoder().encode(JSON.stringify(data)));
   }
@@ -778,13 +790,20 @@ async function handleComputeEmbeddings(
     return;
   }
 
+  if (!Array.isArray(texts) || texts.length === 0) {
+    const detail = !Array.isArray(texts) ? `expected array, got ${typeof texts}` : 'array is empty';
+    respond({ type: 'embeddings-error', error: `Embedding computation failed: texts ${detail}` });
+    return;
+  }
+
   try {
+    log('info', `Computing embeddings for ${texts.length} texts`);
     const batch = await bertEngine.extractEmbeddings(texts, batchSize ?? 16);
     const arrays: number[][] = batch.embeddings.map((e) => Array.from(e));
     respond({ type: 'embeddings-computed', embeddings: arrays });
   } catch (err: any) {
     const msg = err.message || String(err);
-    respond({ type: 'embeddings-error', error: `Embedding computation failed: ${msg}` });
+    respond({ type: 'embeddings-error', error: `Embedding computation failed (${texts.length} texts, bertEngine ready=${!!bertEngine?.isReady()}): ${msg}` });
   }
 }
 
@@ -796,10 +815,24 @@ async function handleComputePrototypeEmbeddings(
     return;
   }
 
+  if (!prototypes || typeof prototypes !== 'object' || Array.isArray(prototypes)) {
+    const detail = !prototypes ? 'null or undefined' : Array.isArray(prototypes) ? 'expected object, got array' : `unexpected type ${typeof prototypes}`;
+    respond({ type: 'embeddings-error', error: `Prototype embedding failed: prototypes ${detail}` });
+    return;
+  }
+
   try {
     const result: Record<string, {embeddings: number[][]; labels: number[]; weights: number[]}> = {};
+    const conditionNames = Object.keys(prototypes);
+    log('info', `Computing prototype embeddings for ${conditionNames.length} conditions`);
 
     for (const [conditionName, protoTexts] of Object.entries(prototypes)) {
+      if (!Array.isArray(protoTexts)) {
+        log('warn', `Skipping condition "${conditionName}": prototype texts is not an array (got ${typeof protoTexts})`);
+        result[conditionName] = { embeddings: [], labels: [], weights: [] };
+        continue;
+      }
+
       if (protoTexts.length === 0) {
         result[conditionName] = { embeddings: [], labels: [], weights: [] };
         continue;
@@ -816,7 +849,7 @@ async function handleComputePrototypeEmbeddings(
     respond({ type: 'prototype-embeddings-computed', embeddings: result });
   } catch (err: any) {
     const msg = err.message || String(err);
-    respond({ type: 'embeddings-error', error: `Prototype embedding failed: ${msg}` });
+    respond({ type: 'embeddings-error', error: `Prototype embedding failed (prototypes keys=${JSON.stringify(Object.keys(prototypes ?? {}))}, bertEngine ready=${!!bertEngine?.isReady()}): ${msg}` });
   }
 }
 

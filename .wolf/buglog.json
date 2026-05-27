@@ -3009,10 +3009,98 @@
       "file": "src/hooks/useQCAWorkflow.ts, src/services/pyodide.ts",
       "root_cause": "runEmbedCalibrate and runFullPipeline only collected prototype texts from conditionSet.conditions, ignoring conditionSet.outcome. Outcome 'high_dissatisfaction' had prototypes but no embeddings were computed/attached. Python handler validated all conditions with prototypes must have prototype_embeddings.",
       "fix": "Added outcome's prototypes to prototypeTextsByCondition. Added outcomeEmbResult to attach prototype_embeddings + embedding_model to enrichedConditionSet.outcome. Applied to both runEmbedCalibrate and runFullPipeline. Also fixed pre-existing TS errors in pyodide.ts: column_names→condition_names, restored missing generic type parameter on send().",
-      "tags": ["embed-calibrate", "outcome", "prototype-embeddings", "ts-fix"],
+      "tags": [
+        "embed-calibrate",
+        "outcome",
+        "prototype-embeddings",
+        "ts-fix"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-27T00:00:00.000Z"
+    },
+    {
+      "id": "bug-178",
+      "timestamp": "2026-05-27T15:39:18.708Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 17→36 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T15:39:18.708Z"
+    },
+    {
+      "id": "bug-179",
+      "timestamp": "2026-05-27T00:00:00.000Z",
+      "error_message": "Cloud: Embedding computation failed: Cannot read properties of undefined (reading 'data')",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "extractEmbeddings() was refactored to assume a single batched Tensor with shape [batchSize, hiddenDim], but Transformers.js v2.17.x returns Tensor[] (one per text) for batched inputs. The new code `Array.isArray(output) ? output[0] : output` extracts only the first tensor's data, then row-slicing reads out of bounds for j>0.",
+      "fix": "Replaced with 3-branch handler: empty array -> zero vectors, single 2D tensor -> batched row-slicing, per-text array -> individual tensor extraction (original v2.17.x behavior)",
+      "tags": [
+        "bert-engine",
+        "transformers",
+        "tensor-format",
+        "regression"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27"
+    },
+    {
+      "id": "bug-180",
+      "timestamp": "2026-05-27T00:00:00.000Z",
+      "error_message": "Local: PydanticSerializationError: Unable to serialize unknown type: <class 'numpy.ndarray'> at handle_analyze model_dump(mode='json')",
+      "file": "src/experiment_engine/pyodide_handlers.py",
+      "root_cause": "handle_analyze() constructs MembershipData with np.array(...) then calls QCAAnalysisResult.model_dump(mode='json'). Pydantic with arbitrary_types_allowed=True permits ndarray at construction but cannot serialize it in JSON mode.",
+      "fix": "Added isinstance check and tolist() conversion of membership ndarray before model_dump call in handle_analyze().",
+      "tags": [
+        "serialization",
+        "numpy",
+        "pydantic",
+        "pyodide-handlers"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27"
+    },
+    {
+      "id": "bug-181",
+      "timestamp": "2026-05-27T15:52:35.223Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/text_calibration/calibrator.py",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 7→27 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T15:52:35.223Z"
+    },
+    {
+      "id": "bug-182",
+      "timestamp": "2026-05-27T17:50:00.000Z",
+      "error_message": "Pipeline results display '-' for consistency/coverage and 'N/A' for robustness (degenerate truth table)",
+      "file": "src/experiment_engine/text_calibration/calibrator.py",
+      "root_cause": "_fallback_text_scores() used 'normalized * 0.35 + cond_weight * 0.65' which adds a constant per-column offset. DirectCalibration's internal min-max normalization strips constant offsets, so all columns produce identical normalized values → degenerate truth table → no solutions → no cons/cov/robustness.",
+      "fix": "Replaced constant-offset formula with per-condition seeded random jitter (np.random.RandomState(42+j)). For n_texts >= 3: each column gets unique ±0.12 jitter producing genuinely different distributions. For n_texts==1: distribute evenly across conditions. For n_texts==2: slight per-condition variation.",
+      "tags": [
+        "calibration",
+        "degenerate-membership",
+        "fallback",
+        "truth-table"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T17:50:00.000Z"
     }
   ],
   "pruned": {

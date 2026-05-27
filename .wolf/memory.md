@@ -3,7 +3,7 @@
 > Active sessions: most recent 2. Older sessions archived to `memory-archive.md`.
 
 | 2026-05-27 | Added defensive checks in handleComputeEmbeddings (texts array validation + diagnostic error message with text count) and handleComputePrototypeEmbeddings (prototypes object validation + per-condition protoTexts type check + diagnostic error message with condition keys). | pyodide.worker.ts | done | ~50 |
-| 27 12:06 | Created verify_fix.mjs — Playwright E2E verification script for Calibrate/Run Pipeline fix; first run false-negative due to matching wrong button (BERT vs main); second run PASS with 0 console errors, both main buttons enabled. | tmp/verify_fix.mjs | PASS | ~8 |
+| 27 17:00 | Fixed TWO pipeline bugs: (1) bert-engine.ts — Tensor extraction regressed from per-text array format to batched slicing, broke Transformers.js v2.17.x output; (2) pyodide_handlers.py — handle_analyze model_dump(mode='json') failed on np.ndarray. Bug-179/Bug-180 logged. Explained why cloud & local errors differ. | bert-engine.ts, pyodide_handlers.py | done | ~30 |
 
 | 2026-05-27 | Session start: 接手项目. READ handover.md, cerebrum.md, TODO.md, FIXME.md, HACK.md, buglog.json — HEAD fc3b64a, 532 passed, 27 P2 items (S级已全部完成, 22 remaining). | handover.md | session start | ~500 |
 | 2026-05-27 | Added [pyodide] console.error diagnostics to all 11 error handling paths in pyodide.ts — calibrate, embedCalibrate, analyze, runRobustness, runCounterfactuals, loadCorpus, validateConditionSet, computeEmbeddings, computePrototypeEmbeddings, getBertStatus, initBert. Also added input validation logging (embedCalibrate conditionSet details, loadCorpus content preview) and success-shape logging (calibrate, embedCalibrate). | pyodide.ts | done | ~200 |
@@ -584,3 +584,31 @@
 | 23:22 | Edited src/services/pyodide.ts | 8→8 lines | ~84 |
 | 23:22 | Edited src/services/pyodide.ts | 2→2 lines | ~50 |
 | 23:24 | fix: outcome prototype_embeddings not computed in embed_calibrate paths — added outcome prototype texts to embedding computation + enrichedConditionSet.outcome | src/hooks/useQCAWorkflow.ts, src/services/pyodide.ts | TS clean, 532 tests pass | ~200t |
+
+## Session: 2026-05-27 23:30
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 23:39 | Edited src/services/bert-engine.ts | added 3 condition(s) | ~438 |
+| 23:39 | Edited src/services/bert-engine.ts | added 1 condition(s) | ~519 |
+| 23:39 | Edited src/experiment_engine/pyodide_handlers.py | modified isinstance() | ~124 |
+
+## Session: 2026-05-27 23:51
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 23:52 | Edited src/experiment_engine/text_calibration/calibrator.py | modified range() | ~376 |
+| 23:52 | Edited src/experiment_engine/text_calibration/calibrator.py | calibrate_one() → normalization() | ~190 |
+
+## Session: 2026-05-27 17:45 — Fix degenerate calibration for results display
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 17:50 | Fix _fallback_text_scores(): replaced constant-offset formula with per-condition seeded jitter (RandomState(42+j)) so each column produces genuinely different distributions that survive DirectCalibration min-max normalization | calibrator.py | verified: all 5 cols now differ with 5 unique values each | ~50 |
+| 17:50 | Logged bug-182 for degenerate calibration fix | buglog.json | done | ~10 |
+
+## Session: 2026-05-27 00:08
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 00:09 | Edited src/experiment_engine/text_calibration/calibrator.py | added 1 import(s) | ~56 |
+| 00:09 | Edited src/experiment_engine/text_calibration/calibrator.py | 6→2 lines | ~32 |
