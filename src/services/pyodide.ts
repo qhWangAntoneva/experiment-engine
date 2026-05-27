@@ -161,7 +161,13 @@ export class PyodideBridge {
       { type: 'calibrate', payload: { texts, conditionSet, prototypeTexts } },
       'calibrate-done',
       'calibrate'
-    );
+    ).then((result) => {
+      console.log(`[pyodide] calibrate done: fuzzyData shape=${result.fuzzyData.membership?.length}x${result.fuzzyData.condition_names?.length}`);
+      return result;
+    }).catch((err: any) => {
+      console.error(`[pyodide] calibrate failed:`, err);
+      throw err;
+    });
   }
 
   /**
@@ -176,14 +182,21 @@ export class PyodideBridge {
     format: 'csv' | 'json' | 'txt' | 'xlsx',
   ): Promise<TextCorpusEntry[]> {
     if (!content || (typeof content === 'string' && !content.trim())) {
+      console.error(`[pyodide] loadCorpus failed: content is empty`);
       throw new Error('Corpus content is empty — nothing to parse');
     }
-    const resp = await this.send<{ entries: TextCorpusEntry[] }>(
-      { type: 'load_corpus', payload: { fileName, content, format } },
-      'corpus-loaded',
-      'load-corpus'
-    );
-    return resp.entries;
+    console.log(`[pyodide] loadCorpus: file=${fileName}, content length=${content.length}, preview="${content.slice(0, 50)}"`);
+    try {
+      const resp = await this.send<{ entries: TextCorpusEntry[] }>(
+        { type: 'load_corpus', payload: { fileName, content, format } },
+        'corpus-loaded',
+        'load-corpus'
+      );
+      return resp.entries;
+    } catch (err: any) {
+      console.error(`[pyodide] loadCorpus failed:`, err);
+      throw err;
+    }
   }
 
   /**
@@ -194,11 +207,15 @@ export class PyodideBridge {
     params: QCAAnalysisParams,
     conditionSet?: ConditionSet
   ): Promise<QCAAnalysisResultJSON> {
+    console.log(`[pyodide] analyze: fuzzyData shape=${fuzzyData.membership?.length}x${fuzzyData.condition_names?.length}, conditionSet=${conditionSet ? 'provided' : 'none'}`);
     return this.send<QCAAnalysisResultJSON>(
       { type: 'analyze', payload: { fuzzyData, params, conditionSet } },
       'analyze-done',
       'analyze'
-    );
+    ).catch((err: any) => {
+      console.error(`[pyodide] analyze failed:`, err);
+      throw err;
+    });
   }
 
   /**
@@ -212,7 +229,10 @@ export class PyodideBridge {
       { type: 'run_robustness', payload: { fuzzyData, analysisResult } },
       'robustness-done',
       'robustness'
-    );
+    ).catch((err: any) => {
+      console.error(`[pyodide] robustness failed:`, err);
+      throw err;
+    });
   }
 
   /**
@@ -226,7 +246,10 @@ export class PyodideBridge {
       { type: 'run_counterfactuals', payload: { fuzzyData, analysisResult } },
       'counterfactuals-done',
       'counterfactuals'
-    );
+    ).catch((err: any) => {
+      console.error(`[pyodide] counterfactuals failed:`, err);
+      throw err;
+    });
   }
 
   /**
@@ -262,11 +285,14 @@ export class PyodideBridge {
   async validateConditionSet(
     conditionSet: ConditionSet
   ): Promise<{ valid: boolean; warnings: string[] }> {
-    return this.send(
+    return this.send<{ valid: boolean; warnings: string[] }>(
       { type: 'validate_condition_set', payload: { conditionSet } },
       'validate-done',
       'validate'
-    );
+    ).catch((err: any) => {
+      console.error(`[pyodide] validateConditionSet failed:`, err);
+      throw err;
+    });
   }
 
   /**
@@ -277,11 +303,15 @@ export class PyodideBridge {
    * bert-init-progress worker responses.
    */
   async initBert(modelName: string): Promise<void> {
+    console.log(`[pyodide] initBert: model=${modelName}`);
     return this.send<void>(
       { type: 'init_bert', payload: { modelName } },
       'bert-init-done',
       'init-bert'
-    );
+    ).catch((err: any) => {
+      console.error(`[pyodide] initBert failed:`, err);
+      throw err;
+    });
   }
 
   /**
@@ -293,11 +323,24 @@ export class PyodideBridge {
     texts: EmbedCalibrateTextEntry[],
     conditionSet: any,
   ): Promise<{ fuzzyData: MembershipDataJSON }> {
+    console.log(`[pyodide] embedCalibrate: ${texts.length} texts, conditionSet conditions=${conditionSet.conditions?.length}, conditions have prototype_embeddings:`,
+      conditionSet.conditions?.map((c: any) => ({
+        name: c.name,
+        hasPrototypeEmbeddings: c.prototype_embeddings !== null && c.prototype_embeddings !== undefined,
+        prototypesCount: c.prototypes?.length ?? 0
+      }))
+    );
     return this.send<{ fuzzyData: MembershipDataJSON }>(
       { type: 'embed_calibrate', payload: { texts, conditionSet } },
       'embed-calibrate-done',
       'embed-calibrate'
-    );
+    ).then((result) => {
+      console.log(`[pyodide] embedCalibrate done: fuzzyData shape=${result.fuzzyData.membership?.length}x${result.fuzzyData.condition_names?.length}`);
+      return result;
+    }).catch((err: any) => {
+      console.error(`[pyodide] embedCalibrate failed:`, err);
+      throw err;
+    });
   }
 
   /**
@@ -311,12 +354,17 @@ export class PyodideBridge {
     texts: string[],
     batchSize?: number,
   ): Promise<number[][]> {
-    const resp = await this.send<{ embeddings: number[][] }>(
-      { type: 'compute_embeddings', payload: { texts, batchSize } },
-      'embeddings-computed',
-      'compute-embeddings'
-    );
-    return resp.embeddings;
+    try {
+      const resp = await this.send<{ embeddings: number[][] }>(
+        { type: 'compute_embeddings', payload: { texts, batchSize } },
+        'embeddings-computed',
+        'compute-embeddings'
+      );
+      return resp.embeddings;
+    } catch (err: any) {
+      console.error(`[pyodide] computeEmbeddings failed:`, err);
+      throw err;
+    }
   }
 
   /**
@@ -328,14 +376,20 @@ export class PyodideBridge {
   async computePrototypeEmbeddings(
     prototypes: Record<string, string[]>,
   ): Promise<Record<string, {embeddings: number[][]; labels: number[]; weights: number[]}>> {
-    const resp = await this.send<{
-      embeddings: Record<string, {embeddings: number[][]; labels: number[]; weights: number[]}>;
-    }>(
-      { type: 'compute_prototype_embeddings', payload: { prototypes } },
-      'prototype-embeddings-computed',
-      'compute-prototype-embeddings'
-    );
-    return resp.embeddings;
+    console.log(`[pyodide] computePrototypeEmbeddings: ${Object.keys(prototypes).length} conditions`);
+    try {
+      const resp = await this.send<{
+        embeddings: Record<string, {embeddings: number[][]; labels: number[]; weights: number[]}>;
+      }>(
+        { type: 'compute_prototype_embeddings', payload: { prototypes } },
+        'prototype-embeddings-computed',
+        'compute-prototype-embeddings'
+      );
+      return resp.embeddings;
+    } catch (err: any) {
+      console.error(`[pyodide] computePrototypeEmbeddings failed:`, err);
+      throw err;
+    }
   }
 
   /**
@@ -362,7 +416,10 @@ export class PyodideBridge {
       { type: 'get_bert_status' },
       'bert-status',
       'bert-status'
-    );
+    ).catch((err: any) => {
+      console.error(`[pyodide] getBertStatus failed:`, err);
+      throw err;
+    });
   }
 
   /**

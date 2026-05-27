@@ -19,6 +19,7 @@ import type {
   EmbedCalibrateTextEntry,
   ConditionSet,
   ConditionDefinition,
+  MembershipDataJSON,
   QCAAnalysisParams,
   QCAAnalysisResultJSON,
 } from '../types/qca';
@@ -100,6 +101,7 @@ interface UseQCAWorkflowReturn {
   runEmbedCalibrate: (opts: {
     texts: TextCorpusEntry[];
     conditionSet: ConditionSet;
+    prototypeTexts?: TextCase[];
   }) => Promise<void>;
 
   /** Export current results */
@@ -167,7 +169,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
   );
 
   const runEmbedCalibrate = useCallback(
-    async (opts: { texts: TextCorpusEntry[]; conditionSet: ConditionSet }) => {
+    async (opts: { texts: TextCorpusEntry[]; conditionSet: ConditionSet; prototypeTexts?: TextCase[] }) => {
       try {
         await ensureReady();
 
@@ -181,7 +183,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
         setConditionSet(conditionSet);
         startEmbedding();
 
-        // Build prototype texts grouped by condition
+        // Build prototype texts grouped by condition (including outcome)
         const prototypeTextsByCondition: Record<string, string[]> = {};
         for (const cond of conditionSet.conditions) {
           if (cond.prototypes && cond.prototypes.length > 0) {
@@ -189,6 +191,11 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
               (p) => p.prototype_text
             );
           }
+        }
+        if (conditionSet.outcome?.prototypes && conditionSet.outcome.prototypes.length > 0) {
+          prototypeTextsByCondition[conditionSet.outcome.name] = conditionSet.outcome.prototypes.map(
+            (p) => p.prototype_text
+          );
         }
 
         if (Object.keys(prototypeTextsByCondition).length === 0) {
@@ -213,9 +220,15 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
           };
         });
 
+        const outcomeEmbResult = conditionSet.outcome ? protoEmbeddings[conditionSet.outcome.name] : null;
         const enrichedConditionSet = {
           ...conditionSet,
           conditions: enrichedConditions,
+          outcome: conditionSet.outcome ? {
+            ...conditionSet.outcome,
+            prototype_embeddings: outcomeEmbResult ? outcomeEmbResult.embeddings : null,
+            embedding_model: outcomeEmbResult ? getBertModelFromSettings() : null,
+          } : null,
         };
 
         // Compute text embeddings
@@ -239,7 +252,29 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
           enrichedConditionSet
         );
 
-        finishCalibration(result.fuzzyData, undefined);
+        let prototypeFuzzyData: MembershipDataJSON | undefined;
+
+        if (opts.prototypeTexts && opts.prototypeTexts.length > 0) {
+          const protoTextStrings = opts.prototypeTexts.map((t) => t.text);
+          const protoTextEmbeddings = await bridge.computeEmbeddings(protoTextStrings);
+
+          const protoTextsWithEmbeds: EmbedCalibrateTextEntry[] = opts.prototypeTexts.map(
+            (t, i) => ({
+              text_id: t.text_id,
+              text: t.text,
+              embedding: protoTextEmbeddings[i],
+            })
+          );
+
+          const protoResult = await bridge.embedCalibrate(
+            protoTextsWithEmbeds,
+            enrichedConditionSet
+          );
+
+          prototypeFuzzyData = protoResult.fuzzyData;
+        }
+
+        finishCalibration(result.fuzzyData, prototypeFuzzyData);
       } catch (err: any) {
         fail(err.message || 'BERT calibration failed');
         throw err;
@@ -251,6 +286,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
     ]
   );
 
+  /** @deprecated Use runEmbedCalibrate instead for BERT-based calibration. */
   const runCalibrateOnly = useCallback(
     async (opts: { texts: TextCorpusEntry[]; conditionSet: ConditionSet; prototypeTexts?: TextCase[] }) => {
       try {
@@ -341,11 +377,109 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
 
         setConditionSet(conditionSet);
 
-        // 2. Calibrate
-        startCalibration();
-        const calResult = await bridge.calibrate(opts.texts, conditionSet, opts.prototypeTexts);
+        // 2. Calibrate (BERT embed path)
+        startEmbedding();
+
+        // Check BERT is loaded
+        const bertStatus = await bridge.getBertStatus();
+        if (!bertStatus.loaded) {
+          throw new Error('BERT model not loaded. Please load the BERT model first.');
+        }
+
+        // Build prototype texts grouped by condition (including outcome)
+        const prototypeTextsByCondition: Record<string, string[]> = {};
+        for (const cond of conditionSet.conditions) {
+          if (cond.prototypes && cond.prototypes.length > 0) {
+            prototypeTextsByCondition[cond.name] = cond.prototypes.map(
+              (p) => p.prototype_text
+            );
+          }
+        }
+        if (conditionSet.outcome?.prototypes && conditionSet.outcome.prototypes.length > 0) {
+          prototypeTextsByCondition[conditionSet.outcome.name] = conditionSet.outcome.prototypes.map(
+            (p) => p.prototype_text
+          );
+        }
+
+        if (Object.keys(prototypeTextsByCondition).length === 0) {
+          throw new Error(
+            'No prototype texts found in condition set. ' +
+            'Each condition must have at least one prototype text for BERT calibration.'
+          );
+        }
+
+        // Compute prototype embeddings
+        const protoEmbeddings = await bridge.computePrototypeEmbeddings(
+          prototypeTextsByCondition
+        );
+
+        // Attach prototype embeddings to condition definitions
+        const enrichedConditions = conditionSet.conditions.map((cond) => {
+          const embResult = protoEmbeddings[cond.name];
+          return {
+            ...cond,
+            prototype_embeddings: embResult ? embResult.embeddings : null,
+            embedding_model: embResult ? getBertModelFromSettings() : null,
+          };
+        });
+
+        const outcomeEmbResult = conditionSet.outcome ? protoEmbeddings[conditionSet.outcome.name] : null;
+        const enrichedConditionSet = {
+          ...conditionSet,
+          conditions: enrichedConditions,
+          outcome: conditionSet.outcome ? {
+            ...conditionSet.outcome,
+            prototype_embeddings: outcomeEmbResult ? outcomeEmbResult.embeddings : null,
+            embedding_model: outcomeEmbResult ? getBertModelFromSettings() : null,
+          } : null,
+        };
+
+        // Compute text embeddings
+        const textStrings = opts.texts.map((t) => t.text);
+        const textEmbeddings = await bridge.computeEmbeddings(textStrings);
+
+        finishEmbedding();
+
+        // Build EmbedCalibrateTextEntry[]
+        const textsWithEmbeds: EmbedCalibrateTextEntry[] = opts.texts.map(
+          (t, i) => ({
+            text_id: t.text_id,
+            text: t.text,
+            embedding: textEmbeddings[i],
+          })
+        );
+
+        // Run embed calibration for main texts
+        const calResult = await bridge.embedCalibrate(
+          textsWithEmbeds,
+          enrichedConditionSet
+        );
+
         const fuzzyData = calResult.fuzzyData;
-        finishCalibration(fuzzyData, calResult.prototypeFuzzyData);
+
+        // Run embed calibration for prototype texts (optional)
+        let protoFuzzyData: MembershipDataJSON | undefined;
+        if (opts.prototypeTexts && opts.prototypeTexts.length > 0) {
+          const protoTextStrings = opts.prototypeTexts.map((t) => t.text);
+          const protoTextEmbeddings = await bridge.computeEmbeddings(protoTextStrings);
+
+          const protoTextsWithEmbeds: EmbedCalibrateTextEntry[] = opts.prototypeTexts.map(
+            (t, i) => ({
+              text_id: t.text_id,
+              text: t.text,
+              embedding: protoTextEmbeddings[i],
+            })
+          );
+
+          const protoResult = await bridge.embedCalibrate(
+            protoTextsWithEmbeds,
+            enrichedConditionSet
+          );
+
+          protoFuzzyData = protoResult.fuzzyData;
+        }
+
+        finishCalibration(fuzzyData, protoFuzzyData);
 
         // 3. Analyze (raw texts)
         const params: QCAAnalysisParams = {
@@ -357,7 +491,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
         finishAnalysis(result, opts.captureAsLabel);
 
         // 3b. Analyze (prototype texts) — if prototype data exists
-        const protoFuzzy = calResult.prototypeFuzzyData;
+        const protoFuzzy = protoFuzzyData;
         if (protoFuzzy) {
           startPrototypeAnalysis();
           const protoResult = await bridge.analyze(protoFuzzy, params, conditionSet);
@@ -386,7 +520,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
     },
     [
       ensureReady, bridge, setConditionSet,
-      startCalibration, finishCalibration,
+      startEmbedding, finishEmbedding, finishCalibration,
       startAnalysis, finishAnalysis,
       startPrototypeAnalysis, finishPrototypeAnalysis,
       startRobustness, finishRobustness,
