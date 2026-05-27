@@ -212,7 +212,8 @@ export class PyodideBridge {
       { type: 'analyze', payload: { fuzzyData, params, conditionSet } },
       'analyze-done',
       'analyze'
-    ).then((result) => {
+    ).then((resp: any) => {
+      const result = resp?.result ?? resp;
       console.log('[pyodide] analyze result received:', {
         hasSolutions: !!result?.solutions,
         hasComplex: !!result?.solutions?.complex,
@@ -226,7 +227,6 @@ export class PyodideBridge {
       console.error(`[pyodide] analyze failed:`, err);
       throw err;
     });
-  }
 
   /**
    * Run robustness/sensitivity tests.
@@ -239,7 +239,10 @@ export class PyodideBridge {
       { type: 'run_robustness', payload: { fuzzyData, analysisResult } },
       'robustness-done',
       'robustness'
-    ).catch((err: any) => {
+    ).then((resp: any) => {
+      // resolveOne returns { type, report }; extract the inner report
+      return resp?.report ?? resp;
+    }).catch((err: any) => {
       console.error(`[pyodide] robustness failed:`, err);
       throw err;
     });
@@ -256,7 +259,10 @@ export class PyodideBridge {
       { type: 'run_counterfactuals', payload: { fuzzyData, analysisResult } },
       'counterfactuals-done',
       'counterfactuals'
-    ).catch((err: any) => {
+    ).then((resp: any) => {
+      // resolveOne returns { type, report }; extract the inner report
+      return resp?.report ?? resp;
+    }).catch((err: any) => {
       console.error(`[pyodide] counterfactuals failed:`, err);
       throw err;
     });
