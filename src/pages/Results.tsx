@@ -47,6 +47,16 @@ export default function Results() {
   const t = useT();
   const { state } = useQCAPipeline();
   const { runExport } = useQCAWorkflow();
+
+  // DIAG: log full analysis result state
+  console.log('[Results] state.analysisResult:', state.analysisResult);
+  console.log('[Results] state.fuzzyData:', state.fuzzyData ? `exists (${state.fuzzyData.membership?.length} rows)` : 'null');
+  console.log('[Results] analysisResult keys:', state.analysisResult ? Object.keys(state.analysisResult) : 'null');
+  console.log('[Results] has condition_set:', !!state.analysisResult?.condition_set);
+  console.log('[Results] has solutions:', !!state.analysisResult?.solutions);
+  console.log('[Results] solutions.complex:', state.analysisResult?.solutions?.complex);
+  console.log('[Results] solution_consistency:', state.analysisResult?.solutions?.complex?.solution_consistency);
+
   const [activeTab, setActiveTab] = useState<'truth-table' | 'solutions' | 'necessity' | 'robustness' | 'cases'>(() => {
     const hasFuzzy = !!(state.fuzzyData || state.prototypeFuzzyData);
     const hasAnalysis = !!(state.analysisResult || state.prototypeAnalysisResult);

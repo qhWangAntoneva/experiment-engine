@@ -263,6 +263,41 @@ def handle_analyze(fuzzy_data_path, params_path, output_path, condition_set_path
     _analyzer.setup()
     _result = _analyzer.analyze(_fuzzy)
 
+    # DIAG: log solution structure to browser console
+    _sol = _result.solutions
+    print(
+        f"[diag] solutions.complex exists: {_sol.complex is not None}",
+        file=__import__("sys").stderr,
+        flush=True,
+    )
+    if _sol.complex is not None:
+        print(
+            f"[diag] complex.solution_consistency={_sol.complex.solution_consistency}",
+            file=__import__("sys").stderr,
+            flush=True,
+        )
+        print(
+            f"[diag] complex.solution_coverage={_sol.complex.solution_coverage}",
+            file=__import__("sys").stderr,
+            flush=True,
+        )
+        print(
+            f"[diag] complex.terms={_sol.complex.terms}",
+            file=__import__("sys").stderr,
+            flush=True,
+        )
+    else:
+        print(
+            f"[diag] complex is None — intermediate={_sol.intermediate is not None}, parsimonious={_sol.parsimonious is not None}",
+            file=__import__("sys").stderr,
+            flush=True,
+        )
+    print(
+        f"[diag] sufficiency.solutions type: {type(_result.sufficiency.solutions).__name__}",
+        file=__import__("sys").stderr,
+        flush=True,
+    )
+
     # Convert ndarray fields to plain Python lists so model_dump(mode="json")
     # doesn't choke on numpy types (which pydantic can't serialize in JSON mode).
     if _result.fuzzy_data is not None and isinstance(

@@ -212,7 +212,17 @@ export class PyodideBridge {
       { type: 'analyze', payload: { fuzzyData, params, conditionSet } },
       'analyze-done',
       'analyze'
-    ).catch((err: any) => {
+    ).then((result) => {
+      console.log('[pyodide] analyze result received:', {
+        hasSolutions: !!result?.solutions,
+        hasComplex: !!result?.solutions?.complex,
+        solution_consistency: result?.solutions?.complex?.solution_consistency,
+        solution_coverage: result?.solutions?.complex?.solution_coverage,
+        hasConditionSet: !!result?.condition_set,
+        conditionNames: result?.condition_set?.conditions?.map((c: any) => c.name),
+      });
+      return result;
+    }).catch((err: any) => {
       console.error(`[pyodide] analyze failed:`, err);
       throw err;
     });

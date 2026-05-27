@@ -621,6 +621,11 @@ async function handleAnalyze(
       pyCode = "from experiment_engine.pyodide_handlers import handle_analyze; handle_analyze('/tmp/fuzzy_data.json', '/tmp/params.json', '/tmp/analyze_output.json')";
     }
     const result = await runHandler(pyCode, inputSpecs, '/tmp/analyze_output.json');
+    console.log('[worker] analyze result keys:', Object.keys(result || {}));
+    console.log('[worker] has solution_consistency:', result?.solutions?.complex?.solution_consistency != null);
+    console.log('[worker] solution_consistency value:', result?.solutions?.complex?.solution_consistency);
+    console.log('[worker] has condition_set:', result?.condition_set != null);
+    console.log('[worker] has fuzzy_data:', result?.fuzzy_data != null);
     respond({ type: 'analyze-done', result });
   } catch (err: any) {
     const msg = err.message || String(err);
