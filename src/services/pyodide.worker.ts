@@ -49,6 +49,7 @@ const REQUIRED_PACKAGES = [
   'pydantic',
   'pyyaml',
   'micropip',
+  'rich',
 ];
 
 /** Expected Pyodide version loaded from CDN — must match the hardcoded URL. */

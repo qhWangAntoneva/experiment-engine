@@ -3,9 +3,12 @@
 > Active sessions: most recent 2. Older sessions archived to `memory-archive.md`.
 
 | 2026-05-27 | Session start: 接手项目. READ handover.md, cerebrum.md, TODO.md, FIXME.md, HACK.md, buglog.json — HEAD fc3b64a, 532 passed, 27 P2 items (S级已全部完成, 22 remaining). | handover.md | session start | ~500 |
+| 2026-05-27 | Fixed "unknown worker error": added 'wasm-unsafe-eval' to CSP script-src + CDN to worker-src in index.html; improved worker error message extraction in pyodide.ts; added unhandledrejection handler in pyodide.worker.ts; added 3 missing i18n keys. Reviewed via Playwright DevTools (real CSP, no bypass) — CSP fix PASS. Pushed 7d8e51f. | index.html, pyodide.ts, pyodide.worker.ts, translations.ts | pushed 7d8e51f | ~800 |
 | 2026-05-27 | Logged bug-358 (Pyodide pydantic not loaded), updated cerebrum Do-Not-Repeat. Python/TS/tests all clean: OK, 0 errors, 532 passed. | buglog.json, cerebrum.md | done | ~10 |
 | 2026-05-27 | Fix stale closure: added importedConditionSet to handleCalibrate and handleRunPipeline dependency arrays | DataInput.tsx | done | ~2 |
 | 2026-05-27 | P2-28: Added 3 validation checks to validate_qca_output.py: membership shape (N_cases x N_cols), outcome column unique count (WARN if < 2), solution quality score (avg of best consistency*coverage). Updated summary table with Quality column. | validate_qca_output.py | done | ~600 |
+| 2026-05-27 | Made rich imports lazy in pipeline.py: wrapped imports in try/except ImportError with _HAS_RICH flag, guarded Console/RichHandler/logging init with fallback handler, guarded Progress block with conditional init + try/finally, guarded _log_summary with fallback plain-text log. | pipeline.py | done | ~200 |
+| 2026-05-27 | E2E Playwright verification for rich module fix: production build served at /experiment-engine/ base path (custom Node.js server). Test confirms: "Loaded rich" in console, 0 "No module named 'rich'" errors, 0 ModuleNotFoundError, 0 page errors. PASS. Note: engine init stalls at mountProjectModules (tar.gz extraction, pre-existing issue) — fix still valid. | tmp/e2e_rich_fix.mjs, tmp/serve-prod.mjs | PASS | ~450 |
 
 | 2026-05-27 | Fixed Use Template bug (DataInput.tsx ignored state.conditionSet). Added useEffect hydration. TS build clean. | DataInput.tsx | fixed | ~200 |
 | 2026-05-27 | Launched 3 profession-agents for optimization analysis (Backend/Algorithm, Frontend/Viz, DevOps/Report). All delivered reports. | handover.md | analysis complete | ~500 |
@@ -239,3 +242,56 @@
 | 04:00 | Fixed CSP (wasm-unsafe-eval, worker-src cdn), worker error handlers, missing i18n keys | index.html, src/services/pyodide.ts, src/services/pyodide.worker.ts, src/i18n/translations.ts | TS build clean, dist CSP verified | ~1200 |
 | 04:30 | Reviewed all 4 fixes: CSP `wasm-unsafe-eval` + worker-src cdn, worker onerror detail extraction, onunhandledrejection handler, i18n keys. Build 0 errors. DevTools verification: no CSP/worker/WASM errors, app loads correctly with CSP active. | .wolf/plans/reviewer_report.md | review PASS | ~800 |
 | 12:02 | Created tmp/reviewer_test.mjs | — | ~849 |
+| 12:04 | Session end: 7 writes across 5 files (index.html, pyodide.ts, pyodide.worker.ts, translations.ts, reviewer_test.mjs) | 10 reads | ~29537 tok |
+| 12:06 | Created tmp/verify_fix.mjs | — | ~1491 |
+| 12:06 | Edited tmp/verify_fix.mjs | "http://127.0.0.1:3003/exp" → "http://127.0.0.1:3003/" | ~11 |
+| 12:06 | Session end: 9 writes across 6 files (index.html, pyodide.ts, pyodide.worker.ts, translations.ts, reviewer_test.mjs) | 10 reads | ~31145 tok |
+| 12:10 | Ran Playwright verification test (tmp/verify_fix.mjs) on http://127.0.0.1:3003/. CSP fix PASSES (0 violations), Worker init STALLS in mountProjectModules (tar.gz extraction in WASM >50s timeout). Wrote report to .wolf/plans/reviewer_devtools_report.md | tmp/verify_fix.mjs | CSP PASS, Worker FAIL | ~500 |
+| 12:11 | Session end: 9 writes across 6 files (index.html, pyodide.ts, pyodide.worker.ts, translations.ts, reviewer_test.mjs) | 11 reads | ~32631 tok |
+| 12:12 | Session end: 9 writes across 6 files (index.html, pyodide.ts, pyodide.worker.ts, translations.ts, reviewer_test.mjs) | 11 reads | ~32631 tok |
+
+## Session: 2026-05-27 12:13
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 12:37 | Edited src/services/pyodide.worker.ts | 2→3 lines | ~8 |
+| 12:37 | Edited src/experiment_engine/plugins.py | 2→7 lines | ~40 |
+| 12:37 | Edited src/experiment_engine/plugins.py | 1→4 lines | ~22 |
+| 12:38 | Edited src/experiment_engine/plugins.py | modified show_registry() | ~281 |
+| 12:38 | Session end: 4 writes across 2 files (pyodide.worker.ts, plugins.py) | 19 reads | ~19964 tok |
+| 2026-05-27 | Fix: Added 'rich' to REQUIRED_PACKAGES in pyodide.worker.ts — pipeline.py:18 `from rich.console import Console` was failing in Pyodide when user clicks calibrate after loading 30 sample data. Logged bug-368. | src/services/pyodide.worker.ts | fixed | ~50 |
+| 12:38 | Session end: 4 writes across 2 files (pyodide.worker.ts, plugins.py) | 19 reads | ~19964 tok |
+| 12:39 | Edited src/experiment_engine/pipeline.py | 4→9 lines | ~74 |
+| 12:39 | Edited src/experiment_engine/pipeline.py | expanded (+9 lines) | ~169 |
+| 12:39 | Edited src/experiment_engine/pipeline.py | 14→19 lines | ~180 |
+| 12:39 | Edited src/experiment_engine/pipeline.py | 4→5 lines | ~42 |
+| 12:39 | Edited src/experiment_engine/pipeline.py | 3→4 lines | ~41 |
+| 12:39 | Edited src/experiment_engine/pipeline.py | 4→8 lines | ~58 |
+| 12:39 | Edited src/experiment_engine/pipeline.py | modified _log_summary() | ~484 |
+| 12:40 | Session end: 11 writes across 3 files (pyodide.worker.ts, plugins.py, pipeline.py) | 20 reads | ~26432 tok |
+| 12:41 | Session end: 11 writes across 3 files (pyodide.worker.ts, plugins.py, pipeline.py) | 20 reads | ~26492 tok |
+| 12:43 | Created tmp/verify_rich_fix.mjs | — | ~968 |
+
+## Session: 2026-05-27 12:45
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 12:46 | Created tmp/verify_rich_diag.mjs | — | ~526 |
+| 12:46 | Session end: 1 writes across 1 files (verify_rich_diag.mjs) | 2 reads | ~11148 tok |
+| 12:48 | Session end: 1 writes across 1 files (verify_rich_diag.mjs) | 2 reads | ~11148 tok |
+| 12:49 | Session end: 1 writes across 1 files (verify_rich_diag.mjs) | 2 reads | ~11148 tok |
+| 12:50 | Session end: 1 writes across 1 files (verify_rich_diag.mjs) | 2 reads | ~11148 tok |
+| 12:51 | Session end: 1 writes across 1 files (verify_rich_diag.mjs) | 9 reads | ~14702 tok |
+| 12:52 | Session end: 1 writes across 1 files (verify_rich_diag.mjs) | 11 reads | ~14702 tok |
+| 12:52 | Created tmp/e2e_rich_fix.mjs | — | ~3562 |
+| 12:53 | Edited tmp/e2e_rich_fix.mjs | inline fix | ~24 |
+| 12:54 | Edited tmp/e2e_rich_fix.mjs | "http://127.0.0.1:3100/" → "http://127.0.0.1:3100/exp" | ~15 |
+| 12:55 | Created tmp/serve-prod.mjs | — | ~552 |
+| 12:55 | Created tmp/serve-prod.mjs | — | ~731 |
+| 12:56 | Session end: 6 writes across 3 files (verify_rich_diag.mjs, e2e_rich_fix.mjs, serve-prod.mjs) | 17 reads | ~20508 tok |
+| 12:57 | Session end: 6 writes across 3 files (verify_rich_diag.mjs, e2e_rich_fix.mjs, serve-prod.mjs) | 31 reads | ~35017 tok |
+| 12:58 | Created tmp/e2e_rich_fix.mjs | — | ~3453 |
+| 13:00 | Session end: 7 writes across 3 files (verify_rich_diag.mjs, e2e_rich_fix.mjs, serve-prod.mjs) | 55 reads | ~42858 tok |
+| 13:00 | Session end: 7 writes across 3 files (verify_rich_diag.mjs, e2e_rich_fix.mjs, serve-prod.mjs) | 55 reads | ~42858 tok |
+| 13:03 | Edited src/experiment_engine/plugins.py | 4→1 lines | ~16 |
+| 13:03 | Edited src/experiment_engine/plugins.py | "Registered stages [{len(s" → "Registered stages [%d]: %" | ~24 |

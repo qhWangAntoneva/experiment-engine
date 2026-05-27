@@ -15,10 +15,15 @@ from typing import TYPE_CHECKING, Any, Union
 if TYPE_CHECKING:
     from experiment_engine.plugins import PluginRegistry
 
-from rich.console import Console
-from rich.logging import RichHandler
-from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
-from rich.table import Table
+try:
+    from rich.console import Console
+    from rich.logging import RichHandler
+    from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
+    from rich.table import Table
+
+    _HAS_RICH = True
+except ImportError:
+    _HAS_RICH = False
 
 from experiment_engine.models import (
     ExperimentConfig,
@@ -34,23 +39,32 @@ from experiment_engine.models import (
 #  Logging setup
 # ──────────────────────────────────────────────
 
-_console = Console(stderr=True)
+if _HAS_RICH:
+    _console = Console(stderr=True)
 
-_rich_handler = RichHandler(
-    console=_console,
-    show_time=True,
-    show_path=False,
-    enable_link_path=False,
-    rich_tracebacks=True,
-    tracebacks_show_locals=True,
-)
+    _rich_handler = RichHandler(
+        console=_console,
+        show_time=True,
+        show_path=False,
+        enable_link_path=False,
+        rich_tracebacks=True,
+        tracebacks_show_locals=True,
+    )
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s",
-    datefmt="[%X]",
-    handlers=[_rich_handler],
-)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(message)s",
+        datefmt="[%X]",
+        handlers=[_rich_handler],
+    )
+else:
+    _console = None
+    _rich_handler = None
+    logging.basicConfig(
+        level=logging.INFO,
+        format="[%(levelname)s] %(message)s",
+        datefmt="[%X]",
+    )
 
 logger = logging.getLogger("experiment_engine.pipeline")
 
@@ -349,19 +363,24 @@ class Pipeline(Stage):
         overall_status = PipelineStatus.COMPLETED
         data_degraded = False
 
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            BarColumn(),
-            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-            console=_console,
-            transient=False,
-        ) as progress:
+        progress = None
+        task = None
+        if _HAS_RICH:
+            progress = Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+                console=_console,
+                transient=False,
+            )
+            progress.start()
             task = progress.add_task(
                 f"[cyan]Running {len(self.stages)} stage(s)...",
                 total=len(self.stages),
             )
 
+        try:
             for stage in self.stages:
                 if not stage.enabled:
                     sr = StageResult(
@@ -373,7 +392,8 @@ class Pipeline(Stage):
                         completed_at=datetime.now(timezone.utc).isoformat(),
                     )
                     result.stages.append(sr)
-                    progress.advance(task)
+                    if progress:
+                        progress.advance(task)
                     continue
 
                 # ── Execute stage ──
@@ -418,10 +438,15 @@ class Pipeline(Stage):
                     stage.name,
                     sr.duration_ms,
                 )
-                progress.advance(task)
+                if progress:
+                    progress.advance(task)
 
                 if sr.status == StageStatus.FAILED and self.fail_fast:
                     break
+
+        finally:
+            if progress:
+                progress.stop()
 
         # ── Teardown phase ──
         self.logger.info("[bold]Phase 3: Teardown[/]")
@@ -441,42 +466,51 @@ class Pipeline(Stage):
     # ── Rich output helpers ────────────────────
 
     def _log_summary(self, result: PipelineResult) -> None:
-        """Log a rich summary table of the pipeline execution."""
-        table = Table(
-            title=f"Pipeline Summary: {result.experiment_name}",
-            show_header=True,
-            header_style="bold cyan",
-        )
-        table.add_column("Stage", style="bold")
-        table.add_column("Type")
-        table.add_column("Status")
-        table.add_column("Duration", justify="right")
+        """Log a summary of the pipeline execution."""
+        if _HAS_RICH:
+            table = Table(
+                title=f"Pipeline Summary: {result.experiment_name}",
+                show_header=True,
+                header_style="bold cyan",
+            )
+            table.add_column("Stage", style="bold")
+            table.add_column("Type")
+            table.add_column("Status")
+            table.add_column("Duration", justify="right")
 
-        for sr in result.stages:
-            status_str = {
-                StageStatus.COMPLETED: "[green]✓ completed[/]",
-                StageStatus.FAILED: "[red]✗ failed[/]",
-                StageStatus.SKIPPED: "[dim]— skipped[/]",
-                StageStatus.RUNNING: "[yellow]… running[/]",
-                StageStatus.PENDING: "[dim]· pending[/]",
-            }.get(sr.status, str(sr.status))
+            for sr in result.stages:
+                status_str = {
+                    StageStatus.COMPLETED: "[green]✓ completed[/]",
+                    StageStatus.FAILED: "[red]✗ failed[/]",
+                    StageStatus.SKIPPED: "[dim]— skipped[/]",
+                    StageStatus.RUNNING: "[yellow]… running[/]",
+                    StageStatus.PENDING: "[dim]· pending[/]",
+                }.get(sr.status, str(sr.status))
+
+                table.add_row(
+                    sr.stage_name,
+                    sr.stage_type,
+                    status_str,
+                    f"{sr.duration_ms:.1f} ms",
+                )
 
             table.add_row(
-                sr.stage_name,
-                sr.stage_type,
-                status_str,
-                f"{sr.duration_ms:.1f} ms",
+                "",
+                "",
+                f"[bold]{result.status.value}[/]",
+                f"[bold]{result.total_duration_ms:.1f} ms[/]",
+                end_section=True,
             )
 
-        table.add_row(
-            "",
-            "",
-            f"[bold]{result.status.value}[/]",
-            f"[bold]{result.total_duration_ms:.1f} ms[/]",
-            end_section=True,
-        )
-
-        _console.print(table)
+            _console.print(table)
+        else:
+            logger.info(
+                "Pipeline %s completed: status=%s, total=%.1fms, stages=%d",
+                result.experiment_name,
+                result.status.value,
+                result.total_duration_ms,
+                len(result.stages),
+            )
 
     def configure_from_config(
         self, config: ExperimentConfig, registry: PluginRegistry | None = None

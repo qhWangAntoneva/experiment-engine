@@ -14,14 +14,19 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from rich.console import Console
-from rich.table import Table
+try:
+    from rich.console import Console
+    from rich.table import Table
+
+    _HAS_RICH = True
+except ImportError:
+    _HAS_RICH = False
 
 from experiment_engine.pipeline import Stage
 
 logger = logging.getLogger("experiment_engine.plugins")
 
-_console = Console(stderr=True)
+_console = Console(stderr=True) if _HAS_RICH else None
 
 
 # ──────────────────────────────────────────────
@@ -232,6 +237,11 @@ class PluginRegistry:
 
     def show_registry(self) -> None:
         """Print a rich-formatted table of all registered stages."""
+        if _console is None:
+            names = ", ".join(sorted(self._registry.keys()))
+            logger.info("Registered stages [%d]: %s", len(self._registry), names)
+            return
+
         if not self._registry:
             _console.print("[yellow]No stages registered.[/]")
             return
