@@ -1,7 +1,7 @@
 # TODO — QCA Analysis Tool
 
 > 更新于 2026-05-27 | 整合三位专业架构师（后端/前端/DevOps）优化分析报告
-> P0/P1 全部完成 | 新增 13 个 P2 优化项（来自架构评审）
+> P0/P1 全部完成 | 新增 13 个 P2 优化项（来自架构评审）+ 9 个流程改进项（来自 process_with_outcome 事件复盘）
 
 ---
 
@@ -56,6 +56,20 @@
 - [ ] **P2-18: 前端自动化测试** — vitest + @testing-library/react，优先测 QCAPipelineContext reducer + useQCAWorkflow hook。(工作量: L)
 - [ ] **P2-23: 多结果分析前端 UI 更新** — multi_outcome.py 已实现，前端 UI 需适配 raw/prototype 双结果对比。(工作量: M)
 
+### E. 流程改进（来自 process_with_outcome 事件复盘）
+
+**背景**：`handle_calibrate` 中 `process_with_outcome()` 调用导致 outcome 列退化为 0/1，implementing agent 未意识到算法语义错误，reviewer agent 也未检出。三位 expert agent 从代码审查流程、测试策略、架构设计三个角度提出了预防方案。
+
+- [ ] **P2-38: [Critical][M] 算法变更必须记录"输出假设"** — reviewer 审查涉及数据输出的变更时，必须显式记录三列对比：变更前输出值 → 变更后输出值 → 预期正确输出值。若 reviewer 无法预测变更后输出值，标记为需运行时验证。写入 reviewer prompt 标准检查项。（来自: 审查流程专家）
+- [ ] **P2-39: [Critical][S] 语义正确性测试（outcome 列模糊性断言）** — 增加 `test_outcome_column_is_fuzzy_not_binary` 测试：(a) outcome 列唯一值 > 2；(b) outcome 列包含 (0,1) 区间内的非边界值；(c) 标准差 > 0.05。这是 fsQCA 的核心数学不变性。同时为 `process_with_outcome()` 增加专用单元测试覆盖。（来自: 测试策略专家）
+- [ ] **P2-40: [Critical][M] 合并 process/process_with_outcome 为单方法 + OutcomeHandling 枚举** — 消除双方法 API 误用可能性：`process(data, outcome_handling=OutcomeHandling.CALIBRATE_FROM_TEXT)`，`outcome_vector` 参数仅在 `OVERRIDE_WITH_VECTOR` 模式时有效。从根本上防止未来 agent 选错方法。（来自: 架构专家）
+- [ ] **P2-41: [High][M] 多路径差异审查清单** — 当 diff 影响多个独立代码路径（如 CLI 的 `api.py` + Web 的 `pyodide_handlers.py`）时，reviewer 必须：列出所有受影响路径 → 对每条路径说明修改后的语义影响 → 标注路径间语义矛盾。写入 reviewer prompt。（来自: 审查流程专家）
+- [ ] **P2-42: [High][S] MembershipData 增加 fsQCA 列退化运行时检查** — `MembershipData` Pydantic validator 增加：对于 fsQCA variant，如果某列只有 {0.0, 1.0} 两个唯一值，抛出 ValueError。这会在校准完成后立即检测到退化，无需等待结果展示阶段。（来自: 架构专家）
+- [ ] **P2-43: [High][M] 集成测试：CSV 端到端管线** — 从 CSV 输入开始，经过 `calibrate_from_csv()` → `handle_calibrate()` 全链路，验证输出的 outcome 列包含连续模糊值而非仅 0/1。覆盖 CLI 和 Web 两条路径。（来自: 测试策略专家）
+- [ ] **P2-44: [High][S] Reviewer 必须质疑 CEREBRUM 指令的通用性** — reviewer prompt 增加固定检查项："当 CEREBRUM 指令驱动代码变更时，检查该指令是否适用于所有受影响路径，是否有路径拥有相互矛盾的约束条件。"（来自: 审查流程专家）
+- [ ] **P2-45: [High][L] StageContract 管道契约验证** — 引入 `StageContract` mixin 基类，每个 pipeline stage 实现 `validate_input()` / `validate_output()`。TextCalibrationStage 输出契约检查：所有列在 fsQCA 模式下必须至少有 3 个唯一值。Pipeline 运行时自动调用。（来自: 架构专家）
+- [ ] **P2-46: [Medium][S] validate_qca_output.py 增强 — outcome 列退化标记为 ERROR** — 当前仅检查唯一值 < 2 时警告，改为：outcome 列唯一值 <= 2 且子集为 {0, 1} 时标记为 ERROR（非 WARNING）。（来自: 测试策略专家）
+
 ---
 
 ## 统计
@@ -66,9 +80,10 @@
 | B. 前端/可视化优化 | 4 | P2-31 (S) → P2-30 (M) → P2-29 (L) → P2-32 (L) |
 | C. 报告/DevOps 优化 | 5 | P2-33 (S) → P2-37 (S) → P2-34 (M) → P2-35 (M) → P2-36 (L) |
 | D. 原有 P2 保留 | 14 | 按原有优先级 |
-| **合计** | **27** | **S: 5 / M: 12 / L: 7 / XL: 3** |
+| E. 流程改进（事件复盘） | 9 | P2-39/42/44/46 (S) → P2-38/40/41/43 (M) → P2-45 (L) |
+| **合计** | **36** | **S: 9 / M: 16 / L: 8 / XL: 3** |
 
-**推荐执行顺序**：先做 S 级快速修复（P2-28/31/33/37/26）→ M 级改进（P2-25/34/35/30）→ L 级集成（P2-29/36/32）→ XL 架构（P2-27）。
+**推荐执行顺序**：先做 S 级快速修复（P2-28/31/33/37/26/39/42/44/46）→ M 级改进（P2-25/34/35/30/38/40/41/43）→ L 级集成（P2-29/36/32/45）→ XL 架构（P2-27）。
 
 ---
 

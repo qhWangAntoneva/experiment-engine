@@ -3,6 +3,7 @@
 > Active sessions: most recent 2. Older sessions archived to `memory-archive.md`.
 
 | 2026-05-27 | Session start: 接手项目. READ handover.md, cerebrum.md, TODO.md, FIXME.md, HACK.md, buglog.json — HEAD fc3b64a, 532 passed, 27 P2 items (S级已全部完成, 22 remaining). | handover.md | session start | ~500 |
+| 2026-05-27 | process_with_outcome 事件复盘: 3 expert agent (代码审查流程/测试策略/架构设计) 分析防止算法BUG漏检方案，9项改进列入 TODO.md E 节。本地 commit，不 push。 | TODO.md | expert discussion | ~400 |
 | 2026-05-27 | 修复校准报错: handle_calibrate Python端添加 condition_set 空条件校验 + 诊断日志 (worker ts log + Python guard) — 同时排查了 yamlToConditionSet 路径, 确认 commit 5f009a1 前端修复已就位, 但部署可能未更新 | pyodide_handlers.py pyodide.worker.ts | done | ~200 |
 | 15:44 | 写了完整中文 README.md，含演示数据(30条标注样本)、所有9个CLI命令示例及输出、API示例、前端说明、条件集YAML格式、项目结构、安装步骤 | README.md | 完成 | ~250 |
 | 17:10 | 修复 YAML 字符串传递 bug: 新增 yamlToConditionSet() 解析器，替换 DataInput.tsx 三处 (yamlContent as any) | conditionSetToYaml.ts, DataInput.tsx | 完成, TS build clean | ~350 |
@@ -495,3 +496,34 @@
 | 18:44 | Edited src/i18n/translations.ts | 2→5 lines | ~44 |
 | 18:44 | Edited src/i18n/translations.ts | 2→5 lines | ~58 |
 | 18:45 | Edited src/i18n/translations.ts | 5→2 lines | ~15 |
+| 18:47 | Session end: 13 writes across 4 files (pyodide_handlers.py, prototype_usage_samples.py, DataInput.tsx, translations.ts) | 9 reads | ~89442 tok |
+
+## Session: 2026-05-27 18:55
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 19:02 | Edited src/experiment_engine/pyodide_handlers.py | expanded (+13 lines) | ~277 |
+| 19:02 | Edited src/experiment_engine/pyodide_handlers.py | 14→17 lines | ~237 |
+| 19:03 | Edited src/experiment_engine/pyodide_handlers.py | expanded (+10 lines) | ~239 |
+| 19:04 | Edited src/experiment_engine/pyodide_handlers.py | removed 12 lines | ~17 |
+| 19:04 | Session end: 4 writes across 1 files (pyodide_handlers.py) | 8 reads | ~51996 tok |
+| 19:09 | Session end: 4 writes across 1 files (pyodide_handlers.py) | 8 reads | ~51996 tok |
+| 19:15 | Edited src/experiment_engine/pyodide_handlers.py | expanded (+9 lines) | ~266 |
+| 19:16 | Session end: 5 writes across 1 files (pyodide_handlers.py) | 11 reads | ~26644 tok |
+
+## Session: 2026-05-27 19:20
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 19:28 | Edited src/experiment_engine/pyodide_handlers.py | reduced (-10 lines) | ~174 |
+| 19:29 | Session end: 1 writes across 1 files (pyodide_handlers.py) | 6 reads | ~174 tok |
+| 19:30 | Session end: 1 writes across 1 files (pyodide_handlers.py) | 6 reads | ~174 tok |
+| 19:32 | designqc: captured 6 screenshots (214KB, ~15000 tok) | /, /Compare, /Dashboard, /DataInput, /Results, /Settings | ready for eval | ~0 |
+
+## Session: 2026-05-27 19:34
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 19:42 | Edited TODO.md | 2→2 lines | ~34 |
+| 19:42 | Edited TODO.md | expanded (+14 lines) | ~559 |
+| 19:42 | Edited TODO.md | 9→10 lines | ~147 |

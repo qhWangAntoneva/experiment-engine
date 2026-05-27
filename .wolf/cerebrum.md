@@ -62,6 +62,7 @@
 - **Why BERT CLS + cosine similarity?** Concept prototypes represent the theoretical ideal. BERT CLS embeddings capture semantic meaning of both prototypes and texts. Cosine similarity measures theoretical fit — aligns with QCA's calibration-by-theory principle. Softmax(tau=5.0) sharpens separation.
 - **Why Quine-McCluskey?** Standard in QCA literature, deterministic, generates all prime implicants. Pure Python self-implementation validated against Ragin (2008) Lipset dataset.
 - **Three calibration methods**: direct (piecewise linear), indirect (log-odds), ragin (logistic formula). All receive raw scores from CosineSimilarityEngine.
+- **`process_with_outcome()` DANGER**: This method overrides the outcome column with external crisp 0/1 values. In fsQCA, ALL columns (including outcome) should be continuous fuzzy values in (0,1). Calling `process_with_outcome()` in a user-facing web context causes the outcome column to display only 0/1, which is semantically wrong. **The two-method API (process vs process_with_outcome) is a known design flaw** — the name `process_with_outcome` misleadingly suggests "processing that includes an outcome" (which `process()` already does), when it actually means "overwrite outcome with external values." Prefer a single `process()` with an explicit `OutcomeHandling` enum parameter. See P2-40.
 
 ## 6. Do-Not-Repeat
 
@@ -69,6 +70,7 @@
 
 - [2026-05-27 → 2026-05-27 **FIXED**] **TemplateLibrary's `setConditionSet` fails because `handleCalibrate`/`handleRunPipeline` have stale closures**: The hydration `useEffect` (DataInput.tsx:359-365) correctly sets `importedConditionSet`, but `handleCalibrate` and `handleRunPipeline` useCallback dependency arrays **lacked `importedConditionSet`**, so the memoized callbacks captured the old `null` value and fell back to `yamlContent`. Root cause confirmed by 3-agent analysis (functional analyst, code technical advisor, investigator), reviewed and ACCEPTED. Fix: add `importedConditionSet` to both dependency arrays. Also added `qca_variant` to TemplateLibrary's constructed ConditionSet object. **The useEffect hydration + dispatch null pattern is correct** — React 18 StrictMode does NOT cause this bug because useState values persist across StrictMode double-mounts.
 
+- [2026-05-27 **ACTIVE**] **`process_with_outcome()` 算法BUG + reviewer 漏检**: 修复 agent 为了 "CSV expected_outcome 必须使用" 引入 `process_with_outcome()`，导致 outcome 列退化为 0/1。reviewer 只验证了代码结构（API签名、变量提取、分支正确）但没有验证运行时语义。**根源**：(a) reviewer prompt 缺少对"输出值语义"的检查要求；(b) 没有区分 CLI（研究者期望 ground-truth）和 web（交互式用户期望模糊值）两条路径的语义差异；(c) reviewer 没有质疑 CEREBRUM 指令是否适用于所有路径。**修复**：已列入 TODO.md E 节 9 项改进（流程/测试/架构三层防御）。(Critical — review process gap)
 - [2026-05-26] **memory.md growth**: archive sessions >2 days to memory-archive.md periodically
 - [2026-05-25/26] **Agent completion claims not trustworthy** — after any agent claims completion, MUST verify with Read/Grep/`git diff --stat`. Fabricated modifications common.
 - [2026-05-25] **Large task single agent = timeout + failure**: L-level tasks MUST be split into 2-3 file-level subtasks, executed by multiple agents in parallel.
