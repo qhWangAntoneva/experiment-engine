@@ -6600,6 +6600,50 @@
       "related_bugs": [],
       "occurrences": 2,
       "last_seen": "2026-05-27T10:44:08.604Z"
+    },
+    {
+      "id": "bug-402",
+      "timestamp": "2026-05-27T11:02:35.182Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/pyodide_handlers.py",
+      "root_cause": "10 lines replaced/restructured",
+      "fix": "Rewrote 14→17 lines (10 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T11:02:35.182Z"
+    },
+    {
+      "id": "bug-403",
+      "timestamp": "2026-05-27T11:28:25.756Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/pyodide_handlers.py",
+      "root_cause": "15 lines replaced/restructured",
+      "fix": "Rewrote 20→10 lines (15 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T11:28:25.756Z"
+    },
+    {
+      "id": "bug-404",
+      "timestamp": "2026-05-27T12:00:00.000Z",
+      "error_message": "Web端 high_dissatisfaction outcome 只显示 0/1",
+      "file": "src/experiment_engine/pyodide_handlers.py",
+      "root_cause": "handle_calibrate 使用 process_with_outcome() 将 outcome 列强制设为 CSV expected_outcome（0/1），用户期望 outcome 也产生模糊值",
+      "fix": "改为始终使用 process()，所有列（含 outcome）都走正常文本评分→校准管线",
+      "tags": ["calibration", "outcome", "web-path", "fuzzy"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T12:00:00.000Z"
     }
   ]
 }

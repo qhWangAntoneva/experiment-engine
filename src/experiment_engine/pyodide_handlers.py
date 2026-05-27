@@ -107,26 +107,16 @@ def handle_calibrate(
     _calibrator = TextCalibrationStage(condition_set=_condition_set)
     _calibrator.setup()
 
-    # Batch all texts at once via process_with_outcome() to use ground-truth
-    # expected_outcome values from CSV metadata rather than computing outcome
-    # from trigram similarity to outcome prototypes.
-    # Use process() fallback only when no samples have expected_outcome.
+    # Calibrate all columns (conditions + outcome) through the normal
+    # text-scoring pipeline so that every column produces fuzzy-set values.
+    # The CSV expected_outcome values (0/1 ground truth) are still available
+    # in entry metadata for downstream display/reference, but the outcome
+    # membership itself is computed from text similarity just like conditions.
     _texts_list = [_s.text for _s in _samples]
     _case_ids = [_s.text_id for _s in _samples]
     _raw_input = InputData(data=np.array(_texts_list, dtype=object), index=_case_ids)
 
-    _outcome_vals = np.array(
-        [_s.metadata.get("expected_outcome", None) for _s in _samples], dtype=object
-    )
-    _has_real_outcomes = any(_v is not None for _v in _outcome_vals)
-    if _has_real_outcomes:
-        _outcome_vector = np.array(
-            [float(_v) if _v is not None else 0.0 for _v in _outcome_vals],
-            dtype=np.float64,
-        )
-        _raw_result = _calibrator.process_with_outcome(_raw_input, _outcome_vector)
-    else:
-        _raw_result = _calibrator.process(_raw_input)
+    _raw_result = _calibrator.process(_raw_input)
     _raw_fuzzy = _raw_result.processed
 
     # ── Prototype texts (optional, same keyword pipeline) ──────────────
