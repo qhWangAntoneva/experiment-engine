@@ -527,11 +527,13 @@ async function handleLoadCorpus(
       // string-to-binary issues with multi-byte UTF-8 (Chinese) characters.
       // FS.writeFile with { encoding: 'utf8' } on a string can produce a
       // 0-byte file in Pyodide v0.26.4 — a Uint8Array avoids this entirely.
+      ensureReady();
       const encoder = new TextEncoder();
       const contentBytes = encoder.encode(content);
       pyodide.FS.writeFile(vfsFile, contentBytes);
       // DIAG: verify the file was written correctly
       try {
+        ensureReady();
         const stat = pyodide.FS.stat(vfsFile);
         log('debug', `[corpus-diag] after FS.writeFile: size=${stat.size} mode=${stat.mode}`);
         if (stat.size === 0) {
