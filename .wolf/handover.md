@@ -6,11 +6,11 @@
 
 | 指标 | 值 |
 |------|-----|
-| HEAD | `3231e82` — chore: update .wolf tracking after CI fix |
+| HEAD | `5a6a00d` — fix: Pyodide pydantic 缺失修复 |
 | 分支 | `master` |
 | 测试 | 532 passed, 1 skipped, 6 xfailed |
 | TS build | clean (0 errors) |
-| 本地改动 | config.py + pyodide.worker.ts (pydantic Pyodide修复) |
+| 本地改动 | (已推送干净) |
 
 ## 2. 本轮已完成 (2026-05-27 Session)
 
@@ -22,7 +22,7 @@
 | **P2-26** | 消除 FuzzySetData 废弃别名 — 17个文件全部替换 | **已推送** | ACCEPTED: grep零命中 |
 | **P2-31** | Plotly 显示模式栏 — 4组件 displayModeBar hover | **已推送** | ACCEPTED: TS clean |
 | **P2-28** | validate_qca_output.py 增强 — 形状/outcome/质量评分 | **已推送** | ACCEPTED: 532 passed |
-| **Bug: Pyodide pydantic 缺失** | 加载30条样本数据因 pydantic 未预加载崩溃；(1) `pyodide.worker.ts` REQUIRED_PACKAGES 添加 `'pydantic'`；(2) `config.py` 将 `from pydantic import ValidationError` 改为函数内懒加载。验证: Python import OK, TS 0 errors, 532 passed。 | **已修复 (未推送)** | 需 git commit |
+| **Bug: Pyodide pydantic 缺失** | 加载30条样本数据因 pydantic 未预加载崩溃；(1) `pyodide.worker.ts` REQUIRED_PACKAGES 添加 `'pydantic'`；(2) `config.py` 将 `from pydantic import ValidationError` 改为函数内懒加载。验证: Python import OK, TS 0 errors, 532 passed。 | **已修复 (已推送)** | `5a6a00d` |
 
 ## 3. TODO.md 重构
 
