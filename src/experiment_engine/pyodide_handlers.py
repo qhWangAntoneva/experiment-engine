@@ -347,6 +347,14 @@ def handle_robustness(fuzzy_data_path, analysis_result_path, output_path):
         outcome_name=_fd_dict.get("outcome_name", ""),
     )
 
+    # Convert serialized lists back to ndarray for Pydantic model construction
+    if _ar_dict.get("fuzzy_data") and isinstance(
+        _ar_dict["fuzzy_data"].get("membership"), list
+    ):
+        _ar_dict["fuzzy_data"]["membership"] = np.array(
+            _ar_dict["fuzzy_data"]["membership"], dtype=np.float64
+        )
+
     _baseline = QCAAnalysisResult(**_ar_dict)
 
     # The RobustnessTester handles empty solutions gracefully
@@ -395,6 +403,14 @@ def handle_counterfactuals(fuzzy_data_path, analysis_result_path, output_path):
         condition_names=_fd_dict.get("condition_names", []),
         outcome_name=_fd_dict.get("outcome_name", ""),
     )
+
+    # Convert serialized lists back to ndarray for Pydantic model construction
+    if _ar_dict.get("fuzzy_data") and isinstance(
+        _ar_dict["fuzzy_data"].get("membership"), list
+    ):
+        _ar_dict["fuzzy_data"]["membership"] = np.array(
+            _ar_dict["fuzzy_data"]["membership"], dtype=np.float64
+        )
 
     _baseline = QCAAnalysisResult(**_ar_dict)
 
