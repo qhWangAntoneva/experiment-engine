@@ -79,10 +79,10 @@ function writeConditionBody(
     lines.push(`${' '.repeat(indent)}prototypes:`);
     for (const p of cond.prototypes) {
       lines.push(
-        `${' '.repeat(indent)}- prototype_text: ${yamlStr(p.prototype_text)}`,
+        `${' '.repeat(indent + 2)}- prototype_text: ${yamlStr(p.prototype_text)}`,
       );
-      lines.push(`${' '.repeat(indent + 2)}is_member: ${p.is_member}`);
-      lines.push(`${' '.repeat(indent + 2)}weight: ${String(p.weight)}`);
+      lines.push(`${' '.repeat(indent + 4)}is_member: ${p.is_member}`);
+      lines.push(`${' '.repeat(indent + 4)}weight: ${String(p.weight)}`);
     }
   }
 
@@ -153,8 +153,8 @@ export function conditionSetToYaml(cs: ConditionSet): string {
   // ── Causal conditions ─────────────────────────────────────────────────
   lines.push('conditions:');
   for (const cond of cs.conditions) {
-    lines.push(`- name: ${yamlStr(cond.name)}`);
-    writeConditionBody(lines, cond, 2);
+    lines.push(`  - name: ${yamlStr(cond.name)}`);
+    writeConditionBody(lines, cond, 4);
   }
 
   // ── Outcome ───────────────────────────────────────────────────────────
@@ -513,7 +513,7 @@ export function yamlToConditionSet(yaml: string): import('../types/qca').Conditi
 
           // ── calibration_params sub-block ──
           if (key === 'calibration_params') {
-            if (value === 'null' || value === '') {
+            if (value === 'null') {
               cond.calibration_params = null;
               ci++;
               // Skip any indented lines that were meant to be sub-fields but
@@ -622,7 +622,7 @@ export function yamlToConditionSet(yaml: string): import('../types/qca').Conditi
         }
 
         if (key === 'calibration_params') {
-          if (value === 'null' || value === '') {
+          if (value === 'null') {
             out.calibration_params = null;
             oi++;
             while (oi < ocLines.length) {

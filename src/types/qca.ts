@@ -307,25 +307,23 @@ domain: dissatisfaction
 
 # Outcome condition
 outcome:
-  name: gov_response_effective
-  display_name: "政府回应有效"
+  name: high_dissatisfaction
+  display_name: "高不满情绪"
   domain: dissatisfaction
   calibration_type: direct
+  scoring_source: prototype
   calibration_params:
     threshold_full_in: 0.85
     threshold_full_out: 0.25
     crossover_point: 0.50
     direction: ascending
-  keywords:
-    - pattern: "已解决"
+  prototypes:
+    - prototype_text: "你们的服务太差了，严重不作为，我对你们彻底失望"
+      is_member: 1
       weight: 1.0
-      scope: bigram
-    - pattern: "满意"
-      weight: 0.8
-      scope: bigram
-    - pattern: "效率高"
-      weight: 0.7
-      scope: bigram
+    - prototype_text: "事情办完了，效率还可以，整体来说比较满意"
+      is_member: 0
+      weight: 1.0
 
 # Causal conditions
 conditions:
@@ -333,38 +331,37 @@ conditions:
     display_name: "强烈负面情感"
     domain: dissatisfaction
     calibration_type: direct
+    scoring_source: prototype
     calibration_params:
       threshold_full_in: 0.80
       threshold_full_out: 0.20
       crossover_point: 0.50
       direction: ascending
-    keywords:
-      - pattern: "严重"
+    prototypes:
+      - prototype_text: "这个问题非常严重，服务质量非常差，让人难以忍受"
+        is_member: 1
         weight: 1.0
-        scope: unigram
-      - pattern: "非常差"
-        weight: 0.9
-        scope: trigram
-      - pattern: "难以忍受"
-        weight: 0.8
-        scope: exact
+      - prototype_text: "总体来说还可以，能接受目前的情况"
+        is_member: 0
+        weight: 1.0
 
   - name: policy_clarity
     display_name: "政策诉求明确性"
     domain: policy_demand
     calibration_type: direct
+    scoring_source: prototype
     calibration_params:
       threshold_full_in: 0.80
       threshold_full_out: 0.20
       crossover_point: 0.50
       direction: ascending
-    keywords:
-      - pattern: "建议"
-        weight: 0.9
-        scope: unigram
-      - pattern: "要求"
-        weight: 0.7
-        scope: unigram
+    prototypes:
+      - prototype_text: "我建议你们改进这个流程，要求尽快落实相关政策"
+        is_member: 1
+        weight: 1.0
+      - prototype_text: "我只是来咨询一下，了解一下办理流程"
+        is_member: 0
+        weight: 1.0
 `;
 
 export const INITIAL_PIPELINE_STATE: QCAPipelineState = {

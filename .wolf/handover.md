@@ -1,44 +1,98 @@
-# QCA Analysis Tool — Project Status (2026-05-27 Session 3)
+# QCA Analysis Tool — Project Status (2026-05-27)
 
-> BERT embeddings → fuzzy calibration → QCA truth table → solutions.
+> Handover from session that debugged calibration execution failure and identified root cause.
 
 ## 1. 当前基线
 
 | 指标 | 值 |
 |------|-----|
-| HEAD | `afa6c77` — fix: mountFromInline 创建空包目录导致 dev 模式 ModuleNotFoundError |
+| HEAD | `a414d03` — fix: 移除 useQCAWorkflow 防御性解包（Python 端已扁平化） |
 | 分支 | `master` |
-| 本地改动 | (无) |
-| 远程同步 | `origin/master` ✅ 完全同步 |
+| 代码改动（未提交） | `src/types/qca.ts`, `src/utils/conditionSetToYaml.ts`, `.wolf/` 文档文件 |
+| 本地测试 | Calibrate 执行仍然失败，Pipeline 被阻塞 |
 
-## 2. 本轮完成 (Session 3)
+## 2. 本轮发现的 Bug：Calibrate 执行失败 — 非 BERT 路径退化
 
-| 任务 | 描述 | 状态 |
+### 根因
+
+"Calibrate (Text to Fuzzy-Set)" 按钮触发 `DataInput.tsx` → `runCalibrateOnly()` → `bridge.calibrate()`（非 BERT 路径）。该路径调用 Python `handle_calibrate()`，后者使用 `TextCalibrationStage`。
+
+`TextCalibrationStage._precompute_scores()` 检测到无 BERT embedding 时，回退到 `_fallback_text_scores()`（基于文本长度的归一化）。当输入文本长度相近时，该回退产生退化分数（min==max），导致 DirectCalibration 抛出 ValueError。
+
+### 数据流
+
+```
+DataInput.tsx handleCalibrate
+  → useQCAWorkflow.ts runCalibrateOnly
+    → bridge.calibrate()   ← 非 BERT 路径！
+      → pyodide.worker.ts handleCalibrate
+        → pyodide_handlers.py handle_calibrate
+          → TextCalibrationStage.process()
+            → _fallback_text_scores()   ← 退化风险
+
+正确路径（但未被按钮调用）：
+  → bridge.embedCalibrate()
+    → pyodide.worker.ts handleEmbedCalibrate
+      → pyodide_handlers.py handle_embed_calibrate
+        → CosineSimilarityEngine.compute_scores()  ← 语义相似度
+```
+
+### 核心问题
+
+`useQCAWorkflow.ts` 中有两个独立的校准函数：
+- **`handleCalibrate` (line ~208)**：BERT 路径 — 先调用 `bridge.computeEmbeddings()` 获取 JS BERT 嵌入，再调用 `bridge.embedCalibrate()`
+- **`runCalibrateOnly` (line ~254)**：非 BERT 路径 — 直接调用 `bridge.calibrate()` → Python fallback
+
+**DataInput.tsx 按钮绑定了 `runCalibrateOnly`**，导致校准始终走退化回退路径。
+
+### 验证状态
+
+Playwright 验证：
+```
+上次记录: 6/8 Passed, 2/8 Failed
+❌ Calibrate execution    ← 非 BERT 路径退化
+❌ Pipeline execution      ← 阻塞在校准
+```
+
+本次分析已确认根因。修复方案：将 DataInput.tsx 按钮改为调用 BERT 路径（`handleCalibrate`）或修复 `runCalibrateOnly` 使用 `bridge.embedCalibrate()`。
+
+### 未决问题
+
+- 校准失败的根本原因已定位，但**尚未修复**。
+- 修复 #1-#4（YAML 缩进匹配）已验证 TS build clean，但校准执行本身不依赖这些修复。
+
+## 3. 关键文件变更
+
+| 文件 | 变更 | 状态 |
 |------|------|------|
-| **Track A: 验证部署源** | 确认 Pages 从 Actions artifact 提供服务，最新代码(ec02dc5)已上线，CSP正确，worker JS包含所有5个包 | **已完成** |
-| **Track B: 本地复现崩溃** | 通过 Playwright 在本地复现 30 样本崩溃，捕获完整错误链 | **已完成** |
-| **修复 mountFromInline()** | 创建 Vite plugin 提供 `/py/modules.json`，worker 获取 JSON 并写入实际 Python 源文件到 VFS | **已完成** |
-| **修复 deploy.yml manifest** | `packages` 数组补充 `"micropip"` 和 `"rich"` | **已完成** |
-| **增强 worker 错误可视化** | 在 `pyodide.ts` 的 3 个错误路径添加 `console.error()` | **已完成** |
+| `src/types/qca.ts` | DEFAULT_CONDITION_SET_YAML: keywords → prototypes | ✅ 未提交 |
+| `src/utils/conditionSetToYaml.ts` | 3 处缩进修复 + 1 处 null 检查修复 | ✅ 未提交 |
 
-### 关键发现
+## 4. 下次 session 要做
 
-1. **部署源正确** — 线上版本已包含所有4个修复（pydantic, CSP, worker error, rich），worker JS asset是有效JS非HTML
-2. **崩溃根因** — `mountFromInline()` 仅创建空Python包目录，不写入实际源文件（如 `pyodide_handlers.py`），导致 `ModuleNotFoundError: No module named 'experiment_engine.pyodide_handlers'`
-3. **错误不可见** — worker 错误通过 `postMessage` → React state 传递，未调用 `console.error()`，在浏览器控制台中完全不可见
-4. **生产环境不受影响** — CI 生成的 `experiment_engine.tar.gz` 在工作流中已排除此问题，仅 dev 模式受影响
+1. **修复校准路径**：将 DataInput.tsx 的 handleCalibrate 改为调用 BERT 路径（`bridge.embedCalibrate()` 或 useQCAWorkflow 的 `handleCalibrate`）
+2. **重新运行验证**：
+   ```bash
+   BASE_URL=http://localhost:5173/ node tmp/verify_deployed.mjs
+   ```
+3. **提交并推送**所有修复
+4. **触发 CI 部署**，在部署后再次运行验证
 
-### 修复内容
+## 5. 调试笔记
 
-| 文件 | 变更 |
-|------|------|
-| `scripts/vite-plugin-pyodide-modules.ts` | **新建** — Vite plugin，dev 模式下在 `/py/modules.json` 提供所有 Python 源文件 |
-| `vite.config.ts` | 注册 `pyodideModulesPlugin()` |
-| `src/services/pyodide.worker.ts` | `mountFromInline()` 改为获取 `/py/modules.json` 并写入实际 Python 文件到 VFS |
-| `src/services/pyodide.ts` | 3 个错误路径添加 `console.error()` |
-| `.github/workflows/deploy.yml` | manifest `packages` 补充 `micropip`, `rich` |
+**校准流程数据路径**：
+1. 前端按钮 → `DataInput.tsx handleCalibrate` → `runCalibrateOnly` → `bridge.calibrate()`
+2. Worker `handleCalibrate` → Python `handle_calibrate` → `TextCalibrationStage.process()`
+3. 无 BERT embeddings → `_fallback_text_scores()` → 文本长度归一化 → DirectCalibration
 
-## 3. 推荐下一步
+**BERT 路径（未使用）**：
+1. `bridge.computeEmbeddings()` → JS Transformers.js BERT 推理
+2. `bridge.embedCalibrate()` → Python `handle_embed_calibrate` → `CosineSimilarityEngine`
+3. 语义相似度 → 软max → 正常校准
 
-1. **验证线上** — CI 完成部署后访问 GitHub Pages 确认正常
-2. **清理 Playwright 诊断脚本** — `tmp/reproduction_diag*.mjs`、`capture_*.mjs`、`minimal_test.mjs` 可删除
+**关键文件**：
+- `src/pages/DataInput.tsx:713` — handleCalibrate 按钮 handler
+- `src/hooks/useQCAWorkflow.ts:208` — BERT 路径的 handleCalibrate
+- `src/hooks/useQCAWorkflow.ts:254` — 非 BERT 路径的 runCalibrateOnly
+- `src/experiment_engine/text_calibration/calibrator.py:80` — _precompute_scores
+- `src/experiment_engine/text_calibration/calibrator.py:162` — _fallback_text_scores
