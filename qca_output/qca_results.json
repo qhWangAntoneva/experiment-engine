@@ -65,14 +65,14 @@
             "strong_demand"
           ],
           "label": "negative_affect*strong_demand",
-          "consistency": 0.0,
-          "raw_coverage": 0.0,
-          "unique_coverage": 0.0
+          "consistency": 1.0,
+          "raw_coverage": 0.9371451268724038,
+          "unique_coverage": 0.9371451268724038
         }
       ],
       "formula": "negative_affect*strong_demand",
-      "solution_consistency": 0.0,
-      "solution_coverage": 0.0
+      "solution_consistency": 1.0,
+      "solution_coverage": 0.9371451268724038
     },
     "parsimonious": null,
     "intermediate": null

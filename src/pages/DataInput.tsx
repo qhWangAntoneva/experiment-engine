@@ -781,6 +781,7 @@ export default function DataInput() {
           ? { ...importedConditionSet, qca_variant: importedConditionSet.qca_variant ?? getQCAVariantFromSettings() }
           : yamlToConditionSet(yamlContent),
         prototypeTexts: textCases.length > 0 ? textCases : undefined,
+        runRobustness: true,
       });
       setValidationMessage(t('dataInput.pipelineComplete'));
       setTimeout(() => navigate('/results'), 500);
