@@ -92,7 +92,7 @@ async function runHandler(
   ensureReady();
 
   for (const [path, data] of inputSpecs) {
-    pyodide.FS.writeFile(path, JSON.stringify(data), { encoding: 'utf8' });
+    pyodide.FS.writeFile(path, new TextEncoder().encode(JSON.stringify(data)));
   }
 
   await pyodide.runPythonAsync(handlerExpr);
@@ -410,7 +410,7 @@ async function mountFromInline(): Promise<void> {
       const fullPath = `/src/${filePath}`;
       const dir = fullPath.substring(0, fullPath.lastIndexOf('/'));
       pyodide.FS.mkdirTree(dir);
-      pyodide.FS.writeFile(fullPath, content, { encoding: 'utf8' });
+      pyodide.FS.writeFile(fullPath, new TextEncoder().encode(content));
     }
 
     // Add to sys.path — both /src (where modules are mounted) and / (root fallback)
