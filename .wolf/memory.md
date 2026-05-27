@@ -18,6 +18,9 @@
 | 2026-05-27 | Fixed Use Template bug (DataInput.tsx ignored state.conditionSet). Added useEffect hydration. TS build clean. | DataInput.tsx | fixed | ~200 |
 | 2026-05-27 | Launched 3 profession-agents for optimization analysis (Backend/Algorithm, Frontend/Viz, DevOps/Report). All delivered reports. | handover.md | analysis complete | ~500 |
 | 2026-05-27 | i18n for "Load 30 Sample Cases": added sampleDataBtn/sampleDataTooltip/sampleLoaded to translations.ts (zh+en) and updated DataInput.tsx. TS build clean. | DataInput.tsx, translations.ts | done | ~100 |
+| 2026-05-27 | Fixed EmptyDataError: root cause is FS.writeFile with {encoding:'utf8'} on Chinese UTF-8 strings → 0-byte file (Emscripten intArrayFromString bug). Fix: TextEncoder + Uint8Array for handleLoadCorpus CSV path. Split to handle_load_corpus_direct() in Python. | pyodide.worker.ts, pyodide_handlers.py | committed 92825b1 | ~800 |
+| 2026-05-27 | Code review found 4 issues: ensureReady guard, fileName sanitization, FS.stat error propagation, unused format key. Launched 4 parallel worktree agents. | pyodide.worker.ts | all fixed | ~300 |
+| 2026-05-27 | Expert analysis: paste error not fixed by 4 review issues — 2 remaining FS.writeFile {encoding:'utf8'} calls in runHandler() and mountFromInline(). Fix: both converted to TextEncoder. All reviewed APPROVED. Merged + pushed de42407. | pyodide.worker.ts | committed 750f355 | ~500 |
 | 2026-05-27 | Track A Steps 2-4: TemplateLibrary uses setYamlContent directly instead of setConditionSet + hydration useEffect. Removed DataInput hydration useEffect. Fixed handleLoadSampleData. TS build clean. | TemplateLibrary.tsx, DataInput.tsx | done | ~250 |
 | 2026-05-27 | P2-15/19/21: PluginRegistry DI, weighted max similarity, TextCase.outcome float. 532 tests pass. | plugins.py, cosine_similarity.py, qca.py | all done | ~500 |
 | 2026-05-27 | Package optimization plan: investigated all viz/report/pipeline modules, identified impedance mismatch between QCAPlotBuilder dicts and Renderer InputData, documented current output quality issues, wrote plan in .wolf/plans/package_optimization_plan.md | viz/*.py, report/*.py, api.py, pipeline.py, run_pipeline.py, TODO.md, validate_qca_output.py, configs/config.yaml | plan written | ~500 |
@@ -312,3 +315,13 @@
 | 15:38 | Edited src/experiment_engine/pyodide_handlers.py | modified does() | ~181 |
 | 15:38 | Edited .claude/worktrees/agent-a2b06c4818704db03/src/services/pyodide.worker.ts | modified if() | ~97 |
 | 15:39 | Session end: 6 writes across 2 files (pyodide.worker.ts, pyodide_handlers.py) | 6 reads | ~34093 tok |
+| 15:40 | Edited .claude/worktrees/agent-ab4b8755c75df7a1f/.wolf/buglog.json | expanded (+18 lines) | ~289 |
+| 15:40 | Edited .claude/worktrees/agent-a2b06c4818704db03/.wolf/memory.md | 1→2 lines | ~90 |
+| 15:41 | Edited .claude/worktrees/agent-ab4b8755c75df7a1f/.wolf/memory.md | 1→2 lines | ~80 |
+| 15:41 | Edited .claude/worktrees/agent-a2b06c4818704db03/.wolf/buglog.json | expanded (+12 lines) | ~273 |
+| 15:42 | Edited .claude/worktrees/agent-aac9bf4d8d956a827/src/experiment_engine/pyodide_handlers.py | modified does() | ~181 |
+| 15:42 | Edited .claude/worktrees/agent-aac9bf4d8d956a827/src/services/pyodide.worker.ts | inline fix | ~15 |
+| 15:45 | Edited .claude/worktrees/agent-afcad2a3a40c2c117/src/services/pyodide.worker.ts | inline fix | ~23 |
+| 15:45 | Edited .claude/worktrees/agent-afcad2a3a40c2c117/src/services/pyodide.worker.ts | inline fix | ~21 |
+| 15:46 | Edited .claude/worktrees/agent-afcad2a3a40c2c117/.wolf/buglog.json | expanded (+12 lines) | ~237 |
+| 15:46 | Edited .claude/worktrees/agent-afcad2a3a40c2c117/.wolf/memory.md | 2→3 lines | ~136 |
