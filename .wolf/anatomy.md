@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T16:09:45.799Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T16:16:47.979Z
 > Files: 1 tracked | Anatomy hits: 0 | Misses: 0
 
 ## src/components/
@@ -29,7 +29,6 @@
 
 ## src/experiment_engine/text_calibration/
 
-- `calibrator.py` — Text calibration stage: BERT prototype scores → fuzzy-set membership (0-1). (~6201 tok)
 
 ## src/experiment_engine/viz/
 
@@ -45,6 +44,7 @@
 
 ## src/services/
 
+- `bert-engine.ts` — Available BERT models the user can choose from on the Settings page. (~4152 tok)
 
 ## src/store/
 

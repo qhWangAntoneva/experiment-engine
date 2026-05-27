@@ -7,8 +7,8 @@
           0
         ],
         "config_label": "~NEGATIVE_AFFECT*~STRONG_DEMAND",
-        "frequency": 3.5,
-        "raw_consistency": 0.14285714285714277,
+        "frequency": 3.5394373147757845,
+        "raw_consistency": 0.12359916126893383,
         "outcome_value": 0,
         "included": true
       },
@@ -18,8 +18,8 @@
           1
         ],
         "config_label": "~NEGATIVE_AFFECT*STRONG_DEMAND",
-        "frequency": 0.4999999999999999,
-        "raw_consistency": 0.9999999999999997,
+        "frequency": 0.46056268522421534,
+        "raw_consistency": 0.9498630642586263,
         "outcome_value": 1,
         "included": false
       },
@@ -29,8 +29,8 @@
           0
         ],
         "config_label": "NEGATIVE_AFFECT*~STRONG_DEMAND",
-        "frequency": 0.5,
-        "raw_consistency": 0.9999999999999994,
+        "frequency": 0.3471193957521941,
+        "raw_consistency": 1.0,
         "outcome_value": 1,
         "included": false
       },
@@ -40,8 +40,8 @@
           1
         ],
         "config_label": "NEGATIVE_AFFECT*STRONG_DEMAND",
-        "frequency": 1.5,
-        "raw_consistency": 0.9999999999999999,
+        "frequency": 1.347119395752194,
+        "raw_consistency": 1.0,
         "outcome_value": 1,
         "included": true
       }
@@ -83,26 +83,26 @@
     "conditions": [
       {
         "condition_name": "negative_affect",
-        "consistency": 1.0,
-        "coverage": 0.9999999999999999,
+        "consistency": 0.9371451268724038,
+        "coverage": 1.0,
         "is_necessary": true
       },
       {
         "condition_name": "strong_demand",
         "consistency": 1.0,
-        "coverage": 0.9999999999999999,
+        "coverage": 0.9841902014972975,
         "is_necessary": true
       },
       {
         "condition_name": "~negative_affect",
-        "consistency": 0.3333333333333332,
-        "coverage": 0.14285714285714277,
+        "consistency": 0.3043340257534277,
+        "coverage": 0.1197606850225365,
         "is_necessary": false
       },
       {
         "condition_name": "~strong_demand",
-        "consistency": 0.3333333333333332,
-        "coverage": 0.14285714285714277,
+        "consistency": 0.3043340257534277,
+        "coverage": 0.12359916126893383,
         "is_necessary": false
       }
     ]
@@ -119,14 +119,14 @@
               "strong_demand"
             ],
             "label": "negative_affect*strong_demand",
-            "consistency": 0.9999999999999999,
-            "raw_coverage": 1.0,
-            "unique_coverage": 1.0
+            "consistency": 1.0,
+            "raw_coverage": 0.9371451268724038,
+            "unique_coverage": 0.9371451268724038
           }
         ],
         "formula": "negative_affect*strong_demand",
-        "solution_consistency": 0.9999999999999999,
-        "solution_coverage": 1.0
+        "solution_consistency": 1.0,
+        "solution_coverage": 0.9371451268724038
       },
       "parsimonious": null,
       "intermediate": null

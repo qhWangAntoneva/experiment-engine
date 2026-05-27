@@ -32,8 +32,8 @@ Outcome: citizen\_dissatisfaction
 \toprule
 Configuration & Frequency & Consistency & Outcome \\
 \midrule
-    \textasciitilde{}NEGATIVE\_AFFECT*\textasciitilde{}STRONG\_DEMAND & 3.5 & 0.143 & 0 \\
-    NEGATIVE\_AFFECT*STRONG\_DEMAND & 1.5 & 1.000 & 1 \\
+    \textasciitilde{}NEGATIVE\_AFFECT*\textasciitilde{}STRONG\_DEMAND & 3.5 & 0.124 & 0 \\
+    NEGATIVE\_AFFECT*STRONG\_DEMAND & 1.3 & 1.000 & 1 \\
 \bottomrule
 \end{longtable}
 
@@ -56,10 +56,10 @@ Formula: $\displaystyle \top$
 \toprule
 Condition & Consistency & Coverage & Necessary? \\
 \midrule
-    negative\_affect & 1.000 & 1.000 & \checkmark \\
-    strong\_demand & 1.000 & 1.000 & \checkmark \\
-    \textasciitilde{}negative\_affect & 0.333 & 0.143 &  \\
-    \textasciitilde{}strong\_demand & 0.333 & 0.143 &  \\
+    negative\_affect & 0.937 & 1.000 & \checkmark \\
+    strong\_demand & 1.000 & 0.984 & \checkmark \\
+    \textasciitilde{}negative\_affect & 0.304 & 0.120 &  \\
+    \textasciitilde{}strong\_demand & 0.304 & 0.124 &  \\
 \bottomrule
 \end{tabular}
 
@@ -75,7 +75,7 @@ Threshold: Consistency $\geq$ 0.9
 Term & Consistency & Raw Coverage & Unique Coverage \\
 \midrule
 
-    negative\_affect*strong\_demand & 1.000 & 1.000 & 1.000 \\
+    negative\_affect*strong\_demand & 1.000 & 0.937 & 0.937 \\
 
 \bottomrule
 \end{tabular}
@@ -93,9 +93,9 @@ Test & Parameter & Stability Range & Result \\
 \bottomrule
 \end{tabular}
 
-Overall Robustness: 0.77
+Overall Robustness: 0.85
 
-Moderate robustness — some sensitivity observed, interpret with caution.
+High robustness — QCA solution is stable under sensitivity tests.
 
 
 \end{document}

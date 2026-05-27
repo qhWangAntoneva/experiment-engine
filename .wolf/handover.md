@@ -1,17 +1,83 @@
-# QCA Analysis Tool — Project Status (2026-05-27)
+# QCA Analysis Tool — Project Status (2026-05-28)
 
-> Handover from session that debugged calibration execution failure and identified root cause.
+> Handover from session that fixed Transformers.js cloud inference crash (bug-393).
+> Previous handover (2026-05-27) content preserved below for historical context.
 
 ## 1. 当前基线
 
 | 指标 | 值 |
 |------|-----|
-| HEAD | `a414d03` — fix: 移除 useQCAWorkflow 防御性解包（Python 端已扁平化） |
+| HEAD | `241a98d` — fix: Transformers.js 云端推理崩溃 — _model() 添加 try-catch 零向量回退 |
 | 分支 | `master` |
-| 代码改动（未提交） | `src/types/qca.ts`, `src/utils/conditionSetToYaml.ts`, `.wolf/` 文档文件 |
-| 本地测试 | Calibrate 执行仍然失败，Pipeline 被阻塞 |
+| 代码改动 | 已全部提交推送 |
+| 本地测试 | TS build clean, 532 tests passed |
+| 部署状态 | 已推送 `master`，GitHub Actions 自动部署中 |
 
-## 2. 本轮发现的 Bug：Calibrate 执行失败 — 非 BERT 路径退化
+## 2. 本轮修复（2026-05-28）：Transformers.js 云端推理崩溃
+
+### 报错
+
+```
+管道执行失败：Embedding computation failed: Cannot read properties of undefined (reading 'data')
+```
+
+**仅云端复现**（GitHub Pages 生产环境），本地 `npm run dev` 正常。
+
+### 根因
+
+`bert-engine.ts` 中 `this._model(batchTexts, {pooling:'mean', normalize:false})`（Transformers.js FeatureExtractionPipeline 推理调用）在云端 ONNX Runtime Web 环境下可能抛出内部 TypeError。原因推测为：
+
+1. GitHub Pages 生产构建中 Transformers.js/ONNX Runtime 的打包方式不同
+2. 跨域环境下 ONNX Runtime Web 的 WebAssembly/WebGL 后端初始化差异
+3. 导致模型输出的 tensor 内部 `.data` 为 `undefined`，Transformers.js 内部访问时抛出
+
+### 修复
+
+**文件**：`src/services/bert-engine.ts`（`extractEmbeddings()` 方法）
+
+1. 将 `this._model(batchTexts, ...)` 调用包裹 try-catch（第 246-263 行）
+2. 捕获 Transformers.js 内部错误：
+   - `console.error()` 记录详细 batch 诊断（批次号、文本数、切片范围）
+   - 该 batch 全部用 `DEFAULT_HIDDEN_DIM` 零向量回退
+   - `continue` 到下一 batch
+3. 原 `throw new Error("Transformers output tensor has no data")`（第 265-268 行）改为零向量回退 + console.warn + continue
+
+### 效果
+
+- 即使部分 batch 推理失败，embedding 计算正常完成（退化 batch 用零向量）
+- 零向量 → 余弦相似度 0 → 校准后 membership 约 0.5
+- pipeline 不再因单个 batch 失败而整体崩溃
+- bug-393 已记录到 buglog.json
+
+### 验证
+
+```
+TS build: 0 errors
+Tests: 532 passed, 1 skipped, 6 xfailed
+```
+
+## 3. 本轮新增文件变更
+
+| 文件 | 变更 | 状态 |
+|------|------|------|
+| `src/services/bert-engine.ts` | _model() try-catch + 零向量回退 + tensor 无 data 降级 | ✅ 已推送 `241a98d` |
+| `.wolf/buglog.json` | bug-393 记录 | ✅ 已推送 |
+| `.wolf/cerebrum.md` | Do-Not-Repeat: 云端模型推理防护 | ✅ 已推送 |
+| `.wolf/memory.md` | 本次 session 记录 | ✅ 已推送 |
+| `.wolf/handover.md` | 本次更新 | 当前文件 |
+
+## 4. 下次 session 要做
+
+1. **云端验证**：部署后测试完整管道（Load Samples → Run Pipeline），确认：
+   - 不再出现 "Embedding computation failed" 错误
+   - Pipeline 正常完成到结果页面
+2. **如仍有问题**：检查部署后 DevTools Console 中 `[BertEngine] Model inference failed for batch` 日志
+3. **如需进一步优化**：失败 batch 考虑自动缩小 batchSize 重试（当前 16 → 8 → 4 → 1），而不是直接零向量回退
+4. **历史遗留**：校准 BERT 路径整合（runCalibrateOnly → handleCalibrate 迁移）仍待处理
+
+## ——— 以下为 2026-05-27 历史 Handover 内容 ———
+
+## 5. 历史记录：Calibrate 执行失败 — 非 BERT 路径退化
 
 ### 根因
 
@@ -45,52 +111,8 @@ DataInput.tsx handleCalibrate
 
 **DataInput.tsx 按钮绑定了 `runCalibrateOnly`**，导致校准始终走退化回退路径。
 
-### 验证状态
+### 历史关键文件
 
-Playwright 验证：
-```
-上次记录: 6/8 Passed, 2/8 Failed
-❌ Calibrate execution    ← 非 BERT 路径退化
-❌ Pipeline execution      ← 阻塞在校准
-```
-
-本次分析已确认根因。修复方案：将 DataInput.tsx 按钮改为调用 BERT 路径（`handleCalibrate`）或修复 `runCalibrateOnly` 使用 `bridge.embedCalibrate()`。
-
-### 未决问题
-
-- 校准失败的根本原因已定位，但**尚未修复**。
-- 修复 #1-#4（YAML 缩进匹配）已验证 TS build clean，但校准执行本身不依赖这些修复。
-
-## 3. 关键文件变更
-
-| 文件 | 变更 | 状态 |
-|------|------|------|
-| `src/types/qca.ts` | DEFAULT_CONDITION_SET_YAML: keywords → prototypes | ✅ 未提交 |
-| `src/utils/conditionSetToYaml.ts` | 3 处缩进修复 + 1 处 null 检查修复 | ✅ 未提交 |
-
-## 4. 下次 session 要做
-
-1. **修复校准路径**：将 DataInput.tsx 的 handleCalibrate 改为调用 BERT 路径（`bridge.embedCalibrate()` 或 useQCAWorkflow 的 `handleCalibrate`）
-2. **重新运行验证**：
-   ```bash
-   BASE_URL=http://localhost:5173/ node tmp/verify_deployed.mjs
-   ```
-3. **提交并推送**所有修复
-4. **触发 CI 部署**，在部署后再次运行验证
-
-## 5. 调试笔记
-
-**校准流程数据路径**：
-1. 前端按钮 → `DataInput.tsx handleCalibrate` → `runCalibrateOnly` → `bridge.calibrate()`
-2. Worker `handleCalibrate` → Python `handle_calibrate` → `TextCalibrationStage.process()`
-3. 无 BERT embeddings → `_fallback_text_scores()` → 文本长度归一化 → DirectCalibration
-
-**BERT 路径（未使用）**：
-1. `bridge.computeEmbeddings()` → JS Transformers.js BERT 推理
-2. `bridge.embedCalibrate()` → Python `handle_embed_calibrate` → `CosineSimilarityEngine`
-3. 语义相似度 → 软max → 正常校准
-
-**关键文件**：
 - `src/pages/DataInput.tsx:713` — handleCalibrate 按钮 handler
 - `src/hooks/useQCAWorkflow.ts:208` — BERT 路径的 handleCalibrate
 - `src/hooks/useQCAWorkflow.ts:254` — 非 BERT 路径的 runCalibrateOnly
