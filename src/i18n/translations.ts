@@ -182,6 +182,7 @@ export interface TranslationDict {
     analysisComplete: string;
     pipelineFailed: string;
     loadedCases: (n: number, name: string) => string;
+    pasteEmpty: string;
     parsedCases: (n: number) => string;
     parseError: string;
     fileTooLarge: (size: string) => string;
@@ -630,6 +631,7 @@ const zh: TranslationDict = {
     analysisComplete: '分析完成！',
     pipelineFailed: '管道执行失败：',
     loadedCases: (n: number, name: string) => `已从 ${name} 加载 ${n} 条案例`,
+    pasteEmpty: '请先粘贴文本内容再解析',
     parsedCases: (n: number) => `已从粘贴文本解析 ${n} 条案例`,
     parseError: '解析错误：',
     fileTooLarge: (size: string) => `文件过大：${size} MB（上限 10 MB）`,
@@ -1150,6 +1152,7 @@ const en: TranslationDict = {
     analysisComplete: 'Analysis complete!',
     pipelineFailed: 'Pipeline failed: ',
     loadedCases: (n: number, name: string) => `Loaded ${n} cases from ${name}`,
+    pasteEmpty: 'Please paste some text before parsing',
     parsedCases: (n: number) => `Parsed ${n} cases from pasted text`,
     parseError: 'Parse error: ',
     fileTooLarge: (size: string) => `File too large: ${size} MB (max 10 MB)`,

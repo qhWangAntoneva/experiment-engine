@@ -390,20 +390,44 @@ def handle_load_corpus_direct(config_path, output_path):
     vfs_file_path = cfg["vfsFile"]
 
     # DIAG: verify the corpus file before pandas reads it
-    try:
-        _size = _os.path.getsize(vfs_file_path)
-        _os.write(1, f"[corpus-diag] pre-read: {vfs_file_path} size={_size}\n".encode())
-        if _size == 0:
-            raise RuntimeError(
-                f"Corpus file {vfs_file_path} is 0 bytes — FS.writeFile did not "
-                "write the content correctly. Check that the content was encoded "
-                "as a Uint8Array (not a string with {encoding: 'utf8'})."
+    # Retry loop: Pyodide VFS may need a moment to stabilize after FS.writeFile
+    import time as _time
+
+    _size = 0
+    _max_retries = 3
+    for _attempt in range(_max_retries):
+        try:
+            _size = _os.path.getsize(vfs_file_path)
+            print(
+                f"[corpus-diag] pre-read (attempt {_attempt + 1}): {vfs_file_path} size={_size}",
+                file=__import__("sys").stderr,
+                flush=True,
             )
-    except OSError as _e:
-        _os.write(
-            1, f"[corpus-diag] ERROR: cannot stat {vfs_file_path}: {_e}\n".encode()
+            if _size > 0:
+                break
+            if _attempt < _max_retries - 1:
+                print(
+                    f"[corpus-diag] pre-read (attempt {_attempt + 1}) size=0, retrying...",
+                    file=__import__("sys").stderr,
+                    flush=True,
+                )
+                _time.sleep(0.1)
+        except OSError as _e:
+            print(
+                f"[corpus-diag] pre-read stat failed (attempt {_attempt + 1}): {_e}",
+                file=__import__("sys").stderr,
+                flush=True,
+            )
+            if _attempt < _max_retries - 1:
+                _time.sleep(0.1)
+            else:
+                raise
+
+    if _size == 0:
+        raise RuntimeError(
+            f"Corpus file {vfs_file_path} is 0 bytes after {_max_retries} retries — "
+            "FS.writeFile did not write the content correctly."
         )
-        raise
 
     reader = TextCorpusReader()
     result = reader.read(vfs_file_path)

@@ -1,13 +1,14 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T07:46:28.054Z
-> Files: 7 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T08:25:28.865Z
+> Files: 13 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
 
 ## ./
 
+- `README.md` — Project documentation (~2409 tok)
 
 ## .claude/worktrees/agent-a2b06c4818704db03/.wolf/
 
@@ -48,11 +49,19 @@
 
 ## src/experiment_engine/
 
+- `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~7702 tok)
 
 ## src/i18n/
 
+- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~14027 tok)
+
+## src/pages/
+
+- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~15074 tok)
 
 ## src/services/
 
+- `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~4749 tok)
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~9365 tok)
 
 ## tmp/

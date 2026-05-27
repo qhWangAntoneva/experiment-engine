@@ -3,6 +3,7 @@
 > Active sessions: most recent 2. Older sessions archived to `memory-archive.md`.
 
 | 2026-05-27 | Session start: 接手项目. READ handover.md, cerebrum.md, TODO.md, FIXME.md, HACK.md, buglog.json — HEAD fc3b64a, 532 passed, 27 P2 items (S级已全部完成, 22 remaining). | handover.md | session start | ~500 |
+| 15:44 | 写了完整中文 README.md，含演示数据(30条标注样本)、所有9个CLI命令示例及输出、API示例、前端说明、条件集YAML格式、项目结构、安装步骤 | README.md | 完成 | ~250 |
 | 2026-05-27 | Track A: 验证部署源 — 部署正确，最新代码已上线（ec02dc5），worker JS包含所有5个包，CSP正确 | deploy_verify_report.md | 排除部署源原因 | ~300 |
 | 2026-05-27 | Track B: 本地复现 — 根因：mountFromInline()仅创建空目录，不写入实际Python源文件，导致ModuleNotFoundError | local_reproduction_report.md | 找到根因 | ~400 |
 | 2026-05-27 | 修复：创建Vite plugin(scripts/vite-plugin-pyodide-modules.ts)提供/py/modules.json，mountFromInline()改为获取JSON并写入实际文件到VFS | vite-plugin, pyodide.worker.ts, pyodide.ts, deploy.yml | 修复完成 | ~300 |
@@ -303,8 +304,9 @@
 | 15:34 | Edited src/experiment_engine/pyodide_handlers.py | "[corpus-diag] ERROR: cann" → "[corpus-diag] ERROR: cann" | ~25 |
 | 15:36 | Session end: 8 writes across 2 files (pyodide.worker.ts, pyodide_handlers.py) | 7 reads | ~24084 tok |
 | 15:36 | Edited src/services/pyodide.worker.ts | added 1 condition(s) | ~157 |
+| 2026-05-27 | 3-agent fix for bug-380: (A) deploy forensic — fix already deployed, VFS timing is real root cause | (B) frontend guards for empty paste content | (C) retry loop + diagnostics for FS.writeFile | all reviewed by reviewer agents, 3 minor fixups applied by main session | pyodide.worker.ts, pyodide_handlers.py, DataInput.tsx, pyodide.ts, translations.ts, buglog.json, cerebrum.md | bug-380 fixed | ~1200 |
 
-## Session: 2026-05-27 15:36
+## Session: 2026-05-27 — Multi-Agent Bug Fix（解析文本 0 字节文件）
 
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
@@ -325,3 +327,37 @@
 | 15:45 | Edited .claude/worktrees/agent-afcad2a3a40c2c117/src/services/pyodide.worker.ts | inline fix | ~21 |
 | 15:46 | Edited .claude/worktrees/agent-afcad2a3a40c2c117/.wolf/buglog.json | expanded (+12 lines) | ~237 |
 | 15:46 | Edited .claude/worktrees/agent-afcad2a3a40c2c117/.wolf/memory.md | 2→3 lines | ~136 |
+| 15:50 | Session end: 16 writes across 4 files (pyodide.worker.ts, pyodide_handlers.py, buglog.json, memory.md) | 18 reads | ~28188 tok |
+
+## Session: 2026-05-27 15:51
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-05-27 15:52
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 16:09 | Created README.md | — | ~2570 |
+| 16:10 | Session end: 1 writes across 1 files (README.md) | 82 reads | ~2754 tok |
+
+## Session: 2026-05-27 16:11
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 16:19 | Edited src/services/pyodide.worker.ts | added 3 condition(s) | ~664 |
+| 16:19 | Session end: 1 writes across 1 files (pyodide.worker.ts) | 6 reads | ~9922 tok |
+| 16:20 | Edited src/experiment_engine/pyodide_handlers.py | modified range() | ~327 |
+| 16:20 | Edited src/pages/DataInput.tsx | CSS: Guard | ~116 |
+| 16:20 | Edited src/i18n/translations.ts | 2→3 lines | ~25 |
+| 16:20 | Edited src/i18n/translations.ts | 2→3 lines | ~31 |
+| 16:20 | Edited src/i18n/translations.ts | 2→3 lines | ~46 |
+| 16:20 | Edited src/services/pyodide.ts | added 1 condition(s) | ~102 |
+| 16:20 | Edited src/services/pyodide.worker.ts | modified handleLoadCorpus() | ~78 |
+| 21:16 | Worker VFS robustness: added FS.unlink before write, 3-attempt retry loop in handleLoadCorpus (TS) and handle_load_corpus_direct (Python), detailed diagnostic logging on each attempt | pyodide.worker.ts, pyodide_handlers.py | done | ~300 |
+| 21:20 | pasteContent 空洞溯源 + 前端防护: added empty content guard in DataInput.tsx (handleParsePaste), loadCorpus guard in pyodide.ts, diagnostic log in worker handleLoadCorpus, pasteEmpty i18n key (zh+en) | DataInput.tsx, pyodide.ts, pyodide.worker.ts, translations.ts | done | ~500 |
+| 16:22 | Session end: 8 writes across 5 files (pyodide.worker.ts, pyodide_handlers.py, DataInput.tsx, translations.ts, pyodide.ts) | 6 reads | ~52224 tok |
+| 16:23 | Session end: 8 writes across 5 files (pyodide.worker.ts, pyodide_handlers.py, DataInput.tsx, translations.ts, pyodide.ts) | 6 reads | ~52224 tok |
+| 16:25 | Edited src/services/pyodide.worker.ts | added 1 condition(s) | ~88 |
+| 16:25 | Edited src/services/pyodide.worker.ts | modified while() | ~364 |
+| 16:25 | Edited src/experiment_engine/pyodide_handlers.py | modified range() | ~340 |

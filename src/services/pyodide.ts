@@ -175,6 +175,9 @@ export class PyodideBridge {
     content: string,
     format: 'csv' | 'json' | 'txt' | 'xlsx',
   ): Promise<TextCorpusEntry[]> {
+    if (!content || (typeof content === 'string' && !content.trim())) {
+      throw new Error('Corpus content is empty — nothing to parse');
+    }
     const resp = await this.send<{ entries: TextCorpusEntry[] }>(
       { type: 'load_corpus', payload: { fileName, content, format } },
       'corpus-loaded',

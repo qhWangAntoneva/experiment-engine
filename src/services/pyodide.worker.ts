@@ -500,6 +500,7 @@ async function handleLoadCorpus(
   content: string,
   format: 'csv' | 'json' | 'txt' | 'xlsx',
 ): Promise<void> {
+  log('debug', `[corpus-diag] handleLoadCorpus received: fileName=${fileName} content.length=${content.length} format=${format}`);
   try {
     // Write the raw content directly to a VFS file path, bypassing the JSON
     // config intermediate step.  This avoids potential encoding/truncation
@@ -528,21 +529,46 @@ async function handleLoadCorpus(
       // FS.writeFile with { encoding: 'utf8' } on a string can produce a
       // 0-byte file in Pyodide v0.26.4 — a Uint8Array avoids this entirely.
       ensureReady();
+      // Delete existing file if present (may be stale from previous run)
+      try { pyodide.FS.unlink(vfsFile); } catch (e: any) {
+        // ENOENT (errno 44) = file not found, expected on first run
+        // Propagate other errors (EACCES, EBUSY, etc.)
+        if (e && e.errno !== 44) throw e;
+      }
       const encoder = new TextEncoder();
       const contentBytes = encoder.encode(content);
-      pyodide.FS.writeFile(vfsFile, contentBytes);
-      // DIAG: verify the file was written correctly
-      try {
-        ensureReady();
-        const stat = pyodide.FS.stat(vfsFile);
-        log('debug', `[corpus-diag] after FS.writeFile: size=${stat.size} mode=${stat.mode}`);
-        if (stat.size === 0) {
-          throw new Error(`Corpus file ${vfsFile} is 0 bytes after FS.writeFile`);
+      log('debug', `[corpus-diag] encoded contentBytes length=${contentBytes.length}`);
+      // Retry loop: FS.writeFile may produce a 0-byte file in rare VFS timing
+      // conditions; retry with a fresh encode+write on each attempt.
+      let writeAttempts = 0;
+      const MAX_WRITE_ATTEMPTS = 3;
+      while (writeAttempts < MAX_WRITE_ATTEMPTS) {
+        writeAttempts++;
+        if (writeAttempts > 1) {
+          log('warn', `[corpus-diag] retry #${writeAttempts - 1} writing ${vfsFile}`);
         }
-      } catch (statErr: any) {
-        const msg = `Corpus file check failed for ${vfsFile}: ${statErr.message || String(statErr)}`;
-        log('error', `[corpus-diag] ${msg}`);
-        throw new Error(msg);
+        pyodide.FS.writeFile(vfsFile, contentBytes);
+        try {
+          ensureReady();
+          const stat = pyodide.FS.stat(vfsFile);
+          log('debug', `[corpus-diag] after FS.writeFile attempt ${writeAttempts}: size=${stat.size} mode=${stat.mode}`);
+          if (stat.size > 0) {
+            break; // success
+          }
+          // File exists but 0 bytes — check for exhausted retries
+          if (writeAttempts >= MAX_WRITE_ATTEMPTS) {
+            const msg = `Corpus file ${vfsFile} is 0 bytes after ${MAX_WRITE_ATTEMPTS} FS.writeFile attempts`;
+            log('error', `[corpus-diag] ${msg}`);
+            throw new Error(msg);
+          }
+        } catch (statErr: any) {
+          log('warn', `[corpus-diag] stat attempt ${writeAttempts} failed: ${statErr.message}`);
+          if (writeAttempts >= MAX_WRITE_ATTEMPTS) {
+            const msg = `Corpus file check failed for ${vfsFile}: ${statErr.message || String(statErr)}`;
+            log('error', `[corpus-diag] ${msg}`);
+            throw new Error(msg);
+          }
+        }
       }
       // Pass the file path through inputSpecs (JSON) to avoid string
       // interpolation into Python code (code injection risk).

@@ -377,6 +377,11 @@ export default function DataInput() {
 
   const handleParsePaste = useCallback(async () => {
     try {
+      // Guard: reject empty paste content before sending to worker
+      if (!pasteContent || !pasteContent.trim()) {
+        setValidationMessage(t('dataInput.pasteEmpty'));
+        return;
+      }
       // Generate a synthetic file name so Python TextCorpusReader
       // can detect the format from the extension.
       const fileName =
