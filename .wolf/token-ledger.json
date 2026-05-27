@@ -2,14 +2,14 @@
   "version": 1,
   "created_at": "2026-05-15T12:06:18.944Z",
   "lifetime": {
-    "total_tokens_estimated": 14397515,
-    "total_reads": 8541,
+    "total_tokens_estimated": 14398239,
+    "total_reads": 8545,
     "total_writes": 8320,
-    "total_sessions": 53,
-    "anatomy_hits": 1857,
-    "anatomy_misses": 5395,
+    "total_sessions": 54,
+    "anatomy_hits": 1858,
+    "anatomy_misses": 5396,
     "repeated_reads_blocked": 10011,
-    "estimated_savings_vs_bare_cli": 37240119
+    "estimated_savings_vs_bare_cli": 37240319
   },
   "sessions": [
     {
@@ -99114,6 +99114,62 @@
         "writes_count": 20,
         "repeated_reads_blocked": 48,
         "anatomy_lookups": 2
+      }
+    },
+    {
+      "id": "session-2026-05-27-1643",
+      "started": "2026-05-27T08:43:12.188Z",
+      "ended": "2026-05-27T08:45:02.815Z",
+      "reads": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/components/StepIndicator.tsx",
+          "tokens_estimated": 724,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 724,
+        "output_tokens_estimated": 0,
+        "reads_count": 1,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 1
+      }
+    },
+    {
+      "id": "session-2026-05-27-1647",
+      "started": "2026-05-27T08:47:00.912Z",
+      "ended": "2026-05-27T08:47:43.020Z",
+      "reads": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/FIXME.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/HACK.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/TODO.md",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 0,
+        "reads_count": 3,
+        "writes_count": 0,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
       }
     }
   ],

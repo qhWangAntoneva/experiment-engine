@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T08:40:12.195Z
-> Files: 3 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T09:00:44.693Z
+> Files: 2 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -41,20 +41,22 @@
 
 ## src/components/
 
-- `StepIndicator.tsx` — STEPS (~724 tok)
 
 ## src/experiment_engine/
 
 
 ## src/i18n/
 
-- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~14084 tok)
 
 ## src/pages/
 
-- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~15398 tok)
+- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~15392 tok)
 
 ## src/services/
 
+
+## src/utils/
+
+- `conditionSetToYaml.ts` — Check whether a YAML scalar value needs double-quoting. (~6554 tok)
 
 ## tmp/

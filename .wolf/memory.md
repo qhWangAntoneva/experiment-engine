@@ -4,6 +4,7 @@
 
 | 2026-05-27 | Session start: 接手项目. READ handover.md, cerebrum.md, TODO.md, FIXME.md, HACK.md, buglog.json — HEAD fc3b64a, 532 passed, 27 P2 items (S级已全部完成, 22 remaining). | handover.md | session start | ~500 |
 | 15:44 | 写了完整中文 README.md，含演示数据(30条标注样本)、所有9个CLI命令示例及输出、API示例、前端说明、条件集YAML格式、项目结构、安装步骤 | README.md | 完成 | ~250 |
+| 17:10 | 修复 YAML 字符串传递 bug: 新增 yamlToConditionSet() 解析器，替换 DataInput.tsx 三处 (yamlContent as any) | conditionSetToYaml.ts, DataInput.tsx | 完成, TS build clean | ~350 |
 | 2026-05-27 | Track A: 验证部署源 — 部署正确，最新代码已上线（ec02dc5），worker JS包含所有5个包，CSP正确 | deploy_verify_report.md | 排除部署源原因 | ~300 |
 | 2026-05-27 | Track B: 本地复现 — 根因：mountFromInline()仅创建空目录，不写入实际Python源文件，导致ModuleNotFoundError | local_reproduction_report.md | 找到根因 | ~400 |
 | 2026-05-27 | 修复：创建Vite plugin(scripts/vite-plugin-pyodide-modules.ts)提供/py/modules.json，mountFromInline()改为获取JSON并写入实际文件到VFS | vite-plugin, pyodide.worker.ts, pyodide.ts, deploy.yml | 修复完成 | ~300 |
@@ -386,3 +387,15 @@
 | 16:45 | UX improvement: pasteContent auto-fill, StepIndicator, guidance bar for 30-sample workflow. Committed + pushed. | DataInput.tsx, StepIndicator.tsx, translations.ts, cerebrum.md, memory.md | committed | ~50 |
 | 16:45 | Updated cerebrum.md with UX improvement learning (bridge "Load Samples" and "Parse Text" with pasteContent auto-fill pattern) | cerebrum.md | done | ~20 |
 |------|--------|---------|---------|--------|
+
+## Session: 2026-05-27 16:47
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 16:59 | Edited src/utils/conditionSetToYaml.ts | added 61 condition(s) | ~5152 |
+| 16:59 | Edited src/pages/DataInput.tsx | inline fix | ~25 |
+| 16:59 | Edited src/pages/DataInput.tsx | 7→7 lines | ~95 |
+| 17:00 | Edited src/pages/DataInput.tsx | 9→9 lines | ~113 |
+| 17:00 | Edited src/utils/conditionSetToYaml.ts | 2→1 lines | ~14 |
+| 17:00 | Edited src/utils/conditionSetToYaml.ts | removed 13 lines | ~1 |
+| 17:00 | Edited src/pages/DataInput.tsx | 3→3 lines | ~20 |

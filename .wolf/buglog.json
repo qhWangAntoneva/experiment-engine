@@ -6328,6 +6328,43 @@
       "related_bugs": [],
       "occurrences": 2,
       "last_seen": "2026-05-27T08:40:12.214Z"
+    },
+    {
+      "id": "bug-386",
+      "timestamp": "2026-05-27T08:59:39.889Z",
+      "error_message": "Missing guard clause",
+      "file": "src/utils/conditionSetToYaml.ts",
+      "root_cause": "No early return/throw for edge case: v === '' || v === 'null' || v === '~'",
+      "fix": "Added guard clause: if (v === '' || v === 'null' || v === '~')",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T08:59:39.889Z"
+    },
+    {
+      "id": "bug-387",
+      "timestamp": "2026-05-27T17:02:03.897072",
+      "error_message": "ValidationError: membership must have at least 1 column -- YAML string spread as character object",
+      "file": "src/utils/conditionSetToYaml.ts, src/pages/DataInput.tsx",
+      "root_cause": "handleCalibrate / handleRunPipeline / handleBertCalibrate when importedConditionSet is null pass yamlContent (YAML string) directly as conditionSet to ensureQCAVariant. JS spread operator on a string produces character-indexed object, losing all conditions/outcome/domain fields, causing n_conds=0 on Python side.",
+      "fix": "Added yamlToConditionSet() hand-written YAML parser (no external deps) that reverses conditionSetToYaml. DataInput.tsx three occurrences of (yamlContent as any) replaced with yamlToConditionSet(yamlContent).",
+      "tags": [
+        "yaml-parsing",
+        "bug",
+        "condition-set",
+        "spread-operator",
+        "calibration",
+        "frontend"
+      ],
+      "related_bugs": [
+        "bug-075"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T17:02:03.897072"
     }
   ]
 }

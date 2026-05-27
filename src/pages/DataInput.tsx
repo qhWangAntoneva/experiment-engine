@@ -22,7 +22,7 @@ import ShareLinkButton from '../components/ShareLinkButton';
 import HelpTooltip from '../components/HelpTooltip';
 import StepIndicator from '../components/StepIndicator';
 import { getBuiltinTemplates } from '../services/templateService';
-import { conditionSetToYaml } from '../utils/conditionSetToYaml';
+import { conditionSetToYaml, yamlToConditionSet } from '../utils/conditionSetToYaml';
 import type {
   TextCorpusEntry,
   TextCase,
@@ -655,7 +655,7 @@ export default function DataInput() {
     // Build condition set from YAML or imported
     const cs = importedConditionSet
       ? { ...importedConditionSet, qca_variant: importedConditionSet.qca_variant ?? getQCAVariantFromSettings() }
-      : (yamlContent as any);
+      : yamlToConditionSet(yamlContent);
 
     setIsEmbedding(true);
     setValidationMessage(null);
@@ -685,7 +685,7 @@ export default function DataInput() {
         texts,
         conditionSet: importedConditionSet
           ? { ...importedConditionSet, qca_variant: importedConditionSet.qca_variant ?? getQCAVariantFromSettings() }
-          : (yamlContent as any), // YAML string parsed on Python side
+          : yamlToConditionSet(yamlContent),
         prototypeTexts: textCases.length > 0 ? textCases : undefined,
       });
       if (textCases.length > 0) {
@@ -718,7 +718,7 @@ export default function DataInput() {
         texts,
         conditionSet: importedConditionSet
           ? { ...importedConditionSet, qca_variant: importedConditionSet.qca_variant ?? getQCAVariantFromSettings() }
-          : (yamlContent as any), // YAML string parsed on Python side
+          : yamlToConditionSet(yamlContent),
         runRobustness: true,
         runCounterfactuals: false,
         prototypeTexts: textCases.length > 0 ? textCases : undefined,
