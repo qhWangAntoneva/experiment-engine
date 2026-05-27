@@ -505,7 +505,11 @@ async function handleLoadCorpus(
     // config intermediate step.  This avoids potential encoding/truncation
     // issues when CSV content (Chinese text, special chars) passes through
     // JSON.stringify → fs.writeFile → Python json.load() → f.write() chain.
-    const vfsFile = `/tmp/${fileName}`;
+    // Sanitize fileName to ASCII-only to avoid the {encoding:'utf8'} 0-byte bug
+    // in runHandler() when fileName contains Chinese characters.
+    // Preserve the original for display purposes.
+    const safeFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const vfsFile = `/tmp/${safeFileName}`;
     if (format === 'xlsx') {
       // Binary: base64-decode in Python side
       const config = { fileName, content, format };
@@ -530,14 +534,19 @@ async function handleLoadCorpus(
       try {
         const stat = pyodide.FS.stat(vfsFile);
         log('debug', `[corpus-diag] after FS.writeFile: size=${stat.size} mode=${stat.mode}`);
+        if (stat.size === 0) {
+          throw new Error(`Corpus file ${vfsFile} is 0 bytes after FS.writeFile`);
+        }
       } catch (statErr: any) {
-        log('error', `[corpus-diag] FS.stat failed for ${vfsFile}: ${statErr.message || String(statErr)}`);
+        const msg = `Corpus file check failed for ${vfsFile}: ${statErr.message || String(statErr)}`;
+        log('error', `[corpus-diag] ${msg}`);
+        throw new Error(msg);
       }
       // Pass the file path through inputSpecs (JSON) to avoid string
       // interpolation into Python code (code injection risk).
       const entries = await runHandler(
         "from experiment_engine.pyodide_handlers import handle_load_corpus_direct; handle_load_corpus_direct('/tmp/corpus_direct_config.json', '/tmp/corpus_output.json')",
-        [['/tmp/corpus_direct_config.json', { vfsFile, format }]],
+        [['/tmp/corpus_direct_config.json', { vfsFile }]],
         '/tmp/corpus_output.json',
       );
       respond({ type: 'corpus-loaded', entries });

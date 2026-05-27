@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T07:34:06.667Z
-> Files: 26 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T07:37:30.576Z
+> Files: 27 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -11,6 +11,10 @@
 
 - `index.html` — QCA Simulation Tool (~574 tok)
 - `vite.config.ts` — ============================================================================= (~373 tok)
+
+## .claude/worktrees/agent-ab4b8755c75df7a1f/src/services/
+
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~8818 tok)
 
 ## .github/workflows/
 
@@ -34,7 +38,7 @@
 ## src/services/
 
 - `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~4707 tok)
-- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~8579 tok)
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~8709 tok)
 
 ## tmp/
 

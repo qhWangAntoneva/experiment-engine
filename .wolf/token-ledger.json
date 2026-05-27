@@ -2,14 +2,14 @@
   "version": 1,
   "created_at": "2026-05-15T12:06:18.944Z",
   "lifetime": {
-    "total_tokens_estimated": 14018530,
-    "total_reads": 7901,
-    "total_writes": 8145,
-    "total_sessions": 48,
-    "anatomy_hits": 1833,
-    "anatomy_misses": 4832,
-    "repeated_reads_blocked": 9405,
-    "estimated_savings_vs_bare_cli": 34964407
+    "total_tokens_estimated": 14042614,
+    "total_reads": 7908,
+    "total_writes": 8153,
+    "total_sessions": 49,
+    "anatomy_hits": 1836,
+    "anatomy_misses": 4836,
+    "repeated_reads_blocked": 9448,
+    "estimated_savings_vs_bare_cli": 35246818
   },
   "sessions": [
     {
@@ -93998,6 +93998,105 @@
         "reads_count": 7,
         "writes_count": 6,
         "repeated_reads_blocked": 36,
+        "anatomy_lookups": 3
+      }
+    },
+    {
+      "id": "session-2026-05-27-1506",
+      "started": "2026-05-27T07:06:50.341Z",
+      "ended": "2026-05-27T07:36:14.949Z",
+      "reads": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/io/readers.py",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pyodide_handlers.py",
+          "tokens_estimated": 7360,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/pages/DataInput.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/services/pyodide.worker.ts",
+          "tokens_estimated": 8579,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/services/pyodide.ts",
+          "tokens_estimated": 4707,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/scripts/vite-plugin-pyodide-modules.ts",
+          "tokens_estimated": 785,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/tests/fixtures/sample_cases.csv",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/services/pyodide.worker.ts",
+          "tokens_estimated": 471,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pyodide_handlers.py",
+          "tokens_estimated": 446,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/services/pyodide.worker.ts",
+          "tokens_estimated": 504,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pyodide_handlers.py",
+          "tokens_estimated": 322,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/services/pyodide.worker.ts",
+          "tokens_estimated": 358,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pyodide_handlers.py",
+          "tokens_estimated": 502,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pyodide_handlers.py",
+          "tokens_estimated": 25,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/lenovos/QCA Analysis Tool/src/experiment_engine/pyodide_handlers.py",
+          "tokens_estimated": 25,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 21431,
+        "output_tokens_estimated": 2653,
+        "reads_count": 7,
+        "writes_count": 8,
+        "repeated_reads_blocked": 43,
         "anatomy_lookups": 3
       }
     }
