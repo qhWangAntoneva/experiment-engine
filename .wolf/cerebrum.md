@@ -51,6 +51,12 @@
 
 ### Current
 
+- **2026-05-28: Transformers.js ONNX Runtime 云端推理崩溃防护**：`bert-engine.ts` 中 `this._model(batchTexts, ...)` 调用在云端生产环境可能抛出 Transformers.js 内部错误（访问 undefined tensor `.data`），本地 dev 正常。添加 try-catch 包裹 + 零向量回退，确保单个 batch 推理失败不会崩溃整个 pipeline。同时将 tensor 无 data 时的 `throw new Error` 改为零向量回退 + console.warn。
+
+### Current
+
+
+
 - **BERT + Prototype is the sole scoring method** (completed 2026-05-25). Keyword matching fully removed. Files deleted: keyword_dict.py, keyword_io.py, prototype_similarity.py. CosineSimilarityEngine (BERT CLS + cosine similarity + softmax tau=5.0) is the only scoring engine.
 - **P1-B3/B6 completed**: domains.py uses prototype text templates (not keyword presets). KeywordEntry class removed from models/qca.py. ConditionDefinition.keywords field removed.
 - **P2-17 completed 2026-05-27**: Created `src/experiment_engine/api.py` with 5 clean API functions (run_calibrate, run_analyze, run_robustness, run_counterfactuals, run_report). Refactored `cli.py` commands to thin wrappers delegating to api.py. `_load_fuzzy_data` shared helper moved to api.py.

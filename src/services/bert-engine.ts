@@ -236,17 +236,37 @@ export class BertEngine {
       const slice = uncached.slice(i, i + batchSize)
       const batchTexts = slice.map((s) => this._truncateText(s.text))
 
-      const output = await this._model(batchTexts, {
-        pooling: 'mean',
-        normalize: false
-      })
+      // Transformers.js internal model inference can throw with
+      // "Cannot read properties of undefined (reading 'data')" in
+      // the cloud production environment (ONNX Runtime Web backend
+      // initialization).  Wrap the call in try-catch so a single
+      // failing batch degrades gracefully (zero-vector fallback)
+      // rather than crashing the entire pipeline.
+      let tensors: any[]
+      try {
+        const output = await this._model(batchTexts, {
+          pooling: 'mean',
+          normalize: false
+        })
+        tensors = Array.isArray(output) ? output : [output]
+      } catch (inferErr: any) {
+        console.error(
+          `[BertEngine] Model inference failed for batch ${i / batchSize} ` +
+          `(${batchTexts.length} texts, slice=${i}..${i + batchSize}): ` +
+          `${inferErr.message || String(inferErr)}`
+        )
+        // Fallback: fill this batch with zero vectors
+        for (const { index } of slice) {
+          embeddings[index] = new Float32Array(DEFAULT_HIDDEN_DIM)
+        }
+        continue
+      }
 
       // Transformers.js v2.17.x with pooling='mean' returns Tensor[]
       // (one per input text, each with shape [hiddenDim]) for batched inputs,
       // or a bare Tensor for a single input.  Future versions may return a
       // single batched Tensor with shape [batchSize, hiddenDim].
       // Handle all three cases robustly.
-      const tensors: any[] = Array.isArray(output) ? output : [output]
 
       if (tensors.length === 0) {
         // No usable tensor output — fill with zero vectors
@@ -262,9 +282,14 @@ export class BertEngine {
         const outputData = batchTensor.data as Float32Array
 
         if (!outputData) {
-          throw new Error(
-            `Transformers output tensor has no data (dims=${JSON.stringify(dims)})`
+          console.warn(
+            `[BertEngine] Batch tensor has no data (dims=${JSON.stringify(dims)}), ` +
+            `falling back to zero vectors`
           )
+          for (const { index } of slice) {
+            embeddings[index] = new Float32Array(DEFAULT_HIDDEN_DIM)
+          }
+          continue
         }
 
         for (let j = 0; j < slice.length; j++) {

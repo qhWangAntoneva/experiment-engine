@@ -1,5 +1,8 @@
 # Memory
 
+| 2026-05-28 | Fix Transformers.js 云端推理崩溃: _model() 调用添加 try-catch + 零向量回退，替代 throw new Error 传播到 pipeline 崩溃 | bert-engine.ts | bug-393 logged, TS clean, 532 tests pass | ~200 |
+
+
 > Active sessions: most recent 2. Older sessions archived to `memory-archive.md`.
 
 | 2026-05-27 | Added defensive checks in handleComputeEmbeddings (texts array validation + diagnostic error message with text count) and handleComputePrototypeEmbeddings (prototypes object validation + per-condition protoTexts type check + diagnostic error message with condition keys). | pyodide.worker.ts | done | ~50 |
@@ -612,3 +615,11 @@
 |------|--------|---------|---------|--------|
 | 00:09 | Edited src/experiment_engine/text_calibration/calibrator.py | added 1 import(s) | ~56 |
 | 00:09 | Edited src/experiment_engine/text_calibration/calibrator.py | 6→2 lines | ~32 |
+
+## Session: 2026-05-27 00:11
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 00:16 | Edited src/services/bert-engine.ts | added error handling | ~378 |
+| 00:16 | Edited src/services/bert-engine.ts | modified if() | ~99 |
+| 00:16 | Edited src/services/bert-engine.ts | 6→5 lines | ~95 |

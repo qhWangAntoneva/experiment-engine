@@ -2,6 +2,18 @@
   "version": 1,
   "bugs": [
     {
+      "id": "bug-393",
+      "timestamp": "2026-05-28T00:00:00.000Z",
+      "error_message": "管道执行失败：Embedding computation failed: Cannot read properties of undefined (reading 'data')（云端运行，本地正常）",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "Transformers.js 内部 ONNX Runtime 推理可能抛出 'Cannot read properties of undefined (reading 'data')'，在云端生产环境（GitHub Pages）因打包/跨域环境下 ONNX Runtime Web backend 初始化差异触发，本地 dev server 可正常使用。_model() 调用无 try-catch 包裹，导致整个 extractEmbeddings 失败传播到 worker → bridge → React 组件崩溃。",
+      "fix": "将 _model(batchTexts, {pooling:'mean', normalize:false}) 调用包裹在 try-catch 中：捕获到 Transformers.js 内部错误时，console.error 记录详细 batch 信息（批次号、文本数、切片范围、原始错误），然后对当前 batch 使用零向量回退（DEFAULT_HIDDEN_DIM）并 continue 到下一 batch。同时将 transform 输出 tensor 无 data 时的 throw new Error 改为零向量回退+console.warn。",
+      "tags": ["transformers.js", "bert", "onnx-runtime", "cloud", "production", "try-catch"],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-28T00:00:00.000Z"
+    },
+    {
       "id": "bug-006",
       "timestamp": "2026-05-24T10:30:00.000Z",
       "error_message": "ruff pre-commit hook failed with 'Unknown rule selector: RUF043'",
@@ -3101,6 +3113,38 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-27T17:50:00.000Z"
+    },
+    {
+      "id": "bug-183",
+      "timestamp": "2026-05-27T16:16:29.520Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T16:16:29.520Z"
+    },
+    {
+      "id": "bug-184",
+      "timestamp": "2026-05-27T16:16:33.210Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→10 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T16:16:33.210Z"
     }
   ],
   "pruned": {
