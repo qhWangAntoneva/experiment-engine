@@ -1,6 +1,6 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T17:53:28.594Z
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T16:16:47.979Z
 > Files: 1 tracked | Anatomy hits: 0 | Misses: 0
 
 ## src/components/
@@ -41,10 +41,10 @@
 
 ## src/pages/
 
-- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~16260 tok)
 
 ## src/services/
 
+- `bert-engine.ts` — Available BERT models the user can choose from on the Settings page. (~4152 tok)
 
 ## src/store/
 

@@ -11,236 +11,479 @@
       "tags": ["transformers.js", "bert", "onnx-runtime", "cloud", "production", "try-catch"],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-28"
+      "last_seen": "2026-05-28T00:00:00.000Z"
     },
     {
       "id": "bug-006",
       "timestamp": "2026-05-24T10:30:00.000Z",
       "error_message": "ruff pre-commit hook failed with 'Unknown rule selector: RUF043'",
       "file": "pyproject.toml",
-      "root_cause": "pre-commit ruff v0.4.0 vs local ruff 0.15.12 version mismatch.",
-      "fix": "Upgraded pre-commit ruff from v0.4.0 to v0.15.12, removed obsolete PD901 from global ignore, fixed RUF043 in test code.",
-      "tags": ["ruff", "pre-commit", "version-mismatch", "tooling"],
+      "root_cause": "pre-commit ruff v0.4.0 vs local ruff 0.15.12 version mismatch. RUF043 rule was added after v0.4.0. Also PD901 rule was removed in 0.15.x but still referenced in global ignore.",
+      "fix": "Upgraded pre-commit ruff from v0.4.0 to v0.15.12, removed obsolete PD901 from global ignore, fixed RUF043 in test code (raw strings for match= patterns)",
+      "tags": [
+        "ruff",
+        "pre-commit",
+        "version-mismatch",
+        "tooling"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T10:30:00.000Z"
     },
     {
       "id": "bug-009",
       "timestamp": "2026-05-24T05:50:00.000Z",
-      "error_message": "GitHub Actions deploy CI failed 3x in a row",
-      "file": "package-lock.json",
-      "root_cause": "package-lock.json desynced from package.json + 3 pre-existing TS type errors masked by build never reaching tsc step.",
-      "fix": "npm install to sync lock file, declare module plotly.js-dist-min, fix dead stage check, rename dispatch prop.",
-      "tags": ["CI", "deploy", "npm", "typescript", "plotly"],
+      "error_message": "GitHub Actions deploy CI failed 3x in a row. npm ci: lock file plotly.js-dist-min@3.5.1 does not satisfy package.json ^2.35.0. After fixing, tsc -b failed: missing plotly type decls, TS2367 unreachable code, TS2353 wrong prop name.",
+      "file": "package-lock.json, src/vite-env.d.ts, src/components/PipelineStatus.tsx, src/store/QCAPipelineContext.tsx",
+      "root_cause": "package-lock.json desynced from package.json (likely npm install ran without updating package.json). This masked 3 pre-existing TypeScript errors because CI never reached the build step.",
+      "fix": "(1) npm install to sync lock file, (2) declare module plotly.js-dist-min, (3) remove dead stage===error check inside error-excluded block, (4) rename dispatch prop cs->conditionSet.",
+      "tags": [
+        "CI",
+        "deploy",
+        "npm",
+        "typescript",
+        "plotly",
+        "github-actions"
+      ],
+      "related_bugs": [
+        "bug-007",
+        "bug-008"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T05:50:00.000Z"
+    },
+    {
+      "id": "bug-012",
+      "timestamp": "2026-05-24T07:19:46.064Z",
+      "error_message": "Missing error handling in function",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T07:19:46.064Z"
+    },
+    {
+      "id": "bug-013",
+      "timestamp": "2026-05-24T07:20:41.664Z",
+      "error_message": "Type error",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: pyodide.FS.writeFile('/tmp/condition_set.json', csJson, { en; with open('/tmp/condition_set.json', 'r', encoding='utf-8') ",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-24T07:20:48.197Z"
     },
     {
       "id": "bug-014",
       "timestamp": "2026-05-24T12:00:00.000Z",
-      "error_message": "Code injection vulnerability: 6 handler functions embed JSON into Python code via template literals",
+      "error_message": "Code injection vulnerability: 6 handler functions embed JSON into Python code via template literals using .replace(/'/g, \"\\\\'\"), which fails if input contains triple single quotes '''",
       "file": "src/services/pyodide.worker.ts",
-      "root_cause": "JSON data interpolated directly into Python f-strings via JS template literals. Single-quote escaping fails against triple single quotes.",
-      "fix": "Replaced all template literal injection with Pyodide VFS file writing: JSON → /tmp/*.json via FS.writeFile, Python reads via json.load().",
-      "tags": ["security", "code-injection", "pyodide"],
+      "root_cause": "JSON data was interpolated directly into Python f-strings via JS template literals. The single-quote escaping does not prevent triple-quote breakouts. Malicious input containing ''' could execute arbitrary Python code.",
+      "fix": "Replaced all template literal injection with Pyodide VFS file writing: JSON is written to /tmp/*.json via pyodide.FS.writeFile(), then Python reads it with json.load(open(...)). Affected: handleCalibrate, handleAnalyze, handleRobustness, handleCounterfactuals, handleExport, handleValidate.",
+      "tags": [
+        "security",
+        "code-injection",
+        "pyodide",
+        "python",
+        "ts"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T12:00:00.000Z"
     },
     {
       "id": "bug-015",
       "timestamp": "2026-05-24T12:00:00.000Z",
-      "error_message": "mountFromInline() only creates empty directories without __init__.py files",
+      "error_message": "mountFromInline() only creates empty directories without __init__.py files, so Python cannot import packages like experiment_engine, qca_engine, etc.",
       "file": "src/services/pyodide.worker.ts",
-      "root_cause": "The inline mount fallback created directory paths but never wrote __init__.py files, making them invisible to Python's import system.",
-      "fix": "Updated mountFromInline() to write auto-generated __init__.py in each package directory.",
-      "tags": ["pyodide", "import", "module-mounting"],
+      "root_cause": "The inline mount fallback created directory paths via os.makedirs() but never wrote __init__.py files, making them invisible to Python's import system.",
+      "fix": "Updated mountFromInline() to iterate over a _packages list and write an auto-generated __init__.py in each package directory, with experiment_engine as the root package included.",
+      "tags": [
+        "pyodide",
+        "python",
+        "import",
+        "module-mounting",
+        "ts"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T12:00:00.000Z"
+    },
+    {
+      "id": "bug-018",
+      "timestamp": "2026-05-24T08:49:32.184Z",
+      "error_message": "Missing error handling in function",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T08:49:32.184Z"
+    },
+    {
+      "id": "bug-020",
+      "timestamp": "2026-05-24T08:54:13.857Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T08:54:13.857Z"
+    },
+    {
+      "id": "bug-021",
+      "timestamp": "2026-05-24T08:55:03.308Z",
+      "error_message": "Missing guard clause",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "No early return/throw for edge case: match",
+      "fix": "Added guard clause: if (match)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T08:55:03.308Z"
     },
     {
       "id": "bug-025",
       "timestamp": "2026-05-24T14:00:00.000Z",
-      "error_message": "PydanticSerializationError: Unable to serialize unknown type: <class 'numpy.ndarray'> in CLI run/analyze",
+      "error_message": "PydanticSerializationError: Unable to serialize unknown type: <class 'numpy.ndarray'> in CLI run/analyze commands when saving results via _save_analysis_result()",
       "file": "src/experiment_engine/cli.py",
-      "root_cause": "model_dump_json() includes FuzzySetData with membership: np.ndarray. Pydantic v2 with arbitrary_types_allowed=True permits construction but not JSON serialization.",
-      "fix": "Added exclude={'fuzzy_data'} to model_dump_json() since fuzzy data is saved separately as .npz.",
-      "tags": ["cli", "serialization", "numpy", "pydantic"],
-      "related_bugs": [],
+      "root_cause": "_save_analysis_result() called result.model_dump_json() which includes FuzzySetData with membership: np.ndarray field. Pydantic v2's arbitrary_types_allowed=True permits construction but not JSON serialization of numpy arrays.",
+      "fix": "Added exclude={'fuzzy_data'} to model_dump_json() call since fuzzy data is already saved separately as .npz file. The numpy array cannot be natively JSON-serialized.",
+      "tags": [
+        "cli",
+        "serialization",
+        "numpy",
+        "pydantic",
+        "json"
+      ],
+      "related_bugs": [
+        "bug-32"
+      ],
       "occurrences": 2,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T14:00:00.000Z"
     },
     {
       "id": "bug-026",
       "timestamp": "2026-05-24T14:00:00.000Z",
-      "error_message": "AttributeError: 'RobustnessTestResult' object has no attribute 'overall_robustness'",
+      "error_message": "AttributeError: 'RobustnessTestResult' object has no attribute 'overall_robustness' in RobustnessTester.run_all()",
       "file": "src/experiment_engine/qca_engine/advanced/robustness.py",
-      "root_cause": "Code accessed t.overall_robustness but RobustnessTestResult only has solution_stability and coverage_stability.",
-      "fix": "Changed to compute np.mean(t.solution_stability) for each test.",
-      "tags": ["robustness", "attribute-error"],
-      "related_bugs": [],
+      "root_cause": "Line 49 accessed t.overall_robustness on RobustnessTestResult objects, but that model only has solution_stability (list[float]) and coverage_stability (list[float]). There is no overall_robustness field on the per-test result model.",
+      "fix": "Changed to compute np.mean(t.solution_stability) for each test if the list is non-empty (else 0.0), giving the correct per-test aggregate before averaging across all tests.",
+      "tags": [
+        "cli",
+        "robustness",
+        "attribute-error",
+        "qca",
+        "model"
+      ],
+      "related_bugs": [
+        "bug-33"
+      ],
       "occurrences": 2,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T14:00:00.000Z"
     },
     {
       "id": "bug-27",
-      "timestamp": "2026-05-24T10:16:11.550Z",
-      "error_message": "test_algorithms.py imports deleted KMeansStage/LinearRegressionStage",
+      "timestamp": "2026-05-24T10:16:11.550433Z",
+      "error_message": "test_algorithms.py imports deleted KMeansStage/LinearRegressionStage causing ModuleNotFoundError during pytest collection",
       "file": "tests/test_algorithms.py",
-      "root_cause": "KMeansStage and LinearRegressionStage were deleted during QCA refactoring but test was never updated.",
-      "fix": "Deleted tests/test_algorithms.py, removed stale per-file-ignore from pyproject.toml.",
-      "tags": ["stale-test", "import-error"],
+      "root_cause": "KMeansStage and LinearRegressionStage were deleted during the QCA text-analysis refactoring, but test_algorithms.py was never updated or removed.",
+      "fix": "Deleted tests/test_algorithms.py via git rm. Removed stale per-file-ignore entry from pyproject.toml.",
+      "tags": [
+        "stale-test",
+        "import-error",
+        "qca-refactoring"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T10:16:11.550433Z"
     },
     {
       "id": "bug-28",
-      "timestamp": "2026-05-24T10:16:11.550Z",
-      "error_message": "Unconditional import pandas in readers.py breaks test collection",
+      "timestamp": "2026-05-24T10:16:11.550433Z",
+      "error_message": "Unconditional import pandas in readers.py breaks test collection (test_io.py + test_integration.py) when pandas not installed",
       "file": "src/experiment_engine/io/readers.py",
-      "root_cause": "Top-level 'import pandas as pd' but pandas not in pyproject.toml dependencies.",
-      "fix": "Replaced with _get_pandas() lazy-import helper with clear error message.",
-      "tags": ["import-error", "pandas", "lazy-import"],
+      "root_cause": "readers.py had top-level \"import pandas as pd\" but pandas was not listed in pyproject.toml dependencies or dev-dependencies. The import chain (io/__init__.py → db.py → sources.py → readers.py → pandas) caused any import from io to fail.",
+      "fix": "Replaced top-level pandas import with _get_pandas() lazy-import helper that provides a clear error message. CSVReader, JSONReader, and TextCorpusReader (CSV branch) now call _get_pandas() only when actually needed.",
+      "tags": [
+        "import-error",
+        "pandas",
+        "dependencies",
+        "lazy-import"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T10:16:11.550433Z"
     },
     {
       "id": "bug-29",
-      "timestamp": "2026-05-24T10:16:11.550Z",
-      "error_message": "ruff lint violations in test_prototype_similarity.py",
+      "timestamp": "2026-05-24T10:16:11.550433Z",
+      "error_message": "ruff lint violations in test_prototype_similarity.py: RUF001 (Chinese commas), SLF001 (private _jaccard/_apply_calibration), B017 (pytest.raises(Exception))",
       "file": "pyproject.toml",
-      "root_cause": "No per-file-ignore configured for test code with CJK strings and private method access.",
-      "fix": "Added per-file-ignore for test_prototype_similarity.py.",
-      "tags": ["ruff", "lint", "per-file-ignore"],
+      "root_cause": "No per-file-ignore was configured for test_prototype_similarity.py. RUF001 from CJK test strings, SLF001 from test accessing private methods, B017 from broad Exception catches in model tests.",
+      "fix": "Added per-file-ignore entry: \"tests/test_prototype_similarity.py\" = [\"RUF001\", \"SLF001\", \"B017\"]",
+      "tags": [
+        "ruff",
+        "lint",
+        "per-file-ignore"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T10:16:11.550433Z"
     },
     {
       "id": "bug-30",
-      "timestamp": "2026-05-24T10:16:11.550Z",
-      "error_message": "roadmap file missing trailing newline (end-of-file-fixer)",
+      "timestamp": "2026-05-24T10:16:11.550433Z",
+      "error_message": "roadmap/experiment-engine-roadmap.json missing trailing newline (end-of-file-fixer pre-commit hook)",
       "file": "roadmap/experiment-engine-roadmap.json",
-      "root_cause": "File ended without trailing newline.",
-      "fix": "Added trailing newline.",
-      "tags": ["pre-commit", "end-of-file-fixer"],
+      "root_cause": "File ended without a trailing newline, violating the end-of-file-fixer pre-commit hook.",
+      "fix": "Added trailing newline at end of file.",
+      "tags": [
+        "pre-commit",
+        "end-of-file-fixer",
+        "newline"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T10:16:11.550433Z"
     },
     {
       "id": "bug-31",
-      "timestamp": "2026-05-24T10:16:11.550Z",
-      "error_message": "6 integration tests fail: wrong output, removed command, new config format",
+      "timestamp": "2026-05-24T10:16:11.550433Z",
+      "error_message": "6 integration tests fail: test_validate prints wrong string, list-plugins command removed, run command expects new config format",
       "file": "tests/test_integration.py",
-      "root_cause": "CLI refactored from pipeline-plugin to text-calibration QCA; tests referenced removed commands and old output formats.",
-      "fix": "Replaced test helpers with _make_valid_condition_set/_make_valid_corpus, updated assertions.",
-      "tags": ["stale-test", "integration-test", "qca-refactoring"],
+      "root_cause": "The CLI was refactored from pipeline-plugin system to text-calibration QCA system. Tests referenced removed commands (list-plugins) and expected old output formats (\"Stages:\" instead of \"Condition names:\", stages-based config instead of conditions-based).",
+      "fix": "Replaced _make_valid_yaml_config() with _make_valid_condition_set()/_make_valid_corpus() helpers. Replaced list-plugins tests with list-conditions tests. Updated validate assertion to \"Condition names:\". Updated run assertions to \"Done\".",
+      "tags": [
+        "stale-test",
+        "cli",
+        "integration-test",
+        "qca-refactoring"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T10:16:11.550433Z"
     },
     {
       "id": "bug-34",
       "timestamp": "2026-05-24T12:00:00.000Z",
-      "error_message": "counterfactual.py produce_parsimonious_solution only includes easy counterfactuals",
+      "error_message": "counterfactual.py produce_parsimonious_solution only includes easy counterfactuals, not all logical remainders",
       "file": "src/experiment_engine/qca_engine/advanced/counterfactual.py",
-      "root_cause": "Method filters logical remainders through _classify_counterfactual, only adding easy counterfactuals. Standard QCA requires ALL remainders as don't-care.",
-      "fix": "Add all rows with frequency < 1.0 as don't-care minterms.",
-      "tags": ["algorithm-bug", "qca", "parsimonious-solution", "counterfactual", "critical"],
+      "root_cause": "The method filters logical remainders through _classify_counterfactual, only adding easy counterfactuals. Standard QCA (Ragin 2008) requires ALL logical remainders as don't-care rows for parsimonious solution.",
+      "fix": "Add all rows with frequency < 1.0 as don't-care minterms (not just easy counterfactuals). Requires extending QM to support don't-care concept.",
+      "tags": [
+        "algorithm-bug",
+        "qca",
+        "parsimonious-solution",
+        "counterfactual"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24",
-      "severity": "critical"
+      "severity": "critical",
+      "source": "3-agent code review (reviewer subagent)"
     },
     {
       "id": "bug-35",
       "timestamp": "2026-05-24T12:00:00.000Z",
       "error_message": "calibrate_ragin implements piecewise linear interpolation, not Ragin log-odds direct method",
       "file": "src/experiment_engine/text_calibration/calibrator.py",
-      "root_cause": "The code at lines 389-421 is piecewise linear identical to calibrate_direct.",
-      "fix": "Rewrote calibrate_ragin() with logistic formula: log_odds, deviation, membership = exp(dev) / (1+exp(dev)). Added np.clip for overflow safety.",
-      "tags": ["algorithm-bug", "qca", "calibration", "ragin-method", "critical"],
+      "root_cause": "The docstring claims Ragin log-odds method but the code at lines 389-421 is piecewise linear identical to calibrate_direct (only floor/ceiling changed to 0.05/0.95).",
+      "fix": "Rewrite with logistic formula: log_odds = ln(m/(1-m)), deviation = (raw - crossover) * (log_odds_95 / (full_in - crossover)), membership = exp(deviation) / (1 + exp(deviation))",
+      "tags": [
+        "algorithm-bug",
+        "qca",
+        "calibration",
+        "ragin-method"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24",
-      "severity": "critical"
+      "severity": "critical",
+      "source": "3-agent code review (reviewer subagent)",
+      "fixed": "2026-05-24T14:00:00.000Z",
+      "fixed_by": "Rewrote calibrate_ragin() with logistic formula: log_odds_95 = ln(0.95/0.05), deviation = (raw - cross) * scale, membership = exp(dev) / (1+exp(dev)). Added np.clip(deviation, -700, 700) for overflow safety. All tests pass (360/360)."
     },
     {
       "id": "bug-36",
       "timestamp": "2026-05-24T12:00:00.000Z",
       "error_message": "calibrator.py column index offset when mixing KEYWORD/HYBRID/PROTOTYPE scoring sources",
       "file": "src/experiment_engine/text_calibration/calibrator.py",
-      "root_cause": "_compute_raw_scores() uses col_idx (global position) to index match_corpus() result matrix (only KEYWORD/HYBRID columns).",
-      "fix": "Build a col_idx → kw_col_idx mapping before indexing.",
-      "tags": ["algorithm-bug", "calibration", "index-offset", "critical"],
+      "root_cause": "_compute_raw_scores() at line 165-167 uses col_idx (global position) to index match_corpus() result matrix (only KEYWORD/HYBRID columns). When PROTOTYPE conditions interleave with KEYWORD, the index is shifted.",
+      "fix": "Build a col_idx -> kw_col_idx mapping before indexing.",
+      "tags": [
+        "algorithm-bug",
+        "calibration",
+        "index-offset",
+        "scoring-source"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24",
-      "severity": "critical"
+      "severity": "critical",
+      "source": "3-agent code review (reviewer subagent)",
+      "fixed": "2026-05-24T14:00:00.000Z",
+      "fixed_by": "Added _precompute_kw_context() that builds col_idx -> kw_col_idx mapping. _compute_raw_scores() now accepts optional kw_matrix and col_to_kw params and uses the mapping. process_with_outcome() and calibrate_one() also updated."
     },
     {
       "id": "bug-37",
       "timestamp": "2026-05-24T12:00:00.000Z",
       "error_message": "match_corpus() called once per KEYWORD condition causing O(n_conditions * n_texts * n_keywords) redundancy",
       "file": "src/experiment_engine/text_calibration/calibrator.py",
-      "root_cause": "_compute_raw_scores calls self._dict.match_corpus(texts) inside the per-condition loop.",
-      "fix": "Call match_corpus() once and cache the result matrix.",
-      "tags": ["performance", "calibration", "redundant-computation"],
-      "related_bugs": ["bug-36"],
+      "root_cause": "_compute_raw_scores at line 140,166 calls self._dict.match_corpus(texts) inside the per-condition loop. Each KEYWORD/HYBRID condition re-runs the full corpus match.",
+      "fix": "Call match_corpus() once in process() and cache the result matrix. Reference cached columns by index.",
+      "tags": [
+        "performance",
+        "calibration",
+        "redundant-computation"
+      ],
+      "related_bugs": [
+        "bug-36"
+      ],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24",
+      "severity": "high",
+      "source": "3-agent code review (reviewer subagent)",
+      "fixed": "2026-05-24T14:00:00.000Z",
+      "fixed_by": "Fixed alongside bug-36. _precompute_kw_context() caches match_corpus() result once. All callers (process, process_with_outcome, calibrate_one) use the cached matrix."
     },
     {
       "id": "bug-38",
       "timestamp": "2026-05-24T12:00:00.000Z",
       "error_message": "Pipeline passes corrupted data downstream after stage failure (silent data corruption)",
       "file": "src/experiment_engine/pipeline.py",
-      "root_cause": "Pipeline.process() catches stage exceptions but continues with 'last good data'.",
-      "fix": "Add fail_fast: bool config (default True). On failure: set PipelineStatus.FAILED, break loop.",
-      "tags": ["data-integrity", "pipeline", "error-handling", "silent-failure", "critical"],
+      "root_cause": "Pipeline.process() at line 277-286 catches stage exceptions but continues with \"last good data\". If TextCalibrationStage fails, QCAnalyzerStage receives raw text instead of fuzzy sets.",
+      "fix": "Add fail_fast: bool config (default True for QCA pipelines). On stage failure, abort immediately with PipelineStatus.FAILED.",
+      "tags": [
+        "data-integrity",
+        "pipeline",
+        "error-handling",
+        "silent-failure"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24",
-      "severity": "critical"
+      "severity": "critical",
+      "source": "3-agent code review (technical-advisor subagent)",
+      "fixed": "2026-05-24T12:21:00.000Z",
+      "fixed_by": "Added fail_fast: bool = True to Pipeline and ParallelPipeline. On failure with fail_fast=True: set PipelineStatus.FAILED, break loop. Added data_quality field to StageResult ('valid'/'stale'/None for failures). Added failed_stages property and fail_fast field to PipelineResult. Updated Pipeline.process() to re-raise on fail_fast=True. Updated 3 tests to match new behavior."
+    },
+    {
+      "id": "bug-013",
+      "timestamp": "2026-05-24T19:54:39.323562",
+      "error_message": "produce_parsimonious_solution produced identical output to intermediate solution — filtered logical remainders through _classify_counterfactual instead of treating ALL remainders as don't-care",
+      "file": "src/experiment_engine/qca_engine/advanced/counterfactual.py",
+      "root_cause": "produce_parsimonious_solution applied _classify_counterfactual filter to logical remainders (matching intermediate solution behavior). Standard QCA (Ragin 2008) requires the parsimonious solution to treat ALL logical remainders as don't-care without easy/hard discrimination.",
+      "fix": "Changed produce_parsimonious_solution to collect ALL frequency<1.0 rows as dont_care_minterms (no filtering). Extended QuineMcCluskey.minimize() with dont_care_minterms parameter — don't-care minterms participate in prime implicant generation but are excluded from the prime implicant chart covering requirement.",
+      "tags": [
+        "algorithm",
+        "qca",
+        "parsimonious",
+        "counterfactual",
+        "quine-mccluskey",
+        "dont-care",
+        "FIXME-1"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T19:54:39.323562"
+    },
+    {
+      "id": "bug-014",
+      "timestamp": "2026-05-24T19:54:39.323562",
+      "error_message": "Quine-McCluskey did not support don't-care minterms, making parsimonious/intermediate solutions treat all remainders as outcome=1 minterms",
+      "file": "src/experiment_engine/qca_engine/minimization.py",
+      "root_cause": "QM implementation only handled outcome=1 minterms with no concept of don't-care, preventing proper parsimonious solution generation.",
+      "fix": "Added dont_care_minterms parameter to minimize(). All minterms (regular + don't-care) participate in grouping/combining. Chart columns only cover regular minterms (idx < n_reg). Don't-care minterms (idx >= n_reg) are excluded from the covering requirement. Removed dead code lines 43-44 (FIXME-18).",
+      "tags": [
+        "algorithm",
+        "qca",
+        "quine-mccluskey",
+        "dont-care",
+        "HACK-5",
+        "FIXME-18"
+      ],
+      "related_bugs": [
+        "bug-013"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T19:54:39.323562"
     },
     {
       "id": "bug-044",
       "timestamp": "2026-05-24T12:20:00.000Z",
       "error_message": "theoretical_expectation field always None for observed rows",
       "file": "src/experiment_engine/qca_engine/advanced/counterfactual.py",
-      "root_cause": "theo_exp initialized to None and never assigned; _classify_counterfactual() never populated it.",
-      "fix": "Added loop to build theo_exp string from directional_expectations.",
-      "tags": ["counterfactual", "theoretical_expectation"],
+      "root_cause": "theo_exp initialized to None at line 57 and never assigned; _classify_counterfactual() used directional_expectations for easy/hard classification but never populated theo_exp",
+      "fix": "Added loop in analyze() to build theo_exp string from directional_expectations: for each condition with an expectation, append '+name' or '-name'; join with ', '; set to None if no expectations exist",
+      "tags": [
+        "fixme-9",
+        "fixme",
+        "counterfactual",
+        "theoretical_expectation",
+        "py"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T12:20:00.000Z"
     },
     {
       "id": "bug-045",
       "timestamp": "2026-05-24T12:20:00.000Z",
       "error_message": "Condition name mismatch silently skipped in _compute_term_membership",
       "file": "src/experiment_engine/qca_engine/sufficiency.py",
-      "root_cause": "When a condition name didn't match any column, the code silently passed (treated as 1.0).",
-      "fix": "Added warnings.warn() with stacklevel=2 in both negated and non-negated branches.",
-      "tags": ["sufficiency", "warnings"],
+      "root_cause": "When a condition name (or negated condition name) didn't match any column in condition_matrix, the code silently passed (treated as 1.0 with no warning), hiding potential bugs",
+      "fix": "Added warnings.warn() with stacklevel=2 in both the negated and non-negated branches when condition name not found; imported warnings module",
+      "tags": [
+        "fixme-13",
+        "fixme",
+        "sufficiency",
+        "warnings",
+        "py"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T12:20:00.000Z"
     },
     {
       "id": "bug-049",
       "timestamp": "2026-05-24T12:45:00",
-      "error_message": "coverage_stability always 0 in test_consistency_sensitivity",
+      "error_message": "coverage_stability always 0 in test_consistency_sensitivity because hasattr(tt, \"solution_coverage\") always False (TruthTable model has no such field)",
       "file": "src/experiment_engine/qca_engine/advanced/robustness.py",
-      "root_cause": "Code checked hasattr(tt, 'solution_coverage') which is always False on TruthTable model.",
-      "fix": "Added _compute_solution_coverage() helper using real fuzzy-set solution coverage formula.",
-      "tags": ["robustness", "coverage"],
+      "root_cause": "Code checked hasattr(tt, \"solution_coverage\") which is always False. TruthTable model has no solution_coverage field.",
+      "fix": "Added _compute_solution_coverage() helper that computes real fuzzy-set solution coverage via term membership AND + union + ConsistencyCalculator. Used in both test_consistency_sensitivity and test_frequency_sensitivity.",
+      "tags": [
+        "FIXME-6",
+        "robustness",
+        "coverage",
+        "bug"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24"
@@ -248,11 +491,16 @@
     {
       "id": "bug-050",
       "timestamp": "2026-05-24T12:45:00",
-      "error_message": "test_calibration_sensitivity perturbs ALL membership columns including outcome",
+      "error_message": "test_calibration_sensitivity perturbs ALL membership columns including outcome, conflating calibration sensitivity with outcome sensitivity",
       "file": "src/experiment_engine/qca_engine/advanced/robustness.py",
-      "root_cause": "Method applied perturbation to all columns (including last/outcome column).",
-      "fix": "Renamed to test_membership_perturbation; perturbs only condition columns.",
-      "tags": ["robustness", "calibration", "perturbation"],
+      "root_cause": "Method applied additive perturbation to membership.copy() (all columns including last/outcome), which conflates calibration sensitivity with outcome sensitivity.",
+      "fix": "Renamed to test_membership_perturbation; now perturbs only condition columns (perturbed[:, :-1]) excluding outcome. Added backward-compatible test_calibration_sensitivity alias. Updated run_all to call the new name.",
+      "tags": [
+        "FIXME-7",
+        "robustness",
+        "calibration",
+        "perturbation"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24"
@@ -260,11 +508,16 @@
     {
       "id": "bug-051",
       "timestamp": "2026-05-24T12:45:00",
-      "error_message": "Bootstrap resampling documented but never implemented",
+      "error_message": "Docstring mentions bootstrap resampling but run_all() and RobustnessTester have no resampling-based methods",
       "file": "src/experiment_engine/qca_engine/advanced/robustness.py",
-      "root_cause": "Docstring mentions bootstrap but no implementation existed.",
-      "fix": "Added test_bootstrap(n_iterations=100) with case resampling and Jaccard similarity tracking.",
-      "tags": ["robustness", "bootstrap", "missing-feature"],
+      "root_cause": "Bootstrap resampling was documented but never implemented.",
+      "fix": "Added test_bootstrap(n_iterations=100, sample_fraction=1.0) with case resampling with replacement, truth table + minimization per sample, Jaccard similarity tracking, and term appearance proportion reporting. Added to run_all().",
+      "tags": [
+        "FIXME-8",
+        "robustness",
+        "bootstrap",
+        "missing-feature"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24"
@@ -272,11 +525,16 @@
     {
       "id": "bug-052",
       "timestamp": "2026-05-24T12:45:00",
-      "error_message": "Default frequency thresholds may exclude all rows for small-N fuzzy-set QCA",
+      "error_message": "Default frequency thresholds [1.0, 2.0, 3.0, 5.0] may exclude all rows for small-N (<20) fuzzy-set QCA",
       "file": "src/experiment_engine/qca_engine/advanced/robustness.py",
-      "root_cause": "test_frequency_sensitivity always used absolute thresholds regardless of n_cases.",
-      "fix": "Made thresholds adaptive: proportion-based for N<20, absolute for N>=20.",
-      "tags": ["robustness", "frequency", "small-N"],
+      "root_cause": "test_frequency_sensitivity always used absolute thresholds [1.0, 2.0, 3.0, 5.0] regardless of n_cases, which can exclude all rows when n_cases < 20.",
+      "fix": "Made thresholds adaptive: for N < 20 use proportion-based [0.05*N, 0.10*N, 0.15*N, 0.25*N]; for N >= 20 use absolute [1.0, 2.0, 3.0, 5.0].",
+      "tags": [
+        "FIXME-12",
+        "robustness",
+        "frequency",
+        "small-N"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-24"
@@ -284,479 +542,2143 @@
     {
       "id": "bug-054",
       "timestamp": "2026-05-24T20:00:00.000Z",
-      "error_message": "Quine-McCluskey has no upper bound on condition count k, causing browser WASM hang for k>12",
+      "error_message": "Quine-McCluskey has no upper bound on condition count k, causing browser WASM hang for k>12 due to O(2^k) explosion",
       "file": "src/experiment_engine/qca_engine/minimization.py",
-      "root_cause": "No guard on n_vars in minimize(). For k>12, O(2^k) explosion blocks single-threaded WASM.",
-      "fix": "Added k<=12 guard with ValueError and user guidance message.",
-      "tags": ["qm", "guard", "browser-hang", "wasm"],
+      "root_cause": "No guard existed on n_vars in minimize(). For k>12, the exponential enumeration of 2^k truth table rows blocks the single-threaded WASM environment indefinitely.",
+      "fix": "Added k<=12 guard at top of minimize(): compute n_vars = len(minterms[0]), raise ValueError if n_vars > 12 with message guiding user to reduce conditions or use alternative algorithms.",
+      "tags": [
+        "P0-1",
+        "qm",
+        "guard",
+        "browser-hang",
+        "wasm",
+        "py"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T20:00:00.000Z"
     },
     {
       "id": "bug-055",
       "timestamp": "2026-05-24T20:00:00.000Z",
-      "error_message": "LaTeX special characters in user-provided text cause compilation failures",
+      "error_message": "LaTeX special characters (~ _ % $ # &) in user-provided text cause LaTeX compilation failures in generated reports",
       "file": "src/experiment_engine/report/qca_reporter.py",
-      "root_cause": "No escaping applied to user-provided text before LaTeX insertion.",
-      "fix": "Added _escape_latex() and _escape_latex_formula() methods, applied to all user-provided strings.",
-      "tags": ["latex", "escaping", "report"],
-      "related_bugs": [],
+      "root_cause": "No escaping was applied to any user-provided text before LaTeX insertion. ~ becomes non-breaking space, _ triggers subscript, %/$/#/&/{/} have special LaTeX meanings. Formula with ~ and * placed directly in math mode also causes errors.",
+      "fix": "Added _escape_latex() static method (escapes % $ # & { } _ with backslashes, replaces ~ with \\textasciitilde{}). Added _escape_latex_formula() static method (converts ~*+ to \\neg \\land \\lor for math mode). Applied escaping to: outcome_name, config_label, condition_name, term labels, test names, parameter_varied, report summary, and solution formulas.",
+      "tags": [
+        "FIXME-10",
+        "latex",
+        "escaping",
+        "report",
+        "py"
+      ],
+      "related_bugs": [
+        "bug-047",
+        "bug-048"
+      ],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T20:00:00.000Z"
     },
     {
       "id": "bug-056",
       "timestamp": "2026-05-24T20:00:00.000Z",
-      "error_message": "_robustness_section crashes with IndexError when t.solution_stability is empty",
+      "error_message": "_robustness_section crashes with IndexError when t.solution_stability list is empty",
       "file": "src/experiment_engine/report/qca_reporter.py",
-      "root_cause": "t.solution_stability[0] and [-1] accessed without checking if list is empty.",
-      "fix": "Added guard: if t.solution_stability: ... else: 'N/A'.",
-      "tags": ["report", "robustness", "indexerror"],
+      "root_cause": "t.solution_stability[0] and t.solution_stability[-1] accessed without checking if the list is empty.",
+      "fix": "Added guard: if t.solution_stability: ... else: stability_range = 'N/A'.",
+      "tags": [
+        "FIXME-11",
+        "indexerror",
+        "robustness",
+        "report",
+        "guard",
+        "py"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T20:00:00.000Z"
     },
     {
       "id": "bug-057",
       "timestamp": "2026-05-24T20:00:00.000Z",
-      "error_message": "hash-based implicant identity in QM has theoretical collision risk and PYTHONHASHSEED instability",
+      "error_message": "hash-based implicant identity in QM has theoretical collision risk and PYTHONHASHSEED cross-process instability",
       "file": "src/experiment_engine/qca_engine/minimization.py",
-      "root_cause": "hash() used for implicant identity — theoretical collision risk and cross-process instability.",
-      "fix": "Replaced hash-based identity with itertools.count() sequential ID counter.",
-      "tags": ["qm", "hash", "collision"],
+      "root_cause": "hash((imp1, tuple(cov1))) used to track which implicants were combined. hash() has theoretical collision risk and depends on PYTHONHASHSEED which varies across process invocations.",
+      "fix": "Replaced hash-based identity with itertools.count() sequential ID counter. Each implicant gets a unique integer ID at creation: (id, pattern, coverage). combined_this_round and used_in_combination track integer IDs instead of hash values. Updated all loops to 3-tuple unpacking.",
+      "tags": [
+        "FIXME-21",
+        "hash",
+        "identity",
+        "qm",
+        "collision",
+        "py"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-24"
+      "last_seen": "2026-05-24T20:00:00.000Z"
     },
     {
       "id": "bug-059",
       "timestamp": "2026-05-24T12:00:00.000Z",
-      "error_message": "pyodide handleCalibrate: _fuzzy_data variable never updated in accumulation loop",
+      "error_message": "pyodide.worker.ts handleCalibrate: _fuzzy_data variable never updated in accumulation loop — only last sample processed; _arr wraps FuzzySetData in object array, causing json.dumps failure",
       "file": "src/services/pyodide.worker.ts",
-      "root_cause": "Variable name confusion: _fuzzy_data never reassigned; _arr wraps FuzzySetData in object array.",
-      "fix": "Fixed in pyodide_handlers.py: _fuzzy_data correctly reassigned in loop.",
-      "tags": ["pyodide", "calibrate", "data-loss"],
-      "related_bugs": ["bug-060"],
+      "root_cause": "Variable name confusion: _fuzzy_data initialized to None then never reassigned (intended to accumulate). _arr repeatedly overwritten as np.array([FuzzySetData]), and json.dumps would fail on Python object.",
+      "fix": "Fixed in pyodide_handlers.py handle_calibrate: _fuzzy_data correctly reassigned in loop; membership extracted directly via _fuzzy_data.membership.tolist() instead of broken _arr.tolist() fallback.",
+      "tags": [
+        "pyodide",
+        "calibrate",
+        "bug",
+        "data-loss"
+      ],
+      "related_bugs": [
+        "bug-060"
+      ],
       "occurrences": 1,
       "last_seen": "2026-05-24"
     },
     {
       "id": "bug-060",
       "timestamp": "2026-05-24T12:00:00.000Z",
-      "error_message": "pyodide handleExport imports non-existent class QCAReporter",
+      "error_message": "pyodide.worker.ts handleExport imports non-existent class QCAReporter from qca_reporter; actual class is QCALaTeXReporter",
       "file": "src/services/pyodide.worker.ts",
-      "root_cause": "Class name mismatch: worker references QCAReporter but module defines QCALaTeXReporter.",
-      "fix": "Corrected import to QCALaTeXReporter in pyodide_handlers.py.",
-      "tags": ["pyodide", "export", "import-error"],
-      "related_bugs": ["bug-059"],
+      "root_cause": "Class name mismatch: worker references QCAReporter but the module defines QCALaTeXReporter. Would cause ImportError at runtime.",
+      "fix": "Fixed in pyodide_handlers.py handle_export: corrected import to QCALaTeXReporter.",
+      "tags": [
+        "pyodide",
+        "export",
+        "import-error",
+        "bug"
+      ],
+      "related_bugs": [
+        "bug-059"
+      ],
       "occurrences": 1,
       "last_seen": "2026-05-24"
     },
     {
-      "id": "bug-195",
-      "timestamp": "2026-05-25T11:00:00.000Z",
-      "error_message": "Browser hangs when opening dev server — page never loads despite HTTP 200",
-      "file": "N/A (process management)",
-      "root_cause": "8 zombie Vite/node processes occupying ports 3000/3001/3002 from previous starts.",
-      "fix": "Killed all 8 zombie processes, started single clean Vite server on port 3000.",
-      "tags": ["dev-server", "zombie-process", "port-conflict", "vite"],
+      "id": "bug-066",
+      "timestamp": "2026-05-24T14:39:07.868Z",
+      "error_message": "Missing await",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-25"
+      "last_seen": "2026-05-24T14:39:07.868Z"
+    },
+    {
+      "id": "bug-067",
+      "timestamp": "2026-05-24T14:39:28.991Z",
+      "error_message": "Missing await",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:39:28.991Z"
+    },
+    {
+      "id": "bug-068",
+      "timestamp": "2026-05-24T14:39:44.877Z",
+      "error_message": "Missing await",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:39:44.877Z"
+    },
+    {
+      "id": "bug-070",
+      "timestamp": "2026-05-24T14:41:05.704Z",
+      "error_message": "Missing await",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call | Also: const handleParsePaste = useCallback(async () => {; // Generate a synthetic file name so Python TextCorpusReader | Also: const sizeError = checkFileSize(file);; if (sizeError) {",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-05-24T14:41:24.116Z"
+    },
+    {
+      "id": "bug-072",
+      "timestamp": "2026-05-24T14:53:37.663Z",
+      "error_message": "Missing await",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:53:37.663Z"
+    },
+    {
+      "id": "bug-073",
+      "timestamp": "2026-05-24T14:55:10.856Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:55:10.856Z"
+    },
+    {
+      "id": "bug-074",
+      "timestamp": "2026-05-24T14:55:29.730Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:55:29.730Z"
+    },
+    {
+      "id": "bug-076",
+      "timestamp": "2026-05-24T14:56:25.499Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:56:25.499Z"
+    },
+    {
+      "id": "bug-077",
+      "timestamp": "2026-05-24T14:57:12.593Z",
+      "error_message": "Type error",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T14:57:12.593Z"
+    },
+    {
+      "id": "bug-106",
+      "timestamp": "2026-05-24T17:15:31.016Z",
+      "error_message": "Type error",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T17:15:31.016Z"
+    },
+    {
+      "id": "bug-107",
+      "timestamp": "2026-05-24T17:15:50.495Z",
+      "error_message": "Missing error handling in getQCAVariantFromSettings",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T17:15:50.495Z"
+    },
+    {
+      "id": "bug-109",
+      "timestamp": "2026-05-24T17:17:05.635Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: conditionSet: importedConditionSet; ? { ...importedConditionSet, qca_variant: importedConditionS",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-24T17:17:11.923Z"
+    },
+    {
+      "id": "bug-110",
+      "timestamp": "2026-05-24T17:17:29.489Z",
+      "error_message": "Missing error handling in getQCAVariantFromSettings",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T17:17:29.489Z"
+    },
+    {
+      "id": "bug-111",
+      "timestamp": "2026-05-24T17:39:27.368Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T17:39:27.368Z"
+    },
+    {
+      "id": "bug-118",
+      "timestamp": "2026-05-24T18:36:50.676Z",
+      "error_message": "Type error",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T18:36:50.676Z"
+    },
+    {
+      "id": "bug-120",
+      "timestamp": "2026-05-24T18:37:58.376Z",
+      "error_message": "Function not marked async",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Function uses await but wasn't declared async",
+      "fix": "Added async modifier",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T18:37:58.376Z"
+    },
+    {
+      "id": "bug-127",
+      "timestamp": "2026-05-24T19:04:37.769Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T19:04:37.769Z"
+    },
+    {
+      "id": "bug-128",
+      "timestamp": "2026-05-24T19:04:47.585Z",
+      "error_message": "Type error",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T19:04:47.585Z"
+    },
+    {
+      "id": "bug-131",
+      "timestamp": "2026-05-24T19:38:05.414Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-24T19:38:05.414Z"
+    },
+    {
+      "id": "bug-150",
+      "timestamp": "2026-05-25T05:50:47.823Z",
+      "error_message": "Type error",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T05:50:47.823Z"
+    },
+    {
+      "id": "bug-154",
+      "timestamp": "2026-05-25T05:54:13.012Z",
+      "error_message": "Wrong condition in logic",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "Condition was: if (text.length <= MAX_TOKENS)",
+      "fix": "Changed to: if (text.length <= MAX_CHARS)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T05:54:13.012Z"
+    },
+    {
+      "id": "bug-158",
+      "timestamp": "2026-05-25T06:27:47.384Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: // FIXME-BERT: c.keywords removed from ConditionDefinition —; (sum, c) => sum + ((c as any).keywords?.length ?? 0), 0 | Also: {/* FIXME-BERT: c.keywords removed — kw count display broken; <span style={{ color: 'var(--color-text-secondary)' }}> ({(c",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-05-25T06:28:03.072Z"
+    },
+    {
+      "id": "bug-159",
+      "timestamp": "2026-05-25T06:28:10.030Z",
+      "error_message": "Type error",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: // FIXME-BERT: YAML template still uses 'keywords' fields — ",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-25T06:28:24.278Z"
+    },
+    {
+      "id": "bug-166",
+      "timestamp": "2026-05-25T08:49:03.971Z",
+      "error_message": "Missing error handling in function",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T08:49:03.971Z"
+    },
+    {
+      "id": "bug-167",
+      "timestamp": "2026-05-25T08:49:30.261Z",
+      "error_message": "Missing await",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T08:49:30.261Z"
+    },
+    {
+      "id": "bug-168",
+      "timestamp": "2026-05-25T08:56:29.958Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T08:56:29.958Z"
+    },
+    {
+      "id": "bug-171",
+      "timestamp": "2026-05-25T08:58:25.792Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T08:58:25.792Z"
+    },
+    {
+      "id": "bug-175",
+      "timestamp": "2026-05-25T08:59:26.062Z",
+      "error_message": "Type error",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T08:59:26.062Z"
+    },
+    {
+      "id": "bug-185",
+      "timestamp": "2026-05-25T09:07:58.097Z",
+      "error_message": "Missing await",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T09:07:58.097Z"
+    },
+    {
+      "id": "bug-190",
+      "timestamp": "2026-05-25T09:43:26.160Z",
+      "error_message": "Type error",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T09:43:26.160Z"
+    },
+    {
+      "id": "bug-191",
+      "timestamp": "2026-05-25T10:28:02.623Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block | Also: const runEmbedCalibrate = useCallback(; async (opts: { texts: TextCorpusEntry[]; conditionSet: Condi",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-25T10:28:14.070Z"
+    },
+    {
+      "id": "bug-193",
+      "timestamp": "2026-05-25T10:42:03.891Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T10:42:03.891Z"
+    },
+    {
+      "id": "bug-194",
+      "timestamp": "2026-05-25T10:42:20.534Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T10:42:20.535Z"
+    },
+    {
+      "id": "bug-195",
+      "timestamp": "2026-05-25T11:00:00.000Z",
+      "error_message": "Browser hangs when opening http://localhost:3001 — page never loads despite HTTP 200 responses from curl",
+      "file": "N/A (process issue)",
+      "root_cause": "8 zombie Vite/node processes from previous dev server starts were occupying ports 3000, 3001, and 3002 (PIDs 38952, 34576, 27884, 16868, 19328, 33628 + 2 orphan node.exe 26336, 31284). Port 3000 had two listeners; ports 3001 and 3002 each had one. The config says port 3000 but Vite auto-incremented to 3001/3002 on subsequent starts. Browser connected to a stale process that served HTML but did not correctly handle the React app lifecycle.",
+      "fix": "Killed all 8 zombie processes via taskkill /F /PID. Started a single clean Vite dev server on port 3000. Verified HTTP 200 on /, /src/main.tsx, and /@vite/client.",
+      "tags": [
+        "dev-server",
+        "zombie-process",
+        "port-conflict",
+        "vite",
+        "browser-hang"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T11:00:00.000Z"
+    },
+    {
+      "id": "bug-196",
+      "timestamp": "2026-05-25T12:00:00.000Z",
+      "error_message": "Browser hangs on http://localhost:3001 with no response, but curl returns HTTP 200",
+      "file": "vite.config.ts (dev server process management)",
+      "root_cause": "8 zombie Vite/node processes from previous dev server starts occupied ports 3000/3001/3002. The stale process on port 3001 served HTTP (curl got 200) but its React lifecycle was broken, causing browser to hang indefinitely.",
+      "fix": "taskkill /F on all 8 zombie PIDs (port 3000: 38952,34576; port 3001: 27884,19328,33628; port 3002: 16868; orphans: 26336,31284). Started single clean Vite server on port 3000.",
+      "tags": [
+        "dev-server",
+        "zombie-process",
+        "vite",
+        "browser-hang",
+        "port-conflict"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T12:00:00.000Z"
+    },
+    {
+      "id": "bug-197",
+      "timestamp": "2026-05-25T14:27:37.533Z",
+      "error_message": "Type error",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T14:27:37.533Z"
+    },
+    {
+      "id": "bug-200",
+      "timestamp": "2026-05-25T14:29:09.879Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block | Also: // Read saved settings from localStorage on mount; useEffect(() => {",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-25T14:29:20.617Z"
     },
     {
       "id": "bug-201",
-      "timestamp": "2026-05-25T22:31:41.603Z",
-      "error_message": "BERT UI hardcoded Chinese strings in DataInput.tsx and Settings.tsx",
+      "timestamp": "2026-05-25T22:31:41.603447",
+      "error_message": "BERT UI hardcoded Chinese strings in DataInput.tsx (L800-843) and Settings.tsx (L346-394) instead of i18n t() calls",
       "file": "src/pages/DataInput.tsx, src/pages/Settings.tsx",
-      "root_cause": "BERT sections built without i18n integration.",
-      "fix": "Replaced all hardcoded Chinese text with t() calls; added 14 new i18n keys.",
-      "tags": ["i18n", "BERT", "frontend"],
+      "root_cause": "BERT sections were built without i18n integration",
+      "fix": "Replaced all hardcoded Chinese text with t() calls; added 14 new i18n keys (settings BERT labels + export dictionary) to translations.ts",
+      "tags": [
+        "i18n",
+        "BERT",
+        "frontend",
+        "DataInput",
+        "Settings",
+        "T005",
+        "T083"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-25"
+      "last_seen": "2026-05-25T22:31:41.603447"
     },
     {
       "id": "bug-202",
-      "timestamp": "2026-05-25T22:31:41.603Z",
-      "error_message": "Settings page never reads saved values from localStorage on mount",
+      "timestamp": "2026-05-25T22:31:41.603447",
+      "error_message": "Settings page never reads saved values from localStorage on mount; useState initializer uses only hardcoded defaults",
       "file": "src/pages/Settings.tsx",
-      "root_cause": "Missing useEffect to read qca-settings from localStorage.",
-      "fix": "Added useEffect that reads localStorage on mount and merges into state.",
-      "tags": ["localStorage", "Settings", "persistence"],
+      "root_cause": "Missing useEffect to read qca-settings from localStorage on component mount",
+      "fix": "Added useEffect that reads localStorage qca-settings on mount and merges into state via setValues(prev => ({...prev, ...JSON.parse(saved)}))",
+      "tags": [
+        "localStorage",
+        "Settings",
+        "state",
+        "frontend",
+        "T026"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-25"
+      "last_seen": "2026-05-25T22:31:41.603447"
     },
     {
       "id": "bug-203",
-      "timestamp": "2026-05-25T22:31:41.603Z",
-      "error_message": "BERT model selection resets on page remount",
+      "timestamp": "2026-05-25T22:31:41.603447",
+      "error_message": "BERT model selection resets on page remount; useState hardcoded default ignoring localStorage",
       "file": "src/pages/Settings.tsx",
-      "root_cause": "useState initialized with literal string instead of reading localStorage.",
-      "fix": "Changed to lazy initializer reading qca-bert-model from localStorage.",
-      "tags": ["localStorage", "BERT", "persistence"],
+      "root_cause": "useState initialized with literal string instead of reading from localStorage",
+      "fix": "Changed to lazy initializer reading qca-bert-model from localStorage with fallback; added useEffect to persist changes to localStorage",
+      "tags": [
+        "localStorage",
+        "BERT",
+        "persistence",
+        "frontend",
+        "T080"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-25"
+      "last_seen": "2026-05-25T22:31:41.603447"
     },
     {
       "id": "bug-204",
-      "timestamp": "2026-05-25T22:31:41.603Z",
+      "timestamp": "2026-05-25T22:31:41.603447",
       "error_message": "Keyword dictionary export function is a stub returning empty Blob",
       "file": "src/pages/Settings.tsx",
-      "root_cause": "Phase 5 stub was never replaced with real implementation.",
-      "fix": "Implemented real CSV/JSON export with BOM for Excel and full ConditionSet object.",
-      "tags": ["export", "dictionary", "stub"],
+      "root_cause": "Phase 5 stub was never replaced with real implementation",
+      "fix": "Implemented real CSV/JSON export: CSV exports condition,display_name,prototype_text,is_member,weight columns with BOM for Excel; JSON exports full ConditionSet object",
+      "tags": [
+        "export",
+        "dictionary",
+        "stub",
+        "frontend",
+        "T085"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-25"
+      "last_seen": "2026-05-25T22:31:41.603447"
     },
     {
       "id": "bug-205",
-      "timestamp": "2026-05-25T22:31:41.603Z",
-      "error_message": "N-Cut range slider max value set to 20 instead of 10",
+      "timestamp": "2026-05-25T22:31:41.603447",
+      "error_message": "N-Cut range slider max value set to 20 instead of specification value of 10",
       "file": "src/pages/Settings.tsx",
-      "root_cause": "Incorrect max value in SettingField definition array.",
-      "fix": "Changed max: 20 to max: 10.",
-      "tags": ["spec", "N-Cut", "slider"],
+      "root_cause": "Incorrect max value in SettingField definition array",
+      "fix": "Changed max: 20 to max: 10 on the n_cut range field definition",
+      "tags": [
+        "spec",
+        "N-Cut",
+        "slider",
+        "range",
+        "frontend",
+        "T020"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-25"
+      "last_seen": "2026-05-25T22:31:41.603447"
+    },
+    {
+      "id": "bug-210",
+      "timestamp": "2026-05-25T15:28:28.274Z",
+      "error_message": "Type error",
+      "file": "src/pages/Dashboard.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T15:28:28.275Z"
     },
     {
       "id": "bug-214",
       "timestamp": "2026-05-25T18:00:00.000Z",
-      "error_message": "Clicking 'Load Engine' immediately reverts — engine init failure masked by UI",
-      "file": "src/services/pyodide.ts, src/pages/Dashboard.tsx, src/services/pyodide.worker.ts",
-      "root_cause": "Module Worker (type:'module') does not support importScripts(). Combined with Dashboard UI masking error as 'unloaded'.",
-      "fix": "worker.format 'es'→'iife'; removed {type:'module'} from Worker ctor; added explicit error branches in Dashboard; terminate old worker before new.",
-      "tags": ["module-worker", "importScripts", "engine-init"],
+      "error_message": "Clicking \"Load Engine\" immediately reverts: button flashes \"Loading...\" then goes back to \"Load Engine\", engine status stays \"Not Loaded\"",
+      "file": "src/services/pyodide.ts, vite.config.ts, src/pages/Dashboard.tsx, src/i18n/translations.ts, src/pages/Dashboard.css, src/services/pyodide.worker.ts",
+      "root_cause": "Module Worker (created with {type:\"module\"}) does not support importScripts() per HTML spec. pyodide.worker.ts:203 calls importScripts() which throws TypeError immediately. Combined with Dashboard UI masking \"error\" state as \"unloaded\" (same ternary branch for both), user sees instant revert.",
+      "fix": "1) vite.config.ts: worker.format \"es\"→\"iife\"; 2) pyodide.ts: removed {type:\"module\"} from Worker ctor; 3) pyodide.ts: init-done/init-error use break instead of return so resolveOne() fires; 4) Dashboard.tsx: added explicit error branches for metric, button, banner; 5) pyodide.ts: terminate old worker before new, try-catch createWorker, fix listener leak; 6) Dashboard.css: added .metric-critical class; 7) pyodide.worker.ts: updated JSDoc comment. Also added 4 i18n keys (statusError/step1BtnError zh+en).",
+      "tags": [
+        "module-worker",
+        "importScripts",
+        "TypeError",
+        "engine-init",
+        "frontend",
+        "bug-fix",
+        "expert-team"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-25"
+      "last_seen": "2026-05-25T18:00:00.000Z"
+    },
+    {
+      "id": "bug-216",
+      "timestamp": "2026-05-25T15:52:23.285Z",
+      "error_message": "Type error",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T15:52:23.285Z"
+    },
+    {
+      "id": "bug-217",
+      "timestamp": "2026-05-25T15:52:23.979Z",
+      "error_message": "Missing import: https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Module(s) not imported: https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs",
+      "fix": "Added import(s) for https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.mjs",
+      "tags": [
+        "auto-detected",
+        "missing-import",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T15:52:23.979Z"
+    },
+    {
+      "id": "bug-220",
+      "timestamp": "2026-05-25T16:41:37.511Z",
+      "error_message": "Type error",
+      "file": "src/vite-env.d.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T16:41:37.511Z"
+    },
+    {
+      "id": "bug-221",
+      "timestamp": "2026-05-25T17:04:47.240Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T17:04:47.240Z"
+    },
+    {
+      "id": "bug-222",
+      "timestamp": "2026-05-25T17:05:26.208Z",
+      "error_message": "Type error",
+      "file": "src/main.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T17:05:26.208Z"
     },
     {
       "id": "bug-223",
       "timestamp": "2026-05-26T17:05:00.000Z",
       "error_message": "Worker fetches non-existent /pyodide-modules.json; Python modules never loaded",
       "file": "src/services/pyodide.worker.ts",
-      "root_cause": "mountProjectModules() fetches /pyodide-modules.json which is never generated by CI.",
-      "fix": "Replaced to fetch py/experiment_engine.tar.gz (CI-generated), extract via Python tarfile. Uses BASE_URL for subdirectory path.",
-      "tags": ["deployment", "pyodide", "tar.gz", "worker"],
-      "related_bugs": ["bug-225"],
+      "root_cause": "mountProjectModules() fetches /pyodide-modules.json which is never generated by CI. The fallback mountFromInline() only creates empty __init__.py stubs with no actual Python source code.",
+      "fix": "Replaced mountProjectModules() to fetch py/experiment_engine.tar.gz (generated by CI at build time), write it to Pyodide VFS, and extract via Python tarfile. Uses import.meta.env.BASE_URL for correct subdirectory path (/experiment-engine/).",
+      "tags": [
+        "deployment",
+        "python",
+        "pyodide",
+        "tar.gz",
+        "worker"
+      ],
+      "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-26"
+      "last_seen": "2026-05-26T17:05:00.000Z"
     },
     {
       "id": "bug-224",
       "timestamp": "2026-05-26T17:05:00.000Z",
       "error_message": "BrowserRouter sub-routes 404 on direct navigation or page refresh",
       "file": "src/main.tsx, public/404.html",
-      "root_cause": "GitHub Pages has no SPA fallback for direct navigation.",
-      "fix": "Created public/404.html that stores URL in sessionStorage + RedirectRestorer component.",
-      "tags": ["deployment", "spa", "routing", "github-pages"],
+      "root_cause": "GitHub Pages has no SPA fallback. Navigating directly to /experiment-engine/dashboard returns 404 because no static file exists at that path.",
+      "fix": "Created public/404.html (GitHub Pages custom 404) that stores attempted URL in sessionStorage + redirects to root. Added RedirectRestorer component inside BrowserRouter in main.tsx that reads sessionStorage and calls navigate() to restore the intended route.",
+      "tags": [
+        "deployment",
+        "spa",
+        "routing",
+        "github-pages",
+        "404"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-26"
+      "last_seen": "2026-05-26T17:05:00.000Z"
     },
     {
       "id": "bug-225",
       "timestamp": "2026-05-26T17:05:00.000Z",
-      "error_message": "ImportError when experiment_engine/io/db.py excluded from Pyodide bundle",
+      "error_message": "ImportError when experiment_engine/io/db.py is excluded from Pyodide deployment bundle",
       "file": "src/experiment_engine/io/__init__.py",
-      "root_cause": "io/__init__.py unconditionally imports db.py which is excluded from CI tar.gz.",
-      "fix": "Wrapped db.py imports in try/except ImportError.",
-      "tags": ["deployment", "import", "pyodide", "io"],
-      "related_bugs": ["bug-223"],
+      "root_cause": "io/__init__.py unconditionally does `from experiment_engine.io.db import (...)` at module level, but db.py is excluded from the CI tar.gz bundle (no SQLite/PostgreSQL in browser). Any import of io.* fails.",
+      "fix": "Wrapped the db.py imports in try/except ImportError. When db.py is absent, the db classes are set to None so that `from experiment_engine.io import get_reader` and other non-db imports still work.",
+      "tags": [
+        "deployment",
+        "python",
+        "import",
+        "pyodide",
+        "io"
+      ],
+      "related_bugs": [
+        "bug-223"
+      ],
       "occurrences": 1,
-      "last_seen": "2026-05-26"
+      "last_seen": "2026-05-26T17:05:00.000Z"
+    },
+    {
+      "id": "bug-226",
+      "timestamp": "2026-05-25T18:05:57.003Z",
+      "error_message": "Type error",
+      "file": "src/pyodide/types.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T18:05:57.003Z"
+    },
+    {
+      "id": "bug-227",
+      "timestamp": "2026-05-25T18:07:47.906Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T18:07:47.906Z"
+    },
+    {
+      "id": "bug-228",
+      "timestamp": "2026-05-25T18:07:59.363Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T18:07:59.363Z"
     },
     {
       "id": "bug-230",
-      "timestamp": "2026-05-25T18:12:36.932Z",
-      "error_message": "protobufjs@6.11.6 has 9 known CVEs (critical: arbitrary code execution)",
+      "timestamp": "2026-05-25T18:12:36.931Z",
+      "error_message": "protobufjs@6.11.6 has 9 known CVEs (critical: arbitrary code execution, prototype pollution, DoS). Transitive dep via @xenova/transformers → onnxruntime-web → onnx-proto → protobufjs@^6.8.8",
       "file": "package.json",
-      "root_cause": "onnx-proto@4.0.4 declares protobufjs@^6.8.8 resolving to 6.11.6 (unpatched).",
-      "fix": "Added npm overrides: { protobufjs: '7.5.9' }. npm audit went from 6 to 2 vulns.",
-      "tags": ["security", "cve", "protobufjs", "dependency-override"],
+      "root_cause": "onnx-proto@4.0.4 declares protobufjs@^6.8.8 which resolves to 6.11.6 (last 6.x release, unpatched). No 6.x patches exist for these CVEs.",
+      "fix": "Added npm overrides: { protobufjs: \"7.5.9\" } to package.json. npm install resolved 7.5.9 (latest patched 7.x) which is API-compatible with onnx-proto pre-compiled stubs. npm audit went from 6 to 2 vulns (remaining are esbuild in vite, not our code).",
+      "tags": [
+        "security",
+        "cve",
+        "protobufjs",
+        "dependency-override",
+        "transitive"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-25"
+      "last_seen": "2026-05-25T18:12:36.932Z"
     },
     {
       "id": "bug-231",
       "timestamp": "2026-05-25T18:12:36.932Z",
-      "error_message": "No Content-Security-Policy header/meta tag — app vulnerable to XSS",
+      "error_message": "No Content-Security-Policy header/meta tag — app deployed to GitHub Pages vulnerable to XSS, data exfiltration via injected scripts",
       "file": "index.html",
-      "root_cause": "index.html had no CSP. GitHub Pages doesn't allow custom HTTP headers.",
-      "fix": "Added CSP meta tag covering script-src, connect-src, worker-src, style-src, img-src, font-src.",
-      "tags": ["security", "csp", "xss", "github-pages"],
+      "root_cause": "index.html had no CSP. GitHub Pages does not allow custom HTTP headers, so meta tag is the only enforcement mechanism.",
+      "fix": "Added <meta http-equiv=\"Content-Security-Policy\"> covering: script-src (self+jsDelivr), connect-src (self+jsDelivr+huggingface+cdn-lfs), worker-src (self+blob:), style-src (self+unsafe-inline for React), img-src (self+data:), font-src (self). Inline script hash not needed — Vite injects module scripts via <script type=\"module\" src=\"...\">. CSP verified present in dist/index.html after build.",
+      "tags": [
+        "security",
+        "csp",
+        "xss",
+        "headers",
+        "github-pages"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-25"
+      "last_seen": "2026-05-25T18:12:36.932Z"
     },
     {
       "id": "bug-232",
       "timestamp": "2026-05-25T18:12:36.932Z",
-      "error_message": "Pyodide and BERT models loaded from CDN with no SRI checks",
+      "error_message": "Pyodide (~50MB jsDelivr) and BERT models (~100MB HuggingFace) loaded from CDN with no subresource integrity checks",
       "file": "src/services/pyodide.worker.ts, src/services/bert-engine.ts",
-      "root_cause": "SRI infeasible for dynamically loaded Pyodide packages and BERT models.",
-      "fix": "Added SECURITY NOTE comments documenting defense-in-depth; added runtime Pyodide version check.",
-      "tags": ["security", "sri", "cdn", "pyodide", "bert"],
+      "root_cause": "SRI computationally infeasible: (1) Pyodide loads 100+ .whl files programmatically via loadPyodide which bypasses <script integrity>; (2) BERT models dynamically resolved by Transformers.js at unknown URLs; (3) 100+ MB model files make SRI hash computation impractical.",
+      "fix": "Added SECURITY NOTE comments to both files explaining SRI infeasibility and listing defense-in-depth measures. Added runtime Pyodide version check in handleInit() — compares loaded version against EXPECTED_PYODIDE_VERSION (0.26.4) and warns/errors if version is stale or below minimum.",
+      "tags": [
+        "security",
+        "sri",
+        "cdn",
+        "pyodide",
+        "bert",
+        "integrity"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-25"
+      "last_seen": "2026-05-25T18:12:36.932Z"
+    },
+    {
+      "id": "bug-236",
+      "timestamp": "2026-05-25T18:47:13.727Z",
+      "error_message": "Wrong operator: <= should be >=",
+      "file": "tmp/verify_pipeline.py",
+      "root_cause": "Used \"<=\" instead of \">=\"",
+      "fix": "Changed operator <= → >=",
+      "tags": [
+        "auto-detected",
+        "operator-fix",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-25T18:47:13.727Z"
     },
     {
       "id": "bug-004",
       "timestamp": "2026-05-26T05:00:00.000Z",
-      "error_message": "GitHub Pages build failed: 'Page build failed.' with 0ms duration",
+      "error_message": "GitHub Pages build failed: \"Page build failed.\" with 0ms duration",
       "file": ".github/workflows/deploy.yml",
-      "root_cause": "GitHub Pages legacy build system rejects pushes from GITHUB_TOKEN (bot).",
-      "fix": "Switched from peaceiris/actions-gh-pages to official actions/configure-pages + upload-pages-artifact + deploy-pages.",
-      "tags": ["github-pages", "deploy", "CI/CD", "peaceiris", "GITHUB_TOKEN"],
+      "root_cause": "GitHub Pages legacy build system (build_type: 'legacy') rejects pushes from github-actions[bot] (GITHUB_TOKEN). The successful build was pushed by user qhWangAntoneva; all GITHUB_TOKEN pushes fail immediately (duration: 0). This is a known GitHub limitation — the legacy Jekyll-based build system does not properly process bot-triggered branch pushes.",
+      "fix": "Switched from peaceiris/actions-gh-pages (branch-based legacy deployment) to the official GitHub Actions Pages deployment pipeline: actions/configure-pages@v4 + actions/upload-pages-artifact@v3 + actions/deploy-pages@v4. This replaces the peaceiris step with three official steps, changes permissions from 'contents: write' to 'contents: read, pages: write, id-token: write', and transitions Pages source from 'legacy' (branch-based) to 'workflow' (Actions-based). The gh-pages branch is no longer needed.",
+      "tags": [
+        "github-pages",
+        "deploy",
+        "CI/CD",
+        "peaceiris",
+        "GITHUB_TOKEN",
+        "legacy-build"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-26"
+      "last_seen": "2026-05-26T05:00:00.000Z"
     },
     {
       "id": "bug-005",
       "timestamp": "2026-05-26T06:55:48.000Z",
-      "error_message": "HTTP 422: Invalid Argument - failed to parse workflow YAML",
+      "error_message": "HTTP 422: Invalid Argument - failed to parse workflow: (Line: 42, Col: 3): Unexpected value administration. Push-triggered deploy workflow runs failed with 0 jobs.",
       "file": ".github/workflows/deploy.yml",
-      "root_cause": "Line had invalid 'administration: write' permission scope.",
-      "fix": "Removed invalid administration: write line.",
-      "tags": ["deploy", "github-actions", "yaml", "permissions"],
-      "related_bugs": ["bug-004"],
+      "root_cause": "Line 42 had administration: write which is not a valid GitHub Actions permission scope. The YAML parser rejected the workflow at evaluation time, before any job could be created.",
+      "fix": "Removed the invalid administration: write line from the permissions block. Valid permissions are contents: read, pages: write, id-token: write.",
+      "tags": [
+        "deploy",
+        "github-actions",
+        "yaml",
+        "permissions",
+        "pages"
+      ],
+      "related_bugs": [
+        "bug-004"
+      ],
       "occurrences": 1,
-      "last_seen": "2026-05-26"
+      "last_seen": "2026-05-26T06:55:48.000Z"
     },
     {
       "id": "bug-248",
-      "timestamp": "2026-05-26T08:42:18.000Z",
+      "timestamp": "2026-05-26T08:42:18.394434+00:00",
       "error_message": "ImportError: cannot import name KeywordEntry from experiment_engine.models",
       "file": "src/experiment_engine/models/__init__.py",
-      "root_cause": "KeywordEntry class already deleted from qca.py but __init__.py still referenced it.",
-      "fix": "Removed KeywordEntry from qca.py import block and __all__ list. Removed keyword residual code from condition.py.",
-      "tags": ["keyword-legacy", "import-error", "cleanup"],
+      "root_cause": "KeywordEntry class was already deleted from models/qca.py but import + __all__ still referenced it in __init__.py, breaking the entire models package import.",
+      "fix": "Removed KeywordEntry from qca.py import block and __all__ list in __init__.py. Also removed all keyword residual code from condition.py: add_keyword() method, _kw_to_dict() function, _hybrid_*_weight fields, and keywords serialization in _condition_to_dict().",
+      "tags": [
+        "P1-B6",
+        "keyword-legacy",
+        "import-error",
+        "cleanup"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-26"
+      "last_seen": "2026-05-26T08:42:18.000Z"
     },
     {
       "id": "bug-251",
       "timestamp": "2026-05-26T09:14:48.000Z",
-      "error_message": "writeJSON() produces files without trailing newlines, causing pre-commit failures",
+      "error_message": "writeJSON() in .wolf/hooks/shared.js produces files without trailing newlines, causing pre-commit end-of-file-fixer to fail on every git commit/push",
       "file": ".wolf/hooks/shared.js",
-      "root_cause": "JSON.stringify() does not append trailing newline.",
-      "fix": "Changed to JSON.stringify(data, null, 2) + '\\n'.",
-      "tags": ["pre-commit", "end-of-file-fixer", "wolf-hook"],
-      "related_bugs": ["bug-30"],
+      "root_cause": "JSON.stringify(data, null, 2) does NOT append a trailing newline. Every wolf hook that calls writeJSON() (post-write.js, post-read.js, session-start.js, stop.js, etc.) writes .wolf/token-ledger.json and similar files without trailing newlines, violating pre-commit's end-of-file-fixer.",
+      "fix": "Changed both JSON.stringify() calls in writeJSON() (atomic-write path line 33 and fallback path line 40) from JSON.stringify(data, null, 2) to JSON.stringify(data, null, 2) + '\\n'.",
+      "tags": [
+        "pre-commit",
+        "end-of-file-fixer",
+        "newline",
+        "wolf-hook",
+        "json"
+      ],
+      "related_bugs": [
+        "bug-30"
+      ],
       "occurrences": 1,
-      "last_seen": "2026-05-26"
+      "last_seen": "2026-05-26T09:14:48.000Z"
+    },
+    {
+      "id": "bug-252",
+      "timestamp": "2026-05-26T10:19:07.587Z",
+      "error_message": "Missing error handling in Dashboard",
+      "file": "src/pages/Dashboard.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block | Also: const handleClearData = useCallback(() => {; if (!window.confirm(t('dashboard.clearDataConfirm'))) return",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T10:19:14.211Z"
+    },
+    {
+      "id": "bug-255",
+      "timestamp": "2026-05-26T10:20:08.209Z",
+      "error_message": "Missing error handling in persistRecentRun",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T10:20:08.209Z"
+    },
+    {
+      "id": "bug-256",
+      "timestamp": "2026-05-26T10:20:19.149Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: // Persist to recent runs; _runIdCounter += 1;",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T10:20:29.971Z"
+    },
+    {
+      "id": "bug-260",
+      "timestamp": "2026-05-26T11:29:55.450Z",
+      "error_message": "Type error",
+      "file": "src/pages/Settings.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T11:29:55.450Z"
+    },
+    {
+      "id": "bug-263",
+      "timestamp": "2026-05-26T11:57:41.342Z",
+      "error_message": "Type error",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: // Derive fuzzy data for Cases tab based on view mode; const casesFuzzyData = viewMode === 'prototype' ? state.prot",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T11:57:52.321Z"
     },
     {
       "id": "bug-270",
       "timestamp": "2026-05-26T12:40:00.000Z",
-      "error_message": "end-of-file-fixer pre-commit hook persistently fails during git commit",
+      "error_message": "end-of-file-fixer pre-commit hook persistently fails during git commit despite .wolf/hooks/pre-commit.js hook",
       "file": ".wolf/hooks/pre-commit.js",
-      "root_cause": "PreToolUse hook only ran ruff, not non-ruff hooks (end-of-file-fixer). Non-Python files got committed broken.",
-      "fix": "Replaced standalone ruff with 'uv run pre-commit run --all-files' covering all 8 hooks.",
-      "tags": ["pre-commit", "end-of-file-fixer", "stash-conflict", "tooling"],
+      "root_cause": "The .wolf/hooks/pre-commit.js PreToolUse hook only ran ruff format + ruff check --fix + git add -u before git commit. It did NOT cover non-ruff hooks (end-of-file-fixer, trailing-whitespace). When non-Python files (e.g., memory.md, token-ledger.json) lacked trailing newlines or had trailing whitespace, ruff (Python-only) ignored them. git add -u staged broken files. The real git pre-commit hook then modified them via end-of-file-fixer, creating unstaged modifications that conflicted with pre-commit stash/unstash mechanism, causing repeated commit failures.",
+      "fix": "Replaced standalone ruff format + ruff check --fix commands with uv run pre-commit run --all-files, which runs ALL 8 configured pre-commit hooks (end-of-file-fixer, trailing-whitespace, check-yaml, check-toml, check-added-large-files, check-json, ruff, ruff-format). All fixes are applied before git add -u, ensuring the real pre-commit hook encounters clean files.",
+      "tags": [
+        "pre-commit",
+        "end-of-file-fixer",
+        "stash-conflict",
+        "hook",
+        "tooling"
+      ]
+    },
+    {
+      "id": "bug-271",
+      "timestamp": "2026-05-26T13:37:31.350Z",
+      "error_message": "Type error",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-26"
+      "last_seen": "2026-05-26T13:37:31.350Z"
+    },
+    {
+      "id": "bug-272",
+      "timestamp": "2026-05-26T13:40:52.262Z",
+      "error_message": "Missing error handling in ensureQCAVariant",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T13:40:52.262Z"
+    },
+    {
+      "id": "bug-279",
+      "timestamp": "2026-05-26T13:41:52.222Z",
+      "error_message": "Type error",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T13:41:52.222Z"
+    },
+    {
+      "id": "bug-280",
+      "timestamp": "2026-05-26T13:42:03.415Z",
+      "error_message": "Type error",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T13:42:03.415Z"
+    },
+    {
+      "id": "bug-281",
+      "timestamp": "2026-05-26T13:42:05.813Z",
+      "error_message": "Missing import: ../services/bert-engine",
+      "file": "src/types/qca.ts",
+      "root_cause": "Module(s) not imported: ../services/bert-engine",
+      "fix": "Added import(s) for ../services/bert-engine",
+      "tags": [
+        "auto-detected",
+        "missing-import",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T13:42:05.813Z"
     },
     {
       "id": "bug-283",
       "timestamp": "2026-05-26T15:00:00.000Z",
-      "error_message": "detectLanguage() always returns 'en' — dead wrapper with unnecessary indirection",
+      "error_message": "detectLanguage() in I18nContext.tsx always returned 'en' but was being called at runtime inside useState initializer, adding unnecessary indirection.",
       "file": "src/i18n/I18nContext.tsx, src/i18n/translations.ts",
-      "root_cause": "The detectLanguage() function was a dead wrapper returning 'en'.",
-      "fix": "Removed detectLanguage() entirely. Inlined DEFAULT_LANGUAGE = 'en' constant.",
-      "tags": ["i18n", "dead-code", "refactor"],
+      "root_cause": "The detectLanguage() function in translations.ts was a dead wrapper returning 'en', but I18nContext.tsx still imported and called it.",
+      "fix": "Removed detectLanguage() from translations.ts entirely. Inlined DEFAULT_LANGUAGE = 'en' constant in I18nContext.tsx. Removed the detectLanguage import.",
+      "tags": [
+        "i18n",
+        "dead-code",
+        "language-detection",
+        "refactor"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-26"
+      "last_seen": "2026-05-26T15:00:00.000Z"
+    },
+    {
+      "id": "bug-284",
+      "timestamp": "2026-05-26T14:55:32.628Z",
+      "error_message": "Type error",
+      "file": "src/types/qca.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:55:32.628Z"
+    },
+    {
+      "id": "bug-287",
+      "timestamp": "2026-05-26T14:56:56.724Z",
+      "error_message": "Missing await",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Async call without await — returned Promise instead of value",
+      "fix": "Added await to async call",
+      "tags": [
+        "auto-detected",
+        "async-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:56:56.724Z"
+    },
+    {
+      "id": "bug-288",
+      "timestamp": "2026-05-26T14:57:05.546Z",
+      "error_message": "Missing error handling in function",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:57:05.546Z"
+    },
+    {
+      "id": "bug-289",
+      "timestamp": "2026-05-26T14:57:18.011Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:57:18.011Z"
+    },
+    {
+      "id": "bug-291",
+      "timestamp": "2026-05-26T14:58:33.870Z",
+      "error_message": "Type error",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:58:33.870Z"
+    },
+    {
+      "id": "bug-292",
+      "timestamp": "2026-05-26T14:58:34.134Z",
+      "error_message": "Type error",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T14:58:34.134Z"
+    },
+    {
+      "id": "bug-294",
+      "timestamp": "2026-05-26T15:00:18.618Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:00:18.618Z"
+    },
+    {
+      "id": "bug-298",
+      "timestamp": "2026-05-26T15:05:26.219Z",
+      "error_message": "Type error",
+      "file": "src/types/qca.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: // ─── Condition Set Template (P1-13) ──────────────────────; export interface ConditionSetTemplate {",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T15:07:40.472Z"
+    },
+    {
+      "id": "bug-300",
+      "timestamp": "2026-05-26T15:06:36.575Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/store/QCAPipelineContext.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:06:36.575Z"
+    },
+    {
+      "id": "bug-302",
+      "timestamp": "2026-05-26T15:09:23.101Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:09:23.101Z"
+    },
+    {
+      "id": "bug-305",
+      "timestamp": "2026-05-26T15:15:17.022Z",
+      "error_message": "Type error",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: compare: {; title: 'Parameter Comparison (A/B)',",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T15:16:31.743Z"
+    },
+    {
+      "id": "bug-306",
+      "timestamp": "2026-05-26T15:21:35.498Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/pages/Dashboard.tsx",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: analysisResultB: project.pipeline.analysisResultB ?? null,; multiOutcomeReport: project.pipeline.multiOutcomeReport ?? n",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-26T15:21:42.577Z"
+    },
+    {
+      "id": "bug-307",
+      "timestamp": "2026-05-26T15:22:36.426Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/services/project-serialization.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:22:36.426Z"
+    },
+    {
+      "id": "bug-308",
+      "timestamp": "2026-05-26T15:22:50.091Z",
+      "error_message": "Type error",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T15:22:50.091Z"
+    },
+    {
+      "id": "bug-314",
+      "timestamp": "2026-05-26T17:49:58.687Z",
+      "error_message": "Type error",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T17:49:58.687Z"
+    },
+    {
+      "id": "bug-315",
+      "timestamp": "2026-05-26T17:50:25.523Z",
+      "error_message": "Missing guard clause",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "No early return/throw for edge case: format === 'latex'",
+      "fix": "Added guard clause: if (format === 'latex')",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T17:50:25.523Z"
+    },
+    {
+      "id": "bug-316",
+      "timestamp": "2026-05-26T17:50:46.605Z",
+      "error_message": "Type error",
+      "file": "src/pages/Results.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T17:50:46.605Z"
     },
     {
       "id": "bug-317",
       "timestamp": "2026-05-27T10:00:00.000Z",
-      "error_message": "All 5 domains produce membership values of exactly 0.5 (zero variance) across all 30 cases",
+      "error_message": "All 5 domains produce membership values of exactly 0.5 (zero variance/zero stddev) across all 30 cases, resulting in meaningless QCA results",
       "file": "src/experiment_engine/text_calibration/calibrator.py",
-      "root_cause": "TextCalibrationStage.process() without BERT embeddings returns np.zeros(). DirectCalibration maps all-zeros to all-0.5 via min-max degeneracy.",
-      "fix": "Added _fallback_text_scores() using character trigram Jaccard similarity. _precompute_scores() calls this instead of returning zeros.",
-      "tags": ["calibration", "embedding-missing", "all-0.5", "critical"],
+      "root_cause": "TextCalibrationStage.process() is called without text_embeddings and prototype_embeddings (CLI/api path has no BERT model). _precompute_scores() returns np.zeros() when embeddings are None. DirectCalibration maps all-identical zero scores to all-0.5 via min-max normalization degeneracy (score_min==score_max -> normalized=0.5, then 0.5 falls at crossover_point -> 0.5).",
+      "fix": "Added _fallback_text_scores() static method using character trigram Jaccard similarity between input texts and prototype texts, with positive/negative prototype aggregation. _precompute_scores() now calls this fallback instead of returning zeros when embeddings are absent. Added _char_trigrams() and _jaccard() helper methods.",
+      "tags": [
+        "calibration",
+        "embedding-missing",
+        "all-0.5",
+        "pipeline-bug",
+        "critical"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T10:00:00.000Z"
+    },
+    {
+      "id": "bug-131",
+      "timestamp": "2026-05-27T02:51:00.000Z",
+      "error_message": "LaTeX reporter renders empty formula for vacuous QCA solutions (all outcome=1 or all outcome=0)",
+      "file": "src/experiment_engine/report/qca_reporter.py",
+      "root_cause": "_solutions_section() only checked `if sol and sol.terms` but did not check for empty formula. Vacuous solutions have sol.terms == [] and formula == ''. The code rendered `Formula: $\\displaystyle $` - empty content.",
+      "fix": "Added is_vacuous detection: empty/whitespace formula, or <=1 terms with zero consistency/coverage. Renders `\\top` (always-true) with an explanatory note instead of empty formula.",
+      "tags": [
+        "latex",
+        "report",
+        "vacuous-solution",
+        "edge-case"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-27"
     },
     {
+      "id": "bug-132",
+      "timestamp": "2026-05-27T02:51:00.000Z",
+      "error_message": "DOCX reporter crashes with ValueError: invalid literal for int() with base 10: 'SimHei'",
+      "file": "src/experiment_engine/report/docx_reporter.py",
+      "root_cause": "Line 42 `run.font.size = font_name` assigned a string ('SimHei') to an EMU integer field as a dummy before the real size was set on line 43. python-docx 1.2.0 validates the value immediately instead of allowing overwrite.",
+      "fix": "Removed the dummy assignment that set font.size to a string. The real size is set on the next line correctly.",
+      "tags": [
+        "docx",
+        "report",
+        "crash",
+        "font-size"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27"
+    },
+    {
+      "id": "bug-133",
+      "timestamp": "2026-05-27T02:51:00.000Z",
+      "error_message": "Unknown format code 'f' for object of type 'str' in validate_qca_output.py",
+      "file": "validate_qca_output.py",
+      "root_cause": "All arrays were formatted with `:.4f` format specifier, but condition_names, outcome_name, and case_ids are string arrays. Numeric formatting fails on string dtype arrays.",
+      "fix": "Added fmt_arr() helper that checks `np.issubdtype(arr.dtype, np.number)` before applying numeric formatting. String arrays are printed without min/max/mean/std.",
+      "tags": [
+        "validation",
+        "format-code",
+        "numpy"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27"
+    },
+    {
+      "id": "bug-327",
+      "timestamp": "2026-05-26T19:24:44.856Z",
+      "error_message": "Type error",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T19:24:44.856Z"
+    },
+    {
       "id": "bug-328",
       "timestamp": "2026-05-27T18:30:00.000Z",
-      "error_message": "Use Template button navigates to /input but condition set is invisible",
+      "error_message": "Use Template button navigates to /input but condition set is invisible — DataInput never reads state.conditionSet",
       "file": "src/pages/DataInput.tsx",
-      "root_cause": "DataInput only reads yamlContent and importedConditionSet — never state.conditionSet from TemplateLibrary.",
-      "fix": "Added useEffect that reads state.conditionSet on mount and populates importedConditionSet.",
-      "tags": ["use-template", "data-flow", "frontend-bug"],
+      "root_cause": "TemplateLibrary stores conditionSet in pipeline context via setConditionSet(), then navigates to /input. But DataInput only reads yamlContent (textarea) and importedConditionSet (file import) — never state.conditionSet. Template's condition set is silently lost.",
+      "fix": "Added useEffect in DataInput that reads state.conditionSet on mount and populates importedConditionSet + clears the context state via dispatch.",
+      "tags": [
+        "use-template",
+        "data-flow",
+        "frontend-bug",
+        "tsx"
+      ]
+    },
+    {
+      "id": "bug-351",
+      "timestamp": "2026-05-26T21:10:45.717Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "tsx"
+      ],
       "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-26T21:10:45.717Z"
+    },
+    {
+      "id": "bug-330",
+      "timestamp": "2026-05-27T22:00:00.000Z",
+      "error_message": "No quick way to load sample cases during development/testing — users had to manually paste 30 CSV rows",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "DataInput had paste/upload for real data but no built-in sample data button for quick testing",
+      "fix": "Added SAMPLE_CSV_CONTENT constant with 30 cases across 5 domains (6 per domain), handleLoadSampleData handler that parses CSV via loadCorpus and sets condition set from matching builtin template, and a 'Load 30 Sample Cases' button in the Text Corpus card. Uses existing hydration effect to populate YAML editor.",
+      "tags": [
+        "feature",
+        "sample-data",
+        "frontend",
+        "tsx"
+      ],
+      "related_bugs": [
+        "bug-328"
+      ],
       "occurrences": 1,
       "last_seen": "2026-05-27"
     },
     {
       "id": "bug-358",
       "timestamp": "2026-05-27T12:00:00.000Z",
-      "error_message": "ModuleNotFoundError: No module named 'pydantic' in Pyodide",
+      "error_message": "ModuleNotFoundError: No module named 'pydantic' in Pyodide — loading 30 sample data fails",
       "file": "src/services/pyodide.worker.ts, src/experiment_engine/config.py",
-      "root_cause": "pydantic was NOT in REQUIRED_PACKAGES despite being needed by all handlers.",
-      "fix": "Added 'pydantic' to REQUIRED_PACKAGES. Moved pydantic import in config.py into load_config() to reduce eager deps.",
-      "tags": ["pyodide", "pydantic", "import"],
+      "root_cause": "experiment_engine/__init__.py eagerly imports config and models, both import pydantic at module top level. Pyodide init (handleInit) was NOT loading pydantic despite it being needed by all handlers.",
+      "fix": "(1) Added 'pydantic' to REQUIRED_PACKAGES in pyodide.worker.ts:47 so it's loaded via pyodide.loadPackage() during init; (2) Moved 'from pydantic import ValidationError' in config.py from module top-level into the load_config() function to reduce eager dependencies.",
+      "tags": [
+        "pyodide",
+        "pydantic",
+        "import",
+        "init",
+        "web"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T12:00:00.000Z"
+    },
+    {
+      "id": "bug-361",
+      "timestamp": "2026-05-27T03:58:33.468Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T03:58:33.468Z"
+    },
+    {
+      "id": "bug-362",
+      "timestamp": "2026-05-27T03:58:41.983Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T03:58:41.983Z"
     },
     {
       "id": "bug-363",
       "timestamp": "2026-05-27T04:00:00.000Z",
       "error_message": "Unknown worker error (CSP blocks WASM compilation in module workers)",
       "file": "index.html",
-      "root_cause": "CSP script-src missing 'wasm-unsafe-eval'; Chrome 130+ requires it for WASM in workers.",
-      "fix": "Added 'wasm-unsafe-eval' to script-src and CDN to worker-src.",
-      "tags": ["csp", "wasm", "worker", "pyodide", "critical"],
+      "root_cause": "CSP script-src was missing 'wasm-unsafe-eval', which Chrome 130+ requires for WASM compilation in module workers. Also worker-src was missing https://cdn.jsdelivr.net.",
+      "fix": "Added 'wasm-unsafe-eval' to script-src and https://cdn.jsdelivr.net to worker-src in CSP meta tag.",
+      "tags": [
+        "csp",
+        "wasm",
+        "worker",
+        "pyodide",
+        "critical"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T04:00:00.000Z"
     },
     {
       "id": "bug-364",
       "timestamp": "2026-05-27T04:00:00.000Z",
-      "error_message": "Sanitized worker error message ('Unknown worker error') due to cross-origin sanitization",
+      "error_message": "Sanitized worker error message ('Unknown worker error') due to cross-origin error sanitization",
       "file": "src/services/pyodide.ts",
-      "root_cause": "worker.onerror only reads err.message which is sanitized for cross-origin errors.",
-      "fix": "Changed to use err.error?.stack || err.error?.message || err.message.",
-      "tags": ["worker", "error-handling", "debugging"],
+      "root_cause": "worker.onerror handler only read err.message which is sanitized for cross-origin errors.",
+      "fix": "Changed worker.onerror to use err.error?.stack || err.error?.message || err.message for actual error detail.",
+      "tags": [
+        "worker",
+        "error-handling",
+        "debugging"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T04:00:00.000Z"
     },
     {
       "id": "bug-365",
       "timestamp": "2026-05-27T04:00:00.000Z",
-      "error_message": "Unhandled promise rejection in worker propagates with sanitized message",
+      "error_message": "Unhandled promise rejection in worker propagates to self.onerror with sanitized message",
       "file": "src/services/pyodide.worker.ts",
-      "root_cause": "Worker had no self.onunhandledrejection handler.",
-      "fix": "Added self.onunhandledrejection handler with event.preventDefault().",
-      "tags": ["worker", "error-handling", "promise"],
-      "related_bugs": ["bug-364"],
+      "root_cause": "Worker had no self.onunhandledrejection handler, so promise rejections propagated to worker.onerror with sanitized messages.",
+      "fix": "Added self.onunhandledrejection handler that logs the rejection reason and calls event.preventDefault().",
+      "tags": [
+        "worker",
+        "error-handling",
+        "promise",
+        "debugging"
+      ],
+      "related_bugs": [
+        "bug-364"
+      ],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T04:00:00.000Z"
     },
     {
       "id": "bug-366",
       "timestamp": "2026-05-27T04:00:00.000Z",
-      "error_message": "Raw i18n keys displayed for importCsvJson and exportCsv buttons",
+      "error_message": "Raw i18n keys displayed for importCsvJson and exportCsv buttons in DataInput",
       "file": "src/i18n/translations.ts",
-      "root_cause": "3 translation keys missing from TranslationDict interface and both locales.",
-      "fix": "Added importCsvJson, exportCsv, and exporting keys.",
-      "tags": ["i18n", "ui", "missing-translation"],
+      "root_cause": "dataInput.importCsvJson, dataInput.exportCsv, and dataInput.exporting translation keys were missing from TranslationDict interface and translations (zh/en).",
+      "fix": "Added importCsvJson, exportCsv, and exporting keys to the TranslationDict interface and both zh and en translation objects.",
+      "tags": [
+        "i18n",
+        "ui",
+        "missing-translation"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T04:00:00.000Z"
     },
     {
       "id": "bug-368",
       "timestamp": "2026-05-27T12:00:00.000Z",
-      "error_message": "'rich' not in REQUIRED_PACKAGES — pipeline.py import fails",
+      "error_message": "from rich.console import Console fails in Pyodide because 'rich' is not in REQUIRED_PACKAGES",
       "file": "src/services/pyodide.worker.ts",
-      "root_cause": "'rich' missing from REQUIRED_PACKAGES array.",
-      "fix": "Added 'rich' to REQUIRED_PACKAGES.",
-      "tags": ["pyodide", "rich", "missing-package"],
+      "root_cause": "REQUIRED_PACKAGES array in pyodide.worker.ts did not include 'rich', so Pyodide/micropip never loaded it. pipeline.py:18 imports from rich.console, causing ModuleNotFoundError when user clicks calibrate after loading 30 sample data.",
+      "fix": "Added 'rich' to the REQUIRED_PACKAGES array in pyodide.worker.ts.",
+      "tags": [
+        "pyodide",
+        "rich",
+        "missing-package",
+        "calibrate"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T12:00:00.000Z"
     },
     {
       "id": "bug-371",
       "timestamp": "2026-05-27T14:10:00.000Z",
       "error_message": "Deployed pyodide-manifest.json packages list missing 'micropip' and 'rich'",
       "file": ".github/workflows/deploy.yml",
-      "root_cause": "Manifest hardcoded in deploy.yml line 110, never updated after packages added to REQUIRED_PACKAGES.",
-      "fix": "Updated deploy.yml manifest to include 'micropip' and 'rich'.",
-      "tags": ["deployment", "manifest", "pyodide"],
-      "related_bugs": ["bug-368"],
+      "root_cause": "The pyodide-manifest.json is hardcoded in deploy.yml line 110 with packages: ['numpy', 'pydantic', 'pyyaml'] and was never updated after 'micropip' and 'rich' were added to REQUIRED_PACKAGES in pyodide.worker.ts. The manifest is a CI artifact (cat > dist/py/pyodide-manifest.json), not generated from source.",
+      "fix": "Update deploy.yml line 110 to include 'micropip' and 'rich' in the packages array.",
+      "tags": [
+        "deployment",
+        "manifest",
+        "pyodide",
+        "CI",
+        "documentation"
+      ],
+      "related_bugs": [
+        "bug-368",
+        "bug-359"
+      ],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T14:10:00.000Z"
+    },
+    {
+      "id": "bug-370",
+      "timestamp": "2026-05-27T06:53:03.781Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T06:53:03.781Z"
     },
     {
       "id": "bug-371",
       "timestamp": "2026-05-27T15:00:00.000Z",
-      "error_message": "ModuleNotFoundError: No module named 'experiment_engine.pyodide_handlers' in dev mode",
+      "error_message": "ModuleNotFoundError: No module named 'experiment_engine.pyodide_handlers' when clicking Load 30 Sample Cases in dev mode",
       "file": "src/services/pyodide.worker.ts",
-      "root_cause": "mountFromInline() only created empty package directories without actual Python source files.",
-      "fix": "Created Vite plugin serving /py/modules.json; rewrote mountFromInline() to fetch manifest and write actual files; added console.error to 3 error paths.",
-      "tags": ["dev-mode", "pyodide", "mount", "ModuleNotFoundError", "vite-plugin"],
-      "related_bugs": ["bug-015"],
+      "root_cause": "mountFromInline() only created empty Python package directories without writing the actual source files (pyodide_handlers.py, calibrator.py, etc.) to Pyodide's VFS. The error was invisible in browser DevTools because it went through postMessage without console.error().",
+      "fix": "(1) Created scripts/vite-plugin-pyodide-modules.ts — Vite plugin serving /py/modules.json with all Python source file contents. (2) Rewrote mountFromInline() to fetch JSON manifest and write actual files to VFS using FS.mkdirTree/FS.writeFile. (3) Added console.error() to 3 error paths in pyodide.ts. (4) Fixed deploy.yml manifest packages array (added micropip, rich).",
+      "tags": [
+        "dev-mode",
+        "pyodide",
+        "mount",
+        "ModuleNotFoundError",
+        "Vite-plugin"
+      ],
+      "related_bugs": [
+        "bug-015"
+      ],
       "occurrences": 2,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T15:00:00.000Z"
     },
     {
       "id": "bug-374",
       "timestamp": "2026-05-27T10:30:00.000Z",
-      "error_message": "ModuleNotFoundError after mountFromInline — writes to / but Python searches under /src/",
+      "error_message": "ModuleNotFoundError: No module named 'experiment_engine' after clicking Load 30 Sample Cases — mountFromInline() writes files to /experiment_engine/ but Python searches under /src/",
       "file": "src/services/pyodide.worker.ts",
-      "root_cause": "mountFromInline() used /${filePath} but sys.path only had '/src'.",
-      "fix": "Changed write path to /src/${filePath}; added both '/src' and '/' to sys.path.",
-      "tags": ["pyodide", "path-mismatch", "ModuleNotFoundError"],
-      "related_bugs": ["bug-015", "bug-371"],
+      "root_cause": "mountFromInline() used `/${filePath}` as the VFS write path, placing files at /experiment_engine/pyodide_handlers.py etc. But sys.path only contained '/src' (not '/'), so Python searched for modules under /src/experiment_engine/... and found nothing.",
+      "fix": "(1) Changed write path from `/${filePath}` to `/src/${filePath}` so files land at /src/experiment_engine/... (2) Updated sys.path insertion to include both '/src' and '/' as fallback using a for loop.",
+      "tags": [
+        "pyodide",
+        "module-mounting",
+        "path-mismatch",
+        "ModuleNotFoundError",
+        "mountFromInline"
+      ],
+      "related_bugs": [
+        "bug-015",
+        "bug-371",
+        "bug-372"
+      ],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T10:30:00.000Z"
     },
     {
       "id": "bug-376",
       "timestamp": "2026-05-27T16:25:00.000Z",
-      "error_message": "pandas.errors.EmptyDataError: No columns to parse from file — 加载CSV 0字节",
+      "error_message": "pandas.errors.EmptyDataError: No columns to parse from file — 生成样本后加载CSV报错",
       "file": "src/services/pyodide.worker.ts",
-      "root_cause": "FS.writeFile(string, {encoding:'utf8'}) with Chinese UTF-8 produces 0-byte file in Pyodide v0.26.4.",
-      "fix": "Changed FS.writeFile to use TextEncoder → Uint8Array to bypass Emscripten string handling.",
-      "tags": ["pyodide", "encoding", "corpus-loading", "fs.writefile", "uint8array"],
+      "root_cause": "pyodide.FS.writeFile('/tmp/sample_cases.csv', content, { encoding: 'utf8' }) 使用 string + opts 参数写入多字节 UTF-8 中文内容时，在 Pyodide v0.26.4 (Emscripten 3.1.64) 下产生 0 字节文件。第一次修复（跳过 JSON config 中间步骤）未解决根因，因为问题不在 JSON 链而在 FS.writeFile 本身。",
+      "fix": "两次修复：(1) 跳过 JSON config 中间步骤，改用 FS.writeFile + handle_load_corpus_direct 直接路径。(2) 将 FS.writeFile 的 string 参数改为使用 TextEncoder 编码为 Uint8Array，绕过 Emscripten 的 intArrayFromString 字符串处理，FS.writeFile 传入 Uint8Array 时直接写入原始字节，无编码歧义。同时添加了 JS 侧和 Python 侧诊断日志。",
+      "tags": [
+        "pyodide",
+        "vfs",
+        "encoding",
+        "corpus-loading",
+        "empty-data",
+        "fs.writefile",
+        "uint8array"
+      ],
       "related_bugs": [],
       "occurrences": 2,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T16:25:00.000Z"
+    },
+    {
+      "id": "bug-377",
+      "timestamp": "2026-05-27T07:24:10.295Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T07:24:10.295Z"
+    },
+    {
+      "id": "bug-379",
+      "timestamp": "2026-05-27T08:19:48.596Z",
+      "error_message": "Wrong operator: === should be >=",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Used \"===\" instead of \">=\"",
+      "fix": "Changed operator === → >=",
+      "tags": [
+        "auto-detected",
+        "operator-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T08:19:48.596Z"
     },
     {
       "id": "bug-380",
       "timestamp": "2026-05-27T08:30:00.000Z",
-      "error_message": "Corpus file is 0 bytes after FS.writeFile — 网页端解析文本报错",
-      "file": "src/services/pyodide.worker.ts, src/experiment_engine/pyodide_handlers.py, src/pages/DataInput.tsx",
-      "root_cause": "FS.writeFile with TextEncoder+Uint8Array still produces 0-byte files intermittently (Pyodide VFS timing/consistency issue). Also pasteContent could be empty.",
-      "fix": "Frontend guard (empty pasteContent check, defensive guard in loadCorpus, i18n key). VFS robustness (3-attempt retry loop + FS.unlink + diagnostics). Python-side 3 retries + time.sleep.",
-      "tags": ["pyodide", "vfs", "corpus-loading", "0-byte", "retry"],
-      "related_bugs": ["bug-376"],
+      "error_message": "Corpus loading failed: Corpus file check failed for /tmp/pasted.csv: Corpus file /tmp/pasted.csv is 0 bytes after FS.writeFile — 用户网页端解析文本功能报错",
+      "file": "src/services/pyodide.worker.ts, src/experiment_engine/pyodide_handlers.py, src/pages/DataInput.tsx, src/services/pyodide.ts, src/i18n/translations.ts",
+      "root_cause": "FS.writeFile with TextEncoder + Uint8Array 在 Pyodide v0.26.4 下仍偶发 0 字节文件。JS 侧 FS.stat() 报告 size > 0，但 Python 侧 os.path.getsize() 返回 0，表明为 Pyodide VFS 时序/一致性问题。另：pasteContent 可能为空时无前端防护。",
+      "fix": "(1) 前端防护：DataInput.tsx 添加 pasteContent 空值检查；pyodide.ts loadCorpus 添加 defensive guard；translations.ts 添加 i18n 翻译 (2) VFS 鲁棒性：pyodide.worker.ts 添加 3 次重试循环 + FS.unlink + 诊断日志；pyodide_handlers.py 添加 Python 侧 3 次重试 + time.sleep (3) Reviewer 修复：FS.unlink catch 只吞 ENOENT；重试循环后置检查移入循环内；Python 诊断改用 print(file=stderr)",
+      "tags": [
+        "pyodide",
+        "vfs",
+        "corpus-loading",
+        "0-byte",
+        "retry",
+        "frontend-guard",
+        "multi-agent"
+      ],
+      "related_bugs": [
+        "bug-376"
+      ],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T08:30:00.000Z"
+    },
+    {
+      "id": "bug-382",
+      "timestamp": "2026-05-27T08:25:28.141Z",
+      "error_message": "Missing guard clause",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "No early return/throw for edge case: e && e.errno !== 44",
+      "fix": "Added guard clause: if (e && e.errno !== 44)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T08:25:28.141Z"
+    },
+    {
+      "id": "bug-386",
+      "timestamp": "2026-05-27T08:59:39.889Z",
+      "error_message": "Missing guard clause",
+      "file": "src/utils/conditionSetToYaml.ts",
+      "root_cause": "No early return/throw for edge case: v === '' || v === 'null' || v === '~'",
+      "fix": "Added guard clause: if (v === '' || v === 'null' || v === '~')",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T08:59:39.889Z"
     },
     {
       "id": "bug-387",
-      "timestamp": "2026-05-27T17:02:03.897Z",
-      "error_message": "ValidationError: membership must have at least 1 column — YAML string spread as character object",
+      "timestamp": "2026-05-27T17:02:03.897072",
+      "error_message": "ValidationError: membership must have at least 1 column -- YAML string spread as character object",
       "file": "src/utils/conditionSetToYaml.ts, src/pages/DataInput.tsx",
-      "root_cause": "JS spread operator on a string produces character-indexed object, losing all conditions/outcome/domain fields.",
-      "fix": "Added yamlToConditionSet() hand-written YAML parser. Replaced 3 occurrences of (yamlContent as any).",
-      "tags": ["yaml-parsing", "condition-set", "spread-operator", "calibration"],
+      "root_cause": "handleCalibrate / handleRunPipeline / handleBertCalibrate when importedConditionSet is null pass yamlContent (YAML string) directly as conditionSet to ensureQCAVariant. JS spread operator on a string produces character-indexed object, losing all conditions/outcome/domain fields, causing n_conds=0 on Python side.",
+      "fix": "Added yamlToConditionSet() hand-written YAML parser (no external deps) that reverses conditionSetToYaml. DataInput.tsx three occurrences of (yamlContent as any) replaced with yamlToConditionSet(yamlContent).",
+      "tags": [
+        "yaml-parsing",
+        "bug",
+        "condition-set",
+        "spread-operator",
+        "calibration",
+        "frontend"
+      ],
+      "related_bugs": [
+        "bug-075"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T17:02:03.897072"
+    },
+    {
+      "id": "bug-388",
+      "timestamp": "2026-05-27T09:36:10.725Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T09:36:10.725Z"
     },
     {
       "id": "bug-389",
       "timestamp": "2026-05-27T18:00:00.000Z",
-      "error_message": "ValidationError: membership must have at least 1 column — condition_set has empty conditions",
-      "file": "src/experiment_engine/pyodide_handlers.py, calibrator.py",
-      "root_cause": "condition_set.json written to VFS with empty conditions array.",
-      "fix": "Added empty-conditions validation guard + JSON key diagnostics in handle_calibrate; added conditionSet structure logging in worker.",
-      "tags": ["calibration", "condition-set", "empty-conditions", "validation"],
+      "error_message": "ValidationError: membership must have at least 1 column — input_value=shape=(1,0) — Python handle_calibrate 收到 condition_set 无 conditions",
+      "file": "src/experiment_engine/pyodide_handlers.py, src/experiment_engine/text_calibration/calibrator.py",
+      "root_cause": "condition_set.json 写入 Pyodide VFS 时 conditions 为空。已知前端修复 commit 5f009a1 (yamlToConditionSet 替代 yamlContent as any) 已就位但仍触发，推测可能原因: (1) 部署未更新; (2) 运行时 YAML 编辑器内容被清空; (3) 另有遗漏路径",
+      "fix": "pyodide_handlers.py handle_calibrate 添加空条件校验 + 诊断 JSON keys; pyodide.worker.ts handleCalibrate 添加 conditionSet 结构日志",
+      "tags": [
+        "calibration",
+        "condition-set",
+        "empty-conditions",
+        "validation"
+      ],
       "related_bugs": [],
       "occurrences": 2,
       "last_seen": "2026-05-27"
@@ -764,11 +2686,17 @@
     {
       "id": "bug-390",
       "timestamp": "2026-05-27T00:00:00.000Z",
-      "error_message": "All results 0.5 after web calibration — conditions without prototypes hit degenerate branch",
-      "file": "src/experiment_engine/text_calibration/strategies.py, calibrator.py",
-      "root_cause": "_fallback_text_scores() returned all-zeros for no-prototype conditions. Calibration's min==max branch set all to 0.5.",
-      "fix": "Fix A: Replaced all-zeros with text-length-based heuristic. Fix B: Replaced silent np.full_like(0.5) with ValueError in Direct/IndirectCalibration.",
-      "tags": ["calibration", "degenerate-scores", "zero-prototypes"],
+      "error_message": "all results 0.5 after web calibration — conditions without prototypes produce uniform scores hitting degenerate branch",
+      "file": "src/experiment_engine/text_calibration/strategies.py, src/experiment_engine/text_calibration/calibrator.py",
+      "root_cause": "_fallback_text_scores() returned all-zeros for conditions with no prototypes. DirectCalibration/IndirectCalibration min==max branch set all normalized values to 0.5, producing uniform membership of 0.5.",
+      "fix": "Fix A (calibrator.py): Replaced all-zeros fallback with text-length-based heuristic (text_length / max_len) to produce varied scores. Fix B (strategies.py): Replaced silent np.full_like(0.5) with ValueError in both DirectCalibration and IndirectCalibration when all scores are identical.",
+      "tags": [
+        "calibration",
+        "degenerate-scores",
+        "direct-calibration",
+        "fallback-text-scores",
+        "zero-prototypes"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-27"
@@ -776,71 +2704,362 @@
     {
       "id": "bug-396",
       "timestamp": "2026-05-27T18:30:00.000Z",
-      "error_message": "handle_load_corpus / handle_load_corpus_direct discard expected_outcome column",
+      "error_message": "handle_load_corpus / handle_load_corpus_direct discard expected_outcome column from CSV",
       "file": "src/experiment_engine/pyodide_handlers.py",
-      "root_cause": "Both functions used TextCorpusReader.read() which only extracts 'text' column.",
-      "fix": "After building entries, re-read CSV with pandas to extract expected_outcome into metadata.",
-      "tags": ["web-pipeline", "calibrate", "expected_outcome", "data-loss"],
+      "root_cause": "Both functions called TextCorpusReader.read() which only extracts the `text` column, then set metadata: {} for each entry. The expected_outcome column from the CSV was silently dropped.",
+      "fix": "After building entries from TextCorpusReader, re-read the CSV/JSON content with pandas to extract the `expected_outcome` column and store it in each entry's metadata dict. For handle_load_corpus: read from the content string via StringIO. For handle_load_corpus_direct: re-read the VFS file with pandas.",
+      "tags": [
+        "web-pipeline",
+        "calibrate",
+        "expected_outcome",
+        "corpus-loading",
+        "data-loss"
+      ],
       "related_bugs": [],
       "occurrences": 2,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T18:30:00.000Z"
     },
     {
       "id": "bug-397",
       "timestamp": "2026-05-27T18:30:00.000Z",
-      "error_message": "handle_calibrate uses process() instead of process_with_outcome()",
+      "error_message": "handle_calibrate uses process() instead of process_with_outcome(), ignoring ground-truth expected_outcome",
       "file": "src/experiment_engine/pyodide_handlers.py",
-      "root_cause": "Line 117 called _calibrator.process() which computes outcome from trigram similarity instead of CSV labels.",
-      "fix": "Extract expected_outcome from metadata, build outcome vector, call process_with_outcome(). Fallback to process() when no metadata.",
-      "tags": ["web-pipeline", "calibrate", "expected_outcome", "process_with_outcome"],
-      "related_bugs": ["bug-396"],
+      "root_cause": "Line 117 called _calibrator.process(_raw_input) which computes outcome values from trigram similarity to outcome prototypes rather than using the CSV expected_outcome labels. This made truth table outcomes meaningless.",
+      "fix": "Extract expected_outcome from each sample's metadata (set by Bug 1 fix), build an outcome vector with np.float64, and call process_with_outcome() instead of process(). Fall back to process() when no samples have expected_outcome metadata.",
+      "tags": [
+        "web-pipeline",
+        "calibrate",
+        "expected_outcome",
+        "process_with_outcome",
+        "data-loss"
+      ],
+      "related_bugs": [
+        "bug-396"
+      ],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T18:30:00.000Z"
     },
     {
       "id": "bug-398",
       "timestamp": "2026-05-27T18:30:00.000Z",
-      "error_message": "handle_analyze creates QCAnalyzerStage without condition_set",
+      "error_message": "handle_analyze creates QCAnalyzerStage without condition_set, missing condition metadata in output",
       "file": "src/experiment_engine/pyodide_handlers.py",
-      "root_cause": "QCAnalyzerStage constructor called without condition_set parameter.",
-      "fix": "Added optional condition_set_path param. Updated all caller layers (worker TS, bridge, hook, types).",
-      "tags": ["web-pipeline", "analyze", "condition_set", "missing-param"],
+      "root_cause": "QCAnalyzerStage constructor called without condition_set=... parameter. The analyzer still works (condition_set defaults to None), but it cannot include condition metadata (domain, calibration params) in solutions and reports.",
+      "fix": "Added optional condition_set_path parameter to handle_analyze. When provided, load the condition set via _condition_set_from_dict and pass it to QCAnalyzerStage constructor. Updated all caller layers: pyodide.worker.ts (handleAnalyze accepts conditionSet), pyodide.ts (analyze method accepts conditionSet), useQCAWorkflow.ts (passes conditionSet from runFullPipeline/runtimeFullPipelineMultiOutcome), qca.ts (type definition updated).",
+      "tags": [
+        "web-pipeline",
+        "analyze",
+        "condition_set",
+        "missing-param",
+        "data-enrichment"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T18:30:00.000Z"
+    },
+    {
+      "id": "bug-401",
+      "timestamp": "2026-05-27T10:43:55.070Z",
+      "error_message": "Type error",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto; <button className=\"btn btn-ghost\" style={{ fontSize: '0.7rem",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-27T10:44:08.604Z"
     },
     {
       "id": "bug-404",
       "timestamp": "2026-05-27T12:00:00.000Z",
-      "error_message": "Web端 high_dissatisfaction outcome 只显示 0/1（crisp）",
+      "error_message": "Web端 high_dissatisfaction outcome 只显示 0/1",
       "file": "src/experiment_engine/pyodide_handlers.py",
-      "root_cause": "handle_calibrate used process_with_outcome() forced outcome to CSV expected_outcome (0/1).",
-      "fix": "改为始终使用 process()，所有列（含 outcome）走正常文本评分→校准管线产生模糊值。",
-      "tags": ["calibration", "outcome", "web-path", "fuzzy"],
+      "root_cause": "handle_calibrate 使用 process_with_outcome() 将 outcome 列强制设为 CSV expected_outcome（0/1），用户期望 outcome 也产生模糊值",
+      "fix": "改为始终使用 process()，所有列（含 outcome）都走正常文本评分→校准管线",
+      "tags": [
+        "calibration",
+        "outcome",
+        "web-path",
+        "fuzzy"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T12:00:00.000Z"
+    },
+    {
+      "id": "bug-406",
+      "timestamp": "2026-05-27T13:23:45.472Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: const protoFuzzy = calResult.prototypeFuzzyData?.fuzzyData ?",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-27T13:23:45.932Z"
+    },
+    {
+      "id": "bug-164",
+      "timestamp": "2026-05-27T14:19:21.144Z",
+      "error_message": "Wrong condition in logic",
+      "file": "src/utils/conditionSetToYaml.ts",
+      "root_cause": "Condition was: if (value === 'null' || value === '')",
+      "fix": "Changed to: if (value === 'null')",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T14:19:21.144Z"
+    },
+    {
+      "id": "bug-165",
+      "timestamp": "2026-05-27T14:51:11.437Z",
+      "error_message": "Missing error handling in calibrate",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block | Also: console.error(`[pyodide] loadCorpus failed: content is empty; console.log(`[pyodide] loadCorpus: file=${fileName}, content | Also: console.log(`[pyodide] analyze: fuzzyData shape=${fuzzyData.; ).catch((err: any) => { | Also: ).catch((err: any) => {; console.error(`[pyodide] robustness failed:`, err); | Also: ).catch((err: any) => {; console.error(`[pyodide] counterfactuals failed:`, err); | Also: ).catch((err: any) => {; console.error(`[pyodide] validateConditionSet failed:`, err) | Also: console.log(`[pyodide] initBert: model=${modelName}`);; ).catch((err: any) => { | Also: console.log(`[pyodide] embedCalibrate: ${texts.length} texts; conditionSet.conditions?.map((c: any) => ({ | Also: try {; } catch (err: any) { | Also: console.log(`[pyodide] computePrototypeEmbeddings: ${Object.; try { | Also: ).catch((err: any) => {; console.error(`[pyodide] getBertStatus failed:`, err);",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 11,
+      "last_seen": "2026-05-27T14:53:44.410Z"
+    },
+    {
+      "id": "bug-166",
+      "timestamp": "2026-05-27T14:51:55.235Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 5→92 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T14:51:55.235Z"
+    },
+    {
+      "id": "bug-167",
+      "timestamp": "2026-05-27T14:51:59.754Z",
+      "error_message": "Wrong reference: pipelineFailed should be pipelineComplete",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "Used \"pipelineFailed\" instead of \"pipelineComplete\"",
+      "fix": "Changed pipelineFailed → pipelineComplete",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T14:51:59.754Z"
+    },
+    {
+      "id": "bug-168",
+      "timestamp": "2026-05-27T14:52:31.552Z",
+      "error_message": "CSS fix: conditionSet",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "conditionSet: importedConditionSet → cs,",
+      "fix": "Changed conditionSet: importedConditionSet → cs,",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T14:52:31.552Z"
+    },
+    {
+      "id": "bug-169",
+      "timestamp": "2026-05-27T14:52:59.895Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T14:52:59.895Z"
+    },
+    {
+      "id": "bug-170",
+      "timestamp": "2026-05-27T14:53:04.272Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "Had '请先加载 BERT 模型'",
+      "fix": "Changed to 'BERT 就绪，正在校准...'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-27T14:53:04.660Z"
+    },
+    {
+      "id": "bug-171",
+      "timestamp": "2026-05-27T15:06:34.807Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: if (!prototypes || typeof prototypes !== 'object' || Array.i; const detail = !prototypes ? 'null or undefined' : Array.isA",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-27T15:06:43.915Z"
+    },
+    {
+      "id": "bug-172",
+      "timestamp": "2026-05-27T15:09:40.876Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "tmp/verify_fix.mjs",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T15:09:40.876Z"
+    },
+    {
+      "id": "bug-173",
+      "timestamp": "2026-05-27T15:09:49.790Z",
+      "error_message": "Significant refactor of ",
+      "file": "tmp/verify_fix.mjs",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 18→26 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T15:09:49.790Z"
+    },
+    {
+      "id": "bug-174",
+      "timestamp": "2026-05-27T15:19:06.184Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T15:19:06.184Z"
+    },
+    {
+      "id": "bug-175",
+      "timestamp": "2026-05-27T15:21:31.332Z",
+      "error_message": "Wrong reference: calResult should be protoFuzzyData",
+      "file": "src/hooks/useQCAWorkflow.ts",
+      "root_cause": "Used \"calResult\" instead of \"protoFuzzyData\"",
+      "fix": "Changed calResult → protoFuzzyData",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T15:21:31.332Z"
+    },
+    {
+      "id": "bug-176",
+      "timestamp": "2026-05-27T15:22:50.543Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Had `[pyodide] calibrate done: fuzzyData shape=${resul",
+      "fix": "Changed to `[pyodide] calibrate done: fuzzyData shape=${resul",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-05-27T15:22:51.952Z"
     },
     {
       "id": "bug-177",
       "timestamp": "2026-05-27T00:00:00.000Z",
-      "error_message": "ValueError: Condition 'high_dissatisfaction' has prototype(s) but no prototype_embeddings",
+      "error_message": "ValueError: Condition 'high_dissatisfaction' has 1 prototype(s) but no prototype_embeddings in handle_embed_calibrate",
       "file": "src/hooks/useQCAWorkflow.ts, src/services/pyodide.ts",
-      "root_cause": "runEmbedCalibrate/runFullPipeline only collected prototypes from conditions, not outcome.",
-      "fix": "Added outcome's prototypes to embedding computation; attached prototype_embeddings to enrichedConditionSet.outcome.",
-      "tags": ["embed-calibrate", "outcome", "prototype-embeddings"],
+      "root_cause": "runEmbedCalibrate and runFullPipeline only collected prototype texts from conditionSet.conditions, ignoring conditionSet.outcome. Outcome 'high_dissatisfaction' had prototypes but no embeddings were computed/attached. Python handler validated all conditions with prototypes must have prototype_embeddings.",
+      "fix": "Added outcome's prototypes to prototypeTextsByCondition. Added outcomeEmbResult to attach prototype_embeddings + embedding_model to enrichedConditionSet.outcome. Applied to both runEmbedCalibrate and runFullPipeline. Also fixed pre-existing TS errors in pyodide.ts: column_names→condition_names, restored missing generic type parameter on send().",
+      "tags": [
+        "embed-calibrate",
+        "outcome",
+        "prototype-embeddings",
+        "ts-fix"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T00:00:00.000Z"
+    },
+    {
+      "id": "bug-178",
+      "timestamp": "2026-05-27T15:39:18.708Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 17→36 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T15:39:18.708Z"
     },
     {
       "id": "bug-179",
       "timestamp": "2026-05-27T00:00:00.000Z",
-      "error_message": "Cloud: Embedding computation failed — Tensor format regression in Transformers.js v2.17.x",
+      "error_message": "Cloud: Embedding computation failed: Cannot read properties of undefined (reading 'data')",
       "file": "src/services/bert-engine.ts",
-      "root_cause": "extractEmbeddings() refactored to assume single batched Tensor, but v2.17.x returns Tensor[] per text.",
-      "fix": "3-branch handler: empty→zero vectors, single 2D→batched slicing, per-text array→individual extraction.",
-      "tags": ["bert-engine", "transformers", "tensor-format", "regression"],
+      "root_cause": "extractEmbeddings() was refactored to assume a single batched Tensor with shape [batchSize, hiddenDim], but Transformers.js v2.17.x returns Tensor[] (one per text) for batched inputs. The new code `Array.isArray(output) ? output[0] : output` extracts only the first tensor's data, then row-slicing reads out of bounds for j>0.",
+      "fix": "Replaced with 3-branch handler: empty array -> zero vectors, single 2D tensor -> batched row-slicing, per-text array -> individual tensor extraction (original v2.17.x behavior)",
+      "tags": [
+        "bert-engine",
+        "transformers",
+        "tensor-format",
+        "regression"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-27"
@@ -848,44 +3067,338 @@
     {
       "id": "bug-180",
       "timestamp": "2026-05-27T00:00:00.000Z",
-      "error_message": "PydanticSerializationError: Unable to serialize numpy.ndarray at handle_analyze",
+      "error_message": "Local: PydanticSerializationError: Unable to serialize unknown type: <class 'numpy.ndarray'> at handle_analyze model_dump(mode='json')",
       "file": "src/experiment_engine/pyodide_handlers.py",
-      "root_cause": "MembershipData with np.array(...) cannot be serialized via model_dump(mode='json').",
-      "fix": "Added tolist() conversion of membership ndarray before model_dump call.",
-      "tags": ["serialization", "numpy", "pydantic", "pyodide-handlers"],
+      "root_cause": "handle_analyze() constructs MembershipData with np.array(...) then calls QCAAnalysisResult.model_dump(mode='json'). Pydantic with arbitrary_types_allowed=True permits ndarray at construction but cannot serialize it in JSON mode.",
+      "fix": "Added isinstance check and tolist() conversion of membership ndarray before model_dump call in handle_analyze().",
+      "tags": [
+        "serialization",
+        "numpy",
+        "pydantic",
+        "pyodide-handlers"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-27"
+    },
+    {
+      "id": "bug-181",
+      "timestamp": "2026-05-27T15:52:35.223Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/text_calibration/calibrator.py",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 7→27 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T15:52:35.223Z"
     },
     {
       "id": "bug-182",
       "timestamp": "2026-05-27T17:50:00.000Z",
-      "error_message": "Pipeline results display '-' for cons/cov and 'N/A' for robustness (degenerate truth table)",
+      "error_message": "Pipeline results display '-' for consistency/coverage and 'N/A' for robustness (degenerate truth table)",
       "file": "src/experiment_engine/text_calibration/calibrator.py",
-      "root_cause": "_fallback_text_scores() used constant-offset formula; DirectCalibration's min-max stripped offsets → all columns identical.",
-      "fix": "Replaced constant-offset with per-condition seeded random jitter (RandomState(42+j)) producing genuinely different distributions.",
-      "tags": ["calibration", "degenerate-membership", "fallback", "truth-table"],
+      "root_cause": "_fallback_text_scores() used 'normalized * 0.35 + cond_weight * 0.65' which adds a constant per-column offset. DirectCalibration's internal min-max normalization strips constant offsets, so all columns produce identical normalized values → degenerate truth table → no solutions → no cons/cov/robustness.",
+      "fix": "Replaced constant-offset formula with per-condition seeded random jitter (np.random.RandomState(42+j)). For n_texts >= 3: each column gets unique ±0.12 jitter producing genuinely different distributions. For n_texts==1: distribute evenly across conditions. For n_texts==2: slight per-condition variation.",
+      "tags": [
+        "calibration",
+        "degenerate-membership",
+        "fallback",
+        "truth-table"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-27"
+      "last_seen": "2026-05-27T17:50:00.000Z"
     },
     {
-      "id": "bug-401",
-      "timestamp": "2026-05-28T02:00:00.000Z",
-      "error_message": "Robustness 报告一直显示 N/A — 前端 pipeline 调用未传 runRobustness: true",
-      "file": "src/pages/DataInput.tsx",
-      "root_cause": "runFullPipeline() 的 opts.runRobustness 默认 undefined，但 DataInput.tsx 调用 runFullPipeline 时没有传入 runRobustness: true，导致稳健性步骤被跳过。",
-      "fix": "DataInput.tsx runFullPipeline 调用中添加 runRobustness: true。",
-      "tags": ["robustness", "pipeline", "missing-option", "data-flow"],
+      "id": "bug-183",
+      "timestamp": "2026-05-27T16:16:29.520Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
       "related_bugs": [],
       "occurrences": 1,
-      "last_seen": "2026-05-28"
+      "last_seen": "2026-05-27T16:16:29.520Z"
+    },
+    {
+      "id": "bug-184",
+      "timestamp": "2026-05-27T16:16:33.210Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/services/bert-engine.ts",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 5→10 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T16:16:33.210Z"
     }
   ],
   "pruned": {
-    "date": "2026-05-28",
-    "original_count": 3460,
-    "remaining_count": 67,
-    "reason": "Removed ~240 auto-detected trivial bugs (type-fix, error-handling, missing-await, null-safety, guard-clause, refactor, wrong-reference, wrong-value, style-fix). Kept only algorithm, security, deployment, data-flow, and instrumentation bugs with detailed root_cause analysis."
+    "date": "2026-05-27",
+    "original_count": 408,
+    "removed_count": 245,
+    "remaining_count": 163,
+    "removed_ids": [
+      "bug-001",
+      "bug-002",
+      "bug-003",
+      "bug-004",
+      "bug-005",
+      "bug-007",
+      "bug-008",
+      "bug-010",
+      "bug-011",
+      "bug-016",
+      "bug-017",
+      "bug-019",
+      "bug-022",
+      "bug-023",
+      "bug-024",
+      "bug-039",
+      "bug-042",
+      "bug-043",
+      "bug-046",
+      "bug-047",
+      "bug-048",
+      "bug-053",
+      "bug-058",
+      "bug-061",
+      "bug-062",
+      "bug-063",
+      "bug-064",
+      "bug-065",
+      "bug-069",
+      "bug-071",
+      "bug-075",
+      "bug-078",
+      "bug-079",
+      "bug-080",
+      "bug-081",
+      "bug-082",
+      "bug-083",
+      "bug-084",
+      "bug-085",
+      "bug-086",
+      "bug-087",
+      "bug-088",
+      "bug-089",
+      "bug-090",
+      "bug-091",
+      "bug-092",
+      "bug-093",
+      "bug-094",
+      "bug-095",
+      "bug-096",
+      "bug-097",
+      "bug-098",
+      "bug-099",
+      "bug-100",
+      "bug-101",
+      "bug-102",
+      "bug-103",
+      "bug-104",
+      "bug-105",
+      "bug-108",
+      "bug-112",
+      "bug-113",
+      "bug-114",
+      "bug-115",
+      "bug-116",
+      "bug-117",
+      "bug-119",
+      "bug-121",
+      "bug-122",
+      "bug-123",
+      "bug-124",
+      "bug-125",
+      "bug-126",
+      "bug-129",
+      "bug-130",
+      "bug-132",
+      "bug-133",
+      "bug-134",
+      "bug-135",
+      "bug-136",
+      "bug-137",
+      "bug-138",
+      "bug-139",
+      "bug-140",
+      "bug-141",
+      "bug-142",
+      "bug-143",
+      "bug-144",
+      "bug-145",
+      "bug-146",
+      "bug-147",
+      "bug-148",
+      "bug-149",
+      "bug-151",
+      "bug-152",
+      "bug-153",
+      "bug-155",
+      "bug-156",
+      "bug-157",
+      "bug-160",
+      "bug-161",
+      "bug-162",
+      "bug-163",
+      "bug-164",
+      "bug-165",
+      "bug-169",
+      "bug-170",
+      "bug-172",
+      "bug-173",
+      "bug-174",
+      "bug-176",
+      "bug-177",
+      "bug-178",
+      "bug-179",
+      "bug-180",
+      "bug-181",
+      "bug-182",
+      "bug-183",
+      "bug-184",
+      "bug-186",
+      "bug-187",
+      "bug-188",
+      "bug-189",
+      "bug-192",
+      "bug-198",
+      "bug-199",
+      "bug-206",
+      "bug-207",
+      "bug-208",
+      "bug-209",
+      "bug-211",
+      "bug-212",
+      "bug-213",
+      "bug-215",
+      "bug-218",
+      "bug-219",
+      "bug-229",
+      "bug-233",
+      "bug-234",
+      "bug-235",
+      "bug-237",
+      "bug-238",
+      "bug-239",
+      "bug-240",
+      "bug-241",
+      "bug-242",
+      "bug-245",
+      "bug-246",
+      "bug-247",
+      "bug-249",
+      "bug-250",
+      "bug-253",
+      "bug-254",
+      "bug-257",
+      "bug-258",
+      "bug-259",
+      "bug-261",
+      "bug-262",
+      "bug-264",
+      "bug-265",
+      "bug-266",
+      "bug-267",
+      "bug-268",
+      "bug-269",
+      "bug-273",
+      "bug-274",
+      "bug-275",
+      "bug-276",
+      "bug-277",
+      "bug-278",
+      "bug-282",
+      "bug-285",
+      "bug-286",
+      "bug-290",
+      "bug-293",
+      "bug-295",
+      "bug-296",
+      "bug-297",
+      "bug-299",
+      "bug-301",
+      "bug-303",
+      "bug-304",
+      "bug-309",
+      "bug-310",
+      "bug-311",
+      "bug-312",
+      "bug-313",
+      "bug-318",
+      "bug-319",
+      "bug-323",
+      "bug-324",
+      "bug-325",
+      "bug-326",
+      "bug-329",
+      "bug-330",
+      "bug-331",
+      "bug-332",
+      "bug-333",
+      "bug-334",
+      "bug-335",
+      "bug-336",
+      "bug-337",
+      "bug-338",
+      "bug-339",
+      "bug-340",
+      "bug-341",
+      "bug-342",
+      "bug-343",
+      "bug-344",
+      "bug-345",
+      "bug-346",
+      "bug-347",
+      "bug-348",
+      "bug-349",
+      "bug-350",
+      "bug-352",
+      "bug-354",
+      "bug-355",
+      "bug-356",
+      "bug-357",
+      "bug-359",
+      "bug-360",
+      "bug-367",
+      "bug-369",
+      "bug-370",
+      "bug-372",
+      "bug-373",
+      "bug-375",
+      "bug-378",
+      "bug-380",
+      "bug-381",
+      "bug-384",
+      "bug-385",
+      "bug-391",
+      "bug-392",
+      "bug-393",
+      "bug-394",
+      "bug-395",
+      "bug-399",
+      "bug-400",
+      "bug-402",
+      "bug-403",
+      "bug-405",
+      "bug-407",
+      "bug-408"
+    ],
+    "reason": "Auto-detected noise entries (refactor, CSS fix, wrong value, wrong reference, wrong return)"
   }
 }

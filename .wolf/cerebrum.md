@@ -1,6 +1,6 @@
 # Cerebrum -- QCA Text Analysis Tool
 
-> OpenWolf learning memory. Last comprehensive update: 2026-05-28
+> OpenWolf learning memory. Last comprehensive update: 2026-05-27
 > **Context optimization (2026-05-27)**: old decision log entries archived, obsolete historical learnings trimmed, Do-Not-Repeat stale items removed.
 
 ---
@@ -12,7 +12,7 @@
 - `FIXME.md` — 3 remaining defects (0 critical, 0 warnings, 3 suggestions)
 - `HACK.md` — 8 unresolved items
 
-**Current baseline**: HEAD `b914889` on master, tests 532 passed, TS build clean.
+**Current baseline**: HEAD `8807e15` on master, tests 532 passed, TS build clean.
 
 ---
 
@@ -91,12 +91,7 @@
 - [2026-05-27] **handle_robustness missing input validation**: Validate membership shape (ndim==2, shape[0]>0) before MembershipData. Wrap run_all in try/except.
 - [2026-05-27] **handle_analyze must pass condition_set to QCAnalyzerStage**: Needed for domain info + condition metadata in solution labels. Update full calling chain (worker, bridge, hook, types).
 - [2026-05-27] **Reviewer confirmed**: All 3 algorithm bugs fixed. 2 domains empty solutions = test fixture data quality, not code bug.
-- [2026-05-28] **runFullPipeline 调用缺 runRobustness: true**: DataInput.tsx 调用 runFullPipeline 没传 runRobustness: true，robustness 步骤被静默跳过，导致结果显示 N/A。修复：在 runFullPipeline 选项中加入 runRobustness: true。
 - [2026-05-28 **FIXED**] **solution_consistency/solution_coverage default 0.0 in QCAAnalysisResult**: SufficiencyAnalyzer.analyze() creates a NEW QCASolutions() with computed consistency/coverage but stores it in SufficiencyResults.solutions — the original solutions object from SolutionFormatter has default 0.0. Fix: copied sufficiency-computed QCASolution objects back to the main solutions in analyzer.py after sufficiency analysis.
-
-- [2026-05-28 **FIXED**] **PyodideBridge.resolveOne() 返回 worker 消息信封**: resolveOne() 调用 `pending.resolve(msg)` 返回完整 worker 消息 `{ type, result }`，但 analyze() 期望直接拿到 QCAAnalysisResultJSON。修复：在 analyze() 的 .then() 中提取 `resp?.result ?? resp`，同样 runRobustness() 提取 `resp?.report ?? resp`，runCounterfactuals() 提取 `resp?.report ?? resp`。
-
-# Important: When editing .then() chains inside class methods in pyodide.ts, NEVER remove the class method's closing `}` brace. The `.then().catch()` statement ends with `});` but the enclosing method needs a separate `}` on the next line.
 
 ### Python/CLI
 
