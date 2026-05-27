@@ -91,6 +91,7 @@
 - [2026-05-27] **handle_robustness missing input validation**: Validate membership shape (ndim==2, shape[0]>0) before MembershipData. Wrap run_all in try/except.
 - [2026-05-27] **handle_analyze must pass condition_set to QCAnalyzerStage**: Needed for domain info + condition metadata in solution labels. Update full calling chain (worker, bridge, hook, types).
 - [2026-05-27] **Reviewer confirmed**: All 3 algorithm bugs fixed. 2 domains empty solutions = test fixture data quality, not code bug.
+- [2026-05-28 **FIXED**] **solution_consistency/solution_coverage default 0.0 in QCAAnalysisResult**: SufficiencyAnalyzer.analyze() creates a NEW QCASolutions() with computed consistency/coverage but stores it in SufficiencyResults.solutions — the original solutions object from SolutionFormatter has default 0.0. Fix: copied sufficiency-computed QCASolution objects back to the main solutions in analyzer.py after sufficiency analysis.
 
 ### Python/CLI
 

@@ -123,6 +123,16 @@ class QCAnalyzerStage(BasePlugin):
         # 5. Sufficiency analysis
         sufficiency = self.sufficiency_analyzer.analyze(fuzzy_data, solutions)
 
+        # 6. Copy sufficiency-computed metrics back to solutions
+        # SufficiencyAnalyzer creates a NEW QCASolutions() with
+        # solution_consistency/solution_coverage computed, but stores
+        # it inside SufficiencyResults.solutions. The original solutions
+        # from SolutionFormatter has default 0.0 for these fields.
+        for _st in ("complex", "parsimonious", "intermediate"):
+            _computed = getattr(sufficiency.solutions, _st, None)
+            if _computed is not None:
+                setattr(solutions, _st, _computed)
+
         return QCAAnalysisResult(
             fuzzy_data=fuzzy_data,
             truth_table=truth_table,

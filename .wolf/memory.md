@@ -1,6 +1,7 @@
 # Memory
 
 | 2026-05-28 | Fix Transformers.js 云端推理崩溃: _model() 调用添加 try-catch + 零向量回退，替代 throw new Error 传播到 pipeline 崩溃 | bert-engine.ts | bug-393 logged, TS clean, 532 tests pass | ~200 |
+| 2026-05-28 | Fix analyzer.py: solution_consistency/solution_coverage 在 QCAAnalysisResult.solutions 中显示 0.000 — SufficiencyAnalyzer 计算了正确值但保存在 SufficiencyResults.solutions, 未回写到主 solutions 对象 | analyzer.py | 532 tests pass, ALL MATCH verified | ~350 |
 
 
 > Active sessions: most recent 2. Older sessions archived to `memory-archive.md`.
@@ -623,3 +624,9 @@
 | 00:16 | Edited src/services/bert-engine.ts | added error handling | ~378 |
 | 00:16 | Edited src/services/bert-engine.ts | modified if() | ~99 |
 | 00:16 | Edited src/services/bert-engine.ts | 6→5 lines | ~95 |
+
+## Session: 2026-05-27 00:22
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 00:25 | Edited src/experiment_engine/qca_engine/analyzer.py | modified in() | ~202 |
