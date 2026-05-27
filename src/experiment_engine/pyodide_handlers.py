@@ -362,6 +362,72 @@ def handle_load_corpus(corpus_config_path, output_path):
         json.dump(entries, f, ensure_ascii=False)
 
 
+def handle_load_corpus_direct(config_path, output_path):
+    """Parse a pre-written corpus file using TextCorpusReader.
+
+    Unlike handle_load_corpus(), this function does NOT read config JSON
+    containing the full file content — the worker JS already wrote the content
+    to the VFS directly.  ``config_path`` is a JSON with just two keys:
+
+    - ``vfsFile``: VFS path to the pre-written corpus file (e.g.
+      ``/tmp/sample_cases.csv``).
+    - ``format``: one of ``csv``, ``json``, ``txt``.
+
+    This avoids potential encoding/truncation issues when large CSV content
+    with Chinese text passes through the JSON.stringify → Python json.load →
+    f.write chain.
+
+    Args:
+        config_path: VFS path to JSON ``{"vfsFile": "...", "format": "csv"}``.
+        output_path: VFS path to write the JSON array of
+            ``{text_id, text, metadata}`` entries.
+    """
+    import os as _os
+
+    from experiment_engine.io.readers import TextCorpusReader
+
+    with open(config_path, encoding="utf-8") as f:
+        cfg = json.load(f)
+    vfs_file_path = cfg["vfsFile"]
+
+    # DIAG: verify the corpus file before pandas reads it
+    try:
+        _size = _os.path.getsize(vfs_file_path)
+        _os.write(1, f"[corpus-diag] pre-read: {vfs_file_path} size={_size}\n".encode())
+        if _size == 0:
+            raise RuntimeError(
+                f"Corpus file {vfs_file_path} is 0 bytes — FS.writeFile did not "
+                "write the content correctly. Check that the content was encoded "
+                "as a Uint8Array (not a string with {encoding: 'utf8'})."
+            )
+    except OSError as _e:
+        _os.write(
+            1, f"[corpus-diag] ERROR: cannot stat {vfs_file_path}: {_e}\n".encode()
+        )
+        raise
+
+    reader = TextCorpusReader()
+    result = reader.read(vfs_file_path)
+
+    entries = []
+    for i in range(len(result.data)):
+        text_id = (
+            result.index[i]
+            if result.index and i < len(result.index)
+            else f"case_{i + 1}"
+        )
+        entries.append(
+            {
+                "text_id": str(text_id),
+                "text": str(result.data[i]),
+                "metadata": {},
+            }
+        )
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(entries, f, ensure_ascii=False)
+
+
 # ─── Export ─────────────────────────────────────────────────────────────────
 
 

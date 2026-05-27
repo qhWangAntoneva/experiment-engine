@@ -6158,6 +6158,58 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-27T07:03:35.687Z"
+    },
+    {
+      "id": "bug-376",
+      "timestamp": "2026-05-27T16:25:00.000Z",
+      "error_message": "pandas.errors.EmptyDataError: No columns to parse from file — 生成样本后加载CSV报错",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "pyodide.FS.writeFile('/tmp/sample_cases.csv', content, { encoding: 'utf8' }) 使用 string + opts 参数写入多字节 UTF-8 中文内容时，在 Pyodide v0.26.4 (Emscripten 3.1.64) 下产生 0 字节文件。第一次修复（跳过 JSON config 中间步骤）未解决根因，因为问题不在 JSON 链而在 FS.writeFile 本身。",
+      "fix": "两次修复：(1) 跳过 JSON config 中间步骤，改用 FS.writeFile + handle_load_corpus_direct 直接路径。(2) 将 FS.writeFile 的 string 参数改为使用 TextEncoder 编码为 Uint8Array，绕过 Emscripten 的 intArrayFromString 字符串处理，FS.writeFile 传入 Uint8Array 时直接写入原始字节，无编码歧义。同时添加了 JS 侧和 Python 侧诊断日志。",
+      "tags": [
+        "pyodide",
+        "vfs",
+        "encoding",
+        "corpus-loading",
+        "empty-data",
+        "fs.writefile",
+        "uint8array"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-27T16:25:00.000Z"
+    },
+    {
+      "id": "bug-377",
+      "timestamp": "2026-05-27T07:24:10.295Z",
+      "error_message": "Missing error handling in unknown",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Code path had no error handling — exceptions would propagate uncaught",
+      "fix": "Added try/catch block",
+      "tags": [
+        "auto-detected",
+        "error-handling",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T07:24:10.295Z"
+    },
+    {
+      "id": "bug-378",
+      "timestamp": "2026-05-27T07:34:02.496Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/experiment_engine/pyodide_handlers.py",
+      "root_cause": "Had \"[corpus-diag] pre-read: {vfs_file_path} size={_si",
+      "fix": "Changed to \"[corpus-diag] pre-read: {vfs_file_path} size={_si",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-27T07:34:06.688Z"
     }
   ]
 }

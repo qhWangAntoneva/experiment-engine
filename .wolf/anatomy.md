@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T07:03:35.661Z
-> Files: 25 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T07:34:06.667Z
+> Files: 26 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -25,6 +25,7 @@
 - `config.py` — Configuration loading for experiment-engine pipelines. (~3117 tok)
 - `pipeline.py` — Pipeline and Stage abstract base classes. (~5480 tok)
 - `plugins.py` — Plugin system for experiment-engine pipeline stages. (~4227 tok)
+- `pyodide_handlers.py` — handle_calibrate, handle_calibrate_prototype, handle_analyze, handle_robustness (~7360 tok)
 
 ## src/i18n/
 
@@ -33,7 +34,7 @@
 ## src/services/
 
 - `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~4707 tok)
-- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~7992 tok)
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~8579 tok)
 
 ## tmp/
 

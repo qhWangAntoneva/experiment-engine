@@ -6,9 +6,9 @@
 
 | 指标 | 值 |
 |------|-----|
-| HEAD | `ec02dc5` — fix: Pyodide 环境缺失 rich 导致加载样本后校准崩溃 |
+| HEAD | `afa6c77` — fix: mountFromInline 创建空包目录导致 dev 模式 ModuleNotFoundError |
 | 分支 | `master` |
-| 本地改动 | Vite plugin + pyodide.worker.ts mountFromInline 修复 + deploy.yml manifest 修复 + pyodide.ts console.error 增强 |
+| 本地改动 | (无) |
 | 远程同步 | `origin/master` ✅ 完全同步 |
 
 ## 2. 本轮完成 (Session 3)
@@ -40,7 +40,5 @@
 
 ## 3. 推荐下一步
 
-1. **验证修复** — 本地运行 `npm run dev`，加载 30 样本，确认不再崩溃
-2. **提交并推送** — `git add` 新文件 + 修改，推送 master 触发自动部署
-3. **验证线上** — 部署后访问 GitHub Pages 确认正常
-4. **清理 Playwright 诊断脚本** — `tmp/reproduction_diag*.mjs`、`capture_*.mjs`、`minimal_test.mjs` 可删除
+1. **验证线上** — CI 完成部署后访问 GitHub Pages 确认正常
+2. **清理 Playwright 诊断脚本** — `tmp/reproduction_diag*.mjs`、`capture_*.mjs`、`minimal_test.mjs` 可删除

@@ -33,6 +33,7 @@
 | 01:50 | Edited src/pages/Results.tsx | added 2 import(s) | ~48 |
 | 01:50 | Session end: 29 writes across 13 files (TODO.md, qca.py, cosine_similarity.py, HelpTooltip.tsx, plugins.py) | 23 reads | ~12994 tok |
 | 01:50 | Edited src/pages/Results.tsx | CSS: message, type | ~136 |
+| 16:17 | Committed + pushed fix: mountFromInline dev mode crash; updated handover | 16 files | ~4000 tok |
 | 01:50 | Edited src/experiment_engine/cli.py | removed 42 lines | ~1 |
 | 2026-05-27 | 3 Reviewers confirmed: all 3 algorithm bugs fixed, 30-case samples generated, pre-commit root cause found. Push notes recorded in persistent memory. Commit 737c3c4 pushed. | all files | completed | ~500 |
 | 01:50 | Edited src/experiment_engine/cli.py | 7→7 lines | ~38 |
@@ -285,3 +286,15 @@
 
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
+| 15:14 | Edited src/services/pyodide.worker.ts | added 1 condition(s) | ~471 |
+| 15:14 | Edited src/experiment_engine/pyodide_handlers.py | modified handle_load_corpus_direct() | ~446 |
+| 15:14 | Edited src/services/pyodide.worker.ts | modified handleLoadCorpus() | ~504 |
+| 15:14 | Edited src/experiment_engine/pyodide_handlers.py | modified handle_load_corpus_direct() | ~322 |
+| 16:25 | Fix: EmptyDataError in corpus loading — bypass JSON.stringify intermediate, write CSV content directly to VFS via FS.writeFile | pyodide.worker.ts, pyodide_handlers.py, buglog.json, cerebrum.md | fixed bug-376 | ~500 |
+| 15:16 | Session end: 4 writes across 2 files (pyodide.worker.ts, pyodide_handlers.py) | 6 reads | ~22594 tok |
+| 15:24 | Edited src/services/pyodide.worker.ts | added error handling | ~358 |
+| 15:24 | Edited src/experiment_engine/pyodide_handlers.py | modified handle_load_corpus_direct() | ~502 |
+| 2026-05-27 | Second fix for bug-376: FS.writeFile(string, {encoding:'utf8'}) produces 0-byte file for Chinese CSV in Pyodide v0.26.4. Changed to TextEncoder → Uint8Array. Added JS/Python diagnostic logging. | pyodide.worker.ts, pyodide_handlers.py, buglog.json, cerebrum.md | fixed bug-376 (second attempt) | ~300 |
+| 15:31 | Session end: 6 writes across 2 files (pyodide.worker.ts, pyodide_handlers.py) | 7 reads | ~24226 tok |
+| 15:34 | Edited src/experiment_engine/pyodide_handlers.py | "[corpus-diag] pre-read: {" → "[corpus-diag] pre-read: {" | ~25 |
+| 15:34 | Edited src/experiment_engine/pyodide_handlers.py | "[corpus-diag] ERROR: cann" → "[corpus-diag] ERROR: cann" | ~25 |

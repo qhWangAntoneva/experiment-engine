@@ -501,12 +501,47 @@ async function handleLoadCorpus(
   format: 'csv' | 'json' | 'txt' | 'xlsx',
 ): Promise<void> {
   try {
-    const entries = await runHandler(
-      "from experiment_engine.pyodide_handlers import handle_load_corpus; handle_load_corpus('/tmp/corpus_config.json', '/tmp/corpus_output.json')",
-      [['/tmp/corpus_config.json', { fileName, content, format }]],
-      '/tmp/corpus_output.json',
-    );
-    respond({ type: 'corpus-loaded', entries });
+    // Write the raw content directly to a VFS file path, bypassing the JSON
+    // config intermediate step.  This avoids potential encoding/truncation
+    // issues when CSV content (Chinese text, special chars) passes through
+    // JSON.stringify → fs.writeFile → Python json.load() → f.write() chain.
+    const vfsFile = `/tmp/${fileName}`;
+    if (format === 'xlsx') {
+      // Binary: base64-decode in Python side
+      const config = { fileName, content, format };
+      const entries = await runHandler(
+        "from experiment_engine.pyodide_handlers import handle_load_corpus; handle_load_corpus('/tmp/corpus_config.json', '/tmp/corpus_output.json')",
+        [['/tmp/corpus_config.json', config]],
+        '/tmp/corpus_output.json',
+      );
+      respond({ type: 'corpus-loaded', entries });
+    } else {
+      // Write CSV/JSON/TXT content directly to VFS via FS.writeFile.
+      // DIAG: log content size before writing
+      log('debug', `[corpus-diag] content type=${typeof content} length=${content.length} first100=${JSON.stringify(content.substring(0, 100))}`);
+      // Use TextEncoder to produce a Uint8Array, bypassing any Emscripten
+      // string-to-binary issues with multi-byte UTF-8 (Chinese) characters.
+      // FS.writeFile with { encoding: 'utf8' } on a string can produce a
+      // 0-byte file in Pyodide v0.26.4 — a Uint8Array avoids this entirely.
+      const encoder = new TextEncoder();
+      const contentBytes = encoder.encode(content);
+      pyodide.FS.writeFile(vfsFile, contentBytes);
+      // DIAG: verify the file was written correctly
+      try {
+        const stat = pyodide.FS.stat(vfsFile);
+        log('debug', `[corpus-diag] after FS.writeFile: size=${stat.size} mode=${stat.mode}`);
+      } catch (statErr: any) {
+        log('error', `[corpus-diag] FS.stat failed for ${vfsFile}: ${statErr.message || String(statErr)}`);
+      }
+      // Pass the file path through inputSpecs (JSON) to avoid string
+      // interpolation into Python code (code injection risk).
+      const entries = await runHandler(
+        "from experiment_engine.pyodide_handlers import handle_load_corpus_direct; handle_load_corpus_direct('/tmp/corpus_direct_config.json', '/tmp/corpus_output.json')",
+        [['/tmp/corpus_direct_config.json', { vfsFile, format }]],
+        '/tmp/corpus_output.json',
+      );
+      respond({ type: 'corpus-loaded', entries });
+    }
   } catch (err: any) {
     const msg = err.message || String(err);
     respond({ type: 'corpus-error', error: `Corpus loading failed: ${msg}` });
