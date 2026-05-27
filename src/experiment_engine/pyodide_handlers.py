@@ -205,6 +205,15 @@ def handle_calibrate_prototype(text_cases_path, condition_set_path, output_path)
                 "metadata": {},
             },
         )
+        _ocn = _output.get("condition_names", [])
+        _om = _output.get("membership", [])
+        if not _ocn or not _om or not isinstance(_om, list) or len(_om) == 0:
+            raise ValueError(
+                f"Prototype calibration produced empty output: "
+                f"condition_names={_ocn}, membership_rows={len(_om) if isinstance(_om, list) else type(_om).__name__}. "
+                f"Unified result keys: {list(_result.keys())}. "
+                "Check that the condition set has conditions and the prototype texts are valid."
+            )
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(_output, f, ensure_ascii=False)
     finally:
