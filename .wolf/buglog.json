@@ -6234,8 +6234,18 @@
       "file": "src/services/pyodide.worker.ts, src/experiment_engine/pyodide_handlers.py, src/pages/DataInput.tsx, src/services/pyodide.ts, src/i18n/translations.ts",
       "root_cause": "FS.writeFile with TextEncoder + Uint8Array 在 Pyodide v0.26.4 下仍偶发 0 字节文件。JS 侧 FS.stat() 报告 size > 0，但 Python 侧 os.path.getsize() 返回 0，表明为 Pyodide VFS 时序/一致性问题。另：pasteContent 可能为空时无前端防护。",
       "fix": "(1) 前端防护：DataInput.tsx 添加 pasteContent 空值检查；pyodide.ts loadCorpus 添加 defensive guard；translations.ts 添加 i18n 翻译 (2) VFS 鲁棒性：pyodide.worker.ts 添加 3 次重试循环 + FS.unlink + 诊断日志；pyodide_handlers.py 添加 Python 侧 3 次重试 + time.sleep (3) Reviewer 修复：FS.unlink catch 只吞 ENOENT；重试循环后置检查移入循环内；Python 诊断改用 print(file=stderr)",
-      "tags": ["pyodide", "vfs", "corpus-loading", "0-byte", "retry", "frontend-guard", "multi-agent"],
-      "related_bugs": ["bug-376"],
+      "tags": [
+        "pyodide",
+        "vfs",
+        "corpus-loading",
+        "0-byte",
+        "retry",
+        "frontend-guard",
+        "multi-agent"
+      ],
+      "related_bugs": [
+        "bug-376"
+      ],
       "occurrences": 1,
       "last_seen": "2026-05-27T08:30:00.000Z"
     },
@@ -6286,6 +6296,38 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-27T08:25:28.141Z"
+    },
+    {
+      "id": "bug-384",
+      "timestamp": "2026-05-27T08:39:48.588Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Had '../services/templateService'",
+      "fix": "Changed to '../components/StepIndicator'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T08:39:48.588Z"
+    },
+    {
+      "id": "bug-385",
+      "timestamp": "2026-05-27T08:40:11.681Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "Had '导入 CSV/JSON'",
+      "fix": "Changed to '30 条样本已加载！你可以查看下方的文本数据，或直接点击「运行校准」继续'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-27T08:40:12.214Z"
     }
   ]
 }

@@ -20,6 +20,7 @@ import PipelineStatus from '../components/PipelineStatus';
 import DistributionPlot from '../components/DistributionPlot';
 import ShareLinkButton from '../components/ShareLinkButton';
 import HelpTooltip from '../components/HelpTooltip';
+import StepIndicator from '../components/StepIndicator';
 import { getBuiltinTemplates } from '../services/templateService';
 import { conditionSetToYaml } from '../utils/conditionSetToYaml';
 import type {
@@ -605,6 +606,9 @@ export default function DataInput() {
     try {
       const entries = await loadCorpus('sample_cases.csv', SAMPLE_CSV_CONTENT, 'csv');
       setTextCorpus(entries);
+      // Populate the paste textarea so the user can see/edit the loaded data
+      // and "解析文本" also works after loading samples.
+      setPasteContent(SAMPLE_CSV_CONTENT);
 
       // Find matching builtin template for the current domain
       const template = getBuiltinTemplates().find(t => t.domain === selectedDomain);
@@ -626,7 +630,7 @@ export default function DataInput() {
     } catch (err: any) {
       setValidationMessage(`${t('common.error')}: ${err.message}`);
     }
-  }, [loadCorpus, setTextCorpus, selectedDomain, setYamlContentContext, t]);
+  }, [loadCorpus, setTextCorpus, setPasteContent, selectedDomain, setYamlContentContext, t]);
 
   // ─── BERT handlers ─────────────────────────────────────────────────────
 
@@ -867,6 +871,11 @@ export default function DataInput() {
         <div className="card" style={{ padding: '16px', marginBottom: '16px' }}>
           <h3 className="section-title">{t('dataInput.textCorpus')}</h3>
 
+          {/* Step indicator — shown when sample data is loaded */}
+          {pasteContent === SAMPLE_CSV_CONTENT && pasteContent.length > 0 && (
+            <StepIndicator currentStep={0} />
+          )}
+
           {/* Mode toggle */}
           <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
             <button
@@ -928,6 +937,20 @@ export default function DataInput() {
                 }
                 style={{ resize: 'vertical', fontSize: '0.8125rem' }}
               />
+              {/* Guidance bar: shown after sample data is loaded */}
+              {pasteContent === SAMPLE_CSV_CONTENT && pasteContent.length > 0 && (
+                <div className="guidance-bar" style={{
+                  marginTop: '12px',
+                  padding: '10px 14px',
+                  background: 'var(--color-bg-secondary)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '8px',
+                  fontSize: '0.8125rem',
+                  lineHeight: '1.6',
+                }}>
+                  <strong>💡 {t('dataInput.sampleLoadedGuide')}</strong>
+                </div>
+              )}
             </div>
           ) : (
             <div
