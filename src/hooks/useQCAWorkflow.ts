@@ -344,7 +344,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
         // 2. Calibrate
         startCalibration();
         const calResult = await bridge.calibrate(opts.texts, conditionSet, opts.prototypeTexts);
-        const fuzzyData = calResult.fuzzyData?.fuzzyData ?? calResult.fuzzyData;
+        const fuzzyData = calResult.fuzzyData;
         finishCalibration(fuzzyData, calResult.prototypeFuzzyData);
 
         // 3. Analyze (raw texts)
@@ -357,7 +357,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
         finishAnalysis(result, opts.captureAsLabel);
 
         // 3b. Analyze (prototype texts) — if prototype data exists
-        const protoFuzzy = calResult.prototypeFuzzyData?.fuzzyData ?? calResult.prototypeFuzzyData;
+        const protoFuzzy = calResult.prototypeFuzzyData;
         if (protoFuzzy) {
           startPrototypeAnalysis();
           const protoResult = await bridge.analyze(protoFuzzy, params, conditionSet);
