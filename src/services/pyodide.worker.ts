@@ -465,6 +465,8 @@ async function handleCalibrate(
   prototypeTexts?: any[],
 ): Promise<void> {
   try {
+    // DIAG: log conditionSet structure to help debug empty-conditions errors
+    log('debug', `[calibrate] conditionSet keys=${Object.keys(conditionSet).join(',')} conditions_len=${conditionSet?.conditions?.length ?? 'MISSING'} conditions_type=${typeof conditionSet?.conditions} outcome=${conditionSet?.outcome ? 'present' : 'null'} qca_variant=${conditionSet?.qca_variant}`);
     const fuzzyData = await runHandler(
       "from experiment_engine.pyodide_handlers import handle_calibrate; handle_calibrate('/tmp/texts.json', '/tmp/condition_set.json', '/tmp/calibrate_output.json')",
       [

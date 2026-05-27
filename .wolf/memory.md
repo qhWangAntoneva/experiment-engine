@@ -3,6 +3,7 @@
 > Active sessions: most recent 2. Older sessions archived to `memory-archive.md`.
 
 | 2026-05-27 | Session start: 接手项目. READ handover.md, cerebrum.md, TODO.md, FIXME.md, HACK.md, buglog.json — HEAD fc3b64a, 532 passed, 27 P2 items (S级已全部完成, 22 remaining). | handover.md | session start | ~500 |
+| 2026-05-27 | 修复校准报错: handle_calibrate Python端添加 condition_set 空条件校验 + 诊断日志 (worker ts log + Python guard) — 同时排查了 yamlToConditionSet 路径, 确认 commit 5f009a1 前端修复已就位, 但部署可能未更新 | pyodide_handlers.py pyodide.worker.ts | done | ~200 |
 | 15:44 | 写了完整中文 README.md，含演示数据(30条标注样本)、所有9个CLI命令示例及输出、API示例、前端说明、条件集YAML格式、项目结构、安装步骤 | README.md | 完成 | ~250 |
 | 17:10 | 修复 YAML 字符串传递 bug: 新增 yamlToConditionSet() 解析器，替换 DataInput.tsx 三处 (yamlContent as any) | conditionSetToYaml.ts, DataInput.tsx | 完成, TS build clean | ~350 |
 | 2026-05-27 | Track A: 验证部署源 — 部署正确，最新代码已上线（ec02dc5），worker JS包含所有5个包，CSP正确 | deploy_verify_report.md | 排除部署源原因 | ~300 |
@@ -399,3 +400,20 @@
 | 17:00 | Edited src/utils/conditionSetToYaml.ts | 2→1 lines | ~14 |
 | 17:00 | Edited src/utils/conditionSetToYaml.ts | removed 13 lines | ~1 |
 | 17:00 | Edited src/pages/DataInput.tsx | 3→3 lines | ~20 |
+
+## Session: 2026-05-27 17:18
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 17:36 | Edited src/experiment_engine/pyodide_handlers.py | expanded (+14 lines) | ~269 |
+| 17:36 | Edited src/services/pyodide.worker.ts | added optional chaining | ~146 |
+| 17:37 | Session end: 2 writes across 2 files (pyodide_handlers.py, pyodide.worker.ts) | 32 reads | ~39809 tok |
+
+## Session: 2026-05-27 17:38
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 17:43 | Edited src/experiment_engine/text_calibration/strategies.py | 7→12 lines | ~176 |
+| 17:43 | Edited src/experiment_engine/text_calibration/calibrator.py | modified enumerate() | ~201 |
+| 17:44 | Edited src/experiment_engine/text_calibration/strategies.py | 6→11 lines | ~159 |
+| 17:54 | Session end: 3 writes across 2 files (strategies.py, calibrator.py) | 14 reads | ~50211 tok |

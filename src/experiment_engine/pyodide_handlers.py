@@ -77,6 +77,20 @@ def handle_calibrate(
         _cs_dict = json.load(f)
     _condition_set = _condition_set_from_dict(_cs_dict)
 
+    # ── Validate condition set has conditions ───────────────────────────
+    _n_conds = len(_condition_set.conditions)
+    _has_outcome = _condition_set.outcome is not None
+    if _n_conds == 0 and not _has_outcome:
+        _keys = list(_cs_dict.keys())
+        raise ValueError(
+            f"Condition set has 0 conditions and no outcome. "
+            f"JSON keys: {_keys}. "
+            f"conditions field type: {type(_cs_dict.get('conditions')).__name__}. "
+            f"outcome field type: {type(_cs_dict.get('outcome')).__name__}. "
+            f"Check that the frontend is sending a valid ConditionSet object "
+            f"(yamlContent parsed via yamlToConditionSet, not passed as raw string)."
+        )
+
     # ── Raw texts (keyword pipeline) ───────────────────────────────────
     with open(texts_path, encoding="utf-8") as f:
         _texts = json.load(f)

@@ -199,7 +199,14 @@ class TextCalibrationStage(Stage):
 
         for j, cond in enumerate(all_conditions):
             if not cond.prototypes:
-                scores[:, j] = 0.0
+                # No prototypes available — use text length as a weak signal
+                # of content richness to produce varied scores instead of
+                # identical zeros. This prevents DirectCalibration from
+                # seeing degenerate all-identical scores and producing
+                # uniform 0.5 membership values.
+                text_lengths = np.array([len(t) for t in texts], dtype=np.float64)
+                max_len = float(np.max(text_lengths)) if text_lengths.size > 0 else 1.0
+                scores[:, j] = text_lengths / max_len if max_len > 0 else 0.0
                 continue
 
             # Split prototypes into positive and negative

@@ -86,7 +86,12 @@ class DirectCalibration(CalibrationStrategy):
         if score_max > score_min:
             normalized = (raw_scores - score_min) / (score_max - score_min)
         else:
-            normalized = np.full_like(raw_scores, 0.5)
+            raise ValueError(
+                f"All raw scores are identical (value={score_min}). "
+                "DirectCalibration cannot produce varied membership values "
+                "from uniform scores. Check that conditions have prototype "
+                "texts with varied content matching the input texts."
+            )
 
         # Guard against degenerate anchors: if thresholds collapse,
         # all points lie in the same region and the for-loop fallback
@@ -152,7 +157,12 @@ class IndirectCalibration(CalibrationStrategy):
         if score_max > score_min:
             normalized = (raw_scores - score_min) / (score_max - score_min)
         else:
-            normalized = np.full_like(raw_scores, 0.5)
+            raise ValueError(
+                f"All raw scores are identical (value={score_min}). "
+                "IndirectCalibration cannot produce varied membership values "
+                "from uniform scores. Check that conditions have prototype "
+                "texts with varied content matching the input texts."
+            )
 
         # Logistic: map [0,1] through log-odds centered at crossover
         cross = params.crossover_point
