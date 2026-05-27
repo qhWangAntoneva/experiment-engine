@@ -227,6 +227,7 @@ export class PyodideBridge {
       console.error(`[pyodide] analyze failed:`, err);
       throw err;
     });
+  }
 
   /**
    * Run robustness/sensitivity tests.
