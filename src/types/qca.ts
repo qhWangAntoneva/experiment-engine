@@ -409,7 +409,7 @@ export type PyodideWorkerRequest =
   | { type: 'init'; payload: { packages: string[] } }
   | { type: 'calibrate'; payload: { texts: TextCorpusEntry[]; conditionSet: ConditionSet; prototypeTexts?: TextCase[] } }
   | { type: 'load_corpus'; payload: { fileName: string; content: string; format: 'csv' | 'json' | 'txt' | 'xlsx' } }
-  | { type: 'analyze'; payload: { fuzzyData: MembershipDataJSON; params: QCAAnalysisParams } }
+  | { type: 'analyze'; payload: { fuzzyData: MembershipDataJSON; params: QCAAnalysisParams; conditionSet?: ConditionSet } }
   | { type: 'run_robustness'; payload: { fuzzyData: MembershipDataJSON; analysisResult: QCAAnalysisResultJSON } }
   | { type: 'run_counterfactuals'; payload: { fuzzyData: MembershipDataJSON; analysisResult: QCAAnalysisResultJSON } }
   | { type: 'export_result'; payload: { format: 'csv' | 'json' | 'latex' | 'docx'; result: QCAAnalysisResultJSON } }

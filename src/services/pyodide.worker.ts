@@ -156,7 +156,7 @@ self.onmessage = async (event: MessageEvent<PyodideWorkerRequest>) => {
         );
         break;
       case 'analyze':
-        await handleAnalyze(req.payload.fuzzyData, req.payload.params);
+        await handleAnalyze(req.payload.fuzzyData, req.payload.params, req.payload.conditionSet);
         break;
       case 'run_robustness':
         await handleRobustness(req.payload.fuzzyData, req.payload.analysisResult);
@@ -592,16 +592,23 @@ async function handleLoadCorpus(
 async function handleAnalyze(
   fuzzyDataJson: any,
   params: any,
+  conditionSet?: any,
 ): Promise<void> {
   try {
-    const result = await runHandler(
-      "from experiment_engine.pyodide_handlers import handle_analyze; handle_analyze('/tmp/fuzzy_data.json', '/tmp/params.json', '/tmp/analyze_output.json')",
-      [
-        ['/tmp/fuzzy_data.json', fuzzyDataJson],
-        ['/tmp/params.json', params],
-      ],
-      '/tmp/analyze_output.json',
-    );
+    // Build input specs and Python code conditionally — condition_set_path
+    // is optional for backward compatibility.
+    const inputSpecs: [string, any][] = [
+      ['/tmp/fuzzy_data.json', fuzzyDataJson],
+      ['/tmp/params.json', params],
+    ];
+    let pyCode: string;
+    if (conditionSet) {
+      inputSpecs.push(['/tmp/condition_set.json', conditionSet]);
+      pyCode = "from experiment_engine.pyodide_handlers import handle_analyze; handle_analyze('/tmp/fuzzy_data.json', '/tmp/params.json', '/tmp/analyze_output.json', '/tmp/condition_set.json')";
+    } else {
+      pyCode = "from experiment_engine.pyodide_handlers import handle_analyze; handle_analyze('/tmp/fuzzy_data.json', '/tmp/params.json', '/tmp/analyze_output.json')";
+    }
+    const result = await runHandler(pyCode, inputSpecs, '/tmp/analyze_output.json');
     respond({ type: 'analyze-done', result });
   } catch (err: any) {
     const msg = err.message || String(err);

@@ -191,10 +191,11 @@ export class PyodideBridge {
    */
   async analyze(
     fuzzyData: MembershipDataJSON,
-    params: QCAAnalysisParams
+    params: QCAAnalysisParams,
+    conditionSet?: ConditionSet
   ): Promise<QCAAnalysisResultJSON> {
     return this.send<QCAAnalysisResultJSON>(
-      { type: 'analyze', payload: { fuzzyData, params } },
+      { type: 'analyze', payload: { fuzzyData, params, conditionSet } },
       'analyze-done',
       'analyze'
     );

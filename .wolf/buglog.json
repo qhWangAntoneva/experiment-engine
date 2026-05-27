@@ -6432,6 +6432,158 @@
       "related_bugs": [],
       "occurrences": 2,
       "last_seen": "2026-05-27T10:04:24.863Z"
+    },
+    {
+      "id": "bug-392",
+      "timestamp": "2026-05-27T10:19:41.761Z",
+      "error_message": "Significant refactor of ",
+      "file": ".claude/worktrees/agent-af3883d3f132f2c0e/src/experiment_engine/pyodide_handlers.py",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 32→58 lines (2 removed) | Also: # Batch all texts at once via process() instead of; # calibrate_one processes 1 text → 1 raw score per",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-27T10:21:05.740Z"
+    },
+    {
+      "id": "bug-393",
+      "timestamp": "2026-05-27T10:19:53.233Z",
+      "error_message": "Incorrect value in code",
+      "file": "tmp/prototype_usage_samples.py",
+      "root_cause": "Had \"  ✓ {label}: CSV 结构有效 ({len(data_lines)} 条)\"",
+      "fix": "Changed to \"  [OK] {label}: CSV 结构有效 ({len(data_lines)} 条)\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 5,
+      "last_seen": "2026-05-27T10:20:14.074Z"
+    },
+    {
+      "id": "bug-394",
+      "timestamp": "2026-05-27T10:21:52.323Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 21→28 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T10:21:52.323Z"
+    },
+    {
+      "id": "bug-395",
+      "timestamp": "2026-05-27T10:21:58.774Z",
+      "error_message": "Wrong reference: break should be req",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Used \"break\" instead of \"req\"",
+      "fix": "Changed break → req",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T10:21:58.774Z"
+    },
+    {
+      "id": "bug-396",
+      "timestamp": "2026-05-27T18:30:00.000Z",
+      "error_message": "handle_load_corpus / handle_load_corpus_direct discard expected_outcome column from CSV",
+      "file": "src/experiment_engine/pyodide_handlers.py",
+      "root_cause": "Both functions called TextCorpusReader.read() which only extracts the `text` column, then set metadata: {} for each entry. The expected_outcome column from the CSV was silently dropped.",
+      "fix": "After building entries from TextCorpusReader, re-read the CSV/JSON content with pandas to extract the `expected_outcome` column and store it in each entry's metadata dict. For handle_load_corpus: read from the content string via StringIO. For handle_load_corpus_direct: re-read the VFS file with pandas.",
+      "tags": [
+        "web-pipeline",
+        "calibrate",
+        "expected_outcome",
+        "corpus-loading",
+        "data-loss"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-27T18:30:00.000Z"
+    },
+    {
+      "id": "bug-397",
+      "timestamp": "2026-05-27T18:30:00.000Z",
+      "error_message": "handle_calibrate uses process() instead of process_with_outcome(), ignoring ground-truth expected_outcome",
+      "file": "src/experiment_engine/pyodide_handlers.py",
+      "root_cause": "Line 117 called _calibrator.process(_raw_input) which computes outcome values from trigram similarity to outcome prototypes rather than using the CSV expected_outcome labels. This made truth table outcomes meaningless.",
+      "fix": "Extract expected_outcome from each sample's metadata (set by Bug 1 fix), build an outcome vector with np.float64, and call process_with_outcome() instead of process(). Fall back to process() when no samples have expected_outcome metadata.",
+      "tags": [
+        "web-pipeline",
+        "calibrate",
+        "expected_outcome",
+        "process_with_outcome",
+        "data-loss"
+      ],
+      "related_bugs": [
+        "bug-396"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T18:30:00.000Z"
+    },
+    {
+      "id": "bug-398",
+      "timestamp": "2026-05-27T18:30:00.000Z",
+      "error_message": "handle_analyze creates QCAnalyzerStage without condition_set, missing condition metadata in output",
+      "file": "src/experiment_engine/pyodide_handlers.py",
+      "root_cause": "QCAnalyzerStage constructor called without condition_set=... parameter. The analyzer still works (condition_set defaults to None), but it cannot include condition metadata (domain, calibration params) in solutions and reports.",
+      "fix": "Added optional condition_set_path parameter to handle_analyze. When provided, load the condition set via _condition_set_from_dict and pass it to QCAnalyzerStage constructor. Updated all caller layers: pyodide.worker.ts (handleAnalyze accepts conditionSet), pyodide.ts (analyze method accepts conditionSet), useQCAWorkflow.ts (passes conditionSet from runFullPipeline/runtimeFullPipelineMultiOutcome), qca.ts (type definition updated).",
+      "tags": [
+        "web-pipeline",
+        "analyze",
+        "condition_set",
+        "missing-param",
+        "data-enrichment"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T18:30:00.000Z"
+    },
+    {
+      "id": "bug-399",
+      "timestamp": "2026-05-27T10:26:19.424Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/pyodide_handlers.py",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 32→58 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T10:26:19.424Z"
+    },
+    {
+      "id": "bug-400",
+      "timestamp": "2026-05-27T10:36:35.839Z",
+      "error_message": "Wrong reference: tmp should be scripts",
+      "file": "scripts/prototype_usage_samples.py",
+      "root_cause": "Used \"tmp\" instead of \"scripts\"",
+      "fix": "Changed tmp → scripts",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T10:36:35.839Z"
     }
   ]
 }

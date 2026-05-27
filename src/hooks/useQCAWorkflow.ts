@@ -353,14 +353,14 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
           ...opts.params,
         };
         startAnalysis();
-        const result = await bridge.analyze(fuzzyData, params);
+        const result = await bridge.analyze(fuzzyData, params, conditionSet);
         finishAnalysis(result, opts.captureAsLabel);
 
         // 3b. Analyze (prototype texts) — if prototype data exists
         const protoFuzzy = calResult.prototypeFuzzyData;
         if (protoFuzzy) {
           startPrototypeAnalysis();
-          const protoResult = await bridge.analyze(protoFuzzy, params);
+          const protoResult = await bridge.analyze(protoFuzzy, params, conditionSet);
           finishPrototypeAnalysis(protoResult);
         }
 
@@ -429,7 +429,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
         finishCalibration(fuzzyDataA, calResult.prototypeFuzzyData);
 
         startAnalysis();
-        const resultA = await bridge.analyze(fuzzyDataA, params);
+        const resultA = await bridge.analyze(fuzzyDataA, params, conditionSetA);
         finishAnalysis(resultA);
 
         // 3. Modify condition set for Outcome B
@@ -469,7 +469,7 @@ export function useQCAWorkflow(): UseQCAWorkflowReturn {
         let resultB: QCAAnalysisResultJSON | null = null;
         try {
           startSecondOutcomeAnalysis();
-          resultB = await bridge.analyze(fuzzyDataB, params);
+          resultB = await bridge.analyze(fuzzyDataB, params, conditionSetB);
           finishSecondOutcomeAnalysis(resultB);
         } catch (errB: any) {
           // If Outcome B analysis fails, preserve Outcome A results

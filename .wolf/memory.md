@@ -424,3 +424,65 @@
 | 18:06 | Edited tests/test_qca_core.py | modified test_calibrate_direct_all_same_values() | ~153 |
 | 18:06 | Session end: 7 writes across 4 files (strategies.py, calibrator.py, pyodide_handlers.py, test_qca_core.py) | 15 reads | ~12264 tok |
 | 18:07 | Edited tests/test_qca_core.py | modified test_calibrate_direct_all_same_values() | ~139 |
+| 18:08 | Session end: 8 writes across 4 files (strategies.py, calibrator.py, pyodide_handlers.py, test_qca_core.py) | 15 reads | ~28614 tok |
+
+## Session: 2026-05-27 18:08
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+
+## Session: 2026-05-27 18:10
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 18:19 | Created tmp/prototype_usage_samples.py | — | ~9664 |
+| 18:19 | Edited .claude/worktrees/agent-af3883d3f132f2c0e/src/experiment_engine/pyodide_handlers.py | modified handle_counterfactuals() | ~679 |
+| 18:19 | Edited tmp/prototype_usage_samples.py | "  ✓ {label}: CSV 结构有效 ({l" → "  [OK] {label}: CSV 结构有效 " | ~18 |
+| 18:19 | Edited tmp/prototype_usage_samples.py | "  ✓ {label}: ConditionSet" → "  [OK] {label}: Condition" | ~23 |
+| 18:20 | Edited .claude/worktrees/agent-af3883d3f132f2c0e/src/experiment_engine/pyodide_handlers.py | modified handle_robustness() | ~582 |
+| 18:20 | Edited tmp/prototype_usage_samples.py | "  ✓ {label} " → "  [OK] {label}: prototype" | ~16 |
+| 18:20 | Edited tmp/prototype_usage_samples.py | "  ✓ {label}: text_embeddi" → "  [OK] {label}: text_embe" | ~21 |
+| 18:20 | Edited tmp/prototype_usage_samples.py | "  ✓ {label}: 文本长度变异充分 (ra" → "  [OK] {label}: 文本长度变异充分 " | ~22 |
+| 18:20 | Edited tmp/prototype_usage_samples.py | inline fix | ~8 |
+| 18:20 | Edited src/experiment_engine/pyodide_handlers.py | modified handle_load_corpus() | ~740 |
+| 18:20 | Edited src/experiment_engine/pyodide_handlers.py | modified endswith() | ~369 |
+| 18:21 | Edited src/experiment_engine/pyodide_handlers.py | expanded (+12 lines) | ~291 |
+| 18:21 | Edited src/experiment_engine/pyodide_handlers.py | modified handle_analyze() | ~576 |
+| 18:21 | Edited .claude/worktrees/agent-af3883d3f132f2c0e/.wolf/buglog.json | expanded (+54 lines) | ~830 |
+| 18:21 | Edited .claude/worktrees/agent-af3883d3f132f2c0e/.wolf/cerebrum.md | 1→4 lines | ~348 |
+| 18:21 | Edited .claude/worktrees/agent-af3883d3f132f2c0e/.wolf/memory.md | 1→2 lines | ~157 |
+| 18:21 | Edited src/services/pyodide.worker.ts | added 1 condition(s) | ~350 |
+
+| 18:30 | Created tmp/prototype_usage_samples.py -- 3 prototype usage samples (dissatisfaction/trust/gov_responsiveness), each with CSV + ConditionSet dict + validation. Covers: handle_calibrate(prototypeTexts), positive-only + weighted edge cases, embed-calibrate with 768-dim vectors. | tmp/prototype_usage_samples.py | validation PASS | ~9663 |
+| 18:21 | Edited src/services/pyodide.worker.ts | 3→3 lines | ~39 |
+| 18:22 | Edited src/services/pyodide.ts | modified analyze() | ~110 |
+| 18:22 | Session end: 18 writes across 6 files (prototype_usage_samples.py, pyodide_handlers.py, buglog.json, cerebrum.md, pyodide.worker.ts) | 33 reads | ~46748 tok |
+| 18:23 | Edited src/hooks/useQCAWorkflow.ts | modified if() | ~137 |
+| 18:23 | Edited src/hooks/useQCAWorkflow.ts | 3→3 lines | ~40 |
+| 18:23 | Edited src/hooks/useQCAWorkflow.ts | inline fix | ~22 |
+| 18:23 | Session end: 21 writes across 7 files (prototype_usage_samples.py, pyodide_handlers.py, buglog.json, cerebrum.md, pyodide.worker.ts) | 33 reads | ~46947 tok |
+| 18:23 | Edited src/types/qca.ts | inline fix | ~36 |
+
+## Session: 2026-05-27 18:30 — Fixer A: calibrate + analyze pipeline bugs
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 18:30 | Bug 1: Added expected_outcome extraction in handle_load_corpus and handle_load_corpus_direct via pandas re-read | pyodide_handlers.py | fixed | ~300 |
+| 18:30 | Bug 2: handle_calibrate now uses process_with_outcome() with expected_outcome from metadata (fallback to process() when no ground-truth) | pyodide_handlers.py | fixed | ~200 |
+| 18:30 | Bug 3: handle_analyze accepts optional condition_set_path + passes condition_set to QCAnalyzerStage | pyodide_handlers.py, pyodide.worker.ts, pyodide.ts, useQCAWorkflow.ts, qca.ts | fixed | ~400 |
+
+## Session: 2026-05-27 18:25
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 18:26 | Edited src/experiment_engine/pyodide_handlers.py | modified handle_robustness() | ~582 |
+| 18:26 | Edited src/experiment_engine/pyodide_handlers.py | modified handle_counterfactuals() | ~679 |
+
+| 10:27 | Continuation: applied FIXER B counterfactual+robustness fixes from worktree to master (handle_counterfactuals: analyze(truth_table,None) + produce_*_solution; handle_robustness: shape validation + try/except). Cleaned stale worktree entries from anatomy.md. 532 tests pass, TS build clean. | pyodide_handlers.py, anatomy.md | done | ~250 |
+| 18:29 | Session end: 2 writes across 1 files (pyodide_handlers.py) | 2 reads | ~18573 tok |
+| 18:30 | Session end: 2 writes across 1 files (pyodide_handlers.py) | 2 reads | ~19132 tok |
+| 18:34 | Session end: 2 writes across 1 files (pyodide_handlers.py) | 6 reads | ~48531 tok |
+| 18:35 | Session end: 2 writes across 1 files (pyodide_handlers.py) | 6 reads | ~48531 tok |
+| 18:36 | Edited scripts/prototype_usage_samples.py | inline fix | ~15 |
+| 18:36 | Edited scripts/prototype_usage_samples.py | 2→3 lines | ~19 |
+| 18:37 | Edited scripts/prototype_usage_samples.py | 3→2 lines | ~26 |

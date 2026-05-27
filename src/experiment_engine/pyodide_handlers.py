@@ -107,14 +107,26 @@ def handle_calibrate(
     _calibrator = TextCalibrationStage(condition_set=_condition_set)
     _calibrator.setup()
 
-    # Batch all texts at once via process() instead of calibrate_one per sample.
-    # calibrate_one processes 1 text → 1 raw score per condition →
-    # DirectCalibration sees min==max → raises ValueError (post Fixer 1).
-    # process() scores all texts together → varied raw scores → valid calibration.
+    # Batch all texts at once via process_with_outcome() to use ground-truth
+    # expected_outcome values from CSV metadata rather than computing outcome
+    # from trigram similarity to outcome prototypes.
+    # Use process() fallback only when no samples have expected_outcome.
     _texts_list = [_s.text for _s in _samples]
     _case_ids = [_s.text_id for _s in _samples]
     _raw_input = InputData(data=np.array(_texts_list, dtype=object), index=_case_ids)
-    _raw_result = _calibrator.process(_raw_input)
+
+    _outcome_vals = np.array(
+        [_s.metadata.get("expected_outcome", None) for _s in _samples], dtype=object
+    )
+    _has_real_outcomes = any(_v is not None for _v in _outcome_vals)
+    if _has_real_outcomes:
+        _outcome_vector = np.array(
+            [float(_v) if _v is not None else 0.0 for _v in _outcome_vals],
+            dtype=np.float64,
+        )
+        _raw_result = _calibrator.process_with_outcome(_raw_input, _outcome_vector)
+    else:
+        _raw_result = _calibrator.process(_raw_input)
     _raw_fuzzy = _raw_result.processed
 
     # ── Prototype texts (optional, same keyword pipeline) ──────────────
@@ -204,7 +216,7 @@ def handle_calibrate_prototype(text_cases_path, condition_set_path, output_path)
 # ─── Analyze: fuzzy data → truth table + solutions + necessity/sufficiency ──
 
 
-def handle_analyze(fuzzy_data_path, params_path, output_path):
+def handle_analyze(fuzzy_data_path, params_path, output_path, condition_set_path=None):
     """Run full QCA analysis on fuzzy-set data.
 
     Args:
@@ -213,6 +225,9 @@ def handle_analyze(fuzzy_data_path, params_path, output_path):
         params_path: VFS path to JSON dict of analysis params
                      ({consistency_threshold, frequency_threshold}).
         output_path: VFS path to write the QCA analysis result JSON.
+        condition_set_path: Optional VFS path to JSON dict of condition set config.
+            When provided, the condition set is passed to QCAnalyzerStage for
+            richer solution labels and condition metadata.
     """
     from experiment_engine.models import MembershipData
     from experiment_engine.qca_engine.analyzer import QCAnalyzerStage
@@ -231,7 +246,19 @@ def handle_analyze(fuzzy_data_path, params_path, output_path):
         metadata=_fd_dict.get("metadata", {}),
     )
 
+    # Load condition set if provided — adds condition metadata to analyzer output
+    _cs = None
+    if condition_set_path:
+        from experiment_engine.text_calibration.condition import (
+            _condition_set_from_dict,
+        )
+
+        with open(condition_set_path, encoding="utf-8") as f:
+            _cs_dict = json.load(f)
+        _cs = _condition_set_from_dict(_cs_dict)
+
     _analyzer = QCAnalyzerStage(
+        condition_set=_cs,
         consistency_threshold=_params.get("consistency_threshold", 0.75),
         frequency_threshold=_params.get("frequency_threshold", 1.0),
     )
@@ -254,6 +281,10 @@ def handle_robustness(fuzzy_data_path, analysis_result_path, output_path):
         fuzzy_data_path: VFS path to JSON dict of fuzzy-set data.
         analysis_result_path: VFS path to JSON dict of QCAAnalysisResult.
         output_path: VFS path to write the robustness report JSON.
+
+    Raises:
+        ValueError: If the fuzzy data is empty or the analysis result is
+            missing required fields.
     """
     from experiment_engine.models import MembershipData, QCAAnalysisResult
     from experiment_engine.qca_engine.advanced.robustness import RobustnessTester
@@ -263,8 +294,15 @@ def handle_robustness(fuzzy_data_path, analysis_result_path, output_path):
     with open(analysis_result_path, encoding="utf-8") as f:
         _ar_dict = json.load(f)
 
+    _membership = np.array(_fd_dict.get("membership", []))
+    if _membership.ndim != 2 or _membership.shape[0] == 0:
+        raise ValueError(
+            "Fuzzy data has 0 cases — cannot run robustness tests. "
+            "Ensure calibration produced valid membership data before running robustness."
+        )
+
     _fuzzy = MembershipData(
-        membership=np.array(_fd_dict["membership"]),
+        membership=_membership,
         case_ids=_fd_dict.get("case_ids"),
         condition_names=_fd_dict.get("condition_names", []),
         outcome_name=_fd_dict.get("outcome_name", ""),
@@ -272,8 +310,17 @@ def handle_robustness(fuzzy_data_path, analysis_result_path, output_path):
 
     _baseline = QCAAnalysisResult(**_ar_dict)
 
+    # The RobustnessTester handles empty solutions gracefully
+    # (_get_baseline_terms returns []) — no guard needed for solutions.
     _tester = RobustnessTester()
-    _report = _tester.run_all(_fuzzy, _baseline)
+    try:
+        _report = _tester.run_all(_fuzzy, _baseline)
+    except Exception as _exc:
+        raise RuntimeError(
+            f"Robustness tests failed: {_exc}. "
+            "Check that the analysis result contains valid solutions with "
+            "non-empty truth table rows."
+        ) from _exc
 
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(_report.model_dump(mode="json"), f, ensure_ascii=False, default=str)
@@ -289,6 +336,9 @@ def handle_counterfactuals(fuzzy_data_path, analysis_result_path, output_path):
         fuzzy_data_path: VFS path to JSON dict of fuzzy-set data.
         analysis_result_path: VFS path to JSON dict of QCAAnalysisResult.
         output_path: VFS path to write the counterfactual report JSON.
+
+    Raises:
+        ValueError: If the analysis result contains no truth table.
     """
     from experiment_engine.models import MembershipData, QCAAnalysisResult
     from experiment_engine.qca_engine.advanced.counterfactual import (
@@ -309,11 +359,34 @@ def handle_counterfactuals(fuzzy_data_path, analysis_result_path, output_path):
 
     _baseline = QCAAnalysisResult(**_ar_dict)
 
+    if _baseline.truth_table is None:
+        raise ValueError(
+            "No truth table in analysis result — cannot run counterfactual analysis. "
+            "Ensure the analysis stage produced a valid truth table."
+        )
+
     _cf_analyzer = CounterfactualAnalyzer()
-    _report = _cf_analyzer.analyze(_fuzzy, _baseline)
+    _report = _cf_analyzer.analyze(_baseline.truth_table, None)
+
+    # Produce all three solution types (matching api.py run_counterfactuals())
+    complex_terms = _cf_analyzer.produce_complex_solution(_baseline.truth_table)
+    parsimonious_terms = _cf_analyzer.produce_parsimonious_solution(
+        _baseline.truth_table, None
+    )
+    intermediate_terms = _cf_analyzer.produce_intermediate_solution(
+        _baseline.truth_table, {}
+    )
+
+    # Extend the CounterfactualReport with solution terms (backward-compatible:
+    # the frontend CounterfactualReport TypeScript interface only reads the
+    # standard fields; extra keys are safely ignored at runtime.)
+    _output = _report.model_dump(mode="json")
+    _output["complex_terms"] = complex_terms
+    _output["parsimonious_terms"] = parsimonious_terms
+    _output["intermediate_terms"] = intermediate_terms
 
     with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(_report.model_dump(mode="json"), f, ensure_ascii=False, default=str)
+        json.dump(_output, f, ensure_ascii=False, default=str)
 
 
 # ─── Load Corpus: raw content → TextCorpusEntry[] via TextCorpusReader ───────
@@ -366,6 +439,31 @@ def handle_load_corpus(corpus_config_path, output_path):
                 "metadata": {},
             }
         )
+
+    # Extract expected_outcome column from CSV/JSON content and attach to metadata
+    if _fmt in ("csv", "json") and config.get("content"):
+        try:
+            from io import StringIO as _StringIO
+
+            import pandas as _pd
+
+            _df = (
+                _pd.read_csv(_StringIO(config["content"]))
+                if _fmt == "csv"
+                else _pd.read_json(_StringIO(config["content"]))
+            )
+            if "expected_outcome" in _df.columns:
+                for _i, _row in _df.iterrows():
+                    if _i < len(entries):
+                        entries[_i]["metadata"]["expected_outcome"] = float(
+                            _row["expected_outcome"]
+                        )
+        except Exception as _e:
+            print(
+                f"[corpus-diag] expected_outcome extraction failed: {_e}",
+                file=__import__("sys").stderr,
+                flush=True,
+            )
 
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(entries, f, ensure_ascii=False)
@@ -455,6 +553,25 @@ def handle_load_corpus_direct(config_path, output_path):
                 "metadata": {},
             }
         )
+
+    # Extract expected_outcome column from CSV and attach to metadata
+    if vfs_file_path.endswith(".csv"):
+        try:
+            import pandas as _pd
+
+            _df = _pd.read_csv(vfs_file_path, encoding="utf-8")
+            if "expected_outcome" in _df.columns:
+                for _i, _row in _df.iterrows():
+                    if _i < len(entries):
+                        entries[_i]["metadata"]["expected_outcome"] = float(
+                            _row["expected_outcome"]
+                        )
+        except Exception as _e:
+            print(
+                f"[corpus-diag] expected_outcome extraction failed: {_e}",
+                file=__import__("sys").stderr,
+                flush=True,
+            )
 
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(entries, f, ensure_ascii=False)
