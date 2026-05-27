@@ -146,6 +146,9 @@ export interface TranslationDict {
     parseProto: string;
     outcome0: string;
     outcome1: string;
+    protoSample1: string;
+    protoSample2: string;
+    protoSample3: string;
     // Condition set YAML
     conditionSetYaml: string;
     domainPreset: string;
@@ -642,6 +645,9 @@ const zh: TranslationDict = {
     loadedProtoCases: (total, out0, out1, name) =>
       `已从 ${name} 加载 ${total} 条文本案例（结果=0: ${out0}, 结果=1: ${out1})`,
     protoCsvParseError: '原型 CSV 解析错误：',
+    protoSample1: '载入样本1(不满)',
+    protoSample2: '载入样本2(信任)',
+    protoSample3: '载入样本3(回应)',
     // Multi-outcome
     multiOutcomeTitle: '多结局分析',
     multiOutcomeEnable: '启用多结局比较',
@@ -1164,6 +1170,9 @@ const en: TranslationDict = {
     loadedProtoCases: (total, out0, out1, name) =>
       `Loaded ${total} text cases from ${name} (outcome=0: ${out0}, outcome=1: ${out1})`,
     protoCsvParseError: 'Prototype CSV parse error: ',
+    protoSample1: 'Sample 1 (Dissatisfaction)',
+    protoSample2: 'Sample 2 (Trust)',
+    protoSample3: 'Sample 3 (Gov.Resp)',
     // Multi-outcome
     multiOutcomeTitle: 'Multi-Outcome Analysis',
     multiOutcomeEnable: 'Enable Multi-Outcome Comparison',

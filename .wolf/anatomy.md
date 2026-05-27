@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T10:37:11.315Z
-> Files: 9 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T10:45:44.322Z
+> Files: 11 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
@@ -33,9 +33,11 @@
 
 ## src/i18n/
 
+- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~14169 tok)
 
 ## src/pages/
 
+- `DataInput.tsx` — Data Input — text corpus upload + condition set YAML editor. (~16042 tok)
 
 ## src/services/
 

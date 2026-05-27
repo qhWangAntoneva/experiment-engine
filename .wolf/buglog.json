@@ -6584,6 +6584,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-27T10:36:35.839Z"
+    },
+    {
+      "id": "bug-401",
+      "timestamp": "2026-05-27T10:43:55.070Z",
+      "error_message": "Type error",
+      "file": "src/pages/DataInput.tsx",
+      "root_cause": "Missing or incorrect type annotation",
+      "fix": "Added type assertion/annotation | Also: <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto; <button className=\"btn btn-ghost\" style={{ fontSize: '0.7rem",
+      "tags": [
+        "auto-detected",
+        "type-fix",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-27T10:44:08.604Z"
     }
   ]
 }

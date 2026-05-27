@@ -39,6 +39,31 @@ import './DataInput.css';
 
 // ─── Sample cases CSV (30 cases, 5 domains, 6 per domain) ──────────────────
 
+// ─── 3 prototype usage sample datasets ─────────────────────────────────────
+const PROTOTYPE_SAMPLE_1 = `编号,文本,结果
+p1a,你们这服务真的太差了跑了好几趟都不给办窗口人员态度恶劣还推诿扯皮我非常愤怒要投诉到底,1
+p1b,去办证被刁难材料齐全偏说缺这个缺那个来回踢皮球这已经不是第一次了,1
+p1c,为什么我们小区就不能办别人都能办这是区别对待太不公平了我要找领导反映,1
+p1d,今天去问了一下补办流程工作人员简单说了一下虽然不是特别满意但也没办法,0
+p1e,请问一下这个业务现在还能办吗需要带什么材料过去大概多长时间能办好,0
+p1f,整体来说比上次好一点了虽然还在等但起码有进展了希望能尽快办完吧,0`;
+
+const PROTOTYPE_SAMPLE_2 = `编号,文本,结果
+p2a,我对政府非常信任他们办事越来越透明相信一定能公正处理好这件事我要给他们点赞,1
+p2b,工作人员非常专业耐心解答我的所有问题整个流程特别规范很放心,1
+p2c,政府真心为老百姓考虑政策越来越贴心虽然还有不足但一直在进步,1
+p2d,我一点都不信任他们说了半年了也没解决政府部门就是互相推诿,0
+p2e,办事人员很不专业连基本政策都不清楚问什么都不知道太不靠谱了,0
+p2f,这里面肯定有不公平的地方有关系的人就优先我们这种普通人就得排队等,0`;
+
+const PROTOTYPE_SAMPLE_3 = `编号,文本,结果
+p3a,反映问题后当天就有人联系我了解情况两天内就彻底解决了效率非常高处理很到位,1
+p3b,整个流程都有短信通知每一步进展都告知我们办完后还有回访电话询问满意度,1
+p3c,工作人员态度非常好非常耐心地解答了我的疑问还主动帮我跟进后续办理情况,1
+p3d,反映了好几次都没人理打了好几个电话都说在核实到现在一个月了也没回复,0
+p3e,虽然有回复但一看就是敷衍说什么正在处理中实际上根本没有实际行动和进展,0
+p3f,办完就没人管了后续出了问题也不知道找谁没有任何跟进回访机制,0`;
+
 const SAMPLE_CSV_CONTENT = `text_id,domain,text,expected_outcome
 1,dissatisfaction,"你们这服务太差了，去办证跑了五趟都没办成，窗口人员推诿踢皮球，我要打市长热线投诉你们",1
 2,dissatisfaction,"工作人员态度极其恶劣，效率极低，一个简单的证明拖了一个月，我已经去纪委反映了",1
@@ -580,6 +605,20 @@ export default function DataInput() {
     reader.readAsText(file, 'UTF-8');
   }, [t]);
 
+  const handleLoadProtoSample = useCallback((sampleIndex: 1 | 2 | 3) => {
+    const csv = sampleIndex === 1 ? PROTOTYPE_SAMPLE_1
+      : sampleIndex === 2 ? PROTOTYPE_SAMPLE_2
+      : PROTOTYPE_SAMPLE_3;
+    setProtoPasteContent(csv);
+    const cases = parsePrototypeCSV(csv);
+    setTextCasesContext(cases);
+    const outcome0 = cases.filter((c) => c.outcome === 0).length;
+    const outcome1 = cases.filter((c) => c.outcome === 1).length;
+    setValidationMessage(
+      t('dataInput.loadedProtoCases', cases.length, outcome0, outcome1, `Sample ${sampleIndex}`)
+    );
+  }, [t]);
+
   const updateProtoCondition = useCallback(
     (index: number, field: keyof QCAProjectProtoConditionRow, value: string) => {
       const next = [...state.protoConditions];
@@ -1051,6 +1090,17 @@ export default function DataInput() {
             >
               {t('dataInput.parseProtoCsv')}
             </button>
+            <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
+              <button className="btn btn-ghost" style={{ fontSize: '0.7rem', padding: '2px 6px' }} onClick={() => handleLoadProtoSample(1)}>
+                {t('dataInput.protoSample1')}
+              </button>
+              <button className="btn btn-ghost" style={{ fontSize: '0.7rem', padding: '2px 6px' }} onClick={() => handleLoadProtoSample(2)}>
+                {t('dataInput.protoSample2')}
+              </button>
+              <button className="btn btn-ghost" style={{ fontSize: '0.7rem', padding: '2px 6px' }} onClick={() => handleLoadProtoSample(3)}>
+                {t('dataInput.protoSample3')}
+              </button>
+            </div>
           </div>
 
           {textInputMode === 'paste' ? (
