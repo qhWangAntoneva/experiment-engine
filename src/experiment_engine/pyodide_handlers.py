@@ -69,7 +69,7 @@ def handle_calibrate(
     Returns:
         Nothing — writes JSON to *output_path*.
     """
-    from experiment_engine.models import InputData, MembershipData, TrainingSample
+    from experiment_engine.models import InputData, TrainingSample
     from experiment_engine.text_calibration.calibrator import TextCalibrationStage
     from experiment_engine.text_calibration.condition import _condition_set_from_dict
 
@@ -107,20 +107,15 @@ def handle_calibrate(
     _calibrator = TextCalibrationStage(condition_set=_condition_set)
     _calibrator.setup()
 
-    _raw_fuzzy = None
-    for _s in _samples:
-        _result = _calibrator.calibrate_one(_s)
-        if _raw_fuzzy is None:
-            _raw_fuzzy = _result
-        else:
-            _raw_fuzzy = MembershipData(
-                membership=np.vstack([_raw_fuzzy.membership, _result.membership]),
-                case_ids=_raw_fuzzy.case_ids + _result.case_ids,
-                condition_names=_raw_fuzzy.condition_names,
-                outcome_name=_raw_fuzzy.outcome_name,
-                texts=_raw_fuzzy.texts + _result.texts,
-                metadata={},
-            )
+    # Batch all texts at once via process() instead of calibrate_one per sample.
+    # calibrate_one processes 1 text → 1 raw score per condition →
+    # DirectCalibration sees min==max → raises ValueError (post Fixer 1).
+    # process() scores all texts together → varied raw scores → valid calibration.
+    _texts_list = [_s.text for _s in _samples]
+    _case_ids = [_s.text_id for _s in _samples]
+    _raw_input = InputData(data=np.array(_texts_list, dtype=object), index=_case_ids)
+    _raw_result = _calibrator.process(_raw_input)
+    _raw_fuzzy = _raw_result.processed
 
     # ── Prototype texts (optional, same keyword pipeline) ──────────────
     _proto_fuzzy = None

@@ -417,3 +417,10 @@
 | 17:43 | Edited src/experiment_engine/text_calibration/calibrator.py | modified enumerate() | ~201 |
 | 17:44 | Edited src/experiment_engine/text_calibration/strategies.py | 6→11 lines | ~159 |
 | 17:54 | Session end: 3 writes across 2 files (strategies.py, calibrator.py) | 14 reads | ~50211 tok |
+| 18:01 | Session end: 3 writes across 2 files (strategies.py, calibrator.py) | 14 reads | ~17371 tok |
+| 18:03 | Edited src/experiment_engine/text_calibration/calibrator.py | modified _fallback_text_scores() | ~563 |
+| 18:04 | Edited src/experiment_engine/text_calibration/calibrator.py | modified range() | ~346 |
+| 18:05 | Edited src/experiment_engine/pyodide_handlers.py | 17→12 lines | ~191 |
+| 18:06 | Edited tests/test_qca_core.py | modified test_calibrate_direct_all_same_values() | ~153 |
+| 18:06 | Session end: 7 writes across 4 files (strategies.py, calibrator.py, pyodide_handlers.py, test_qca_core.py) | 15 reads | ~12264 tok |
+| 18:07 | Edited tests/test_qca_core.py | modified test_calibrate_direct_all_same_values() | ~139 |

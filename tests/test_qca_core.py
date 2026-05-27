@@ -905,15 +905,15 @@ class TestCalibrateFunctions:
         assert result[1] == 0.0
 
     def test_calibrate_direct_all_same_values(self):
-        """When all raw scores are equal, all get 0.5."""
+        """When all raw scores are equal, DirectCalibration raises ValueError."""
         params = CalibrationParams(
             threshold_full_in=0.80,
             threshold_full_out=0.20,
             crossover_point=0.50,
         )
         raw = np.array([0.5, 0.5, 0.5], dtype=np.float64)
-        result = TextCalibrationStage.calibrate_direct(raw, params)
-        np.testing.assert_array_equal(result, np.array([0.5, 0.5, 0.5]))
+        with pytest.raises(ValueError, match="All raw scores are identical"):
+            TextCalibrationStage.calibrate_direct(raw, params)
 
     def test_calibrate_indirect_logistic_shape(self):
         """Indirect calibration produces S-shaped logistic curve."""

@@ -7,8 +7,8 @@
           0
         ],
         "config_label": "~NEGATIVE_AFFECT*~STRONG_DEMAND",
-        "frequency": 2.5,
-        "raw_consistency": 0.2,
+        "frequency": 3.492492492492492,
+        "raw_consistency": 0.1410146173688735,
         "outcome_value": 0,
         "included": true
       },
@@ -18,10 +18,10 @@
           1
         ],
         "config_label": "~NEGATIVE_AFFECT*STRONG_DEMAND",
-        "frequency": 2.5,
-        "raw_consistency": 0.2,
-        "outcome_value": 0,
-        "included": true
+        "frequency": 0.49249249249249205,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
       },
       {
         "config": [
@@ -29,10 +29,10 @@
           0
         ],
         "config_label": "NEGATIVE_AFFECT*~STRONG_DEMAND",
-        "frequency": 2.5,
-        "raw_consistency": 0.2,
-        "outcome_value": 0,
-        "included": true
+        "frequency": 0.49249249249249294,
+        "raw_consistency": 1.0,
+        "outcome_value": 1,
+        "included": false
       },
       {
         "config": [
@@ -40,9 +40,9 @@
           1
         ],
         "config_label": "NEGATIVE_AFFECT*STRONG_DEMAND",
-        "frequency": 2.5,
-        "raw_consistency": 0.2,
-        "outcome_value": 0,
+        "frequency": 1.507507507507507,
+        "raw_consistency": 0.9999999999999947,
+        "outcome_value": 1,
         "included": true
       }
     ],
@@ -56,7 +56,24 @@
     "n_cases": 5
   },
   "solutions": {
-    "complex": null,
+    "complex": {
+      "solution_type": "complex",
+      "terms": [
+        {
+          "term": [
+            "negative_affect",
+            "strong_demand"
+          ],
+          "label": "negative_affect*strong_demand",
+          "consistency": 0.0,
+          "raw_coverage": 0.0,
+          "unique_coverage": 0.0
+        }
+      ],
+      "formula": "negative_affect*strong_demand",
+      "solution_consistency": 0.0,
+      "solution_coverage": 0.0
+    },
     "parsimonious": null,
     "intermediate": null
   },
@@ -66,26 +83,26 @@
     "conditions": [
       {
         "condition_name": "negative_affect",
-        "consistency": 0.5,
-        "coverage": 0.2,
-        "is_necessary": false
+        "consistency": 1.0,
+        "coverage": 0.9999999999999941,
+        "is_necessary": true
       },
       {
         "condition_name": "strong_demand",
-        "consistency": 0.5,
-        "coverage": 0.2,
-        "is_necessary": false
+        "consistency": 1.0,
+        "coverage": 0.9999999999999947,
+        "is_necessary": true
       },
       {
         "condition_name": "~negative_affect",
-        "consistency": 0.5,
-        "coverage": 0.2,
+        "consistency": 0.326693227091635,
+        "coverage": 0.1410146173688735,
         "is_necessary": false
       },
       {
         "condition_name": "~strong_demand",
-        "consistency": 0.5,
-        "coverage": 0.2,
+        "consistency": 0.3266932270916356,
+        "coverage": 0.14101461736887372,
         "is_necessary": false
       }
     ]
@@ -93,7 +110,24 @@
   "sufficiency": {
     "outcome_name": "citizen_dissatisfaction",
     "solutions": {
-      "complex": null,
+      "complex": {
+        "solution_type": "complex",
+        "terms": [
+          {
+            "term": [
+              "negative_affect",
+              "strong_demand"
+            ],
+            "label": "negative_affect*strong_demand",
+            "consistency": 0.9999999999999947,
+            "raw_coverage": 1.0,
+            "unique_coverage": 1.0
+          }
+        ],
+        "formula": "negative_affect*strong_demand",
+        "solution_consistency": 0.9999999999999947,
+        "solution_coverage": 1.0
+      },
       "parsimonious": null,
       "intermediate": null
     }

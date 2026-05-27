@@ -6389,7 +6389,12 @@
       "file": "src/experiment_engine/pyodide_handlers.py, src/experiment_engine/text_calibration/calibrator.py",
       "root_cause": "condition_set.json 写入 Pyodide VFS 时 conditions 为空。已知前端修复 commit 5f009a1 (yamlToConditionSet 替代 yamlContent as any) 已就位但仍触发，推测可能原因: (1) 部署未更新; (2) 运行时 YAML 编辑器内容被清空; (3) 另有遗漏路径",
       "fix": "pyodide_handlers.py handle_calibrate 添加空条件校验 + 诊断 JSON keys; pyodide.worker.ts handleCalibrate 添加 conditionSet 结构日志",
-      "tags": ["calibration", "condition-set", "empty-conditions", "validation"],
+      "tags": [
+        "calibration",
+        "condition-set",
+        "empty-conditions",
+        "validation"
+      ],
       "related_bugs": [],
       "occurrences": 2,
       "last_seen": "2026-05-27"
@@ -6401,10 +6406,32 @@
       "file": "src/experiment_engine/text_calibration/strategies.py, src/experiment_engine/text_calibration/calibrator.py",
       "root_cause": "_fallback_text_scores() returned all-zeros for conditions with no prototypes. DirectCalibration/IndirectCalibration min==max branch set all normalized values to 0.5, producing uniform membership of 0.5.",
       "fix": "Fix A (calibrator.py): Replaced all-zeros fallback with text-length-based heuristic (text_length / max_len) to produce varied scores. Fix B (strategies.py): Replaced silent np.full_like(0.5) with ValueError in both DirectCalibration and IndirectCalibration when all scores are identical.",
-      "tags": ["calibration", "degenerate-scores", "direct-calibration", "fallback-text-scores", "zero-prototypes"],
+      "tags": [
+        "calibration",
+        "degenerate-scores",
+        "direct-calibration",
+        "fallback-text-scores",
+        "zero-prototypes"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-27"
+    },
+    {
+      "id": "bug-391",
+      "timestamp": "2026-05-27T10:03:08.685Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/experiment_engine/text_calibration/calibrator.py",
+      "root_cause": "62 lines replaced/restructured",
+      "fix": "Rewrote 96→43 lines (62 removed) | Also: max_len = float(np.max(text_lengths)) if text_leng; base_scores = text_lengths / max_len if max_len > ",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "py"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-05-27T10:04:24.863Z"
     }
   ]
 }
