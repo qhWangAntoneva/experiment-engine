@@ -204,6 +204,10 @@ export interface TranslationDict {
     sampleDataBtn: string;
     sampleDataTooltip: string;
     sampleLoaded: (n: number, domain: string) => string;
+    // Import/Export buttons
+    importCsvJson: string;
+    exportCsv: string;
+    exporting: string;
   };
 
   // ── Results ──
@@ -650,6 +654,9 @@ const zh: TranslationDict = {
     sampleDataBtn: '加载 30 条样本数据',
     sampleDataTooltip: '从测试数据中加载 30 条样本（每领域 6 条）',
     sampleLoaded: (n: number, domain: string) => `已加载 ${n} 条样本数据。条件集：${domain}`,
+    importCsvJson: '导入 CSV/JSON',
+    exportCsv: '导出 CSV',
+    exporting: '导出中...',
   },
 
   results: {
@@ -1167,6 +1174,9 @@ const en: TranslationDict = {
     sampleDataBtn: 'Load 30 Sample Cases',
     sampleDataTooltip: 'Load 30 sample cases from the test fixture (6 per domain)',
     sampleLoaded: (n: number, domain: string) => `Loaded ${n} sample cases. Condition set: ${domain}`,
+    importCsvJson: 'Import CSV/JSON',
+    exportCsv: 'Export CSV',
+    exporting: 'Exporting...',
   },
 
   results: {

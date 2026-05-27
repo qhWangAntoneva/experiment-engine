@@ -1,7 +1,14 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T03:40:39.362Z
-> Files: 4 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T04:02:42.086Z
+> Files: 13 tracked | Anatomy hits: 0 | Misses: 0
+
+## ../../../tmp/playwright-test/
+
+- `devtools_test.mjs` — Declares browser (~951 tok)
+- `devtools_test2.mjs` — browser: log (~1528 tok)
+- `devtools_test3.mjs` — browser: log (~1735 tok)
+- `devtools_test4.mjs` — browser: log (~885 tok)
 
 ## ../.claude/
 
@@ -17,6 +24,7 @@
 
 ## ./
 
+- `index.html` — QCA Simulation Tool (~574 tok)
 
 ## .claude/
 
@@ -38,6 +46,7 @@
 
 ## .wolf/plans/
 
+- `worker_error_analysis.md` — Comprehensive root-cause analysis for the "unknown worker error" in production (CSP `wasm-unsafe-eval`, CSP worker-src, unhandled promise rejections, SharedArrayBuffer). (~24000 tok)
 
 ## public/
 
@@ -87,6 +96,7 @@
 
 ## src/i18n/
 
+- `translations.ts` — i18n translations: Chinese (zh) and English (en). (~14422 tok)
 
 ## src/layouts/
 
@@ -99,7 +109,8 @@
 
 ## src/services/
 
-- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~7470 tok)
+- `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~4798 tok)
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~7674 tok)
 
 ## src/store/
 
@@ -119,4 +130,5 @@
 ## tmp/
 
 - `clear_cache.mjs` — Declares browser (~479 tok)
+- `reviewer_test.mjs` — Declares browser (~849 tok)
 - `verify_page.mjs` — Declares browser (~147 tok)

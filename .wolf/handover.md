@@ -6,7 +6,7 @@
 
 | 指标 | 值 |
 |------|-----|
-| HEAD | `5a6a00d` — fix: Pyodide pydantic 缺失修复 |
+| HEAD | `fc3b64a` — chore: update HANDOVER after pydantic Pyodide fix push |
 | 分支 | `master` |
 | 测试 | 532 passed, 1 skipped, 6 xfailed |
 | TS build | clean (0 errors) |

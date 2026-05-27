@@ -224,6 +224,21 @@ self.onmessage = async (event: MessageEvent<PyodideWorkerRequest>) => {
   }
 };
 
+// ─── Unhandled promise rejection handler ───────────────────────────────────
+// Without this, promise rejections in the worker propagate to self.onerror
+// with sanitized messages ("Script error."), making debugging impossible.
+self.onunhandledrejection = (event: PromiseRejectionEvent) => {
+  const reason = event.reason?.stack || event.reason?.message || String(event.reason) || 'Unhandled promise rejection';
+  log('error', `Unhandled rejection in worker: ${reason}`);
+  respond({
+    type: 'log',
+    message: `Unhandled rejection: ${reason}`,
+    level: 'error',
+  });
+  // Prevent the default handler (which would fire self.onerror with a sanitized message)
+  event.preventDefault();
+};
+
 // ─── Handlers ─────────────────────────────────────────────────────────────
 
 async function handleInit(extraPackages: string[] = []): Promise<void> {

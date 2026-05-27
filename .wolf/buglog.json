@@ -5852,10 +5852,149 @@
       "file": "src/services/pyodide.worker.ts, src/experiment_engine/config.py",
       "root_cause": "experiment_engine/__init__.py eagerly imports config and models, both import pydantic at module top level. Pyodide init (handleInit) was NOT loading pydantic despite it being needed by all handlers.",
       "fix": "(1) Added 'pydantic' to REQUIRED_PACKAGES in pyodide.worker.ts:47 so it's loaded via pyodide.loadPackage() during init; (2) Moved 'from pydantic import ValidationError' in config.py from module top-level into the load_config() function to reduce eager dependencies.",
-      "tags": ["pyodide", "pydantic", "import", "init", "web"],
+      "tags": [
+        "pyodide",
+        "pydantic",
+        "import",
+        "init",
+        "web"
+      ],
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-27T12:00:00.000Z"
+    },
+    {
+      "id": "bug-359",
+      "timestamp": "2026-05-27T03:53:31.650Z",
+      "error_message": "Significant refactor of ",
+      "file": "../../../tmp/playwright-test/devtools_test3.mjs",
+      "root_cause": "11 lines replaced/restructured",
+      "fix": "Rewrote 18→53 lines (11 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "mjs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T03:53:31.650Z"
+    },
+    {
+      "id": "bug-360",
+      "timestamp": "2026-05-27T03:58:26.615Z",
+      "error_message": "Incorrect value in code",
+      "file": "index.html",
+      "root_cause": "Had 'self'",
+      "fix": "Changed to 'wasm-unsafe-eval'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T03:58:26.615Z"
+    },
+    {
+      "id": "bug-361",
+      "timestamp": "2026-05-27T03:58:33.468Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T03:58:33.468Z"
+    },
+    {
+      "id": "bug-362",
+      "timestamp": "2026-05-27T03:58:41.983Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T03:58:41.983Z"
+    },
+    {
+      "id": "bug-363",
+      "timestamp": "2026-05-27T04:00:00.000Z",
+      "error_message": "Unknown worker error (CSP blocks WASM compilation in module workers)",
+      "file": "index.html",
+      "root_cause": "CSP script-src was missing 'wasm-unsafe-eval', which Chrome 130+ requires for WASM compilation in module workers. Also worker-src was missing https://cdn.jsdelivr.net.",
+      "fix": "Added 'wasm-unsafe-eval' to script-src and https://cdn.jsdelivr.net to worker-src in CSP meta tag.",
+      "tags": [
+        "csp",
+        "wasm",
+        "worker",
+        "pyodide",
+        "critical"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T04:00:00.000Z"
+    },
+    {
+      "id": "bug-364",
+      "timestamp": "2026-05-27T04:00:00.000Z",
+      "error_message": "Sanitized worker error message ('Unknown worker error') due to cross-origin error sanitization",
+      "file": "src/services/pyodide.ts",
+      "root_cause": "worker.onerror handler only read err.message which is sanitized for cross-origin errors.",
+      "fix": "Changed worker.onerror to use err.error?.stack || err.error?.message || err.message for actual error detail.",
+      "tags": [
+        "worker",
+        "error-handling",
+        "debugging"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T04:00:00.000Z"
+    },
+    {
+      "id": "bug-365",
+      "timestamp": "2026-05-27T04:00:00.000Z",
+      "error_message": "Unhandled promise rejection in worker propagates to self.onerror with sanitized message",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Worker had no self.onunhandledrejection handler, so promise rejections propagated to worker.onerror with sanitized messages.",
+      "fix": "Added self.onunhandledrejection handler that logs the rejection reason and calls event.preventDefault().",
+      "tags": [
+        "worker",
+        "error-handling",
+        "promise",
+        "debugging"
+      ],
+      "related_bugs": [
+        "bug-364"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T04:00:00.000Z"
+    },
+    {
+      "id": "bug-366",
+      "timestamp": "2026-05-27T04:00:00.000Z",
+      "error_message": "Raw i18n keys displayed for importCsvJson and exportCsv buttons in DataInput",
+      "file": "src/i18n/translations.ts",
+      "root_cause": "dataInput.importCsvJson, dataInput.exportCsv, and dataInput.exporting translation keys were missing from TranslationDict interface and translations (zh/en).",
+      "fix": "Added importCsvJson, exportCsv, and exporting keys to the TranslationDict interface and both zh and en translation objects.",
+      "tags": [
+        "i18n",
+        "ui",
+        "missing-translation"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T04:00:00.000Z"
     }
   ]
 }

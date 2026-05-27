@@ -2,7 +2,7 @@
 
 > Active sessions: most recent 2. Older sessions archived to `memory-archive.md`.
 
-| 2026-05-27 | P2-37: Unified report CLI path via api.run_report(). Removed redundant file load, console-only fallback. 532 tests pass. | cli.py | done | ~50 |
+| 2026-05-27 | Session start: 接手项目. READ handover.md, cerebrum.md, TODO.md, FIXME.md, HACK.md, buglog.json — HEAD fc3b64a, 532 passed, 27 P2 items (S级已全部完成, 22 remaining). | handover.md | session start | ~500 |
 | 2026-05-27 | Logged bug-358 (Pyodide pydantic not loaded), updated cerebrum Do-Not-Repeat. Python/TS/tests all clean: OK, 0 errors, 532 passed. | buglog.json, cerebrum.md | done | ~10 |
 | 2026-05-27 | Fix stale closure: added importedConditionSet to handleCalibrate and handleRunPipeline dependency arrays | DataInput.tsx | done | ~2 |
 | 2026-05-27 | P2-28: Added 3 validation checks to validate_qca_output.py: membership shape (N_cases x N_cols), outcome column unique count (WARN if < 2), solution quality score (avg of best consistency*coverage). Updated summary table with Quality column. | validate_qca_output.py | done | ~600 |
@@ -42,8 +42,7 @@
 | 01:53 | Edited TODO.md | inline fix | ~12 |
 | 01:53 | Edited TODO.md | 2→2 lines | ~10 |
 | 01:53 | Session end: 45 writes across 13 files (TODO.md, qca.py, cosine_similarity.py, HelpTooltip.tsx, plugins.py) | 23 reads | ~36049 tok |
-| 01:55 | Edited TODO.md | inline fix | ~7 |
-| 01:55 | Edited TODO.md | inline fix | ~7 |
+| 2026-05-27 | Deep-dive analysis of "unknown worker error": read 15 source files (pyodide.ts, pyodide.worker.ts, bert-engine.ts, DataInput.tsx, Settings.tsx, Dashboard.tsx, usePyodide.ts, useQCAWorkflow.ts, vite.config.ts, index.html, deploy.yml, package.json, dist/ bundles). Identified 6 possible root causes, primary is missing `'wasm-unsafe-eval'` in CSP `script-src` blocking WASM in Chrome 130+. Wrote analysis to .wolf/plans/worker_error_analysis.md with fixes and verification steps. | .wolf/plans/worker_error_analysis.md, index.html, pyodide.ts, pyodide.worker.ts, bert-engine.ts | analysis complete | ~24000 |
 | 01:56 | Session end: 47 writes across 13 files (TODO.md, qca.py, cosine_similarity.py, HelpTooltip.tsx, plugins.py) | 23 reads | ~36065 tok |
 | 01:59 | Session end: 47 writes across 13 files (TODO.md, qca.py, cosine_similarity.py, HelpTooltip.tsx, plugins.py) | 24 reads | ~36065 tok |
 | 02:03 | Session end: 47 writes across 13 files (TODO.md, qca.py, cosine_similarity.py, HelpTooltip.tsx, plugins.py) | 31 reads | ~36065 tok |
@@ -214,3 +213,29 @@
 | 11:40 | Created tmp/verify_page.mjs | — | ~147 |
 | 11:40 | Session end: 6 writes across 4 files (pyodide.worker.ts, config.py, clear_cache.mjs, verify_page.mjs) | 12 reads | ~11520 tok |
 | 11:41 | Session end: 6 writes across 4 files (pyodide.worker.ts, config.py, clear_cache.mjs, verify_page.mjs) | 12 reads | ~11520 tok |
+| 11:42 | Session end: 6 writes across 4 files (pyodide.worker.ts, config.py, clear_cache.mjs, verify_page.mjs) | 12 reads | ~11520 tok |
+
+## Session: 2026-05-27 11:43
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 11:50 | Created ../../../tmp/playwright-test/devtools_test.mjs | — | ~951 |
+| 11:52 | Created ../../../tmp/playwright-test/devtools_test2.mjs | — | ~1528 |
+| 11:52 | Created ../../../tmp/playwright-test/devtools_test3.mjs | — | ~1406 |
+| 11:53 | Edited ../../../tmp/playwright-test/devtools_test3.mjs | added 6 condition(s) | ~527 |
+| 11:54 | Created ../../../tmp/playwright-test/devtools_test4.mjs | — | ~885 |
+
+## Session: 2026-05-27 11:56
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 11:58 | Edited index.html | 3→3 lines | ~62 |
+| 11:58 | Edited src/services/pyodide.ts | added optional chaining | ~124 |
+| 11:58 | Edited src/services/pyodide.worker.ts | added optional chaining | ~221 |
+| 11:58 | Edited src/i18n/translations.ts | 5→9 lines | ~69 |
+| 11:58 | Edited src/i18n/translations.ts | 1→4 lines | ~47 |
+| 11:59 | Edited src/i18n/translations.ts | 1→4 lines | ~58 |
+
+| 04:00 | Fixed CSP (wasm-unsafe-eval, worker-src cdn), worker error handlers, missing i18n keys | index.html, src/services/pyodide.ts, src/services/pyodide.worker.ts, src/i18n/translations.ts | TS build clean, dist CSP verified | ~1200 |
+| 04:30 | Reviewed all 4 fixes: CSP `wasm-unsafe-eval` + worker-src cdn, worker onerror detail extraction, onunhandledrejection handler, i18n keys. Build 0 errors. DevTools verification: no CSP/worker/WASM errors, app loads correctly with CSP active. | .wolf/plans/reviewer_report.md | review PASS | ~800 |
+| 12:02 | Created tmp/reviewer_test.mjs | — | ~849 |

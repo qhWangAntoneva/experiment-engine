@@ -437,11 +437,14 @@ export class PyodideBridge {
       this.resolveOne(msg);
     };
 
-    this.worker.onerror = (err) => {
-      console.error('Pyodide worker error:', err);
+    this.worker.onerror = (err: ErrorEvent) => {
+      // err.message is often sanitized for cross-origin workers.
+      // err.error?.stack gives the actual JS stack trace when available.
+      const detail = err.error?.stack || err.error?.message || err.message || 'Unknown worker error';
+      console.error('Pyodide worker error:', detail);
       this.setState({
         status: 'error',
-        error: err.message || 'Unknown worker error',
+        error: detail,
       });
     };
   }
