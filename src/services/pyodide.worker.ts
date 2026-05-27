@@ -505,7 +505,11 @@ async function handleLoadCorpus(
     // config intermediate step.  This avoids potential encoding/truncation
     // issues when CSV content (Chinese text, special chars) passes through
     // JSON.stringify → fs.writeFile → Python json.load() → f.write() chain.
-    const vfsFile = `/tmp/${fileName}`;
+    // Sanitize fileName to ASCII-only to avoid the {encoding:'utf8'} 0-byte bug
+    // in runHandler() when fileName contains Chinese characters.
+    // Preserve the original for display purposes.
+    const safeFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const vfsFile = `/tmp/${safeFileName}`;
     if (format === 'xlsx') {
       // Binary: base64-decode in Python side
       const config = { fileName, content, format };
