@@ -1,4 +1,4 @@
-# QCA Analysis Tool — Project Status (2026-05-27)
+# QCA Analysis Tool — Project Status (2026-05-27 Session 3)
 
 > BERT embeddings → fuzzy calibration → QCA truth table → solutions.
 
@@ -6,51 +6,41 @@
 
 | 指标 | 值 |
 |------|-----|
-| HEAD | `fc3b64a` — chore: update HANDOVER after pydantic Pyodide fix push |
+| HEAD | `ec02dc5` — fix: Pyodide 环境缺失 rich 导致加载样本后校准崩溃 |
 | 分支 | `master` |
-| 测试 | 532 passed, 1 skipped, 6 xfailed |
-| TS build | clean (0 errors) |
-| 本地改动 | (已推送干净) |
+| 本地改动 | Vite plugin + pyodide.worker.ts mountFromInline 修复 + deploy.yml manifest 修复 + pyodide.ts console.error 增强 |
+| 远程同步 | `origin/master` ✅ 完全同步 |
 
-## 2. 本轮已完成 (2026-05-27 Session)
+## 2. 本轮完成 (Session 3)
 
-| 任务 | 描述 | 状态 | Review |
-|------|------|------|--------|
-| **Use Template Bug** | DataInput.tsx 忽略 state.conditionSet → 添加 useEffect 注入 | **已修复** | TS build clean |
-| **P2-33** | LaTeX 空段落过滤 — qca_reporter.py generate() 空字符串过滤 | **已推送** | ACCEPTED: 532 passed |
-| **P2-37** | 统一 report 调用路径 — cli.py → api.run_report() | **已推送** | ACCEPTED: console路径保留 |
-| **P2-26** | 消除 FuzzySetData 废弃别名 — 17个文件全部替换 | **已推送** | ACCEPTED: grep零命中 |
-| **P2-31** | Plotly 显示模式栏 — 4组件 displayModeBar hover | **已推送** | ACCEPTED: TS clean |
-| **P2-28** | validate_qca_output.py 增强 — 形状/outcome/质量评分 | **已推送** | ACCEPTED: 532 passed |
-| **Bug: Pyodide pydantic 缺失** | 加载30条样本数据因 pydantic 未预加载崩溃；(1) `pyodide.worker.ts` REQUIRED_PACKAGES 添加 `'pydantic'`；(2) `config.py` 将 `from pydantic import ValidationError` 改为函数内懒加载。验证: Python import OK, TS 0 errors, 532 passed。 | **已修复 (已推送)** | `5a6a00d` |
+| 任务 | 描述 | 状态 |
+|------|------|------|
+| **Track A: 验证部署源** | 确认 Pages 从 Actions artifact 提供服务，最新代码(ec02dc5)已上线，CSP正确，worker JS包含所有5个包 | **已完成** |
+| **Track B: 本地复现崩溃** | 通过 Playwright 在本地复现 30 样本崩溃，捕获完整错误链 | **已完成** |
+| **修复 mountFromInline()** | 创建 Vite plugin 提供 `/py/modules.json`，worker 获取 JSON 并写入实际 Python 源文件到 VFS | **已完成** |
+| **修复 deploy.yml manifest** | `packages` 数组补充 `"micropip"` 和 `"rich"` | **已完成** |
+| **增强 worker 错误可视化** | 在 `pyodide.ts` 的 3 个错误路径添加 `console.error()` | **已完成** |
 
-## 3. TODO.md 重构
+### 关键发现
 
-三位专业架构师分析报告整合为 TODO.md 新结构:
-- **A. 后端/算法优化** (4项) — P2-25~28 (P2-28已完成)
-- **B. 前端/可视化优化** (4项) — P2-29~32 (P2-31已完成)
-- **C. 报告/DevOps 优化** (5项) — P2-33~37 (P2-33/37已完成)
-- **D. 原有P2保留** (14项)
+1. **部署源正确** — 线上版本已包含所有4个修复（pydantic, CSP, worker error, rich），worker JS asset是有效JS非HTML
+2. **崩溃根因** — `mountFromInline()` 仅创建空Python包目录，不写入实际源文件（如 `pyodide_handlers.py`），导致 `ModuleNotFoundError: No module named 'experiment_engine.pyodide_handlers'`
+3. **错误不可见** — worker 错误通过 `postMessage` → React state 传递，未调用 `console.error()`，在浏览器控制台中完全不可见
+4. **生产环境不受影响** — CI 生成的 `experiment_engine.tar.gz` 在工作流中已排除此问题，仅 dev 模式受影响
 
-## 4. 快速验证
+### 修复内容
 
-```bash
-PYTHONIOENCODING=utf-8 uv run python validate_qca_output.py   # 验证所有域（含新增强检查）
-PYTHONIOENCODING=utf-8 uv run pytest --tb=no -q               # 532 passed
-npm run dev                                                    # 前端 127.0.0.1:3000
-```
+| 文件 | 变更 |
+|------|------|
+| `scripts/vite-plugin-pyodide-modules.ts` | **新建** — Vite plugin，dev 模式下在 `/py/modules.json` 提供所有 Python 源文件 |
+| `vite.config.ts` | 注册 `pyodideModulesPlugin()` |
+| `src/services/pyodide.worker.ts` | `mountFromInline()` 改为获取 `/py/modules.json` 并写入实际 Python 文件到 VFS |
+| `src/services/pyodide.ts` | 3 个错误路径添加 `console.error()` |
+| `.github/workflows/deploy.yml` | manifest `packages` 补充 `micropip`, `rich` |
 
-## 5. 推荐下一步
+## 3. 推荐下一步
 
-S级任务已全部完成。推荐继续按 TODO.md 顺序推进：
-1. **P2-25**: 统一 CSV 读取路径 (M)
-2. **P2-34**: DOCX 空解渲染 + 硬编码修复 (M)
-3. **P2-35**: CI 管线搭建 (M)
-4. **P2-30**: 可视化错误边界 (M)
-5. 后续 L 级: P2-29 (可视化桥接) / P2-36 (报告测试) / P2-32 (联动)
-
-## 相关文档
-
-- `TODO.md` — 完整任务列表（27项，含本轮完成5项）
-- `.wolf/plans/technical_advisory_plan.md` — 技术顾问诊断方案
-- `.wolf/plans/package_optimization_plan.md` — 包体优化方案
+1. **验证修复** — 本地运行 `npm run dev`，加载 30 样本，确认不再崩溃
+2. **提交并推送** — `git add` 新文件 + 修改，推送 master 触发自动部署
+3. **验证线上** — 部署后访问 GitHub Pages 确认正常
+4. **清理 Playwright 诊断脚本** — `tmp/reproduction_diag*.mjs`、`capture_*.mjs`、`minimal_test.mjs` 可删除

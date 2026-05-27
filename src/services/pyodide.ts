@@ -477,7 +477,9 @@ export class PyodideBridge {
       const reqId = String(++this.requestSeq);
       const timeout = setTimeout(() => {
         this.pendingRequests.delete(reqId);
-        reject(new PyodideTimeoutError(timeoutOperation || request.type));
+        const op = timeoutOperation || request.type;
+        console.error(`[PyodideBridge] Worker timed out for ${op}`);
+        reject(new PyodideTimeoutError(op));
       }, DEFAULT_TIMEOUT_MS);
 
       this.pendingRequests.set(reqId, { resolve, reject, timeout });
@@ -497,7 +499,9 @@ export class PyodideBridge {
 
       // Check if this response is an error variant
       if (msg.type.endsWith('-error') || msg.type === 'corpus-error') {
-        pending.reject(new Error((msg as any).error || 'Unknown error'));
+        const errMsg = (msg as any).error || 'Unknown error';
+        console.error(`[PyodideBridge] Worker returned error type="${msg.type}":`, errMsg);
+        pending.reject(new Error(errMsg));
         return;
       }
 

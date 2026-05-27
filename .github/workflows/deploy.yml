@@ -107,7 +107,7 @@ jobs:
           cat > dist/py/pyodide-manifest.json << 'MANIFEST'
           {
             "pyodide_version": "${{ inputs.pyodide_version || '0.26.4' }}",
-            "packages": ["numpy", "pydantic", "pyyaml"],
+            "packages": ["numpy", "pandas", "pydantic", "pyyaml", "micropip", "rich"],
             "python_module": "experiment_engine.tar.gz",
             "excluded": ["viz", "report", "cli.py", "__main__.py", "io/db.py", "core/parallel.py"]
           }

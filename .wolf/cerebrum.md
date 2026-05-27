@@ -87,6 +87,13 @@
 
 ### Frontend/Pyodide
 
+- [2026-05-27] **mountFromInline() VFS path prefix must match sys.path**: When writing Python files to Pyodide VFS, the path prefix must match `sys.path`. If `sys.path` has `/src`, files must be at `/src/experiment_engine/...`, NOT `/experiment_engine/...`. Otherwise Python raises `ModuleNotFoundError`. Always add both `/src` and `/` to `sys.path` as backup.
+- [2026-05-27] **mountFromInline() must write actual Python source files, not just empty dirs**: The old fallback created empty package directories causing `ModuleNotFoundError` at import time. Fix: create Vite plugin serving `/py/modules.json` with all `.py` file contents as JSON. Worker fetches this and writes files via `FS.mkdirTree`/`FS.writeFile`.
+- [2026-05-27] **Worker errors are invisible in DevTools without console.error()**: Pyodide worker errors go through `postMessage()` → React state, never call `console.error()`. Always add `console.error()` in the bridge's error handling paths in `pyodide.ts`.
+- [2026-05-27] **pandas REQUIRED for CSV corpus loading in Pyodide**: The `_get_pandas()` helper in `readers.py` raises `ImportError` if pandas is absent. Since 30 sample data is CSV, pandas must be in `REQUIRED_PACKAGES` AND in `deploy.yml` manifest. pandas IS available in the Pyodide distribution (can be loaded via `pyodide.loadPackage('pandas')`), but it's large (~10MB), so install times may increase.
+- [2026-05-27] **Vite SPA fallback returns HTML (HTTP 200) for missing assets**: In dev mode, Vite serves `index.html` with status 200 for ANY unhandled route. This means `resp.ok` is `true` even when the resource doesn't exist (e.g., `/py/experiment_engine.tar.gz`). Always check response `Content-Type` or size as a secondary validation, not just HTTP status code.
+- [2026-05-27] **REQUIRED_PACKAGES in pyodide.worker.ts is the SOURCE OF TRUTH**: The deploy.yml manifest is purely informational and NOT consumed at runtime. When adding a package to Pyodide, ALWAYS update `REQUIRED_PACKAGES` in `pyodide.worker.ts` first, then update `deploy.yml` manifest as documentation.
+- [2026-05-27] **pyodide-manifest.json is hardcoded in deploy.yml**: The manifest at `.github/workflows/deploy.yml` line 110 is created by `cat > dist/py/pyodide-manifest.json << 'MANIFEST'`. It must be manually kept in sync with `REQUIRED_PACKAGES`.
 - [2026-05-24] **Never inject data into Python via JS template literals** — code injection risk. Use `FS.writeFile` then `json.load()` in Python.
 - [2026-05-24] **Pyodide mountFromInline must write `__init__.py`** in each package directory.
 - [2026-05-24] **pre-commit stash-conflict infinite loop** — fix: `.wolf/hooks/pre-commit.js` runs `pre-commit run --all-files` before `git add -u`.

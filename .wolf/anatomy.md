@@ -1,66 +1,24 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T05:03:12.651Z
-> Files: 22 tracked | Anatomy hits: 0 | Misses: 0
-
-## ../../../tmp/playwright-test/
-
-- `devtools_test.mjs` — Declares browser (~951 tok)
-- `devtools_test2.mjs` — browser: log (~1528 tok)
-- `devtools_test3.mjs` — browser: log (~1735 tok)
-- `devtools_test4.mjs` — browser: log (~885 tok)
-
-## ../.claude/
-
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T07:03:35.661Z
+> Files: 25 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/plans/
 
-
-## ../.claude/projects/C--Users-lenovos-QCA-Analysis-Tool/memory/
-
-
-## ../National-Policy-Database/
-
+- `synthetic-coalescing-sunbeam.md` — 30样本加载崩溃 - 并行调查计划 (~459 tok)
 
 ## ./
 
 - `index.html` — QCA Simulation Tool (~574 tok)
-
-## .claude/
-
-
-## .claude/rules/
-
-
-## .claude/worktrees/agent-a182dd20ad100bc90/
-
-
-## .claude/worktrees/agent-a182dd20ad100bc90/.wolf/
-
+- `vite.config.ts` — ============================================================================= (~373 tok)
 
 ## .github/workflows/
 
+- `deploy.yml` — ============================================================================== (~1814 tok)
 
-## .wolf/
+## scripts/
 
-
-## .wolf/plans/
-
-- `reviewer_devtools_report.md` — Playwright DevTools verification: CSP fix PASSES, Worker init stalls on mountProjectModules (tar.gz extraction in WASM pre-existing issue). (~3200 tok)
-- `reviewer_report.md` — Reviewer code review: 4 fixes confirmed correct (CSP wasm-unsafe-eval, worker-src, worker onerror, onunhandledrejection, i18n). Build 0 errors, CSP verified in dist. (~4949 tok)
-- `worker_error_analysis.md` — Comprehensive root-cause analysis for the "unknown worker error" in production (CSP `wasm-unsafe-eval`, CSP worker-src, unhandled promise rejections, SharedArrayBuffer). (~24000 tok)
-
-## public/
-
-
-## roadmap/
-
-
-## src/
-
-
-## src/components/
-
+- `vite-plugin-pyodide-modules.ts` — Vite plugin that serves Python module sources as JSON for Pyodide in dev mode. (~785 tok)
 
 ## src/experiment_engine/
 
@@ -68,73 +26,25 @@
 - `pipeline.py` — Pipeline and Stage abstract base classes. (~5480 tok)
 - `plugins.py` — Plugin system for experiment-engine pipeline stages. (~4227 tok)
 
-## src/experiment_engine/algorithms/
-
-
-## src/experiment_engine/core/
-
-
-## src/experiment_engine/io/
-
-
-## src/experiment_engine/models/
-
-
-## src/experiment_engine/qca_engine/
-
-
-## src/experiment_engine/qca_engine/advanced/
-
-
-## src/experiment_engine/report/
-
-
-## src/experiment_engine/text_calibration/
-
-
-## src/experiment_engine/viz/
-
-
-## src/hooks/
-
-
 ## src/i18n/
 
 - `translations.ts` — i18n translations: Chinese (zh) and English (en). (~14422 tok)
 
-## src/layouts/
-
-
-## src/pages/
-
-
-## src/pyodide/
-
-
 ## src/services/
 
-- `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~4798 tok)
-- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~7467 tok)
-
-## src/store/
-
-
-## src/types/
-
-
-## src/utils/
-
-
-## tests/
-
-
-## tests/fixtures/
-
+- `pyodide.ts` — Main-thread Pyodide bridge — methods called from React components. (~4707 tok)
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~7992 tok)
 
 ## tmp/
 
+- `capture_error.mjs` — Quick test to capture the exact error message when clicking (~1014 tok)
+- `capture_full_error.mjs` — Capture the FULL error message from the validation card after (~661 tok)
 - `clear_cache.mjs` — Declares browser (~479 tok)
 - `e2e_rich_fix.mjs` — E2E Rich Module Fix Verification Test. (~3453 tok)
+- `minimal_test.mjs` — Minimal test to verify Playwright works (~311 tok)
+- `reproduction_diag_v2.mjs` — Comprehensive crash reproduction diagnostic test — v2. (~5389 tok)
+- `reproduction_diag_v3.mjs` — Comprehensive crash reproduction diagnostic test — v3. (~4009 tok)
+- `reproduction_diag.mjs` — Comprehensive crash reproduction diagnostic test. (~5257 tok)
 - `reviewer_test.mjs` — Declares browser (~849 tok)
 - `serve-prod.mjs` — Simple HTTP server for production build testing. (~731 tok)
 - `verify_fix.mjs` — Verification test: starts at local dev server, clicks "Load Engine" button, (~1486 tok)

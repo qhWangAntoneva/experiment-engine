@@ -1,5 +1,6 @@
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
+import { pyodideModulesPlugin } from "./scripts/vite-plugin-pyodide-modules"
 
 // =============================================================================
 // Vite config for GitHub Pages deployment
@@ -8,7 +9,7 @@ import react from "@vitejs/plugin-react"
 // In development, assets are served from / (root of localhost:3000).
 
 export default defineConfig(({ mode }) => ({
-  plugins: [react()],
+  plugins: [react(), pyodideModulesPlugin()],
 
   base: mode === "production" ? "/experiment-engine/" : "/",
 

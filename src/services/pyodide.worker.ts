@@ -46,6 +46,7 @@ let bertEngine: BertEngine | null = null;
 
 const REQUIRED_PACKAGES = [
   'numpy',
+  'pandas',
   'pydantic',
   'pyyaml',
   'micropip',
@@ -375,20 +376,63 @@ if "/home/pyodide" not in sys.path:
   }
 }
 
+/**
+ * Mount project Python modules into Pyodide's virtual filesystem by fetching
+ * module source from the Vite dev server (dev) or from the CI-generated
+ * /py/modules.json endpoint.
+ *
+ * In dev mode, the Vite plugin `pyodideModulesPlugin()` serves a dynamically
+ * generated JSON object at /py/modules.json containing the content of every
+ * .py file under src/experiment_engine/.  This replaces the legacy approach of
+ * creating empty package directories, which caused ModuleNotFoundError.
+ *
+ * In production, this function is normally not reached because mountProjectModules()
+ * extracts the tarball first. But when the tarball is unavailable (e.g. dev mode),
+ * this fallback provides the actual Python source files.
+ */
 async function mountFromInline(): Promise<void> {
-  // Minimal inline mount — run the key modules as strings.
-  // For production, use the manifest approach above.
-  // This fallback ensures core imports work: experiment_engine.models, qca_engine.*, etc.
   try {
-    await pyodide.runPythonAsync(`
-import sys, os
+    const baseUrl = typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL
+      ? import.meta.env.BASE_URL
+      : '/';
+    const modulesUrl = `${baseUrl}py/modules.json`;
 
-# Ensure the package root is importable
+    const resp = await fetch(modulesUrl);
+    if (!resp.ok) {
+      throw new Error(`modules.json not available (HTTP ${resp.status})`);
+    }
+
+    const modules: Record<string, string> = await resp.json();
+
+    // Write each module file to Pyodide VFS using the JS FS API.
+    // FS.mkdirTree creates all ancestor directories in one call.
+    for (const [filePath, content] of Object.entries(modules)) {
+      const fullPath = `/src/${filePath}`;
+      const dir = fullPath.substring(0, fullPath.lastIndexOf('/'));
+      pyodide.FS.mkdirTree(dir);
+      pyodide.FS.writeFile(fullPath, content, { encoding: 'utf8' });
+    }
+
+    // Add to sys.path — both /src (where modules are mounted) and / (root fallback)
+    pyodide.runPython(`
+import sys
+for _p in ['/src', '/']:
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+`);
+
+    log('info', `Mounted ${Object.keys(modules).length} Python modules from modules.json`);
+    log('info', `Mounted modules: ${Object.keys(modules).join(', ')}`);
+  } catch (err: any) {
+    log('error', `Inline mount failed: ${err.message || String(err)}`);
+    // Last-resort fallback: create empty directories so imports don't crash
+    // immediately, giving users a chance to see the real error.
+    try {
+      await pyodide.runPythonAsync(`
+import sys, os
 for path in ['/src', '/']:
     if path not in sys.path:
         sys.path.insert(0, path)
-
-# Create package directories with __init__.py files so Python can import them
 _packages = [
     '/src/experiment_engine',
     '/src/experiment_engine/qca_engine',
@@ -399,7 +443,6 @@ _packages = [
     '/src/experiment_engine/io',
     '/src/experiment_engine/core',
 ]
-
 for _pkg in _packages:
     os.makedirs(_pkg, exist_ok=True)
     _init = os.path.join(_pkg, '__init__.py')
@@ -407,9 +450,10 @@ for _pkg in _packages:
         with open(_init, 'w') as f:
             f.write('# auto-generated package init\\n')
 `);
-    log('info', 'Inline module directories created with __init__.py files');
-  } catch (err: any) {
-    log('error', `Inline mount failed: ${err.message || String(err)}`);
+    } catch (e2: any) {
+      log('error', `Empty dir fallback also failed: ${e2.message}`);
+    }
+    throw err;  // Re-throw so handleInit's catch sends init-error
   }
 }
 

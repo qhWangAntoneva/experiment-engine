@@ -3,10 +3,15 @@
 > Active sessions: most recent 2. Older sessions archived to `memory-archive.md`.
 
 | 2026-05-27 | Session start: 接手项目. READ handover.md, cerebrum.md, TODO.md, FIXME.md, HACK.md, buglog.json — HEAD fc3b64a, 532 passed, 27 P2 items (S级已全部完成, 22 remaining). | handover.md | session start | ~500 |
+| 2026-05-27 | Track A: 验证部署源 — 部署正确，最新代码已上线（ec02dc5），worker JS包含所有5个包，CSP正确 | deploy_verify_report.md | 排除部署源原因 | ~300 |
+| 2026-05-27 | Track B: 本地复现 — 根因：mountFromInline()仅创建空目录，不写入实际Python源文件，导致ModuleNotFoundError | local_reproduction_report.md | 找到根因 | ~400 |
+| 2026-05-27 | 修复：创建Vite plugin(scripts/vite-plugin-pyodide-modules.ts)提供/py/modules.json，mountFromInline()改为获取JSON并写入实际文件到VFS | vite-plugin, pyodide.worker.ts, pyodide.ts, deploy.yml | 修复完成 | ~300 |
+| 2026-05-27 | 第二轮修复：路径前缀/→/src/ + sys.path加/ + REQUIRED_PACKAGES加pandas + deploy.yml加pandas | pyodide.worker.ts, deploy.yml | 30样本加载验证通过 | ~200 |
 | 2026-05-27 | Fixed "unknown worker error": added 'wasm-unsafe-eval' to CSP script-src + CDN to worker-src in index.html; improved worker error message extraction in pyodide.ts; added unhandledrejection handler in pyodide.worker.ts; added 3 missing i18n keys. Reviewed via Playwright DevTools (real CSP, no bypass) — CSP fix PASS. Pushed 7d8e51f. | index.html, pyodide.ts, pyodide.worker.ts, translations.ts | pushed 7d8e51f | ~800 |
 | 2026-05-27 | Logged bug-358 (Pyodide pydantic not loaded), updated cerebrum Do-Not-Repeat. Python/TS/tests all clean: OK, 0 errors, 532 passed. | buglog.json, cerebrum.md | done | ~10 |
 | 2026-05-27 | Fix stale closure: added importedConditionSet to handleCalibrate and handleRunPipeline dependency arrays | DataInput.tsx | done | ~2 |
 | 2026-05-27 | P2-28: Added 3 validation checks to validate_qca_output.py: membership shape (N_cases x N_cols), outcome column unique count (WARN if < 2), solution quality score (avg of best consistency*coverage). Updated summary table with Quality column. | validate_qca_output.py | done | ~600 |
+| 2026-05-27 | Fix mountFromInline() path mismatch: changed `/${filePath}` to `/src/${filePath}` so files land at /src/experiment_engine/ where Python searches. Updated sys.path to include both '/src' and '/'. Logged bug-374. | pyodide.worker.ts, buglog.json | fixed | ~100 |
 | 2026-05-27 | Made rich imports lazy in pipeline.py: wrapped imports in try/except ImportError with _HAS_RICH flag, guarded Console/RichHandler/logging init with fallback handler, guarded Progress block with conditional init + try/finally, guarded _log_summary with fallback plain-text log. | pipeline.py | done | ~200 |
 | 2026-05-27 | E2E Playwright verification for rich module fix: production build served at /experiment-engine/ base path (custom Node.js server). Test confirms: "Loaded rich" in console, 0 "No module named 'rich'" errors, 0 ModuleNotFoundError, 0 page errors. PASS. Note: engine init stalls at mountProjectModules (tar.gz extraction, pre-existing issue) — fix still valid. | tmp/e2e_rich_fix.mjs, tmp/serve-prod.mjs | PASS | ~450 |
 
@@ -23,7 +28,6 @@
 | 2026-05-27 | Completed trust domain QCA pipeline: counterfactuals, robustness, and LaTeX report generation. All 5 output files in qca_output/trust/. | qca_output/trust/ | All steps succeeded | ~200 |
 | 2026-05-27 | Fixed BUG-1 (run_calibrate ignores expected_outcome column) and BUG-2 (no domain filtering) in api.py; added run_viz/run_docx_report stub functions. 532 tests pass, all 5 domains verify ground-truth outcome. | api.py | 532 passed | ~200 |
 | 2026-05-27 | T1: Added vacuous solution detection to LaTeX reporter (renders \top with note). T2: Verified data flow from pipeline to reporter (correct). T3: Integrated DOCX report into pipeline + api.py (supports "docx" format). T4: Rewrote validate_qca_output.py - fixed format-code 'f' for str error, added summary table, solution quality check, outcome variation check. T5: Deleted 4 stale root-level qca_output files. All 532 tests pass, DOCX 36825 bytes. | qca_reporter.py, docx_reporter.py, cli.py, api.py, validate_qca_output.py, buglog.json | all done | ~500 |
-| 2026-05-26 | P1-5/8/9/10 + P2-20/22: CaseMembershipTable, CalibrationPreview, Privacy, Recent Runs, configurable steepness, --variant flag. 532 tests pass. | multiple | all done | ~5000 |
 | 01:49 | Edited src/experiment_engine/cli.py | modified report() | ~179 |
 | 01:49 | Edited src/pages/DataInput.tsx | 2→6 lines | ~98 |
 | 01:50 | Edited src/pages/Results.tsx | added 2 import(s) | ~48 |
@@ -98,65 +102,10 @@
 | 03:00 | Edited validate_qca_output.py | 3→2 lines | ~29 |
 | 03:01 | Session end: 73 writes across 20 files (TODO.md, qca.py, cosine_similarity.py, HelpTooltip.tsx, plugins.py) | 72 reads | ~67933 tok |
 
-## Session: 2026-05-26 03:04
+## Session: 2026-05-27 05:10
 
 | Time | Action | File(s) | Outcome | ~Tokens |
 |------|--------|---------|---------|--------|
-| 03:15 | Created ../.claude/projects/C--Users-lenovos-QCA-Analysis-Tool/memory/push_notes.md | — | ~264 |
-| 03:17 | Session end: 1 writes across 1 files (push_notes.md) | 8 reads | ~4401 tok |
-
-## Session: 2026-05-26 03:17
-
-| Time | Action | File(s) | Outcome | ~Tokens |
-|------|--------|---------|---------|--------|
-| 03:24 | Edited src/pages/DataInput.tsx | inline fix | ~21 |
-| 03:24 | Edited src/pages/DataInput.tsx | 7→8 lines | ~60 |
-| 03:24 | Edited src/pages/DataInput.tsx | CSS: type, conditionSet | ~132 |
-| 03:25 | Session end: 3 writes across 1 files (DataInput.tsx) | 34 reads | ~213 tok |
-| 03:27 | Created TODO.md | — | ~1144 |
-| 03:28 | Edited src/experiment_engine/report/qca_reporter.py | 3→4 lines | ~37 |
-| 03:31 | Edited src/experiment_engine/cli.py | modified report() | ~152 |
-| 03:35 | Edited src/experiment_engine/api.py | inline fix | ~4 |
-| 03:35 | Edited src/experiment_engine/cli.py | inline fix | ~4 |
-| 03:35 | Edited src/experiment_engine/pyodide_handlers.py | inline fix | ~4 |
-| 03:35 | Edited src/experiment_engine/qca_engine/advanced/robustness.py | inline fix | ~4 |
-| 03:35 | Edited src/experiment_engine/qca_engine/analyzer.py | inline fix | ~4 |
-| 03:35 | Edited src/experiment_engine/qca_engine/necessity.py | inline fix | ~4 |
-| 03:35 | Edited src/experiment_engine/qca_engine/sufficiency.py | inline fix | ~4 |
-| 03:35 | Edited src/experiment_engine/qca_engine/truth_table.py | inline fix | ~4 |
-| 03:35 | Edited src/experiment_engine/viz/qca_plots.py | inline fix | ~4 |
-| 03:35 | Edited src/experiment_engine/viz/viz_bridge.py | inline fix | ~4 |
-| 03:35 | Edited tests/test_qca_core.py | inline fix | ~4 |
-| 03:35 | Edited tests/test_robustness.py | inline fix | ~4 |
-| 03:35 | Edited src/experiment_engine/models/qca.py | removed 5 lines | ~1 |
-| 03:35 | Edited src/experiment_engine/models/__init__.py | 2→1 lines | ~20 |
-| 03:35 | Edited src/experiment_engine/models/__init__.py | 2→1 lines | ~6 |
-| 03:35 | Edited src/experiment_engine/models/__init__.py | 2→1 lines | ~6 |
-| 03:35 | Edited src/experiment_engine/__init__.py | 27→26 lines | ~142 |
-| 03:35 | Edited src/experiment_engine/__init__.py | 3→2 lines | ~11 |
-| 03:35 | Edited src/types/qca.ts | removed 5 lines | ~1 |
-| 03:35 | Edited src/types/index.ts | inline fix | ~6 |
-| 03:40 | Edited src/components/DistributionPlot.tsx | expanded (+9 lines) | ~69 |
-| 03:40 | Edited src/components/FuzzySetHeatmap.tsx | expanded (+6 lines) | ~68 |
-| 03:40 | Edited src/components/NecessityXYPlot.tsx | expanded (+9 lines) | ~69 |
-| 03:40 | Edited src/components/CalibrationPreview.tsx | expanded (+9 lines) | ~70 |
-| 03:41 | Session end: 30 writes across 23 files (DataInput.tsx, TODO.md, qca_reporter.py, cli.py, api.py) | 48 reads | ~5171 tok |
-| 03:45 | Edited validate_qca_output.py | modified check_outcome_variation() | ~158 |
-| 03:45 | Edited validate_qca_output.py | modified check_outcome_variation() | ~538 |
-| 03:45 | Edited validate_qca_output.py | expanded (+26 lines) | ~348 |
-| 03:45 | Edited validate_qca_output.py | modified items() | ~295 |
-| 03:49 | Session end: 34 writes across 24 files (DataInput.tsx, TODO.md, qca_reporter.py, cli.py, api.py) | 48 reads | ~11908 tok |
-
-## Session: 2026-05-26 03:50
-
-| Time | Action | File(s) | Outcome | ~Tokens |
-|------|--------|---------|---------|--------|
-| 04:03 | Edited src/pages/DataInput.tsx | added 1 import(s) | ~36 |
-| 04:03 | Edited src/pages/DataInput.tsx | added 1 import(s) | ~32 |
-| 04:03 | Edited src/components/TemplateLibrary.tsx | inline fix | ~20 |
-| 04:03 | Edited src/components/TemplateLibrary.tsx | CSS: CSQCA, qca_variant | ~192 |
-| 04:04 | Session end: 4 writes across 2 files (DataInput.tsx, TemplateLibrary.tsx) | 11 reads | ~16471 tok |
-| 04:07 | Session end: 4 writes across 2 files (DataInput.tsx, TemplateLibrary.tsx) | 12 reads | ~16471 tok |
 | 2026-05-27 | Created src/utils/conditionSetToYaml.ts — builds YAML from ConditionSet with 2-space indent, controlled quoting, null safety. Verified round-trip with js-yaml. | conditionSetToYaml.ts | done | ~300 |
 | 05:10 | Edited src/pages/DataInput.tsx | expanded (+35 lines) | ~497 |
 | 05:10 | Edited src/pages/DataInput.tsx | added 1 import(s) | ~38 |
@@ -188,17 +137,6 @@
 | 05:24 | Session end: 33 writes across 6 files (translations.ts, DataInput.tsx, conditionSetToYaml.ts, __test_condset_yaml.ts, TemplateLibrary.tsx) | 60 reads | ~26713 tok |
 | 05:38 | Edited src/types/index.ts | 2→1 lines | ~6 |
 | 05:39 | designqc: captured 6 screenshots (186KB, ~15000 tok) | /, /Compare, /Dashboard, /DataInput, /Results, /Settings | ready for eval | ~0 |
-
-## Session: 2026-05-26 05:40
-
-| Time | Action | File(s) | Outcome | ~Tokens |
-|------|--------|---------|---------|--------|
-| 05:44 | Edited .github/workflows/deploy.yml | inline fix | ~10 |
-| 05:44 | Edited .github/workflows/deploy.yml | inline fix | ~10 |
-| 05:44 | Edited .github/workflows/deploy.yml | inline fix | ~12 |
-| 05:45 | Edited .github/workflows/deploy.yml | inline fix | ~14 |
-| 05:45 | Edited .github/workflows/deploy.yml | inline fix | ~11 |
-| 05:47 | Session end: 5 writes across 1 files (deploy.yml) | 2 reads | ~2329 tok |
 
 ## Session: 2026-05-27 11:21
 
@@ -295,3 +233,55 @@
 | 13:00 | Session end: 7 writes across 3 files (verify_rich_diag.mjs, e2e_rich_fix.mjs, serve-prod.mjs) | 55 reads | ~42858 tok |
 | 13:03 | Edited src/experiment_engine/plugins.py | 4→1 lines | ~16 |
 | 13:03 | Edited src/experiment_engine/plugins.py | "Registered stages [{len(s" → "Registered stages [%d]: %" | ~24 |
+| 13:03 | Session end: 9 writes across 4 files (verify_rich_diag.mjs, e2e_rich_fix.mjs, serve-prod.mjs, plugins.py) | 55 reads | ~42891 tok |
+
+## Session: 2026-05-27 13:03
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:26 | Updated HANDOVER for session handoff — 30-sample debug prep done | .wolf/handover.md, .wolf/plans/30sample_fix_context.md | Session wrap | ~200 tok |
+
+| 2026-05-27 | Cleaned anatomy.md: removed all empty directory sections and stale ../../../tmp/playwright-test/ section, kept only sections with actual file entries. | .wolf/anatomy.md | done | ~50 |
+
+## Session: 2026-05-27 13:29
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:29 | Buglog cleanup: merged 2 duplicate pairs (bug-025/bug-32, bug-026/bug-33); noted 6 ID collisions; noted 30+ high-occurrence entries; no entries >2 weeks. Plans cleanup: deleted 4 stale plan files (30sample_fix_context, reviewer_devtools_report, reviewer_report, worker_error_analysis). Updated anatomy.md. | .wolf/buglog.json, .wolf/plans/, .wolf/anatomy.md | cleanup done | ~300 |
+
+## Session: 2026-05-27 13:34
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 13:51 | Created ../.claude/plans/synthetic-coalescing-sunbeam.md | — | ~489 |
+| 14:12 | Created tmp/reproduction_diag.mjs | — | ~5257 |
+| 14:15 | Deployment verification: confirmed deployed site serves correct code (HEAD ec02dc5, asset hashes match local build), CSP has wasm-unsafe-eval, worker JS has REQUIRED_PACKAGES with all 5 packages. Found pyodide-manifest.json missing micropip/rich -- hardcoded in deploy.yml line 110 (cosmetic, runtime unaffected). Report: .wolf/plans/deployment_verify_report.md | .github/workflows/deploy.yml, deployed site | verified | ~100 |
+| 14:15 | Created tmp/minimal_test.mjs | — | ~311 |
+| 14:20 | Created tmp/reproduction_diag_v2.mjs | — | ~5389 |
+| 14:23 | Created tmp/reproduction_diag_v3.mjs | — | ~4009 |
+| 14:24 | Created tmp/capture_error.mjs | — | ~1014 |
+| 14:24 | Created tmp/capture_full_error.mjs | — | ~661 |
+| 14:27 | Session end: 7 writes across 7 files (synthetic-coalescing-sunbeam.md, reproduction_diag.mjs, minimal_test.mjs, reproduction_diag_v2.mjs, reproduction_diag_v3.mjs) | 30 reads | ~61753 tok |
+| 14:52 | Created scripts/vite-plugin-pyodide-modules.ts | — | ~785 |
+| 14:52 | Edited vite.config.ts | added 1 import(s) | ~44 |
+| 14:52 | Edited vite.config.ts | inline fix | ~13 |
+| 14:53 | Edited src/services/pyodide.worker.ts | added optional chaining | ~856 |
+| 14:53 | Edited .github/workflows/deploy.yml | inline fix | ~19 |
+| 14:53 | Edited src/services/pyodide.ts | 4→6 lines | ~81 |
+| 14:53 | Edited src/services/pyodide.ts | 5→7 lines | ~99 |
+| 2026-05-27 | Fixed dev-mode bug: mountFromInline() now fetches /py/modules.json from the new Vite plugin and writes actual Python source files to Pyodide VFS instead of empty directories. Added vite-plugin-pyodide-modules.ts, modified vite.config.ts, pyodide.worker.ts, deploy.yml, pyodide.ts. npm run build passes. | scripts/vite-plugin-pyodide-modules.ts, vite.config.ts, pyodide.worker.ts, deploy.yml, pyodide.ts | TS build clean | ~500 |
+| 14:56 | Session end: 14 writes across 12 files (synthetic-coalescing-sunbeam.md, reproduction_diag.mjs, minimal_test.mjs, reproduction_diag_v2.mjs, reproduction_diag_v3.mjs) | 33 reads | ~67025 tok |
+| 14:57 | Session end: 14 writes across 12 files (synthetic-coalescing-sunbeam.md, reproduction_diag.mjs, minimal_test.mjs, reproduction_diag_v2.mjs, reproduction_diag_v3.mjs) | 33 reads | ~67025 tok |
+| 14:58 | Session end: 14 writes across 12 files (synthetic-coalescing-sunbeam.md, reproduction_diag.mjs, minimal_test.mjs, reproduction_diag_v2.mjs, reproduction_diag_v3.mjs) | 33 reads | ~67025 tok |
+| 15:00 | Edited src/services/pyodide.worker.ts | "/${filePath}" → "/src/${filePath}" | ~12 |
+| 15:00 | Edited src/services/pyodide.worker.ts | 6→7 lines | ~59 |
+| 15:01 | Session end: 16 writes across 12 files (synthetic-coalescing-sunbeam.md, reproduction_diag.mjs, minimal_test.mjs, reproduction_diag_v2.mjs, reproduction_diag_v3.mjs) | 33 reads | ~67122 tok |
+| 15:03 | Edited src/services/pyodide.worker.ts | 7→8 lines | ~30 |
+| 15:03 | Edited .github/workflows/deploy.yml | inline fix | ~22 |
+| 15:03 | Session end: 18 writes across 12 files (synthetic-coalescing-sunbeam.md, reproduction_diag.mjs, minimal_test.mjs, reproduction_diag_v2.mjs, reproduction_diag_v3.mjs) | 33 reads | ~67174 tok |
+| 15:06 | Session end: 18 writes across 12 files (synthetic-coalescing-sunbeam.md, reproduction_diag.mjs, minimal_test.mjs, reproduction_diag_v2.mjs, reproduction_diag_v3.mjs) | 33 reads | ~67174 tok |
+
+## Session: 2026-05-27 15:06
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|

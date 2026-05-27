@@ -410,8 +410,10 @@
         "pydantic",
         "json"
       ],
-      "related_bugs": [],
-      "occurrences": 1,
+      "related_bugs": [
+        "bug-32"
+      ],
+      "occurrences": 2,
       "last_seen": "2026-05-24T14:00:00.000Z"
     },
     {
@@ -428,8 +430,10 @@
         "qca",
         "model"
       ],
-      "related_bugs": [],
-      "occurrences": 1,
+      "related_bugs": [
+        "bug-33"
+      ],
+      "occurrences": 2,
       "last_seen": "2026-05-24T14:00:00.000Z"
     },
     {
@@ -509,39 +513,6 @@
         "cli",
         "integration-test",
         "qca-refactoring"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-05-24T10:16:11.550433Z"
-    },
-    {
-      "id": "bug-32",
-      "timestamp": "2026-05-24T10:16:11.550433Z",
-      "error_message": "QCAAnalysisResult.model_dump_json() crashes because fuzzy_data contains np.ndarray which is not JSON-serializable",
-      "file": "src/experiment_engine/cli.py",
-      "root_cause": "_save_analysis_result() called result.model_dump_json(indent=2) without excluding fuzzy_data, which wraps numpy arrays.",
-      "fix": "Added exclude={\"fuzzy_data\"} to model_dump_json() call. Fuzzy data is already saved separately as .npz.",
-      "tags": [
-        "json-serialization",
-        "numpy",
-        "pydantic",
-        "cli"
-      ],
-      "related_bugs": [],
-      "occurrences": 1,
-      "last_seen": "2026-05-24T10:16:11.550433Z"
-    },
-    {
-      "id": "bug-33",
-      "timestamp": "2026-05-24T10:16:11.550433Z",
-      "error_message": "AttributeError: RobustnessTestResult has no attribute overall_robustness",
-      "file": "src/experiment_engine/qca_engine/advanced/robustness.py",
-      "root_cause": "RobustnessTester.run_all() referenced t.overall_robustness which does not exist on RobustnessTestResult. The model has solution_stability (list of per-solution stability scores) instead.",
-      "fix": "Replaced t.overall_robustness with np.mean(t.solution_stability) with a guard for empty solution_stability.",
-      "tags": [
-        "attribute-error",
-        "robustness",
-        "qca"
       ],
       "related_bugs": [],
       "occurrences": 1,
@@ -6060,6 +6031,133 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-05-27T05:03:12.667Z"
+    },
+    {
+      "id": "bug-371",
+      "timestamp": "2026-05-27T14:10:00.000Z",
+      "error_message": "Deployed pyodide-manifest.json packages list missing 'micropip' and 'rich'",
+      "file": ".github/workflows/deploy.yml",
+      "root_cause": "The pyodide-manifest.json is hardcoded in deploy.yml line 110 with packages: ['numpy', 'pydantic', 'pyyaml'] and was never updated after 'micropip' and 'rich' were added to REQUIRED_PACKAGES in pyodide.worker.ts. The manifest is a CI artifact (cat > dist/py/pyodide-manifest.json), not generated from source.",
+      "fix": "Update deploy.yml line 110 to include 'micropip' and 'rich' in the packages array.",
+      "tags": [
+        "deployment",
+        "manifest",
+        "pyodide",
+        "CI",
+        "documentation"
+      ],
+      "related_bugs": [
+        "bug-368",
+        "bug-359"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T14:10:00.000Z"
+    },
+    {
+      "id": "bug-370",
+      "timestamp": "2026-05-27T06:53:03.781Z",
+      "error_message": "Null/undefined access in ",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T06:53:03.781Z"
+    },
+    {
+      "id": "bug-371",
+      "timestamp": "2026-05-27T15:00:00.000Z",
+      "error_message": "ModuleNotFoundError: No module named 'experiment_engine.pyodide_handlers' when clicking Load 30 Sample Cases in dev mode",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "mountFromInline() only created empty Python package directories without writing the actual source files (pyodide_handlers.py, calibrator.py, etc.) to Pyodide's VFS. The error was invisible in browser DevTools because it went through postMessage without console.error().",
+      "fix": "(1) Created scripts/vite-plugin-pyodide-modules.ts — Vite plugin serving /py/modules.json with all Python source file contents. (2) Rewrote mountFromInline() to fetch JSON manifest and write actual files to VFS using FS.mkdirTree/FS.writeFile. (3) Added console.error() to 3 error paths in pyodide.ts. (4) Fixed deploy.yml manifest packages array (added micropip, rich).",
+      "tags": [
+        "dev-mode",
+        "pyodide",
+        "mount",
+        "ModuleNotFoundError",
+        "Vite-plugin"
+      ],
+      "related_bugs": [
+        "bug-015"
+      ],
+      "occurrences": 2,
+      "last_seen": "2026-05-27T15:00:00.000Z"
+    },
+    {
+      "id": "bug-372",
+      "timestamp": "2026-05-27T07:00:16.116Z",
+      "error_message": "Incorrect value in code",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "Had `/${filePath}`",
+      "fix": "Changed to `/src/${filePath}`",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T07:00:16.116Z"
+    },
+    {
+      "id": "bug-373",
+      "timestamp": "2026-05-27T07:00:25.741Z",
+      "error_message": "Significant refactor of ",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 6→7 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "ts"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T07:00:25.741Z"
+    },
+    {
+      "id": "bug-374",
+      "timestamp": "2026-05-27T10:30:00.000Z",
+      "error_message": "ModuleNotFoundError: No module named 'experiment_engine' after clicking Load 30 Sample Cases — mountFromInline() writes files to /experiment_engine/ but Python searches under /src/",
+      "file": "src/services/pyodide.worker.ts",
+      "root_cause": "mountFromInline() used `/${filePath}` as the VFS write path, placing files at /experiment_engine/pyodide_handlers.py etc. But sys.path only contained '/src' (not '/'), so Python searched for modules under /src/experiment_engine/... and found nothing.",
+      "fix": "(1) Changed write path from `/${filePath}` to `/src/${filePath}` so files land at /src/experiment_engine/... (2) Updated sys.path insertion to include both '/src' and '/' as fallback using a for loop.",
+      "tags": [
+        "pyodide",
+        "module-mounting",
+        "path-mismatch",
+        "ModuleNotFoundError",
+        "mountFromInline"
+      ],
+      "related_bugs": [
+        "bug-015",
+        "bug-371",
+        "bug-372"
+      ],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T10:30:00.000Z"
+    },
+    {
+      "id": "bug-375",
+      "timestamp": "2026-05-27T07:03:35.687Z",
+      "error_message": "Incorrect value in code",
+      "file": ".github/workflows/deploy.yml",
+      "root_cause": "Had \"pydantic\"",
+      "fix": "Changed to \"pandas\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "yml"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-05-27T07:03:35.687Z"
     }
   ]
 }

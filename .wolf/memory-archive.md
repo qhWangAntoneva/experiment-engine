@@ -926,3 +926,80 @@ BERT 架构决策已定案：**BERT 作为辅助工具不做主引擎。** 关�
 | 04:41 | Edited TODO.md | 3→3 lines | ~34 |
 | 04:41 | Edited TODO.md | 3→5 lines | ~33 |
 | 04:43 | Session end: 172 writes across 24 files (qca.ts, QCAPipelineContext.tsx, useQCAWorkflow.ts, PipelineStatus.tsx, Results.tsx) | 31 reads | ~147914 tok |
+
+## Archived 2026-05-27
+
+**Date range: 2026-05-26 only**
+
+| 2026-05-26 | P1-5/8/9/10 + P2-20/22: CaseMembershipTable, CalibrationPreview, Privacy, Recent Runs, configurable steepness, --variant flag. 532 tests pass. | multiple | all done | ~5000 |
+
+## Session: 2026-05-26 03:04
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 03:15 | Created ../.claude/projects/C--Users-lenovos-QCA-Analysis-Tool/memory/push_notes.md | — | ~264 |
+| 03:17 | Session end: 1 writes across 1 files (push_notes.md) | 8 reads | ~4401 tok |
+
+## Session: 2026-05-26 03:17
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 03:24 | Edited src/pages/DataInput.tsx | inline fix | ~21 |
+| 03:24 | Edited src/pages/DataInput.tsx | 7→8 lines | ~60 |
+| 03:24 | Edited src/pages/DataInput.tsx | CSS: type, conditionSet | ~132 |
+| 03:25 | Session end: 3 writes across 1 files (DataInput.tsx) | 34 reads | ~213 tok |
+| 03:27 | Created TODO.md | — | ~1144 |
+| 03:28 | Edited src/experiment_engine/report/qca_reporter.py | 3→4 lines | ~37 |
+| 03:31 | Edited src/experiment_engine/cli.py | modified report() | ~152 |
+| 03:35 | Edited src/experiment_engine/api.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/cli.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/pyodide_handlers.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/qca_engine/advanced/robustness.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/qca_engine/analyzer.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/qca_engine/necessity.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/qca_engine/sufficiency.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/qca_engine/truth_table.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/viz/qca_plots.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/viz/viz_bridge.py | inline fix | ~4 |
+| 03:35 | Edited tests/test_qca_core.py | inline fix | ~4 |
+| 03:35 | Edited tests/test_robustness.py | inline fix | ~4 |
+| 03:35 | Edited src/experiment_engine/models/qca.py | removed 5 lines | ~1 |
+| 03:35 | Edited src/experiment_engine/models/__init__.py | 2→1 lines | ~20 |
+| 03:35 | Edited src/experiment_engine/models/__init__.py | 2→1 lines | ~6 |
+| 03:35 | Edited src/experiment_engine/models/__init__.py | 2→1 lines | ~6 |
+| 03:35 | Edited src/experiment_engine/__init__.py | 27→26 lines | ~142 |
+| 03:35 | Edited src/experiment_engine/__init__.py | 3→2 lines | ~11 |
+| 03:35 | Edited src/types/qca.ts | removed 5 lines | ~1 |
+| 03:35 | Edited src/types/index.ts | inline fix | ~6 |
+| 03:40 | Edited src/components/DistributionPlot.tsx | expanded (+9 lines) | ~69 |
+| 03:40 | Edited src/components/FuzzySetHeatmap.tsx | expanded (+6 lines) | ~68 |
+| 03:40 | Edited src/components/NecessityXYPlot.tsx | expanded (+9 lines) | ~69 |
+| 03:40 | Edited src/components/CalibrationPreview.tsx | expanded (+9 lines) | ~70 |
+| 03:41 | Session end: 30 writes across 23 files (DataInput.tsx, TODO.md, qca_reporter.py, cli.py, api.py) | 48 reads | ~5171 tok |
+| 03:45 | Edited validate_qca_output.py | modified check_outcome_variation() | ~158 |
+| 03:45 | Edited validate_qca_output.py | modified check_outcome_variation() | ~538 |
+| 03:45 | Edited validate_qca_output.py | expanded (+26 lines) | ~348 |
+| 03:45 | Edited validate_qca_output.py | modified items() | ~295 |
+| 03:49 | Session end: 34 writes across 24 files (DataInput.tsx, TODO.md, qca_reporter.py, cli.py, api.py) | 48 reads | ~11908 tok |
+
+## Session: 2026-05-26 03:50
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 04:03 | Edited src/pages/DataInput.tsx | added 1 import(s) | ~36 |
+| 04:03 | Edited src/pages/DataInput.tsx | added 1 import(s) | ~32 |
+| 04:03 | Edited src/components/TemplateLibrary.tsx | inline fix | ~20 |
+| 04:03 | Edited src/components/TemplateLibrary.tsx | CSS: CSQCA, qca_variant | ~192 |
+| 04:04 | Session end: 4 writes across 2 files (DataInput.tsx, TemplateLibrary.tsx) | 11 reads | ~16471 tok |
+| 04:07 | Session end: 4 writes across 2 files (DataInput.tsx, TemplateLibrary.tsx) | 12 reads | ~16471 tok |
+
+## Session: 2026-05-26 05:40
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 05:44 | Edited .github/workflows/deploy.yml | inline fix | ~10 |
+| 05:44 | Edited .github/workflows/deploy.yml | inline fix | ~10 |
+| 05:44 | Edited .github/workflows/deploy.yml | inline fix | ~12 |
+| 05:45 | Edited .github/workflows/deploy.yml | inline fix | ~14 |
+| 05:45 | Edited .github/workflows/deploy.yml | inline fix | ~11 |
+| 05:47 | Session end: 5 writes across 1 files (deploy.yml) | 2 reads | ~2329 tok |
