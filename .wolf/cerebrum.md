@@ -91,6 +91,7 @@
 - [2026-05-24] **Pyodide mountFromInline must write `__init__.py`** in each package directory.
 - [2026-05-24] **pre-commit stash-conflict infinite loop** — fix: `.wolf/hooks/pre-commit.js` runs `pre-commit run --all-files` before `git add -u`.
 - [2026-05-24] `npm ci` failure masks subsequent TypeScript errors — run `npm run build` locally before pushing.
+- [2026-05-27] **Pyodide init must include pydantic**: `pyodide.worker.ts` `REQUIRED_PACKAGES` must include `'pydantic'` for ALL experiment_engine operations to work. The error message suggests micropip but `pyodide.loadPackage()` works since pydantic is in the Pyodide distribution. Never assume pydantic is available in Pyodide — it must be explicitly loaded.
 
 ---
 

@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-05-26T21:45:00.610Z
-> Files: 1 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-05-27T03:40:39.362Z
+> Files: 4 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../.claude/
 
@@ -32,7 +32,6 @@
 
 ## .github/workflows/
 
-- `deploy.yml` — ============================================================================== (~1806 tok)
 
 ## .wolf/
 
@@ -54,6 +53,7 @@
 
 ## src/experiment_engine/
 
+- `config.py` — Configuration loading for experiment-engine pipelines. (~3117 tok)
 
 ## src/experiment_engine/algorithms/
 
@@ -99,6 +99,7 @@
 
 ## src/services/
 
+- `pyodide.worker.ts` — Pyodide Web Worker — runs Python/NumPy in a background thread so the (~7470 tok)
 
 ## src/store/
 
@@ -116,3 +117,6 @@
 
 
 ## tmp/
+
+- `clear_cache.mjs` — Declares browser (~479 tok)
+- `verify_page.mjs` — Declares browser (~147 tok)

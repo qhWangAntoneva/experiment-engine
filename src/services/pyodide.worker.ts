@@ -46,6 +46,7 @@ let bertEngine: BertEngine | null = null;
 
 const REQUIRED_PACKAGES = [
   'numpy',
+  'pydantic',
   'pyyaml',
   'micropip',
 ];

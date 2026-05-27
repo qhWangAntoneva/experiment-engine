@@ -3,6 +3,7 @@
 > Active sessions: most recent 2. Older sessions archived to `memory-archive.md`.
 
 | 2026-05-27 | P2-37: Unified report CLI path via api.run_report(). Removed redundant file load, console-only fallback. 532 tests pass. | cli.py | done | ~50 |
+| 2026-05-27 | Logged bug-358 (Pyodide pydantic not loaded), updated cerebrum Do-Not-Repeat. Python/TS/tests all clean: OK, 0 errors, 532 passed. | buglog.json, cerebrum.md | done | ~10 |
 | 2026-05-27 | Fix stale closure: added importedConditionSet to handleCalibrate and handleRunPipeline dependency arrays | DataInput.tsx | done | ~2 |
 | 2026-05-27 | P2-28: Added 3 validation checks to validate_qca_output.py: membership shape (N_cases x N_cols), outcome column unique count (WARN if < 2), solution quality score (avg of best consistency*coverage). Updated summary table with Quality column. | validate_qca_output.py | done | ~600 |
 
@@ -195,3 +196,21 @@
 | 05:44 | Edited .github/workflows/deploy.yml | inline fix | ~12 |
 | 05:45 | Edited .github/workflows/deploy.yml | inline fix | ~14 |
 | 05:45 | Edited .github/workflows/deploy.yml | inline fix | ~11 |
+| 05:47 | Session end: 5 writes across 1 files (deploy.yml) | 2 reads | ~2329 tok |
+
+## Session: 2026-05-27 11:21
+
+| Time | Action | File(s) | Outcome | ~Tokens |
+|------|--------|---------|---------|--------|
+| 11:35 | Edited src/services/pyodide.worker.ts | 5→6 lines | ~24 |
+| 11:35 | Edited src/experiment_engine/config.py | 3→1 lines | ~9 |
+| 11:35 | Edited src/experiment_engine/config.py | added 1 import(s) | ~52 |
+| 11:35 | Session end: 3 writes across 2 files (pyodide.worker.ts, config.py) | 12 reads | ~10672 tok |
+| 11:35 | Session end: 3 writes across 2 files (pyodide.worker.ts, config.py) | 12 reads | ~10672 tok |
+| 11:35 | Session end: 3 writes across 2 files (pyodide.worker.ts, config.py) | 12 reads | ~10672 tok |
+| 11:37 | Session end: 3 writes across 2 files (pyodide.worker.ts, config.py) | 12 reads | ~10672 tok |
+| 11:39 | Created tmp/clear_cache.mjs | — | ~479 |
+| 11:40 | Created tmp/verify_page.mjs | — | ~166 |
+| 11:40 | Created tmp/verify_page.mjs | — | ~147 |
+| 11:40 | Session end: 6 writes across 4 files (pyodide.worker.ts, config.py, clear_cache.mjs, verify_page.mjs) | 12 reads | ~11520 tok |
+| 11:41 | Session end: 6 writes across 4 files (pyodide.worker.ts, config.py, clear_cache.mjs, verify_page.mjs) | 12 reads | ~11520 tok |

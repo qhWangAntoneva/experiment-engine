@@ -11,8 +11,6 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from pydantic import ValidationError
-
 from experiment_engine.models import ExperimentConfig, PipelineStageConfig
 
 logger = logging.getLogger("experiment_engine.config")
@@ -160,6 +158,8 @@ def load_config(path: str) -> ExperimentConfig:
 
     # Merge with defaults
     merged = merge_defaults(data)
+
+    from pydantic import ValidationError
 
     try:
         return ExperimentConfig(**merged)
