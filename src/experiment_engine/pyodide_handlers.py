@@ -237,22 +237,6 @@ def handle_analyze(fuzzy_data_path, params_path, output_path, condition_set_path
     with open(params_path, encoding="utf-8") as f:
         _params = json.load(f)
 
-    _m_raw = _fd_dict.get("membership", [])
-    _cn = _fd_dict.get("condition_names", [])
-    _m_arr = np.array(_m_raw) if _m_raw else np.zeros((0, 0))
-    if _m_arr.ndim != 2 or _m_arr.shape[1] == 0 or not _cn:
-        _outcome = _fd_dict.get("outcome_name", "")
-        _n_cases = len(_fd_dict.get("case_ids", []))
-        raise ValueError(
-            f"Fuzzy data has {_m_arr.ndim}D membership (shape={_m_arr.shape}), "
-            f"{len(_cn)} condition_names, outcome='{_outcome}', "
-            f"{_n_cases} cases. "
-            "The condition matrix is empty — check that the condition set "
-            "has at least one condition and that calibration produced valid "
-            "membership data. "
-            "This may happen when prototype calibration output is malformed."
-        )
-
     _fuzzy = MembershipData(
         membership=np.array(_fd_dict["membership"]),
         case_ids=_fd_dict.get("case_ids"),
