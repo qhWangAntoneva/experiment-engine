@@ -47,27 +47,34 @@ def _serialize_fuzzy(fuzzy):
 
 
 def handle_calibrate(
-    texts_path, condition_set_path, output_path, prototype_texts_path=None
+    texts_path,
+    condition_set_path,
+    output_path,
+    prototype_texts_path=None,
+    prototype_output_path=None,
 ):
-    """Unified calibration handler — always uses keyword matching.
+    """Calibrate raw texts through the keyword pipeline.
 
-    Calibrates the raw text corpus through the keyword pipeline. If
-    ``prototype_texts_path`` is provided, also calibrates those texts
-    through the **same** keyword pipeline and returns both result sets.
+    This function ALWAYS returns flat MembershipData (raw text calibration).
+    Prototype calibration can be written to a separate file via the
+    ``prototype_output_path`` parameter, or obtained by calling
+    ``handle_calibrate_prototype()`` separately.
 
     Args:
         texts_path: VFS path to JSON array of text corpus entries
                     (list of {text_id, text, metadata}).
         condition_set_path: VFS path to JSON dict of condition set config.
-        output_path: VFS path to write output JSON.
+        output_path: VFS path to write output JSON (flat MembershipData).
         prototype_texts_path: Optional VFS path to JSON array of prototype
                     text cases (list of {text_id, text, outcome}).
-                    When provided the output contains both ``fuzzyData``
-                    and ``fuzzyDataPrototype``; otherwise only the raw
-                    MembershipData is returned (backward compatibility).
+                    When provided, prototype texts are also calibrated through
+                    the same keyword pipeline.
+        prototype_output_path: Optional VFS path to write prototype calibration
+                    results as a separate flat MembershipData JSON file.
+                    Only used when ``prototype_texts_path`` is also provided.
 
     Returns:
-        Nothing — writes JSON to *output_path*.
+        Nothing — writes flat MembershipData JSON to *output_path*.
     """
     from experiment_engine.models import InputData, TrainingSample
     from experiment_engine.text_calibration.calibrator import TextCalibrationStage
@@ -137,15 +144,13 @@ def handle_calibrate(
         _proto_fuzzy = _p_result.processed
 
     # ── Write output ──────────────────────────────────────────────────
-    if prototype_texts_path is not None:
-        # Unified output: both raw and prototype MembershipData
-        _output = {
-            "fuzzyData": _serialize_fuzzy(_raw_fuzzy),
-            "fuzzyDataPrototype": _serialize_fuzzy(_proto_fuzzy),
-        }
-    else:
-        # Backward-compatible: raw MembershipData directly at top level
-        _output = _serialize_fuzzy(_raw_fuzzy)
+    # ALWAYS write flat MembershipData (raw text calibration).
+    # Prototype calibration, when requested, is written to a separate file.
+    _output = _serialize_fuzzy(_raw_fuzzy)
+
+    if prototype_texts_path is not None and prototype_output_path is not None:
+        with open(prototype_output_path, "w", encoding="utf-8") as f:
+            json.dump(_serialize_fuzzy(_proto_fuzzy), f, ensure_ascii=False)
 
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(_output, f, ensure_ascii=False)
@@ -157,13 +162,12 @@ def handle_calibrate(
 def handle_calibrate_prototype(text_cases_path, condition_set_path, output_path):
     """Calibrate prototype texts — backward-compatible wrapper.
 
-    **Deprecated.**  Prefer ``handle_calibrate(prototype_texts_path=...)``
-    which runs prototype texts through the same keyword calibration
-    pipeline and can return both raw and prototype results in a single
-    call.
+    **Deprecated.**  Prefer calling ``handle_calibrate()`` with
+    ``prototype_texts_path`` and ``prototype_output_path`` to write
+    prototype calibration to a separate file.
 
-    This wrapper delegates to the unified handler and extracts the
-    prototype-only result, preserving the original output format.
+    This wrapper delegates to the unified handler with a dummy raw-texts
+    file and reads back the prototype result from the separate output path.
     """
     import os
 
@@ -171,6 +175,7 @@ def handle_calibrate_prototype(text_cases_path, condition_set_path, output_path)
     # something for its required ``texts_path`` argument.
     _empty_path = "/tmp/_handle_calibrate_prototype_empty_raw.json"
     _temp_output = "/tmp/_handle_calibrate_prototype_unified_out.json"
+    _proto_temp = "/tmp/_handle_calibrate_prototype_unified_proto.json"
 
     with open(_empty_path, "w", encoding="utf-8") as f:
         json.dump([], f)
@@ -181,33 +186,22 @@ def handle_calibrate_prototype(text_cases_path, condition_set_path, output_path)
             condition_set_path,
             _temp_output,
             prototype_texts_path=text_cases_path,
+            prototype_output_path=_proto_temp,
         )
-        with open(_temp_output, encoding="utf-8") as f:
-            _result = json.load(f)
-        _output = _result.get(
-            "fuzzyDataPrototype",
-            {
-                "membership": [],
-                "case_ids": [],
-                "condition_names": [],
-                "outcome_name": "",
-                "texts": [],
-                "metadata": {},
-            },
-        )
+        with open(_proto_temp, encoding="utf-8") as f:
+            _output = json.load(f)
         _ocn = _output.get("condition_names", [])
         _om = _output.get("membership", [])
         if not _ocn or not _om or not isinstance(_om, list) or len(_om) == 0:
             raise ValueError(
                 f"Prototype calibration produced empty output: "
                 f"condition_names={_ocn}, membership_rows={len(_om) if isinstance(_om, list) else type(_om).__name__}. "
-                f"Unified result keys: {list(_result.keys())}. "
                 "Check that the condition set has conditions and the prototype texts are valid."
             )
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(_output, f, ensure_ascii=False)
     finally:
-        for _p in (_empty_path, _temp_output):
+        for _p in (_empty_path, _temp_output, _proto_temp):
             with suppress(OSError):
                 os.remove(_p)
 
